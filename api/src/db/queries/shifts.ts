@@ -43,6 +43,27 @@ function mapShiftRow(row: {
 const PERIOD_SHIFT_FILTER = `COALESCE(s.starttime, s.startdate) >= $1::timestamp
   AND COALESCE(s.starttime, s.startdate) <= $2::timestamp`;
 
+const PENDING_APPLICATION_SQL = `(
+  EXISTS (
+    SELECT 1 FROM aberp_rosteredresponselog rl
+    WHERE rl.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+      AND rl.isactive = 'Y'
+      AND rl.aberp_user_contact_id = $4
+      AND rl.aberp_rosteredresponse = 'REQ'
+      AND COALESCE(rl.issuperseded, 'N') <> 'Y'
+  )
+  OR EXISTS (
+    SELECT 1 FROM aberp_rostered_shiftstaff ss
+    WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+      AND ss.isactive = 'Y'
+      AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
+      AND ss.aberp_requestshift = 'Y'
+  )
+)`;
+
+const CONFIRMED_ASSIGNEE_SQL = `ss.c_bpartner_staff_id IS NOT NULL
+  AND (ss.aberp_requestshift IS NULL OR ss.aberp_requestshift <> 'Y')`;
+
 export async function getOpenShiftsForPeriod(
   periodKey: PayPeriodKey,
   cBPartnerStaffId: number,
@@ -64,18 +85,19 @@ export async function getOpenShiftsForPeriod(
        rs.name AS status,
        $5::numeric AS pay_period_id,
        CASE
+         WHEN ${PENDING_APPLICATION_SQL} THEN 'applied'
          WHEN EXISTS (
            SELECT 1 FROM aberp_rostered_shiftstaff ss
            WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
              AND ss.isactive = 'Y'
              AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
-             AND ss.aberp_requestshift = 'Y'
-         ) THEN 'applied'
+             AND ${CONFIRMED_ASSIGNEE_SQL}
+         ) THEN 'assigned'
          WHEN EXISTS (
            SELECT 1 FROM aberp_rostered_shiftstaff ss
            WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
              AND ss.isactive = 'Y'
-             AND ss.c_bpartner_staff_id IS NOT NULL
+             AND ${CONFIRMED_ASSIGNEE_SQL}
              AND ss.c_bpartner_staff_id <> $3
              AND ss.aberp_user_contact_id IS DISTINCT FROM $4
          ) THEN 'unavailable'
@@ -92,17 +114,11 @@ export async function getOpenShiftsForPeriod(
            SELECT 1 FROM aberp_rostered_shiftstaff ss
            WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
              AND ss.isactive = 'Y'
-             AND ss.c_bpartner_staff_id IS NOT NULL
+             AND ${CONFIRMED_ASSIGNEE_SQL}
              AND ss.c_bpartner_staff_id <> $3
              AND ss.aberp_user_contact_id IS DISTINCT FROM $4
          )
-         OR EXISTS (
-           SELECT 1 FROM aberp_rostered_shiftstaff ss
-           WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
-             AND ss.isactive = 'Y'
-             AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
-             AND ss.aberp_requestshift = 'Y'
-         )
+         OR ${PENDING_APPLICATION_SQL}
        )
      ORDER BY s.starttime ASC NULLS LAST
      LIMIT 100`,
@@ -172,16 +188,13 @@ export async function getMyApplicationsForPeriod(
        rs.name AS status,
        $5::numeric AS pay_period_id,
        'applied'::text AS application_status
-     FROM aberp_rostered_shiftstaff ss
-     JOIN aberp_rostered_shift s ON s.aberp_rostered_shift_id = ss.aberp_rostered_shift_id
+     FROM aberp_rostered_shift s
      LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
      LEFT JOIN aberp_masterlocation ml ON ml.aberp_masterlocation_id = s.aberp_masterlocation_id
      LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
-     WHERE ss.isactive = 'Y'
-       AND s.isactive = 'Y'
-       AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
-       AND ss.aberp_requestshift = 'Y'
+     WHERE s.isactive = 'Y'
        AND ${PERIOD_SHIFT_FILTER}
+       AND ${PENDING_APPLICATION_SQL}
      ORDER BY s.starttime ASC NULLS LAST
      LIMIT 100`,
     [period.start_date, period.end_date, cBPartnerStaffId, adUserId, period.id],
@@ -196,20 +209,55 @@ export async function applyForShift(
   adUserId: number,
   adClientId: number,
 ): Promise<{ applied: boolean; message: string }> {
-  const existing = await pool.query(
-    `SELECT aberp_rostered_shiftstaff_id, aberp_requestshift
-     FROM aberp_rostered_shiftstaff
+  const shift = await pool.query(
+    `SELECT aberp_rostered_shift_id
+     FROM aberp_rostered_shift
      WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
-       AND (c_bpartner_staff_id = $2 OR aberp_user_contact_id = $3)
      LIMIT 1`,
-    [shiftId, cBPartnerStaffId, adUserId],
+    [shiftId],
   );
+  if (!shift.rows[0]) {
+    return { applied: false, message: "Shift not found" };
+  }
 
-  if (existing.rows[0]?.aberp_requestshift === "Y") {
+  const existingApplication = await pool.query(
+    `SELECT aberp_rosteredresponselog_id
+     FROM aberp_rosteredresponselog
+     WHERE aberp_rostered_shift_id = $1
+       AND isactive = 'Y'
+       AND aberp_user_contact_id = $2
+       AND aberp_rosteredresponse = 'REQ'
+       AND COALESCE(issuperseded, 'N') <> 'Y'
+     LIMIT 1`,
+    [shiftId, adUserId],
+  );
+  if (existingApplication.rows[0]) {
     return { applied: false, message: "You have already applied for this shift" };
   }
 
-  if (existing.rows[0]) {
+  const legacyApplication = await pool.query(
+    `SELECT aberp_rostered_shiftstaff_id
+     FROM aberp_rostered_shiftstaff
+     WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
+       AND (c_bpartner_staff_id = $2 OR aberp_user_contact_id = $3)
+       AND aberp_requestshift = 'Y'
+     LIMIT 1`,
+    [shiftId, cBPartnerStaffId, adUserId],
+  );
+  if (legacyApplication.rows[0]) {
+    return { applied: false, message: "You have already applied for this shift" };
+  }
+
+  const alreadyAssigned = await pool.query(
+    `SELECT aberp_rostered_shiftstaff_id
+     FROM aberp_rostered_shiftstaff
+     WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
+       AND (c_bpartner_staff_id = $2 OR aberp_user_contact_id = $3)
+       AND (aberp_requestshift IS NULL OR aberp_requestshift <> 'Y')
+     LIMIT 1`,
+    [shiftId, cBPartnerStaffId, adUserId],
+  );
+  if (alreadyAssigned.rows[0]) {
     return { applied: false, message: "You are already assigned to this shift" };
   }
 
@@ -218,6 +266,7 @@ export async function applyForShift(
      FROM aberp_rostered_shiftstaff
      WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
        AND c_bpartner_staff_id IS NOT NULL
+       AND (aberp_requestshift IS NULL OR aberp_requestshift <> 'Y')
        AND c_bpartner_staff_id <> $2
        AND aberp_user_contact_id IS DISTINCT FROM $3
      LIMIT 1`,
@@ -227,41 +276,21 @@ export async function applyForShift(
     return { applied: false, message: "This shift is no longer available" };
   }
 
-  const unassigned = await pool.query(
-    `SELECT aberp_rostered_shiftstaff_id
-     FROM aberp_rostered_shiftstaff
-     WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y' AND c_bpartner_staff_id IS NULL
-     ORDER BY line ASC NULLS LAST
-     LIMIT 1`,
-    [shiftId],
-  );
-
-  if (unassigned.rows[0]) {
-    await pool.query(
-      `UPDATE aberp_rostered_shiftstaff
-       SET c_bpartner_staff_id = $1,
-           aberp_user_contact_id = $2,
-           aberp_requestshift = 'Y',
-           updated = NOW(),
-           updatedby = $3
-       WHERE aberp_rostered_shiftstaff_id = $4`,
-      [cBPartnerStaffId, adUserId, adUserId, unassigned.rows[0].aberp_rostered_shiftstaff_id],
-    );
-    return { applied: true, message: "Shift application submitted" };
-  }
-
-  const newId = await nextSequenceId("AbERP_Rostered_ShiftStaff");
+  const newId = await nextSequenceId("AbERP_RosteredResponseLog");
   await pool.query(
-    `INSERT INTO aberp_rostered_shiftstaff (
-       aberp_rostered_shiftstaff_id, ad_client_id, ad_org_id, isactive,
-       created, createdby, updated, updatedby, line,
-       aberp_rostered_shift_id, c_bpartner_staff_id, aberp_user_contact_id, aberp_requestshift
+    `INSERT INTO aberp_rosteredresponselog (
+       aberp_rosteredresponselog_id, ad_client_id, ad_org_id, isactive,
+       created, createdby, updated, updatedby,
+       aberp_user_contact_id, aberp_rosteredresponse, aberp_rostered_shift_id,
+       issuperseded, isreviewed
      ) VALUES (
        $1, $2, 0, 'Y',
-       NOW(), $3, NOW(), $3, 10,
-       $4, $5, $3, 'Y'
+       NOW(), $3, NOW(), $3,
+       $3, 'REQ', $4,
+       'N', 'N'
      )`,
-    [newId, adClientId, adUserId, shiftId, cBPartnerStaffId],
+    [newId, adClientId, adUserId, shiftId],
   );
+
   return { applied: true, message: "Shift application submitted" };
 }
