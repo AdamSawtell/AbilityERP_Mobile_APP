@@ -3,6 +3,8 @@ import { apiFetch } from "@/lib/api-client";
 import { setSessionToken } from "@/lib/session";
 import type { AuthResponse } from "@/lib/types";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
