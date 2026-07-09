@@ -1,0 +1,11 @@
+{
+  "name": "AbilityERP Worker",
+  "short_name": "AbilityERP",
+  "description": "Support worker mobile app for AbilityERP",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": []
+}
