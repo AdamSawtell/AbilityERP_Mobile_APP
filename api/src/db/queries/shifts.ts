@@ -1,6 +1,5 @@
 import { pool } from "../pool";
 import { formatTimestamp, nextSequenceId } from "../helpers";
-import { ensureShiftRequestTask } from "./requests";
 import { PayPeriod, resolvePayPeriod, type PayPeriodKey } from "./pay-period";
 
 export type ResponseCode = "REQ" | "DEC";
@@ -19,7 +18,6 @@ export interface ShiftRow {
   response_code: ResponseCode | null;
   review_status: ReviewStatus;
   pay_period_id: number | null;
-  request_id: number | null;
 }
 
 export interface ShiftResponseRow extends ShiftRow {
@@ -39,7 +37,6 @@ function mapShiftRow(row: {
   response_code?: ResponseCode | null;
   review_status?: ReviewStatus;
   pay_period_id?: number | null;
-  request_id?: number | null;
   response_log_id?: number | null;
   responded_at?: unknown;
 }): ShiftRow {
@@ -55,7 +52,6 @@ function mapShiftRow(row: {
     response_code: row.response_code ?? null,
     review_status: row.review_status ?? null,
     pay_period_id: row.pay_period_id ?? null,
-    request_id: row.request_id != null ? Number(row.request_id) : null,
   };
 }
 
@@ -214,16 +210,7 @@ export async function getMyShiftsForPeriod(
        $5::numeric AS pay_period_id,
        NULL::text AS response_code,
        NULL::text AS review_status,
-       'assigned'::text AS application_status,
-       (
-         SELECT r.r_request_id
-         FROM r_request r
-         WHERE r.isactive = 'Y'
-           AND r.aberp_rostered_shift_id = s.aberp_rostered_shift_id
-           AND (r.ad_user_id = $4 OR r.c_bpartner_id = $3)
-         ORDER BY r.created DESC
-         LIMIT 1
-       ) AS request_id
+       'assigned'::text AS application_status
      FROM aberp_rostered_shiftstaff ss
      JOIN aberp_rostered_shift s ON s.aberp_rostered_shift_id = ss.aberp_rostered_shift_id
      LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
@@ -382,8 +369,7 @@ export async function recordShiftResponse(
   cBPartnerStaffId: number,
   adUserId: number,
   adClientId: number,
-  note?: string,
-): Promise<{ recorded: boolean; message: string; response: ResponseCode; request_id?: number }> {
+): Promise<{ recorded: boolean; message: string; response: ResponseCode }> {
   const validation = await validateShiftResponse(shiftId, response, cBPartnerStaffId, adUserId);
   if (!validation.ok) {
     return { recorded: false, message: validation.message, response };
@@ -415,21 +401,12 @@ export async function recordShiftResponse(
     [newId, adClientId, adUserId, response, shiftId],
   );
 
-  const task = await ensureShiftRequestTask(
-    shiftId,
-    adUserId,
-    cBPartnerStaffId,
-    adClientId,
-    response,
-    note,
-  );
-
   const message =
     response === "REQ"
-      ? "Shift request submitted — chat with rostering in Tasks"
-      : "Shift declined — rostering notified in Tasks";
+      ? "Shift request submitted for review"
+      : "Shift declined — recorded in response log";
 
-  return { recorded: true, message, response, request_id: task.requestId };
+  return { recorded: true, message, response };
 }
 
 /** @deprecated use recordShiftResponse with REQ */

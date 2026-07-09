@@ -85,7 +85,6 @@ router.post("/:shiftId/response", async (req, res) => {
     req.user!.cBPartnerId,
     req.user!.adUserId,
     req.user!.adClientId,
-    typeof req.body?.note === "string" ? req.body.note : undefined,
   );
 
   if (!result.recorded) {

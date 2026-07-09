@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ResponseCode, ShiftItem } from "@/components/ShiftCard";
@@ -10,7 +9,6 @@ export default function OpenShiftsList({ shifts }: { shifts: ShiftItem[] }) {
   const router = useRouter();
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [loadingAction, setLoadingAction] = useState<ResponseCode | null>(null);
-  const [note, setNote] = useState<Record<number, string>>({});
   const [message, setMessage] = useState<string | null>(null);
 
   async function respond(shiftId: number, response: ResponseCode) {
@@ -21,18 +19,11 @@ export default function OpenShiftsList({ shifts }: { shifts: ShiftItem[] }) {
       const res = await fetch(`/api/shifts/${shiftId}/response`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          response,
-          note: note[shiftId]?.trim() || undefined,
-        }),
+        body: JSON.stringify({ response }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Response failed");
       setMessage(data.message ?? "Response recorded");
-      if (data.request_id) {
-        router.push(`/tasks/${data.request_id}`);
-        return;
-      }
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Response failed");
@@ -60,49 +51,29 @@ export default function OpenShiftsList({ shifts }: { shifts: ShiftItem[] }) {
             shift={shift}
             action={
               isOpen ? (
-                <div className="space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">
-                    Message to rostering (optional)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={note[shift.id] ?? ""}
-                    onChange={(e) =>
-                      setNote((prev) => ({ ...prev, [shift.id]: e.target.value }))
-                    }
-                    placeholder="e.g. I am available and keen for this shift"
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => respond(shift.id, "REQ")}
-                      className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-                    >
-                      {busy && loadingAction === "REQ" ? "Requesting…" : "Request"}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => respond(shift.id, "DEC")}
-                      className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 disabled:opacity-60"
-                    >
-                      {busy && loadingAction === "DEC" ? "Declining…" : "Decline"}
-                    </button>
-                  </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => respond(shift.id, "REQ")}
+                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                  >
+                    {busy && loadingAction === "REQ" ? "Requesting…" : "Request"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => respond(shift.id, "DEC")}
+                    className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 disabled:opacity-60"
+                  >
+                    {busy && loadingAction === "DEC" ? "Declining…" : "Decline"}
+                  </button>
                 </div>
               ) : isRequested ? (
                 <div className="space-y-2">
                   <p className="text-center text-sm text-amber-700">
-                    Request submitted — chat with rostering in Tasks
+                    Request submitted — awaiting roster review
                   </p>
-                  <Link
-                    href={`/tasks/shift/${shift.id}`}
-                    className="block w-full rounded-xl bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white"
-                  >
-                    Open chat
-                  </Link>
                   <button
                     type="button"
                     disabled={busy}

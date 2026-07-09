@@ -2,7 +2,8 @@ import { Router } from "express";
 import { z } from "zod";
 import {
   addTaskMessage,
-  getTaskByShiftId,
+  createStandaloneRequest,
+  getOrCreateRosteringChat,
   getTaskMessages,
   getWorkerTask,
   getWorkerTasks,
@@ -16,24 +17,45 @@ const messageSchema = z.object({
   body: z.string().min(1).max(2000),
 });
 
+const createSchema = z.object({
+  summary: z.string().max(255).optional(),
+  body: z.string().min(1).max(2000),
+});
+
 router.get("/", async (req, res) => {
   const items = await getWorkerTasks(req.user!.adUserId, req.user!.cBPartnerId);
   res.json({ items });
 });
 
-router.get("/by-shift/:shiftId", async (req, res) => {
-  const shiftId = Number(req.params.shiftId);
-  if (!Number.isFinite(shiftId)) {
-    res.status(400).json({ error: "Invalid shift ID" });
+router.get("/chat", async (req, res) => {
+  const task = await getOrCreateRosteringChat(
+    req.user!.adUserId,
+    req.user!.cBPartnerId,
+    req.user!.adClientId,
+  );
+  const messages = await getTaskMessages(task.id, req.user!.adUserId, req.user!.cBPartnerId);
+  res.json({ task, messages });
+});
+
+router.post("/", async (req, res) => {
+  const parsed = createSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Message body is required" });
     return;
   }
 
-  const task = await getTaskByShiftId(shiftId, req.user!.adUserId, req.user!.cBPartnerId);
-  if (!task) {
-    res.status(404).json({ error: "No request found for this shift" });
-    return;
+  try {
+    const result = await createStandaloneRequest(
+      req.user!.adUserId,
+      req.user!.cBPartnerId,
+      req.user!.adClientId,
+      parsed.data,
+    );
+    res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to create request";
+    res.status(400).json({ error: message });
   }
-  res.json(task);
 });
 
 router.get("/:requestId", async (req, res) => {
