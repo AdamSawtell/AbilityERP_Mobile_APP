@@ -47,6 +47,20 @@ npm install
 npm run dev                      # http://localhost:3000
 ```
 
+### Amplify environment variables (required)
+
+Set these in the Amplify console for the `web` app:
+
+| Variable | Example |
+|----------|---------|
+| `API_BASE_URL` | `https://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com` |
+| `NEXT_PUBLIC_APP_URL` | `https://main.d2pmnegzhwkj4b.amplifyapp.com` |
+
+Also confirm in Amplify **Build settings**:
+- Monorepo app root: `web`
+- Platform: **Web Compute** (SSR — required for Next.js App Router)
+- Build spec: repo root `amplify.yml` (includes `platform: WEB_COMPUTE`)
+
 ## EC2 install (existing iDempiere server)
 
 1. Copy `deploy/dev030.env.example` → `/opt/ability-erp-pwa/.env` and fill in values
