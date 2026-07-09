@@ -7,6 +7,23 @@ const REQUEST_STATUS_OPEN = 1000000;
 const REQUEST_GROUP_ID = 1000003;
 const REQUEST_CATEGORY_ID = 1000031;
 
+async function getRosteringSalesRepId(): Promise<number> {
+  const result = await pool.query<{ ad_user_id: number }>(
+    `SELECT u.ad_user_id
+     FROM ad_user u
+     JOIN ad_user_roles ur ON ur.ad_user_id = u.ad_user_id AND ur.isactive = 'Y'
+     WHERE ur.ad_role_id = $1 AND u.isactive = 'Y'
+     ORDER BY u.ad_user_id ASC
+     LIMIT 1`,
+    [ROSTERING_ROLE_ID],
+  );
+  const id = result.rows[0]?.ad_user_id;
+  if (!id) {
+    throw new Error("No rostering officer user found");
+  }
+  return Number(id);
+}
+
 export interface TaskRow {
   id: number;
   document_no: string | null;
@@ -292,6 +309,7 @@ export async function ensureShiftRequestTask(
   const requestId = await nextSequenceId("R_Request");
   const summary =
     response === "REQ" ? `Shift request — ${shiftLabel}` : `Shift decline — ${shiftLabel}`;
+  const salesRepId = await getRosteringSalesRepId();
 
   await pool.query(
     `INSERT INTO r_request (
@@ -299,15 +317,15 @@ export async function ensureShiftRequestTask(
        created, createdby, updated, updatedby,
        documentno, r_requesttype_id, r_group_id, r_category_id, r_status_id,
        summary, priority, duetype, nextaction, confidentialtype, isselfservice, processed,
-       ad_user_id, c_bpartner_id, ad_role_id, aberp_rostered_shift_id,
+       ad_user_id, c_bpartner_id, ad_role_id, salesrep_id, aberp_rostered_shift_id,
        datelastaction, lastresult
      ) VALUES (
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
-       $13, $4, $5, $6, $7,
+       $14, $4, $5, $6, $7,
        $8, '5', '7', 'F', 'C', 'Y', 'N',
-       $3, $9, $10, $11,
-       NOW(), $12
+       $3, $9, $10, $11, $12,
+       NOW(), $13
      )`,
     [
       requestId,
@@ -320,6 +338,7 @@ export async function ensureShiftRequestTask(
       summary,
       cBPartnerStaffId,
       ROSTERING_ROLE_ID,
+      salesRepId,
       shiftId,
       message,
       String(requestId),

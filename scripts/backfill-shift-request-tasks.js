@@ -58,19 +58,28 @@ async function main() {
       response === "REQ" ? `Shift request — ${shiftLabel}` : `Shift decline — ${shiftLabel}`;
 
     const requestId = await nextId("R_Request");
+    const salesRepId = (
+      await pool.query(
+        `SELECT u.ad_user_id FROM ad_user u
+         JOIN ad_user_roles ur ON ur.ad_user_id = u.ad_user_id AND ur.isactive = 'Y'
+         WHERE ur.ad_role_id = 1000012 AND u.isactive = 'Y'
+         ORDER BY u.ad_user_id ASC LIMIT 1`,
+      )
+    ).rows[0]?.ad_user_id;
+
     await pool.query(
       `INSERT INTO r_request (
          r_request_id, ad_client_id, ad_org_id, isactive,
          created, createdby, updated, updatedby,
          documentno, r_requesttype_id, r_group_id, r_category_id, r_status_id,
          summary, priority, duetype, nextaction, confidentialtype, isselfservice, processed,
-         ad_user_id, c_bpartner_id, ad_role_id, aberp_rostered_shift_id,
+         ad_user_id, c_bpartner_id, ad_role_id, salesrep_id, aberp_rostered_shift_id,
          datelastaction, lastresult
        ) VALUES (
          $1, $2, 0, 'Y', NOW(), $3, NOW(), $3,
-         $13, $4, $5, $6, $7,
+         $14, $4, $5, $6, $7,
          $8, '5', '7', 'F', 'C', 'Y', 'N',
-         $3, $9, $10, $11, NOW(), $12
+         $3, $9, $10, $11, $12, NOW(), $13
        )`,
       [
         requestId,
@@ -83,6 +92,7 @@ async function main() {
         summary,
         row.c_bpartner_id,
         ROSTERING_ROLE_ID,
+        salesRepId,
         row.shift_id,
         message,
         String(requestId),
