@@ -72,13 +72,14 @@ async function main() {
          r_request_id, ad_client_id, ad_org_id, isactive,
          created, createdby, updated, updatedby,
          documentno, r_requesttype_id, r_group_id, r_category_id, r_status_id,
-         summary, priority, duetype, nextaction, confidentialtype, isselfservice, processed,
+         summary, priority, duetype, nextaction, confidentialtype, confidentialtypeentry,
+         isselfservice, processed,
          ad_user_id, c_bpartner_id, ad_role_id, salesrep_id, aberp_rostered_shift_id,
          datelastaction, lastresult
        ) VALUES (
          $1, $2, 0, 'Y', NOW(), $3, NOW(), $3,
          $14, $4, $5, $6, $7,
-         $8, '5', '7', 'F', 'C', 'Y', 'N',
+         $8, '5', '7', 'F', 'C', 'C', 'Y', 'N',
          $3, $9, $10, $11, $12, NOW(), $13
        )`,
       [
