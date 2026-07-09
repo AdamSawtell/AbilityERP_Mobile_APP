@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbERP Contact Activity Tabs
+Bundle-SymbolicName: com.aberp.contactactivity.tabs
+Bundle-Version: 7.1.0.202607092300
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.contactactivity.tabs
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0"
