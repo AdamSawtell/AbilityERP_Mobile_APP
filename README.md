@@ -91,7 +91,7 @@ bash /opt/ability-erp-pwa/scripts/ec2-update.sh main
 1. Connect this GitHub repo in Amplify
 2. Set **app root** to `web`
 3. Add environment variables from `web/.env.example`
-4. Set `API_BASE_URL` to your EC2 host (e.g. `https://development030.abilityerp.com.au`) — **no** `/api` suffix
+4. Set `API_BASE_URL` to your EC2 API host (e.g. `http://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com`) — **no** `/api` suffix
 
 ## Auth
 

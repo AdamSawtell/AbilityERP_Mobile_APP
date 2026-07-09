@@ -159,7 +159,7 @@ For users who don't have Microsoft accounts (e.g. external workers, agency staff
 
 ## Module Mapping (AbilityVua → iDempiere Tables)
 
-**DB credentials:** `pg://adempiere:flamingo@development030.abilityerp.com.au:5432/idempiere` (schema: `adempiere`)
+**DB credentials:** `pg://adempiere:flamingo@127.0.0.1:5432/idempiere` on EC2 (schema: `adempiere`)
 **Clients:** System(ID=0), GardenWorld(ID=11), AbilityERP(ID=1000002)
 **Auth:** SSO via Microsoft Entra ID (primary) + AD_User password fallback
 **Custom schema:** 130 `aberp_*` tables for NDIS-specific functionality
@@ -313,7 +313,7 @@ ability-erp-pwa/
 ## Implementation Phases
 
 ### Phase 0: Schema Discovery ✅ *(Completed)*
-1. ✅ Connected to `development030.abilityerp.com.au:5432/idempiere`
+1. ✅ Connected to PostgreSQL `idempiere` on EC2 (schema: `adempiere`)
 2. ✅ Discovered `adempiere` schema with 1,078 tables (1078)
 3. ✅ Mapped every AbilityVua module to iDempiere tables
 4. ✅ Identified 130 custom `aberp_*` NDIS tables
@@ -370,5 +370,5 @@ ability-erp-pwa/
 
 ## Schema Access
 
-Discovery completed. DB: `development030.abilityerp.com.au:5432/idempiere` (schema: `adempiere`).
+Discovery completed. DB: PostgreSQL `idempiere` on EC2 (schema: `adempiere`).
 All table mappings documented above. Full SQL query specs per module to be produced in `db/table-mappings.md` during Phase 1.

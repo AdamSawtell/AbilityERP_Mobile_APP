@@ -27,10 +27,8 @@ find "$SRC_DIR" -name '*.java' > "$BUILD_DIR/sources.txt"
 javac -encoding UTF-8 -source 11 -target 11 -classpath "$CLASSPATH" -d "$CLASSES_DIR" @"$BUILD_DIR/sources.txt"
 
 cp "$PLUGIN_DIR/rosteredshift-process.xml" "$CLASSES_DIR/"
-mkdir -p "$CLASSES_DIR/META-INF"
-cp "$PLUGIN_DIR/META-INF/MANIFEST.MF" "$CLASSES_DIR/META-INF/"
 
 mkdir -p "$BUILD_DIR/dist"
-jar cf "$BUILD_DIR/dist/$JAR_NAME" -C "$CLASSES_DIR" .
+jar cfm "$BUILD_DIR/dist/$JAR_NAME" "$PLUGIN_DIR/META-INF/MANIFEST.MF" -C "$CLASSES_DIR" .
 
 echo "Built $BUILD_DIR/dist/$JAR_NAME"

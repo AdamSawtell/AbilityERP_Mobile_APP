@@ -35,7 +35,7 @@ NODE_ENV=production
 APP_VERSION=0.1.0
 DATABASE_URL=postgresql://adempiere:flamingo@127.0.0.1:5432/idempiere
 JWT_SECRET=${JWT_SECRET}
-CORS_ORIGIN=http://localhost:3000,https://development030.abilityerp.com.au
+CORS_ORIGIN=http://localhost:3000,https://main.d3ec4nkn82ouib.amplifyapp.com
 EOF
 chmod 600 "$APP_DIR/.env"
 ln -sf "$APP_DIR/.env" "$APP_DIR/api/.env"
