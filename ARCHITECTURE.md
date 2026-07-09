@@ -97,6 +97,8 @@ A **new, standalone** mobile-first PWA matching the **AbilityVua** app's UX, scr
 5. **No Supabase dependency** — Auth, data, everything comes from your ERP.
 6. **Full separation from AbilityVua** — standalone repo, independent deploy.
 
+**iDempiere plugin / AD work:** follow [`docs/DEV-REQUIREMENTS.md`](docs/DEV-REQUIREMENTS.md) (process access to Admin role, deploy checklist, cache refresh).
+
 ---
 
 ## Auth Model — SSO-First

@@ -11,6 +11,7 @@ Standalone mobile-first PWA for AbilityERP support workers. **New codebase** —
 ├── api/          Express API (EC2, port 3001)
 ├── scripts/      EC2 install & update scripts
 ├── deploy/       Per-environment .env templates
+├── docs/         Worker guide, dev requirements, push notifications
 └── ARCHITECTURE.md
 ```
 
@@ -73,6 +74,8 @@ Also confirm in Amplify **Build settings**:
 - Build spec: repo root `amplify.yml` (includes `platform: WEB_COMPUTE`)
 
 ## EC2 install (existing iDempiere server)
+
+**iDempiere AD changes:** see [`docs/DEV-REQUIREMENTS.md`](docs/DEV-REQUIREMENTS.md) — all new processes and buttons require `AD_Process_Access` for **AbilityERP Admin** (and relevant operational roles).
 
 1. Copy `deploy/dev030.env.example` → `/opt/ability-erp-pwa/.env` and fill in values
 2. Run `scripts/ec2-install.sh`

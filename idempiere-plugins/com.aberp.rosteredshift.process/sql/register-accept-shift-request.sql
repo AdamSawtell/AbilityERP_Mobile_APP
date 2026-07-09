@@ -29,22 +29,27 @@ WHERE NOT EXISTS (
   SELECT 1 FROM ad_process WHERE value = 'SHIFT_ACCEPT_REQUEST'
 );
 
--- Process access (mirror SHIFT_REQUEST roles for AbilityERP client)
+-- Process access — REQUIRED (see docs/DEV-REQUIREMENTS.md)
+-- Always grant AbilityERP Admin; grant operational roles as needed.
 INSERT INTO ad_process_access (
   ad_process_id, ad_role_id, ad_client_id, ad_org_id, isactive,
   created, createdby, updated, updatedby, isreadwrite, ad_process_access_uu
 )
-SELECT
-  p.ad_process_id, src.ad_role_id, src.ad_client_id, src.ad_org_id, 'Y',
+SELECT p.ad_process_id, roles.ad_role_id, roles.ad_client_id, 0, 'Y',
   NOW(), 100, NOW(), 100, 'Y', NULL
 FROM ad_process p
-JOIN ad_process_access src ON src.ad_process_id = 1000416 AND src.isactive = 'Y'
+CROSS JOIN (
+  VALUES
+    (1000004, 1000002),  -- AbilityERP Admin (mandatory for all new features)
+    (1000012, 1000002),  -- Rostering Officer
+    (0, 0)               -- System Administrator
+) AS roles(ad_role_id, ad_client_id)
 WHERE p.value = 'SHIFT_ACCEPT_REQUEST'
   AND NOT EXISTS (
     SELECT 1 FROM ad_process_access x
     WHERE x.ad_process_id = p.ad_process_id
-      AND x.ad_role_id = src.ad_role_id
-      AND x.ad_client_id = src.ad_client_id
+      AND x.ad_role_id = roles.ad_role_id
+      AND x.ad_client_id = roles.ad_client_id
   );
 
 -- Toolbar button on Response Log tab (ad_tab_id 1000366)
