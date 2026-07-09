@@ -36,12 +36,13 @@ When adding a **new window or tab**:
 
 When shipping a Java/OSGi plugin:
 
-1. Build JAR with valid `META-INF/MANIFEST.MF` (`jar cfm`, not `jar cf`).
-2. Copy to `customization-jar/` and `plugins/`; register in `bundles.info` if new.
-3. Run registration SQL (process, column, field, **process access**).
-4. **`sudo systemctl restart idempiere`** — required after every JAR change.
-5. Log out/in on web UI to refresh AD cache.
-6. Smoke-test: open target window/tab, confirm no row-load timeout, confirm button/process visible for Admin role.
+1. **Use a unique `Bundle-SymbolicName`** — never reuse an existing AbERP bundle name (e.g. do not deploy to `com.aberp.rosteredshift.process`; use `com.aberp.rosteredshift.acceptrequest` for add-on processes).
+2. Build JAR with valid `META-INF/MANIFEST.MF` (`jar cfm`, not `jar cf`).
+3. Copy to `customization-jar/` and `plugins/`; register in `bundles.info` if new.
+4. Run registration SQL (process, column, field, **process access**).
+5. **`sudo systemctl restart idempiere`** — required after every JAR change. Clear OSGi cache if replacing a colliding bundle name.
+6. Log out/in on web UI to refresh AD cache.
+7. Smoke-test: open target window/tab, confirm no row-load timeout, confirm button/process visible for Admin role, **click button and confirm process completes**.
 
 AD-only SQL (no JAR change) does **not** require restart; still requires logout/login for cache.
 

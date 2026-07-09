@@ -8,7 +8,7 @@ SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
 VERSION="7.1.0.202607091200"
-JAR_NAME="com.aberp.rosteredshift.process_${VERSION}.jar"
+JAR_NAME="com.aberp.rosteredshift.acceptrequest_${VERSION}.jar"
 
 BASE_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.base_*.jar | head -1)
 UTILS_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.plugin.utils_*.jar | head -1)
