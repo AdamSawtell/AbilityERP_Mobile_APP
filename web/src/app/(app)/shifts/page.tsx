@@ -2,6 +2,7 @@ import PayPeriodTabs, { type PayPeriodInfo } from "@/components/PayPeriodTabs";
 import { EmptyState, ShiftCard } from "@/components/ShiftCard";
 import type { ShiftItem } from "@/components/ShiftCard";
 import { fetchWithSession } from "@/lib/server-data";
+import Link from "next/link";
 import { Suspense } from "react";
 
 interface ShiftsResponse {
@@ -45,7 +46,20 @@ export default async function ShiftsPage({
       {data?.items?.length ? (
         <div className="space-y-3">
           {data.items.map((shift) => (
-            <ShiftCard key={shift.id} shift={shift} />
+            <ShiftCard
+              key={shift.id}
+              shift={shift}
+              action={
+                shift.request_id ? (
+                  <Link
+                    href={`/tasks/${shift.request_id}`}
+                    className="block w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-center text-sm font-medium text-blue-700"
+                  >
+                    Chat with rostering
+                  </Link>
+                ) : null
+              }
+            />
           ))}
         </div>
       ) : (

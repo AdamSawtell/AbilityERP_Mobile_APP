@@ -17,7 +17,7 @@ export async function POST(
 
   const { shiftId } = await context.params;
 
-  let body: { response?: ResponseCode };
+  let body: { response?: ResponseCode; note?: string };
   try {
     body = await request.json();
   } catch {
@@ -32,14 +32,16 @@ export async function POST(
   }
 
   try {
-    const data = await apiFetch<{ recorded: boolean; message: string; response: ResponseCode }>(
-      `/api/shifts/${shiftId}/response`,
-      {
-        method: "POST",
-        token,
-        body: JSON.stringify({ response: body.response }),
-      },
-    );
+    const data = await apiFetch<{
+      recorded: boolean;
+      message: string;
+      response: ResponseCode;
+      request_id?: number;
+    }>(`/api/shifts/${shiftId}/response`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({ response: body.response, note: body.note }),
+    });
     return NextResponse.json(data);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Response failed";

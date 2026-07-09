@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ShiftItem } from "@/components/ShiftCard";
 import { formatShiftRange } from "@/components/ShiftCard";
 
@@ -29,6 +30,7 @@ export default function ShiftResponseTable({ items }: { items: ShiftItem[] }) {
             <th className="px-4 py-3 font-medium">When</th>
             <th className="px-4 py-3 font-medium">Response</th>
             <th className="px-4 py-3 font-medium">Review</th>
+            <th className="px-4 py-3 font-medium">Chat</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -69,6 +71,14 @@ export default function ShiftResponseTable({ items }: { items: ShiftItem[] }) {
                 ) : (
                   <span className="text-xs text-gray-400">—</span>
                 )}
+              </td>
+              <td className="px-4 py-3">
+                <Link
+                  href={`/tasks/shift/${item.id}`}
+                  className="text-xs font-medium text-blue-600 hover:underline"
+                >
+                  Open
+                </Link>
               </td>
             </tr>
           ))}

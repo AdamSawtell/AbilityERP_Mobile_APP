@@ -20,6 +20,7 @@ export interface ShiftItem {
   response_code?: ResponseCode | null;
   review_status?: ReviewStatus;
   pay_period_id?: number | null;
+  request_id?: number | null;
   request_status?: string | null;
   staff_name?: string | null;
   responded_at?: string | null;

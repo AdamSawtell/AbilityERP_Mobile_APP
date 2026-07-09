@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth";
 import credentialsRoutes from "./routes/credentials";
 import leaveRoutes from "./routes/leave";
 import profileRoutes from "./routes/profile";
+import requestsRoutes from "./routes/requests";
 import rosterRoutes from "./routes/roster";
 import shiftsRoutes from "./routes/shifts";
 
@@ -40,6 +41,7 @@ app.use("/api/credentials", credentialsRoutes);
 app.use("/api/shifts", shiftsRoutes);
 app.use("/api/roster", rosterRoutes);
 app.use("/api/leave", leaveRoutes);
+app.use("/api/requests", requestsRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: "Not found" });
