@@ -8,10 +8,10 @@ The process:
 
 1. Validates the response is `REQ` (not declined), active, not superseded, not reviewed
 2. Validates no employee is already assigned on the shift **Employee** tab
-2. Resolves the worker's `C_BPartner` from `AbERP_User_Contact_ID`
 3. Assigns them on `AbERP_Rostered_ShiftStaff` (updates an open staff line or creates one)
 4. Sets `IsReviewed = Y` on the response log
-5. Clears `AbERP_IsShowingAsAvailable` on the shift when assigned
+5. Clears `AbERP_IsShowingAsAvailable` on the shift
+6. Sets shift `R_Status_ID` to **Published** (`1000040`)
 
 ## Build (on iDempiere server)
 
@@ -58,4 +58,4 @@ AD-only SQL changes (no JAR) do not require a restart; toolbar/process metadata 
 
 1. Open **Shift (Rostered)** for a shift with a pending REQ in Response Log.
 2. Select the REQ row → **Accept Shift Request**.
-3. Confirm shift staff shows the worker and response log `IsReviewed = Y`.
+3. Confirm shift staff shows the worker, response log `IsReviewed = Y`, and shift status **Published**.

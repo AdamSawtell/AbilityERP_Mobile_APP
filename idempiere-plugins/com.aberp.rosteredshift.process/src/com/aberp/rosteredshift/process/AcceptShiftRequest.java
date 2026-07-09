@@ -13,8 +13,11 @@ import org.compiere.util.DB;
  */
 public class AcceptShiftRequest extends SvrProcess {
 	private static final String TABLE_RESPONSE_LOG = "AbERP_RosteredResponseLog";
+	private static final String TABLE_SHIFT = "AbERP_Rostered_Shift";
 	private static final String TABLE_SHIFT_STAFF = "AbERP_Rostered_ShiftStaff";
 	private static final String RESPONSE_REQUEST = "REQ";
+	/** Shift Status → Published (r_status.value = PUB, category Shift Status). */
+	private static final int STATUS_PUBLISHED_ID = 1000040;
 
 	@Override
 	protected void prepare() {
@@ -102,9 +105,9 @@ public class AcceptShiftRequest extends SvrProcess {
 			throw new AdempiereException("Worker assigned but failed to mark response as reviewed");
 		}
 
-		clearShiftAvailability(shiftId);
+		finalizeShiftAfterAccept(shiftId);
 
-		addLog(shiftStaff.get_ID(), null, null, "Assigned worker to shift staff line");
+		addLog(shiftStaff.get_ID(), null, null, "Assigned worker to shift staff line; shift published");
 		return "@Processed@";
 	}
 
@@ -154,11 +157,17 @@ public class AcceptShiftRequest extends SvrProcess {
 				.match();
 	}
 
-	private void clearShiftAvailability(int shiftId) {
-		final PO shift = MTable.get(getCtx(), "AbERP_Rostered_Shift").getPO(shiftId, get_TrxName());
-		if (shift != null && shift.get_ID() > 0 && shift.get_Value("AbERP_IsShowingAsAvailable") != null) {
+	private void finalizeShiftAfterAccept(int shiftId) {
+		final PO shift = MTable.get(getCtx(), TABLE_SHIFT).getPO(shiftId, get_TrxName());
+		if (shift == null || shift.get_ID() <= 0) {
+			throw new AdempiereException("Shift record not found");
+		}
+		if (shift.get_Value("AbERP_IsShowingAsAvailable") != null) {
 			shift.set_ValueOfColumn("AbERP_IsShowingAsAvailable", "N");
-			shift.save();
+		}
+		shift.set_ValueOfColumn("R_Status_ID", STATUS_PUBLISHED_ID);
+		if (!shift.save()) {
+			throw new AdempiereException("Worker assigned but failed to publish shift");
 		}
 	}
 
