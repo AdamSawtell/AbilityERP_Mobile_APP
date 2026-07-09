@@ -42,6 +42,7 @@ sudo sed -i "/^${OFFICIAL_SYMBOLIC},7.1.0.202607091200,/d" "$BUNDLES_INFO"
 if [ -f "${IDEMPIERE_HOME}/plugins/${OFFICIAL_JAR}" ]; then
   sudo sed -i "/^${OFFICIAL_SYMBOLIC},/d" "$BUNDLES_INFO"
   echo "${OFFICIAL_SYMBOLIC},${OFFICIAL_VERSION},plugins/${OFFICIAL_JAR},4,false" | sudo tee -a "$BUNDLES_INFO" >/dev/null
+  # Official bundle requires org.logilite.sms.base — do not autostart here
 fi
 
 echo "Installing $JAR_NAME"
@@ -50,7 +51,7 @@ sudo cp "$BUILT_JAR" "${IDEMPIERE_HOME}/plugins/$JAR_NAME"
 sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" "${IDEMPIERE_HOME}/plugins/$JAR_NAME"
 
 sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
-echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,false" | sudo tee -a "$BUNDLES_INFO" >/dev/null
+echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
 echo "Applying AD registration SQL"
 sudo cp "$PLUGIN_DIR/sql/register-accept-shift-request.sql" /tmp/register-accept-shift-request.sql
@@ -68,8 +69,21 @@ fi
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache — that breaks dynamically installed AbERP plugins)"
 sudo systemctl restart idempiere
-sleep 20
+sleep 25
 sudo systemctl is-active idempiere
 sudo systemctl status idempiere --no-pager -l | head -15
 
-echo "Deploy complete — verify log for com.aberp.rosteredshift.acceptrequest startup"
+CHUBOE_UTILS="/opt/chuboe/idempiere-installation-script/utils"
+if [ -d "$CHUBOE_UTILS" ]; then
+  echo "Ensuring ${SYMBOLIC} bundle is ACTIVE"
+  cd "$CHUBOE_UTILS"
+  BUNDLE_ID=$(sudo -u idempiere ./chuboe_osgi_ss.sh 2>/dev/null | grep "${SYMBOLIC}" | awk '{print $1}')
+  STATE=$(sudo -u idempiere ./chuboe_osgi_ss.sh 2>/dev/null | grep "${SYMBOLIC}" | awk '{print $2}')
+  if [ -n "$BUNDLE_ID" ] && [ "$STATE" != "ACTIVE" ]; then
+    ./logilite_telnet_start.sh "$BUNDLE_ID" || true
+    sleep 2
+    sudo -u idempiere ./chuboe_osgi_ss.sh 2>/dev/null | grep "${SYMBOLIC}" || true
+  fi
+fi
+
+echo "Deploy complete — verify acceptrequest bundle is ACTIVE and AcceptShiftRequest resolves"
