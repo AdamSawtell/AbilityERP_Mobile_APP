@@ -66,14 +66,8 @@ if [ -f "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" ]; then
   sudo -u postgres psql -d idempiere -f /tmp/enable-accept-button-safe.sql
 fi
 
-echo "Clearing OSGi cache so restored/renamed bundles load from disk"
-sudo systemctl stop idempiere || true
-sudo rm -rf "${IDEMPIERE_HOME}/configuration/org.eclipse.osgi"
-sudo rm -rf "${IDEMPIERE_HOME}/configuration/org.eclipse.equinox.app"
-sudo rm -rf "${IDEMPIERE_HOME}/configuration/org.eclipse.core.runtime"
-
-echo "Restarting iDempiere via systemd"
-sudo systemctl start idempiere
+echo "Restarting iDempiere via systemd (NOT clearing OSGi cache — that breaks dynamically installed AbERP plugins)"
+sudo systemctl restart idempiere
 sleep 20
 sudo systemctl is-active idempiere
 sudo systemctl status idempiere --no-pager -l | head -15

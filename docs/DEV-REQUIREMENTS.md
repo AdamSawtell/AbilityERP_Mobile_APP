@@ -40,7 +40,7 @@ When shipping a Java/OSGi plugin:
 2. Build JAR with valid `META-INF/MANIFEST.MF` (`jar cfm`, not `jar cf`).
 3. Copy to `customization-jar/` and `plugins/`; register in `bundles.info` if new.
 4. Run registration SQL (process, column, field, **process access**).
-5. **`sudo systemctl restart idempiere`** — required after every JAR change. Clear OSGi cache if replacing a colliding bundle name.
+5. **`sudo systemctl restart idempiere`** — required after every JAR change. **Do not clear `configuration/org.eclipse.osgi`** — AbERP plugins are installed dynamically via OSGi telnet and live only in that cache; wiping it breaks login (missing model validator classes) until plugins are re-deployed via `logilite_deploy_plugins.sh`.
 6. Log out/in on web UI to refresh AD cache.
 7. Smoke-test: open target window/tab, confirm no row-load timeout, confirm button/process visible for Admin role, **click button and confirm process completes**.
 
