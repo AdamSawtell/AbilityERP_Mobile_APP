@@ -26,7 +26,22 @@ Requires Java 11 and iDempiere at `/opt/idempiere-server`.
 ./deploy.sh
 ```
 
-This copies the JAR to `customization-jar/` and `plugins/`, registers the OSGi bundle, runs `sql/register-accept-shift-request.sql`, and restarts iDempiere.
+This copies the JAR to `customization-jar/` and `plugins/`, registers the OSGi bundle, runs `sql/register-accept-shift-request.sql`, and runs:
+
+```bash
+sudo systemctl restart idempiere
+```
+
+**Every iDempiere plugin or JAR change needs a systemd restart** — OSGi does not hot-reload new bundles.
+
+Check status after deploy:
+
+```bash
+sudo systemctl status idempiere
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8080/
+```
+
+AD-only SQL changes (no JAR) do not require a restart; toolbar/process metadata is picked up on next login.
 
 ## Manual test
 

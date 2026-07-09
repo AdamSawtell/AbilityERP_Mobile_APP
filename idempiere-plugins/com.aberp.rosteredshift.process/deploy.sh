@@ -29,14 +29,10 @@ echo "Applying AD registration SQL"
 sudo cp "$PLUGIN_DIR/sql/register-accept-shift-request.sql" /tmp/register-accept-shift-request.sql
 sudo -u postgres psql -d idempiere -f /tmp/register-accept-shift-request.sql
 
-echo "Restarting iDempiere (requires sudo)"
-if [ -x "$IDEMPIERE_HOME/utils/stopServer.sh" ]; then
-  sudo -u idempiere bash "$IDEMPIERE_HOME/utils/stopServer.sh" || true
-  sleep 5
-  sudo -u idempiere bash "$IDEMPIERE_HOME/idempiere-server.sh" &
-  echo "iDempiere restart initiated"
-else
-  echo "Restart idempiere manually to load the new bundle"
-fi
+echo "Restarting iDempiere via systemd (required after every plugin/JAR update)"
+sudo systemctl restart idempiere
+sleep 10
+sudo systemctl is-active idempiere
+sudo systemctl status idempiere --no-pager -l | head -15
 
 echo "Deploy complete"
