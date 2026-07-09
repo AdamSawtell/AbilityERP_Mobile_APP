@@ -39,7 +39,7 @@ SELECT
   'N', 'N', 'N',
   e.ad_element_id, p.ad_process_id, 'N', 'N',
   'N', 'Y', 'Y', 0,
-  'B', 'N', 'N', 'N', 'N',
+  'N', 'N', 'N', 'N', 'N',
   'e5f6a7b8-c9d0-4123-e456-789012345678'
 FROM ad_element e
 JOIN ad_process p ON p.value = 'SHIFT_ACCEPT_REQUEST'
