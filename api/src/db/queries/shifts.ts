@@ -248,7 +248,7 @@ export async function getMyShiftResponsesForPeriod(
        st.name AS shift_type,
        ml.name AS location,
        rs.name AS status,
-       $5::numeric AS pay_period_id,
+       $4::numeric AS pay_period_id,
        rl.aberp_rosteredresponselog_id AS response_log_id,
        rl.aberp_rosteredresponse AS response_code,
        rl.created AS responded_at,
@@ -264,12 +264,12 @@ export async function getMyShiftResponsesForPeriod(
      LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
      WHERE rl.isactive = 'Y'
        AND s.isactive = 'Y'
-       AND rl.aberp_user_contact_id = $4
+       AND rl.aberp_user_contact_id = $3
        AND COALESCE(rl.issuperseded, 'N') <> 'Y'
        AND ${PERIOD_SHIFT_FILTER}
      ORDER BY rl.created DESC
      LIMIT 100`,
-    [period.start_date, period.end_date, cBPartnerStaffId, adUserId, period.id],
+    [period.start_date, period.end_date, adUserId, period.id],
   );
 
   return { period, items: result.rows.map(mapResponseRow) };
