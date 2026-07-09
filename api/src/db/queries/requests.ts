@@ -69,12 +69,21 @@ function mapTaskRow(row: {
     assigned_to_role: row.assigned_to_role,
     created_at: formatTimestamp(row.created_at),
     updated_at: formatTimestamp(row.updated_at),
-    last_message: row.last_message ?? null,
+    last_message: cleanRequestMessage(row.last_message ?? null),
     last_message_at: formatTimestamp(row.last_message_at),
   };
 }
 
 const STANDALONE_REQUEST_FILTER = `r.aberp_rostered_shift_id IS NULL`;
+
+/** Strip iDempiere system lines appended to request update text. */
+export function cleanRequestMessage(body: string | null): string | null {
+  if (!body) return body;
+  const trimmed = body.trim();
+  const systemSplit = trimmed.split(/\n-\nRequest \d+ was /);
+  const message = systemSplit[0]?.trim();
+  return message || trimmed;
+}
 
 async function insertStandaloneRequest(
   adUserId: number,
@@ -145,7 +154,7 @@ export async function getWorkerTasks(
        r.summary,
        rt.name AS request_type,
        rs.name AS status,
-       role.name AS assigned_to_role,
+       COALESCE(role.name, 'Rostering Officer') AS assigned_to_role,
        r.created AS created_at,
        r.updated AS updated_at,
        (
@@ -188,7 +197,7 @@ export async function getWorkerTask(
        r.summary,
        rt.name AS request_type,
        rs.name AS status,
-       role.name AS assigned_to_role,
+       COALESCE(role.name, 'Rostering Officer') AS assigned_to_role,
        r.created AS created_at,
        r.updated AS updated_at
      FROM r_request r
@@ -217,12 +226,15 @@ export async function getOrCreateRosteringChat(
      FROM r_request r
      WHERE r.isactive = 'Y'
        AND ${STANDALONE_REQUEST_FILTER}
-       AND r.ad_role_id = $1
-       AND (r.ad_user_id = $2 OR r.c_bpartner_id = $3)
-       AND r.r_status_id <> $4
-     ORDER BY r.updated DESC
+       AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
+       AND r.r_status_id <> $3
+     ORDER BY COALESCE(
+       (SELECT MAX(ru.created) FROM r_requestupdate ru WHERE ru.r_request_id = r.r_request_id),
+       r.updated,
+       r.created
+     ) DESC
      LIMIT 1`,
-    [ROSTERING_ROLE_ID, adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+    [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
   );
 
   let requestId = existing.rows[0]?.id ? Number(existing.rows[0].id) : null;
@@ -284,7 +296,7 @@ export async function getTaskMessages(
 
   return result.rows.map((row) => ({
     id: Number(row.id),
-    body: row.body,
+    body: cleanRequestMessage(row.body),
     author_name: row.author_name,
     author_id: row.author_id ? Number(row.author_id) : null,
     is_mine: row.author_id ? Number(row.author_id) === adUserId : false,

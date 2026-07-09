@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface TaskMessage {
   id: number;
@@ -34,6 +34,33 @@ export default function TaskChat({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshMessages = useCallback(async () => {
+    try {
+      const res = await fetch("/api/requests/chat", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.messages) {
+        setMessages(data.messages);
+      }
+    } catch {
+      // ignore background refresh errors
+    }
+  }, []);
+
+  useEffect(() => {
+    setMessages(initialMessages);
+  }, [initialMessages]);
+
+  useEffect(() => {
+    const timer = setInterval(refreshMessages, 15000);
+    const onFocus = () => refreshMessages();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [refreshMessages]);
+
   async function sendMessage(event: React.FormEvent) {
     event.preventDefault();
     const trimmed = body.trim();
@@ -50,17 +77,8 @@ export default function TaskChat({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Send failed");
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: data.id,
-          body: trimmed,
-          author_name: "You",
-          is_mine: true,
-          created_at: new Date().toISOString(),
-        },
-      ]);
       setBody("");
+      await refreshMessages();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Send failed");
