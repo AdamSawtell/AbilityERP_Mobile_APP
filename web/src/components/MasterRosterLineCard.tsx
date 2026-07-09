@@ -26,21 +26,22 @@ function formatTime(value: string | null): string {
   });
 }
 
-function formatRosterDay(start: number | null, end: number | null): string {
-  if (!start && !end) return "—";
-  if (start && end && start !== end) return `Day ${start} – ${end}`;
-  return `Day ${start ?? end}`;
-}
-
 export function MasterRosterLineCard({ line }: { line: MasterRosterLine }) {
+  const spansDays =
+    line.roster_end_day &&
+    line.roster_start_day &&
+    line.roster_end_day !== line.roster_start_day;
+
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
-            {formatRosterDay(line.roster_start_day, line.roster_end_day)}
-          </p>
-          <h3 className="mt-1 font-semibold text-gray-900">
+          {spansDays ? (
+            <p className="text-xs text-gray-500">
+              Through Day {line.roster_end_day}
+            </p>
+          ) : null}
+          <h3 className="font-semibold text-gray-900">
             {line.shift_type ?? "Shift"}
           </h3>
         </div>

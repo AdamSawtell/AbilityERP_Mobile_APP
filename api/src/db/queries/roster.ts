@@ -82,9 +82,10 @@ export async function getEmployeeMasterRoster(
        AND ss.isactive = 'Y'
        AND s.aberp_isshiftrosteredtemplate = 'Y'
        AND (ss.c_bpartner_staff_id = $1 OR ss.aberp_user_contact_id = $2)
-     ORDER BY t.name ASC NULLS LAST,
-       NULLIF(s.aberp_rosterstartday, '')::int ASC NULLS LAST,
-       s.starttime ASC NULLS LAST
+       AND NULLIF(s.aberp_rosterstartday, '')::int BETWEEN 1 AND 14
+     ORDER BY NULLIF(s.aberp_rosterstartday, '')::int ASC,
+       s.starttime::time ASC NULLS LAST,
+       s.aberp_rostered_shift_id ASC
      LIMIT 200`,
     [cBPartnerStaffId, adUserId],
   );
