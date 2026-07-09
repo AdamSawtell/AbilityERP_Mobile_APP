@@ -1,12 +1,32 @@
 import { redirect } from "next/navigation";
-import { apiFetch } from "@/lib/api-client";
+import ProfileForm from "@/components/ProfileForm";
+import { fetchWithSession } from "@/lib/server-data";
 import { getSessionToken } from "@/lib/session";
+import { apiFetch } from "@/lib/api-client";
 import type { WorkerUser } from "@/lib/types";
+
+interface ProfileData {
+  profile: {
+    adUserId: number;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    employeeNo: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    preferredName: string | null;
+    address: {
+      line1: string | null;
+      city: string | null;
+      postal: string | null;
+      region: string | null;
+    };
+  };
+}
 
 async function getCurrentUser(): Promise<WorkerUser | null> {
   const token = await getSessionToken();
   if (!token) return null;
-
   try {
     const data = await apiFetch<{ user: WorkerUser }>("/api/auth/me", { token });
     return data.user;
@@ -16,32 +36,57 @@ async function getCurrentUser(): Promise<WorkerUser | null> {
 }
 
 export default async function ProfilePage() {
-  const user = await getCurrentUser();
+  const [user, profileData] = await Promise.all([
+    getCurrentUser(),
+    fetchWithSession<ProfileData>("/api/profile"),
+  ]);
+
   if (!user) redirect("/login");
+
+  const profile = profileData?.profile;
 
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">Profile</h2>
+
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <dl className="space-y-3 text-sm">
           <div>
             <dt className="text-gray-500">Name</dt>
-            <dd className="font-medium text-gray-900">{user.name}</dd>
+            <dd className="font-medium text-gray-900">{profile?.name ?? user.name}</dd>
           </div>
           <div>
-            <dt className="text-gray-500">Email</dt>
-            <dd className="font-medium text-gray-900">{user.email || "—"}</dd>
+            <dt className="text-gray-500">Preferred name</dt>
+            <dd className="font-medium text-gray-900">{profile?.preferredName ?? "—"}</dd>
           </div>
           <div>
-            <dt className="text-gray-500">Employee ID</dt>
-            <dd className="font-medium text-gray-900">{user.cBPartnerId}</dd>
+            <dt className="text-gray-500">Employee #</dt>
+            <dd className="font-medium text-gray-900">{profile?.employeeNo ?? user.cBPartnerId}</dd>
           </div>
           <div>
             <dt className="text-gray-500">Roles</dt>
             <dd className="font-medium text-gray-900">{user.roles.join(", ")}</dd>
           </div>
+          <div>
+            <dt className="text-gray-500">Address</dt>
+            <dd className="font-medium text-gray-900">
+              {[
+                profile?.address.line1,
+                profile?.address.city,
+                profile?.address.region,
+                profile?.address.postal,
+              ]
+                .filter(Boolean)
+                .join(", ") || "—"}
+            </dd>
+          </div>
         </dl>
       </div>
+
+      <ProfileForm
+        initialEmail={profile?.email ?? user.email}
+        initialPhone={profile?.phone ?? ""}
+      />
 
       <form action="/api/auth/logout" method="post">
         <button

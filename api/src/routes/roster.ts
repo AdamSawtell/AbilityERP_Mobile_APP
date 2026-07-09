@@ -1,16 +1,18 @@
 import { Router } from "express";
+import { getCurrentRoster, getMasterRoster } from "../db/queries/roster";
 import { requireAuth, requireSupportWorker } from "../middleware/jwt-auth";
 
 const router = Router();
-
 router.use(requireAuth, requireSupportWorker);
 
-router.get("/current", (_req, res) => {
-  res.json({ items: [], message: "Current roster — implementation pending" });
+router.get("/current", async (_req, res) => {
+  const items = await getCurrentRoster();
+  res.json({ items });
 });
 
-router.get("/master", (_req, res) => {
-  res.json({ items: [], message: "Master roster — implementation pending" });
+router.get("/master", async (_req, res) => {
+  const items = await getMasterRoster();
+  res.json({ items });
 });
 
 export default router;

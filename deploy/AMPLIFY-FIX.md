@@ -36,7 +36,7 @@ Amplify Console → **Hosting** → **Environment variables** → add:
 |----------|--------|
 | `AMPLIFY_MONOREPO_APP_ROOT` | `web` |
 | `API_BASE_URL` | `http://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com` |
-| `NEXT_PUBLIC_APP_URL` | `https://main.d2pmnegzhwkj4b.amplifyapp.com` |
+| `NEXT_PUBLIC_APP_URL` | `https://main.d3ec4nkn82ouib.amplifyapp.com` |
 
 `AMPLIFY_MONOREPO_APP_ROOT` is **required** for monorepos (repo has `web/` folder).
 

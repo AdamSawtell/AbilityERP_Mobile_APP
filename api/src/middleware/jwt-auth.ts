@@ -14,6 +14,17 @@ export function signToken(payload: JwtPayload): string {
   return jwt.sign(payload, getJwtSecret(), { expiresIn: "8h" });
 }
 
+function normalizeUser(payload: jwt.JwtPayload): JwtPayload {
+  return {
+    adUserId: Number(payload.adUserId),
+    adClientId: Number(payload.adClientId),
+    cBPartnerId: Number(payload.cBPartnerId),
+    name: String(payload.name ?? ""),
+    email: String(payload.email ?? ""),
+    roles: Array.isArray(payload.roles) ? payload.roles.map(String) : [],
+  };
+}
+
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   const header = req.headers.authorization;
   const token = header?.startsWith("Bearer ") ? header.slice(7) : undefined;
@@ -24,7 +35,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   }
 
   try {
-    req.user = jwt.verify(token, getJwtSecret()) as JwtPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
+    req.user = normalizeUser(decoded);
     next();
   } catch {
     res.status(401).json({ error: "Invalid or expired token" });
