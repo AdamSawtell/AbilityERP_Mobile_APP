@@ -102,15 +102,15 @@ export default function TaskChat({
                 className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
                   msg.is_mine
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-800"
+                    : "border border-gray-200 bg-gray-100 text-gray-900"
                 }`}
               >
                 {!msg.is_mine && msg.author_name ? (
-                  <p className="mb-1 text-xs font-medium opacity-70">{msg.author_name}</p>
+                  <p className="mb-1 text-xs font-semibold text-gray-600">{msg.author_name}</p>
                 ) : null}
-                <p className="whitespace-pre-wrap">{msg.body}</p>
+                <p className="whitespace-pre-wrap text-inherit">{msg.body}</p>
                 <p
-                  className={`mt-1 text-[10px] ${msg.is_mine ? "text-blue-100" : "text-gray-400"}`}
+                  className={`mt-1 text-[10px] ${msg.is_mine ? "text-blue-100" : "text-gray-500"}`}
                 >
                   {formatWhen(msg.created_at)}
                 </p>
@@ -127,7 +127,7 @@ export default function TaskChat({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder="Message rostering…"
-          className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
         />
         <button
           type="submit"
