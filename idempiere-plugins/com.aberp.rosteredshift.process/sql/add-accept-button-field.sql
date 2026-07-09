@@ -1,6 +1,9 @@
 -- Add Accept Shift Request button on Response Log tab (under IsSuperseded).
 SET search_path TO adempiere;
 
+ALTER TABLE aberp_rosteredresponselog
+  ADD COLUMN IF NOT EXISTS aberp_acceptshiftrequest character(1);
+
 -- AD_Element
 INSERT INTO ad_element (
   ad_element_id, ad_client_id, ad_org_id, isactive,
@@ -37,9 +40,9 @@ SELECT
   28, 1, 0,
   'N', 'N', 'N', 'Y', 'N', 0,
   'N', 'N', 'N',
-  e.ad_element_id, p.ad_process_id, 'N', 'N',
+  e.ad_element_id, p.ad_process_id, 'Y', 'N',
   'N', 'Y', 'Y', 0,
-  'N', 'N', 'N', 'N', 'N',
+  'B', 'N', 'N', 'N', 'N',
   'e5f6a7b8-c9d0-4123-e456-789012345678'
 FROM ad_element e
 JOIN ad_process p ON p.value = 'SHIFT_ACCEPT_REQUEST'
@@ -64,9 +67,9 @@ SELECT
   1010802, 0, 0, 'Y',
   NOW(), 100, NOW(), 100,
   'Accept Shift Request', 'N', 1000366, c.ad_column_id,
-  'Y', '@AbERP_RosteredResponse@=REQ & @IsReviewed@=N & @IsSuperseded@=N', 1, 'N', 61,
+  'Y', NULL, 1, 'N', 61,
   'N', 'N', 'N', 'N', 'Ab_ERP',
-  'N', 5, 1, 2,
+  'Y', 5, 1, 2,
   'N', 'N', 'N', 'N',
   'N', 'N', 'N',
   'f6a7b8c9-d0e1-4234-f567-890123456789'

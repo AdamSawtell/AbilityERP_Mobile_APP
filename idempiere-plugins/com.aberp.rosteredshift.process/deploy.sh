@@ -30,6 +30,10 @@ sudo cp "$PLUGIN_DIR/sql/register-accept-shift-request.sql" /tmp/register-accept
 sudo cp "$PLUGIN_DIR/sql/add-accept-button-field.sql" /tmp/add-accept-button-field.sql
 sudo -u postgres psql -d idempiere -f /tmp/register-accept-shift-request.sql
 sudo -u postgres psql -d idempiere -f /tmp/add-accept-button-field.sql
+if [ -f "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" ]; then
+  sudo cp "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" /tmp/enable-accept-button-safe.sql
+  sudo -u postgres psql -d idempiere -f /tmp/enable-accept-button-safe.sql
+fi
 
 echo "Restarting iDempiere via systemd (required after every plugin/JAR update)"
 sudo systemctl restart idempiere
