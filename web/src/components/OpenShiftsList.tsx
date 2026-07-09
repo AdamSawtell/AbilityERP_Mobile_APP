@@ -33,22 +33,29 @@ export default function OpenShiftsList({ shifts }: { shifts: ShiftItem[] }) {
   return (
     <div className="space-y-3">
       {message ? <p className="text-sm text-blue-700">{message}</p> : null}
-      {shifts.map((shift) => (
-        <ShiftCard
-          key={shift.id}
-          shift={shift}
-          action={
-            <button
-              type="button"
-              disabled={loadingId === shift.id}
-              onClick={() => apply(shift.id)}
-              className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-            >
-              {loadingId === shift.id ? "Applying…" : "Apply for shift"}
-            </button>
-          }
-        />
-      ))}
+      {shifts.map((shift) => {
+        const canApply = !shift.application_status || shift.application_status === "open";
+        return (
+          <ShiftCard
+            key={shift.id}
+            shift={shift}
+            action={
+              canApply ? (
+                <button
+                  type="button"
+                  disabled={loadingId === shift.id}
+                  onClick={() => apply(shift.id)}
+                  className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                >
+                  {loadingId === shift.id ? "Applying…" : "Apply for shift"}
+                </button>
+              ) : shift.application_status === "applied" ? (
+                <p className="text-center text-sm text-amber-700">Application pending approval</p>
+              ) : null
+            }
+          />
+        );
+      })}
     </div>
   );
 }

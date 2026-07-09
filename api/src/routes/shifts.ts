@@ -1,18 +1,57 @@
 import { Router } from "express";
-import { applyForShift, getMyShifts, getOpenShifts } from "../db/queries/shifts";
+import { z } from "zod";
+import { getPayPeriods } from "../db/queries/pay-period";
+import {
+  applyForShift,
+  getMyApplicationsForPeriod,
+  getMyShiftsForPeriod,
+  getOpenShiftsForPeriod,
+} from "../db/queries/shifts";
 import { requireAuth, requireSupportWorker } from "../middleware/jwt-auth";
 
 const router = Router();
 router.use(requireAuth, requireSupportWorker);
 
-router.get("/open", async (_req, res) => {
-  const items = await getOpenShifts();
-  res.json({ items });
+const periodSchema = z.enum(["current", "next"]);
+
+function parsePeriod(value: unknown): "current" | "next" {
+  const parsed = periodSchema.safeParse(value);
+  return parsed.success ? parsed.data : "current";
+}
+
+router.get("/periods", async (_req, res) => {
+  const periods = await getPayPeriods();
+  res.json(periods);
+});
+
+router.get("/open", async (req, res) => {
+  const periodKey = parsePeriod(req.query.period);
+  const result = await getOpenShiftsForPeriod(
+    periodKey,
+    req.user!.cBPartnerId,
+    req.user!.adUserId,
+  );
+  res.json(result);
+});
+
+router.get("/applications", async (req, res) => {
+  const periodKey = parsePeriod(req.query.period);
+  const result = await getMyApplicationsForPeriod(
+    periodKey,
+    req.user!.cBPartnerId,
+    req.user!.adUserId,
+  );
+  res.json(result);
 });
 
 router.get("/mine", async (req, res) => {
-  const items = await getMyShifts(req.user!.cBPartnerId, req.user!.adUserId);
-  res.json({ items });
+  const periodKey = parsePeriod(req.query.period);
+  const result = await getMyShiftsForPeriod(
+    periodKey,
+    req.user!.cBPartnerId,
+    req.user!.adUserId,
+  );
+  res.json(result);
 });
 
 router.post("/:shiftId/apply", async (req, res) => {

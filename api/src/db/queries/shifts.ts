@@ -1,5 +1,8 @@
 import { pool } from "../pool";
 import { formatTimestamp, nextSequenceId } from "../helpers";
+import { PayPeriod, resolvePayPeriod, type PayPeriodKey } from "./pay-period";
+
+export type ApplicationStatus = "open" | "applied" | "assigned" | "unavailable";
 
 export interface ShiftRow {
   id: number;
@@ -9,7 +12,8 @@ export interface ShiftRow {
   shift_type: string | null;
   location: string | null;
   status: string | null;
-  request_status: string | null;
+  application_status: ApplicationStatus;
+  pay_period_id: number | null;
 }
 
 function mapShiftRow(row: {
@@ -20,7 +24,8 @@ function mapShiftRow(row: {
   shift_type: string | null;
   location: string | null;
   status?: string | null;
-  request_status?: string | null;
+  application_status: ApplicationStatus;
+  pay_period_id?: number | null;
 }): ShiftRow {
   return {
     id: row.id,
@@ -30,41 +35,24 @@ function mapShiftRow(row: {
     shift_type: row.shift_type,
     location: row.location,
     status: row.status ?? null,
-    request_status: row.request_status ?? null,
+    application_status: row.application_status,
+    pay_period_id: row.pay_period_id ?? null,
   };
 }
 
-export async function getOpenShifts(): Promise<ShiftRow[]> {
-  const result = await pool.query(
-    `SELECT
-       s.aberp_rostered_shift_id AS id,
-       s.documentno AS document_no,
-       s.starttime AS start_time,
-       s.endtime AS end_time,
-       st.name AS shift_type,
-       ml.name AS location,
-       rs.name AS status
-     FROM aberp_rostered_shift s
-     LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
-     LEFT JOIN aberp_masterlocation ml ON ml.aberp_masterlocation_id = s.aberp_masterlocation_id
-     LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
-     WHERE s.isactive = 'Y'
-       AND NOT EXISTS (
-         SELECT 1 FROM aberp_rostered_shiftstaff ss
-         WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
-           AND ss.isactive = 'Y'
-           AND ss.c_bpartner_staff_id IS NOT NULL
-       )
-     ORDER BY s.starttime DESC NULLS LAST
-     LIMIT 50`,
-  );
-  return result.rows.map(mapShiftRow);
-}
+const PERIOD_SHIFT_FILTER = `COALESCE(s.starttime, s.startdate) >= $1::timestamp
+  AND COALESCE(s.starttime, s.startdate) <= $2::timestamp`;
 
-export async function getMyShifts(
+export async function getOpenShiftsForPeriod(
+  periodKey: PayPeriodKey,
   cBPartnerStaffId: number,
   adUserId: number,
-): Promise<ShiftRow[]> {
+): Promise<{ period: PayPeriod | null; items: ShiftRow[] }> {
+  const period = await resolvePayPeriod(periodKey);
+  if (!period) {
+    return { period: null, items: [] };
+  }
+
   const result = await pool.query(
     `SELECT
        s.aberp_rostered_shift_id AS id,
@@ -74,19 +62,132 @@ export async function getMyShifts(
        st.name AS shift_type,
        ml.name AS location,
        rs.name AS status,
-       ss.aberp_requestshift AS request_status
+       $5::numeric AS pay_period_id,
+       CASE
+         WHEN EXISTS (
+           SELECT 1 FROM aberp_rostered_shiftstaff ss
+           WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+             AND ss.isactive = 'Y'
+             AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
+             AND ss.aberp_requestshift = 'Y'
+         ) THEN 'applied'
+         WHEN EXISTS (
+           SELECT 1 FROM aberp_rostered_shiftstaff ss
+           WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+             AND ss.isactive = 'Y'
+             AND ss.c_bpartner_staff_id IS NOT NULL
+             AND ss.c_bpartner_staff_id <> $3
+             AND ss.aberp_user_contact_id IS DISTINCT FROM $4
+         ) THEN 'unavailable'
+         ELSE 'open'
+       END AS application_status
+     FROM aberp_rostered_shift s
+     LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
+     LEFT JOIN aberp_masterlocation ml ON ml.aberp_masterlocation_id = s.aberp_masterlocation_id
+     LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
+     WHERE s.isactive = 'Y'
+       AND ${PERIOD_SHIFT_FILTER}
+       AND (
+         NOT EXISTS (
+           SELECT 1 FROM aberp_rostered_shiftstaff ss
+           WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+             AND ss.isactive = 'Y'
+             AND ss.c_bpartner_staff_id IS NOT NULL
+             AND ss.c_bpartner_staff_id <> $3
+             AND ss.aberp_user_contact_id IS DISTINCT FROM $4
+         )
+         OR EXISTS (
+           SELECT 1 FROM aberp_rostered_shiftstaff ss
+           WHERE ss.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+             AND ss.isactive = 'Y'
+             AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
+             AND ss.aberp_requestshift = 'Y'
+         )
+       )
+     ORDER BY s.starttime ASC NULLS LAST
+     LIMIT 100`,
+    [period.start_date, period.end_date, cBPartnerStaffId, adUserId, period.id],
+  );
+
+  return { period, items: result.rows.map(mapShiftRow) };
+}
+
+export async function getMyShiftsForPeriod(
+  periodKey: PayPeriodKey,
+  cBPartnerStaffId: number,
+  adUserId: number,
+): Promise<{ period: PayPeriod | null; items: ShiftRow[] }> {
+  const period = await resolvePayPeriod(periodKey);
+  if (!period) {
+    return { period: null, items: [] };
+  }
+
+  const result = await pool.query(
+    `SELECT
+       s.aberp_rostered_shift_id AS id,
+       s.documentno AS document_no,
+       s.starttime AS start_time,
+       s.endtime AS end_time,
+       st.name AS shift_type,
+       ml.name AS location,
+       rs.name AS status,
+       $5::numeric AS pay_period_id,
+       'assigned'::text AS application_status
      FROM aberp_rostered_shiftstaff ss
      JOIN aberp_rostered_shift s ON s.aberp_rostered_shift_id = ss.aberp_rostered_shift_id
      LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
      LEFT JOIN aberp_masterlocation ml ON ml.aberp_masterlocation_id = s.aberp_masterlocation_id
      LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
-     WHERE ss.isactive = 'Y' AND s.isactive = 'Y'
-       AND (ss.c_bpartner_staff_id = $1 OR ss.aberp_user_contact_id = $2)
-     ORDER BY s.starttime DESC NULLS LAST
-     LIMIT 50`,
-    [cBPartnerStaffId, adUserId],
+     WHERE ss.isactive = 'Y'
+       AND s.isactive = 'Y'
+       AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
+       AND (ss.aberp_requestshift IS NULL OR ss.aberp_requestshift <> 'Y')
+       AND ${PERIOD_SHIFT_FILTER}
+     ORDER BY s.starttime ASC NULLS LAST
+     LIMIT 100`,
+    [period.start_date, period.end_date, cBPartnerStaffId, adUserId, period.id],
   );
-  return result.rows.map(mapShiftRow);
+
+  return { period, items: result.rows.map(mapShiftRow) };
+}
+
+export async function getMyApplicationsForPeriod(
+  periodKey: PayPeriodKey,
+  cBPartnerStaffId: number,
+  adUserId: number,
+): Promise<{ period: PayPeriod | null; items: ShiftRow[] }> {
+  const period = await resolvePayPeriod(periodKey);
+  if (!period) {
+    return { period: null, items: [] };
+  }
+
+  const result = await pool.query(
+    `SELECT
+       s.aberp_rostered_shift_id AS id,
+       s.documentno AS document_no,
+       s.starttime AS start_time,
+       s.endtime AS end_time,
+       st.name AS shift_type,
+       ml.name AS location,
+       rs.name AS status,
+       $5::numeric AS pay_period_id,
+       'applied'::text AS application_status
+     FROM aberp_rostered_shiftstaff ss
+     JOIN aberp_rostered_shift s ON s.aberp_rostered_shift_id = ss.aberp_rostered_shift_id
+     LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id
+     LEFT JOIN aberp_masterlocation ml ON ml.aberp_masterlocation_id = s.aberp_masterlocation_id
+     LEFT JOIN r_status rs ON rs.r_status_id = s.r_status_id
+     WHERE ss.isactive = 'Y'
+       AND s.isactive = 'Y'
+       AND (ss.c_bpartner_staff_id = $3 OR ss.aberp_user_contact_id = $4)
+       AND ss.aberp_requestshift = 'Y'
+       AND ${PERIOD_SHIFT_FILTER}
+     ORDER BY s.starttime ASC NULLS LAST
+     LIMIT 100`,
+    [period.start_date, period.end_date, cBPartnerStaffId, adUserId, period.id],
+  );
+
+  return { period, items: result.rows.map(mapShiftRow) };
 }
 
 export async function applyForShift(
@@ -96,15 +197,34 @@ export async function applyForShift(
   adClientId: number,
 ): Promise<{ applied: boolean; message: string }> {
   const existing = await pool.query(
-    `SELECT aberp_rostered_shiftstaff_id
+    `SELECT aberp_rostered_shiftstaff_id, aberp_requestshift
      FROM aberp_rostered_shiftstaff
      WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
        AND (c_bpartner_staff_id = $2 OR aberp_user_contact_id = $3)
      LIMIT 1`,
     [shiftId, cBPartnerStaffId, adUserId],
   );
-  if (existing.rows.length > 0) {
-    return { applied: false, message: "You have already applied or are assigned to this shift" };
+
+  if (existing.rows[0]?.aberp_requestshift === "Y") {
+    return { applied: false, message: "You have already applied for this shift" };
+  }
+
+  if (existing.rows[0]) {
+    return { applied: false, message: "You are already assigned to this shift" };
+  }
+
+  const taken = await pool.query(
+    `SELECT aberp_rostered_shiftstaff_id
+     FROM aberp_rostered_shiftstaff
+     WHERE aberp_rostered_shift_id = $1 AND isactive = 'Y'
+       AND c_bpartner_staff_id IS NOT NULL
+       AND c_bpartner_staff_id <> $2
+       AND aberp_user_contact_id IS DISTINCT FROM $3
+     LIMIT 1`,
+    [shiftId, cBPartnerStaffId, adUserId],
+  );
+  if (taken.rows.length > 0) {
+    return { applied: false, message: "This shift is no longer available" };
   }
 
   const unassigned = await pool.query(

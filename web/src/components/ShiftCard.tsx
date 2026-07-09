@@ -1,3 +1,5 @@
+export type ApplicationStatus = "open" | "applied" | "assigned" | "unavailable";
+
 export interface ShiftItem {
   id: number;
   document_no: string | null;
@@ -6,9 +8,21 @@ export interface ShiftItem {
   shift_type: string | null;
   location: string | null;
   status: string | null;
+  application_status?: ApplicationStatus;
+  pay_period_id?: number | null;
   request_status?: string | null;
   staff_name?: string | null;
 }
+
+const APPLICATION_BADGE: Record<
+  ApplicationStatus,
+  { label: string; className: string }
+> = {
+  open: { label: "Open", className: "bg-green-100 text-green-700" },
+  applied: { label: "Applied", className: "bg-amber-100 text-amber-800" },
+  assigned: { label: "Assigned", className: "bg-blue-100 text-blue-700" },
+  unavailable: { label: "Unavailable", className: "bg-gray-100 text-gray-500" },
+};
 
 export function EmptyState({ message }: { message: string }) {
   return (
@@ -36,11 +50,20 @@ export function ShiftCard({
             {shift.shift_type ?? "Shift"}
           </h3>
         </div>
-        {shift.status ? (
-          <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
-            {shift.status}
-          </span>
-        ) : null}
+        <div className="flex flex-col items-end gap-1">
+          {shift.application_status ? (
+            <span
+              className={`rounded-full px-2 py-1 text-xs font-medium ${APPLICATION_BADGE[shift.application_status].className}`}
+            >
+              {APPLICATION_BADGE[shift.application_status].label}
+            </span>
+          ) : null}
+          {shift.status ? (
+            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
+              {shift.status}
+            </span>
+          ) : null}
+        </div>
       </div>
       <dl className="mt-3 space-y-1 text-sm text-gray-600">
         <div>
