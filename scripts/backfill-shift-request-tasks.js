@@ -68,7 +68,7 @@ async function main() {
          datelastaction, lastresult
        ) VALUES (
          $1, $2, 0, 'Y', NOW(), $3, NOW(), $3,
-         $1::varchar, $4, $5, $6, $7,
+         $13, $4, $5, $6, $7,
          $8, '5', 'C', 'Y', 'N',
          $3, $9, $10, $11, NOW(), $12
        )`,
@@ -85,6 +85,7 @@ async function main() {
         ROSTERING_ROLE_ID,
         row.shift_id,
         message,
+        String(requestId),
       ],
     );
 

@@ -304,7 +304,7 @@ export async function ensureShiftRequestTask(
      ) VALUES (
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
-       $1::varchar, $4, $5, $6, $7,
+       $13, $4, $5, $6, $7,
        $8, '5', 'C', 'Y', 'N',
        $3, $9, $10, $11,
        NOW(), $12
@@ -322,6 +322,7 @@ export async function ensureShiftRequestTask(
       ROSTERING_ROLE_ID,
       shiftId,
       message,
+      String(requestId),
     ],
   );
 
