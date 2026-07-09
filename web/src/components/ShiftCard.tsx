@@ -1,4 +1,12 @@
-export type ApplicationStatus = "open" | "applied" | "assigned" | "unavailable";
+export type ApplicationStatus =
+  | "open"
+  | "requested"
+  | "declined"
+  | "assigned"
+  | "unavailable";
+
+export type ResponseCode = "REQ" | "DEC";
+export type ReviewStatus = "pending" | "reviewed" | null;
 
 export interface ShiftItem {
   id: number;
@@ -9,9 +17,12 @@ export interface ShiftItem {
   location: string | null;
   status: string | null;
   application_status?: ApplicationStatus;
+  response_code?: ResponseCode | null;
+  review_status?: ReviewStatus;
   pay_period_id?: number | null;
   request_status?: string | null;
   staff_name?: string | null;
+  responded_at?: string | null;
 }
 
 const APPLICATION_BADGE: Record<
@@ -19,9 +30,18 @@ const APPLICATION_BADGE: Record<
   { label: string; className: string }
 > = {
   open: { label: "Open", className: "bg-green-100 text-green-700" },
-  applied: { label: "Applied", className: "bg-amber-100 text-amber-800" },
+  requested: { label: "Requested", className: "bg-amber-100 text-amber-800" },
+  declined: { label: "Declined", className: "bg-gray-100 text-gray-600" },
   assigned: { label: "Assigned", className: "bg-blue-100 text-blue-700" },
   unavailable: { label: "Unavailable", className: "bg-gray-100 text-gray-500" },
+};
+
+const REVIEW_BADGE: Record<
+  NonNullable<ReviewStatus>,
+  { label: string; className: string }
+> = {
+  pending: { label: "Pending review", className: "bg-amber-50 text-amber-700" },
+  reviewed: { label: "Reviewed", className: "bg-emerald-50 text-emerald-700" },
 };
 
 export function EmptyState({ message }: { message: string }) {
@@ -58,6 +78,13 @@ export function ShiftCard({
               {APPLICATION_BADGE[shift.application_status].label}
             </span>
           ) : null}
+          {shift.review_status ? (
+            <span
+              className={`rounded-full px-2 py-1 text-xs font-medium ${REVIEW_BADGE[shift.review_status].className}`}
+            >
+              {REVIEW_BADGE[shift.review_status].label}
+            </span>
+          ) : null}
           {shift.status ? (
             <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
               {shift.status}
@@ -90,7 +117,7 @@ export function ShiftCard({
   );
 }
 
-function formatShiftRange(start: string | null, end: string | null): string {
+export function formatShiftRange(start: string | null, end: string | null): string {
   if (!start && !end) return "—";
   const fmt = (value: string) =>
     new Date(value).toLocaleString("en-AU", {
