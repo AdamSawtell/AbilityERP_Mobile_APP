@@ -50,6 +50,7 @@ if [[ ! -f "${APP_DIR}/.env" ]]; then
   echo "Creating ${APP_DIR}/.env from template — EDIT BEFORE STARTING IN PRODUCTION"
   cp "${APP_DIR}/scripts/env.example" "${APP_DIR}/.env"
 fi
+ln -sf "${APP_DIR}/.env" "${APP_DIR}/api/.env"
 
 npm ci
 npm run build

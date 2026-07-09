@@ -1,5 +1,4 @@
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 import { checkDbConnection } from "./db/pool";
 import authRoutes from "./routes/auth";
@@ -8,8 +7,6 @@ import leaveRoutes from "./routes/leave";
 import profileRoutes from "./routes/profile";
 import rosterRoutes from "./routes/roster";
 import shiftsRoutes from "./routes/shifts";
-
-dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
