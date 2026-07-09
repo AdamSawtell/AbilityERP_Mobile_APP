@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -43,8 +44,17 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col justify-center bg-gray-50 px-4 py-8">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-medium uppercase tracking-wide text-blue-600">AbilityERP</p>
-        <h1 className="mt-1 text-2xl font-semibold text-gray-900">Worker sign in</h1>
+        <div className="flex flex-col items-center text-center">
+          <Image
+            src="/icons/icon-192.png"
+            alt="AbilityERP"
+            width={72}
+            height={72}
+            className="h-[72px] w-[72px] rounded-2xl"
+            priority
+          />
+          <h1 className="mt-4 text-2xl font-semibold text-gray-900">Worker sign in</h1>
+        </div>
         <p className="mt-2 text-sm text-gray-600">
           Support workers only. Same experience as AbilityVua worker app — powered by AbilityERP.
         </p>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -50,11 +51,20 @@ export default function AppShell({
     <div className="mx-auto flex min-h-screen w-full max-w-lg flex-col bg-gray-50">
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-white px-4 py-3 shadow-sm">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
-              AbilityERP
-            </p>
-            <h1 className="text-lg font-semibold text-gray-900">Worker App</h1>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/icons/favicon-32.png"
+              alt="AbilityERP"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-lg"
+            />
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
+                AbilityERP
+              </p>
+              <h1 className="text-lg font-semibold text-gray-900">Worker App</h1>
+            </div>
           </div>
           {userName ? (
             <p className="max-w-[40%] truncate text-right text-sm text-gray-600">{userName}</p>

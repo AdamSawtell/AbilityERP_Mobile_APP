@@ -38,6 +38,17 @@ npm run dev                      # http://localhost:3001
 
 Health check: `GET http://localhost:3001/api/health`
 
+### PWA icons (from org logo)
+
+Icons are generated from the iDempiere org logo (`AD_SysConfig` → `ZK_LOGO_SMALL`). Regenerate after a logo change:
+
+```bash
+cd web && npm install -D sharp
+ORG_LOGO_URL="https://your-org-logo.png" node ../scripts/generate-pwa-icons.js
+```
+
+Default source: AbilityERP compact logo on S3 (same as iDempiere web UI).
+
 ### PWA
 
 ```bash
