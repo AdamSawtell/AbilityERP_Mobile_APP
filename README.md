@@ -95,3 +95,11 @@ Same repo and scripts for every AbilityERP instance. Only `.env` (EC2) and Ampli
 ## GitHub
 
 https://github.com/AdamSawtell/AbilityERP_Mobile_APP
+
+## Documentation
+
+| Doc | Audience |
+|-----|----------|
+| [docs/WORKER-GUIDE.md](./docs/WORKER-GUIDE.md) | Support workers — install, sign in, use each screen |
+| [docs/PUSH-NOTIFICATIONS.md](./docs/PUSH-NOTIFICATIONS.md) | Dev team — push notification roadmap (not built yet) |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Technical architecture |
