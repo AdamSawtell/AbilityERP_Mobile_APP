@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Rostered Shift Process
+Bundle-SymbolicName: com.aberp.rosteredshift.process
+Bundle-Version: 7.1.0.202607091200
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.rosteredshift.process
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
+Service-Component: rosteredshift-process.xml
