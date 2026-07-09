@@ -84,7 +84,7 @@ export async function getEmployeeMasterRoster(
        AND (ss.c_bpartner_staff_id = $1 OR ss.aberp_user_contact_id = $2)
        AND NULLIF(s.aberp_rosterstartday, '')::int BETWEEN 1 AND 14
      ORDER BY NULLIF(s.aberp_rosterstartday, '')::int ASC,
-       s.starttime::time ASC NULLS LAST,
+       (COALESCE(ss.starttime, s.starttime) AT TIME ZONE 'Australia/Adelaide')::time ASC NULLS LAST,
        s.aberp_rostered_shift_id ASC
      LIMIT 200`,
     [cBPartnerStaffId, adUserId],
