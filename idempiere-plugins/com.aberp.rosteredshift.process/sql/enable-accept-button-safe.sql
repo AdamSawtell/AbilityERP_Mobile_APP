@@ -1,6 +1,5 @@
 -- Re-enable Accept Shift Request button on Response Log tab (safe config).
--- Matches ShiftOfferNotification pattern: physical column + toolbar button flag B.
--- No displaylogic (process validates REQ/reviewed/superseded) to avoid row-1 timeout.
+-- Display logic: REQ only, not reviewed/superseded, shift employee slot vacant.
 SET search_path TO adempiere;
 
 ALTER TABLE aberp_rosteredresponselog
@@ -20,7 +19,7 @@ SET isactive = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
     istoolbarbutton = 'N',
-    displaylogic = NULL,
+    displaylogic = '@AbERP_RosteredResponse@=''REQ'' & @IsReviewed@=''N'' & @IsSuperseded@=''N'' & @AbERP_IsShiftEmployeeVacant@=''Y''',
     seqno = 61,
     columnspan = 2,
     xposition = 5,

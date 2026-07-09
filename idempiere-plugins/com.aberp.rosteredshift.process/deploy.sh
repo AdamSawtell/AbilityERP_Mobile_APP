@@ -6,7 +6,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607091200"
+VERSION="7.1.0.202607092047"
 SYMBOLIC="com.aberp.rosteredshift.acceptrequest"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -19,6 +19,11 @@ BUNDLES_INFO="${IDEMPIERE_HOME}/configuration/org.eclipse.equinox.simpleconfigur
 
 if [ ! -f "$BUILT_JAR" ]; then
   echo "Building plugin..."
+  bash "$PLUGIN_DIR/build.sh"
+fi
+# Always rebuild when sources are newer than the JAR
+if [ "$PLUGIN_DIR/src/com/aberp/rosteredshift/process/AcceptShiftRequest.java" -nt "$BUILT_JAR" ] 2>/dev/null; then
+  echo "Rebuilding plugin (sources changed)..."
   bash "$PLUGIN_DIR/build.sh"
 fi
 
@@ -54,6 +59,8 @@ sudo -u postgres psql -d idempiere -f /tmp/register-accept-shift-request.sql
 sudo -u postgres psql -d idempiere -f /tmp/add-accept-button-field.sql
 sudo cp "$PLUGIN_DIR/sql/grant-process-access-roles.sql" /tmp/grant-process-access-roles.sql
 sudo -u postgres psql -d idempiere -f /tmp/grant-process-access-roles.sql
+sudo cp "$PLUGIN_DIR/sql/update-accept-button-displaylogic.sql" /tmp/update-accept-button-displaylogic.sql
+sudo -u postgres psql -d idempiere -f /tmp/update-accept-button-displaylogic.sql
 if [ -f "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" ]; then
   sudo cp "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" /tmp/enable-accept-button-safe.sql
   sudo -u postgres psql -d idempiere -f /tmp/enable-accept-button-safe.sql

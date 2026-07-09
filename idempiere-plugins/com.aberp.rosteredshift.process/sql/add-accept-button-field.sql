@@ -67,7 +67,7 @@ SELECT
   1010802, 0, 0, 'Y',
   NOW(), 100, NOW(), 100,
   'Accept Shift Request', 'N', 1000366, c.ad_column_id,
-  'Y', NULL, 1, 'N', 61,
+  'Y', '@AbERP_RosteredResponse@=''REQ'' & @IsReviewed@=''N'' & @IsSuperseded@=''N'' & @AbERP_IsShiftEmployeeVacant@=''Y''', 1, 'N', 61,
   'N', 'N', 'N', 'N', 'Ab_ERP',
   'Y', 5, 1, 2,
   'N', 'N', 'N', 'N',

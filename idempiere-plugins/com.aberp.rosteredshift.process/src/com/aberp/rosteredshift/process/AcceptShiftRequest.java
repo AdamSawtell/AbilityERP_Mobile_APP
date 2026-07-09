@@ -75,6 +75,10 @@ public class AcceptShiftRequest extends SvrProcess {
 			throw new AdempiereException("This shift is already assigned to another worker");
 		}
 
+		if (hasAnyAssignedStaff(shiftId)) {
+			throw new AdempiereException("This shift already has an employee assigned on the Employee tab");
+		}
+
 		PO shiftStaff = findOpenStaffLine(shiftId);
 		if (shiftStaff == null) {
 			shiftStaff = createStaffLine(shiftId, responseLog.getAD_Client_ID(), responseLog.getAD_Org_ID());
@@ -128,6 +132,15 @@ public class AcceptShiftRequest extends SvrProcess {
 		shiftStaff.set_ValueOfColumn("AbERP_ClockIn", "N");
 		shiftStaff.set_ValueOfColumn("AbERP_ClockOut", "N");
 		return shiftStaff;
+	}
+
+	private boolean hasAnyAssignedStaff(int shiftId) {
+		final String whereClause = ""
+				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
+				+ "AND COALESCE(AbERP_User_Contact_ID,0) > 0";
+		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
+				.setParameters(shiftId)
+				.match();
 	}
 
 	private boolean hasConfirmedAssignee(int shiftId, int staffBPartnerId, int userContactId) {

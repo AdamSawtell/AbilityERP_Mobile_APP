@@ -2,9 +2,12 @@
 
 Adds an **Accept Shift Request** toolbar button on **Shift (Rostered) → Response Log**.
 
-When a worker has replied **REQ** and the row is not yet reviewed, a rostering officer selects the response log line and clicks **Accept Shift Request**. The process:
+When a worker has replied **Yes - Request Shift** (`REQ`) and the row is not yet reviewed, a rostering officer selects the response log line and clicks **Accept Shift Request**. The button is hidden for declined responses, reviewed rows, and shifts that already have an employee on the **Employee** tab.
 
-1. Validates the response is `REQ`, active, not superseded, not reviewed
+The process:
+
+1. Validates the response is `REQ` (not declined), active, not superseded, not reviewed
+2. Validates no employee is already assigned on the shift **Employee** tab
 2. Resolves the worker's `C_BPartner` from `AbERP_User_Contact_ID`
 3. Assigns them on `AbERP_Rostered_ShiftStaff` (updates an open staff line or creates one)
 4. Sets `IsReviewed = Y` on the response log
