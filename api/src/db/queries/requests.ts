@@ -163,15 +163,8 @@ async function insertStandaloneRequest(
     ],
   );
 
-  const updateId = await nextSequenceId("R_RequestUpdate", "r_requestupdate", "r_requestupdate_id");
-  await pool.query(
-    `INSERT INTO r_requestupdate (
-       r_requestupdate_id, ad_client_id, ad_org_id, isactive,
-       created, createdby, updated, updatedby,
-       r_request_id, result, confidentialtypeentry
-     ) VALUES ($1, $2, 0, 'Y', NOW(), $3, NOW(), $3, $4, $5, 'C')`,
-    [updateId, adClientId, adUserId, requestId, message],
-  );
+  // Do not insert R_RequestUpdate here — setting lastresult on INSERT fires the
+  // Rostering Chat header→Updates trigger (Public). A second insert caused duplicates.
 
   return requestId;
 }
@@ -441,8 +434,10 @@ export async function getTaskMessages(
        ru.created AS created_at
      FROM r_requestupdate ru
      LEFT JOIN ad_user u ON u.ad_user_id = ru.createdby
-     WHERE ru.r_request_id = $1 AND ru.isactive = 'Y'
-     ORDER BY ru.created ASC
+     WHERE ru.r_request_id = $1
+       AND ru.isactive = 'Y'
+       AND COALESCE(ru.confidentialtypeentry, 'A') <> 'C'
+     ORDER BY ru.created ASC, ru.r_requestupdate_id ASC
      LIMIT 200`,
     [requestId],
   );

@@ -1,11 +1,9 @@
 package com.aberp.rostering.chat.process;
 
 import java.sql.Timestamp;
-import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
-import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MTable;
 import org.compiere.model.MUser;
 import org.compiere.process.ProcessInfoParameter;
@@ -15,7 +13,8 @@ import org.compiere.util.Util;
 
 /**
  * Send a rostering officer reply to the worker.
- * Prefer process parameters (R_Request_ID + Reply) so WebUI button context is reliable.
+ * Sets AbERP_RosteringReply and lets DB triggers copy it to LastResult + Updates
+ * (avoids double inserts and optimistic-lock fights from a second header UPDATE).
  */
 public class SendRosteringReply extends SvrProcess {
 	private int paramRequestId = 0;
@@ -45,7 +44,7 @@ public class SendRosteringReply extends SvrProcess {
 		final int requestTableId = MTable.getTable_ID(MRequest.Table_Name);
 		final int tableId = getTable_ID();
 		if (tableId > 0 && tableId != requestTableId) {
-			throw new AdempiereException("Run Send to Worker from a Rostering Chat request");
+			throw new AdempiereException("Run Send Reply from a Rostering Chat request");
 		}
 
 		int requestId = paramRequestId;
@@ -56,7 +55,7 @@ public class SendRosteringReply extends SvrProcess {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
 		if (requestId <= 0) {
-			throw new AdempiereException("Select a chat thread first (open the row, then Send to Worker)");
+			throw new AdempiereException("Select a chat thread first, type Reply, then Send Reply");
 		}
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
@@ -72,7 +71,7 @@ public class SendRosteringReply extends SvrProcess {
 
 		final String trimmed = resolveReplyMessage(request);
 		if (trimmed.isEmpty()) {
-			throw new AdempiereException("Enter your reply, then click OK / Send to Worker");
+			throw new AdempiereException("Type your reply in the Reply field, then click Send Reply");
 		}
 		if (trimmed.length() > 2000) {
 			throw new AdempiereException("Reply is too long (max 2000 characters)");
@@ -83,73 +82,37 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Could not resolve worker user for this chat thread");
 		}
 
-		final int updateId = insertRequestUpdate(request, trimmed);
-		if (updateId <= 0) {
-			throw new AdempiereException("Failed to save reply into Updates");
-		}
-
-		DB.executeUpdateEx(
-				"UPDATE R_Request SET AD_User_ID=?, AD_Role_ID=0, LastResult=?, "
-						+ "AbERP_RosteringReply=NULL, DateLastAction=?, "
+		// One UPDATE of the Reply column — BEFORE trigger copies to LastResult / clears draft /
+		// sets AD_Role_ID=0; AFTER trigger inserts Public R_RequestUpdate.
+		final int rows = DB.executeUpdateEx(
+				"UPDATE R_Request SET AbERP_RosteringReply=?, AD_User_ID=?, "
 						+ "Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
 				new Object[] {
-						workerUserId,
 						trimmed,
-						new Timestamp(System.currentTimeMillis()),
+						workerUserId,
 						new Timestamp(System.currentTimeMillis()),
 						getAD_User_ID(),
 						requestId
 				},
 				get_TrxName());
+		if (rows <= 0) {
+			throw new AdempiereException("Failed to send reply — record may have changed, click ReQuery and try again");
+		}
+
+		final int updateId = DB.getSQLValueEx(get_TrxName(),
+				"SELECT MAX(R_RequestUpdate_ID) FROM R_RequestUpdate "
+						+ "WHERE R_Request_ID=? AND IsActive='Y' "
+						+ "AND COALESCE(ConfidentialTypeEntry,'A')='A' "
+						+ "AND TRIM(Result)=TRIM(?)",
+				requestId, trimmed);
 
 		final MUser worker = MUser.get(getCtx(), workerUserId);
-		final String workerName = worker != null && worker.get_ID() > 0 ? worker.getName() : String.valueOf(workerUserId);
-		addLog(updateId, null, null, "Reply saved to Updates #" + updateId + " and sent to " + workerName);
-		return "@OK@ Reply saved to Updates and sent to " + workerName;
-	}
-
-	private int insertRequestUpdate(MRequest request, String message) {
-		try {
-			final MRequestUpdate update = new MRequestUpdate(request);
-			update.setResult(message);
-			if (update.save()) {
-				return update.get_ID();
-			}
-			log.log(Level.WARNING, "MRequestUpdate.save() returned false — falling back to SQL insert");
-		} catch (Exception ex) {
-			log.log(Level.WARNING, "MRequestUpdate failed — falling back to SQL insert", ex);
-		}
-
-		// Keep sequence ahead of live max to avoid duplicate keys
-		DB.executeUpdateEx(
-				"UPDATE AD_Sequence SET CurrentNext = GREATEST(CurrentNext, "
-						+ "COALESCE((SELECT MAX(R_RequestUpdate_ID)+IncrementNo FROM R_RequestUpdate), CurrentNext)) "
-						+ "WHERE Name='R_RequestUpdate'",
-				get_TrxName());
-
-		final int updateId = DB.getNextID(request.getAD_Client_ID(), "R_RequestUpdate", get_TrxName());
-		if (updateId <= 0) {
-			return 0;
-		}
-
-		final int rows = DB.executeUpdateEx(
-				"INSERT INTO R_RequestUpdate ("
-						+ "R_RequestUpdate_ID, AD_Client_ID, AD_Org_ID, IsActive, "
-						+ "Created, CreatedBy, Updated, UpdatedBy, "
-						+ "R_Request_ID, Result, ConfidentialTypeEntry"
-						+ ") VALUES (?, ?, 0, 'Y', ?, ?, ?, ?, ?, ?, 'C')",
-				new Object[] {
-						updateId,
-						request.getAD_Client_ID(),
-						new Timestamp(System.currentTimeMillis()),
-						getAD_User_ID(),
-						new Timestamp(System.currentTimeMillis()),
-						getAD_User_ID(),
-						request.get_ID(),
-						message
-				},
-				get_TrxName());
-		return rows > 0 ? updateId : 0;
+		final String workerName = worker != null && worker.get_ID() > 0
+				? worker.getName()
+				: String.valueOf(workerUserId);
+		addLog(updateId > 0 ? updateId : requestId, null, null,
+				"Reply sent to " + workerName);
+		return "@OK@ Reply sent to " + workerName;
 	}
 
 	private String resolveReplyMessage(MRequest request) {
