@@ -42,6 +42,7 @@ export interface TaskRow {
   updated_at: string | null;
   last_message: string | null;
   last_message_at: string | null;
+  is_closed: boolean;
 }
 
 export interface TaskMessageRow {
@@ -64,6 +65,7 @@ function mapTaskRow(row: {
   updated_at: unknown;
   last_message?: string | null;
   last_message_at?: unknown;
+  r_status_id?: number | null;
 }): TaskRow {
   return {
     id: row.id,
@@ -76,6 +78,7 @@ function mapTaskRow(row: {
     updated_at: formatTimestamp(row.updated_at),
     last_message: cleanRequestMessage(row.last_message ?? null),
     last_message_at: formatTimestamp(row.last_message_at),
+    is_closed: row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED,
   };
 }
 
@@ -162,6 +165,7 @@ export async function getWorkerTasks(
        COALESCE(role.name, 'Rostering Officer') AS assigned_to_role,
        r.created AS created_at,
        r.updated AS updated_at,
+       r.r_status_id,
        (
          SELECT ru.result FROM r_requestupdate ru
          WHERE ru.r_request_id = r.r_request_id AND ru.isactive = 'Y'
@@ -204,7 +208,8 @@ export async function getWorkerTask(
        rs.name AS status,
        COALESCE(role.name, 'Rostering Officer') AS assigned_to_role,
        r.created AS created_at,
-       r.updated AS updated_at
+       r.updated AS updated_at,
+       r.r_status_id
      FROM r_request r
      LEFT JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
      LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
@@ -221,12 +226,12 @@ export async function getWorkerTask(
   return row ? mapTaskRow(row) : null;
 }
 
-export async function getOrCreateRosteringChat(
+export async function getRosteringChatState(
   adUserId: number,
   cBPartnerStaffId: number,
   adClientId: number,
-): Promise<TaskRow> {
-  const existing = await pool.query(
+): Promise<{ task: TaskRow | null; messages: TaskMessageRow[] }> {
+  const open = await pool.query(
     `SELECT r.r_request_id AS id
      FROM r_request r
      WHERE r.isactive = 'Y'
@@ -242,22 +247,133 @@ export async function getOrCreateRosteringChat(
     [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
   );
 
-  let requestId = existing.rows[0]?.id ? Number(existing.rows[0].id) : null;
+  let requestId = open.rows[0]?.id ? Number(open.rows[0].id) : null;
+
   if (!requestId) {
-    requestId = await insertStandaloneRequest(
-      adUserId,
-      cBPartnerStaffId,
-      adClientId,
-      "Message to Rostering",
-      "Hello — I would like to get in touch with rostering.",
+    const anyThread = await pool.query(
+      `SELECT COUNT(*)::int AS total
+       FROM r_request r
+       WHERE r.isactive = 'Y'
+         AND ${STANDALONE_REQUEST_FILTER}
+         AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)`,
+      [adUserId, cBPartnerStaffId],
     );
+    const hasHistory = Number(anyThread.rows[0]?.total ?? 0) > 0;
+
+    if (!hasHistory) {
+      requestId = await insertStandaloneRequest(
+        adUserId,
+        cBPartnerStaffId,
+        adClientId,
+        "Message to Rostering",
+        "Hello — I would like to get in touch with rostering.",
+      );
+    } else {
+      const closed = await pool.query(
+        `SELECT r.r_request_id AS id
+         FROM r_request r
+         WHERE r.isactive = 'Y'
+           AND ${STANDALONE_REQUEST_FILTER}
+           AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
+           AND r.r_status_id = $3
+         ORDER BY COALESCE(
+           (SELECT MAX(ru.created) FROM r_requestupdate ru WHERE ru.r_request_id = r.r_request_id),
+           r.updated,
+           r.created
+         ) DESC
+         LIMIT 1`,
+        [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+      );
+      requestId = closed.rows[0]?.id ? Number(closed.rows[0].id) : null;
+    }
+  }
+
+  if (!requestId) {
+    return { task: null, messages: [] };
   }
 
   const task = await getWorkerTask(requestId, adUserId, cBPartnerStaffId);
   if (!task) {
-    throw new Error("Failed to open rostering chat");
+    return { task: null, messages: [] };
+  }
+
+  const messages = await getTaskMessages(requestId, adUserId, cBPartnerStaffId);
+  return { task, messages };
+}
+
+/** @deprecated use getRosteringChatState */
+export async function getOrCreateRosteringChat(
+  adUserId: number,
+  cBPartnerStaffId: number,
+  adClientId: number,
+): Promise<TaskRow> {
+  const { task } = await getRosteringChatState(adUserId, cBPartnerStaffId, adClientId);
+  if (!task) {
+    throw new Error("No chat thread available");
   }
   return task;
+}
+
+export async function startRosteringChat(
+  adUserId: number,
+  cBPartnerStaffId: number,
+  adClientId: number,
+  firstMessage?: string,
+): Promise<TaskRow> {
+  const open = await pool.query(
+    `SELECT r.r_request_id AS id
+     FROM r_request r
+     WHERE r.isactive = 'Y'
+       AND ${STANDALONE_REQUEST_FILTER}
+       AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
+       AND r.r_status_id <> $3
+     LIMIT 1`,
+    [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+  );
+  if (open.rows[0]?.id) {
+    throw new Error("You already have an open chat with rostering");
+  }
+
+  const message =
+    firstMessage?.trim() ||
+    "Hello — I would like to get in touch with rostering.";
+  const requestId = await insertStandaloneRequest(
+    adUserId,
+    cBPartnerStaffId,
+    adClientId,
+    "Message to Rostering",
+    message,
+  );
+
+  const task = await getWorkerTask(requestId, adUserId, cBPartnerStaffId);
+  if (!task) {
+    throw new Error("Failed to start rostering chat");
+  }
+  return task;
+}
+
+export async function closeRosteringChat(
+  requestId: number,
+  adUserId: number,
+  cBPartnerStaffId: number,
+): Promise<TaskRow | null> {
+  const task = await getWorkerTask(requestId, adUserId, cBPartnerStaffId);
+  if (!task) return null;
+  if (task.is_closed) {
+    throw new Error("This chat is already closed");
+  }
+
+  await pool.query(
+    `UPDATE r_request
+     SET r_status_id = $2,
+         updated = NOW(),
+         updatedby = $3,
+         datelastaction = NOW()
+     WHERE r_request_id = $1`,
+    [requestId, REQUEST_STATUS_CLOSED, adUserId],
+  );
+
+  return getWorkerTask(requestId, adUserId, cBPartnerStaffId);
 }
 
 export async function createStandaloneRequest(
@@ -318,6 +434,9 @@ export async function addTaskMessage(
 ): Promise<{ id: number } | null> {
   const task = await getWorkerTask(requestId, adUserId, cBPartnerStaffId);
   if (!task) return null;
+  if (task.is_closed) {
+    throw new Error("This chat is closed. Start a new conversation to continue.");
+  }
 
   const trimmed = body.trim();
   if (!trimmed) {
@@ -340,9 +459,14 @@ export async function addTaskMessage(
 
   await pool.query(
     `UPDATE r_request
-     SET updated = NOW(), updatedby = $2, datelastaction = NOW(), lastresult = $3
+     SET updated = NOW(),
+         updatedby = $2,
+         datelastaction = NOW(),
+         lastresult = $3,
+         ad_role_id = $4,
+         ad_user_id = $2
      WHERE r_request_id = $1`,
-    [requestId, adUserId, trimmed],
+    [requestId, adUserId, trimmed, ROSTERING_ROLE_ID],
   );
 
   return { id: updateId };

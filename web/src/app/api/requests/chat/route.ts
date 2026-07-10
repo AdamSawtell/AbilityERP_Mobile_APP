@@ -18,3 +18,24 @@ export async function GET() {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  const token = await getSessionToken();
+  if (!token) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+
+  try {
+    const data = await apiFetch("/api/requests/chat", {
+      method: "POST",
+      token,
+      body: JSON.stringify(body),
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to start chat";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}

@@ -7,7 +7,8 @@ interface ChatResponse {
     summary: string | null;
     status: string | null;
     assigned_to_role: string | null;
-  };
+    is_closed: boolean;
+  } | null;
   messages: {
     id: number;
     body: string | null;
@@ -23,21 +24,27 @@ export default async function TasksPage() {
   return (
     <section className="space-y-3">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Tasks</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Rostering chat</h2>
         <p className="text-sm text-gray-600">
-          Message rostering — standalone chat using the request system.
+          Message your rostering team. Each conversation is a separate record in AbilityERP.
         </p>
         {data?.task?.status ? (
-          <span className="mt-2 inline-block rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600">
+          <span
+            className={`mt-2 inline-block rounded-full px-2 py-1 text-xs ${
+              data.task.is_closed
+                ? "bg-gray-200 text-gray-700"
+                : "bg-green-100 text-green-800"
+            }`}
+          >
             {data.task.status}
           </span>
         ) : null}
       </div>
-      {data?.task ? (
-        <TaskChat requestId={data.task.id} messages={data.messages ?? []} />
-      ) : (
-        <p className="text-sm text-gray-500">Unable to load chat. Try again shortly.</p>
-      )}
+      <TaskChat
+        requestId={data?.task?.id ?? null}
+        messages={data?.messages ?? []}
+        isClosed={data?.task?.is_closed ?? false}
+      />
     </section>
   );
 }
