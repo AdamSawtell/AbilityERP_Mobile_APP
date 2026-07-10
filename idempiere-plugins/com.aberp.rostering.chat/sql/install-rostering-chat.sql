@@ -229,6 +229,7 @@ BEGIN
       orderbyclause = 'R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
       isinsertrecord = 'N',
       isreadonly = 'N',
+      issinglerow = 'Y',
       updated = NOW(),
       updatedby = 100
   FROM ad_window w
@@ -326,7 +327,7 @@ BEGIN
       ELSE 'N'
     END;
 
-    v_readonly := CASE WHEN v_col = 'LastResult' THEN 'N' ELSE 'Y' END;
+    v_readonly := 'Y';
 
     INSERT INTO ad_field (
       ad_field_id, ad_client_id, ad_org_id, isactive,
@@ -348,7 +349,7 @@ BEGIN
       CASE WHEN v_col IN ('DateLastAction', 'Updated', 'SalesRep_ID') THEN 'Y' ELSE 'N' END,
       'N', 'N', 'N', 'Ab_ERP',
       v_display_grid, COALESCE(sf.xposition, 1), COALESCE(sf.numlines, 1), COALESCE(sf.columnspan, 1),
-      'N', 'N', 'N', CASE WHEN v_col = 'LastResult' THEN 'Y' ELSE 'N' END,
+      'N', 'N', 'N', 'N',
       (
         substring(md5('AbERP_RosteringChat-field-' || v_col), 1, 8) || '-' ||
         substring(md5('AbERP_RosteringChat-field-' || v_col), 9, 4) || '-4a04-8004-' || lpad(v_seq::text, 12, '0')
@@ -366,14 +367,14 @@ BEGIN
   END LOOP;
 
   UPDATE ad_field f
-  SET isreadonly = 'N',
+  SET isreadonly = 'Y',
       isdisplayed = 'Y',
       isdisplayedgrid = 'Y',
-      numlines = 3,
+      numlines = 2,
       columnspan = 3,
-      isdefaultfocus = 'Y',
-      name = 'Reply (Last Result)',
-      description = 'Type your reply here, then click Send to Worker.',
+      isdefaultfocus = 'N',
+      name = 'Last Result',
+      description = 'Last message on this thread (updated when you Send to Worker).',
       updated = NOW(),
       updatedby = 100
   FROM ad_column c
@@ -381,6 +382,28 @@ BEGIN
     AND f.ad_tab_id = v_header_tab_id
     AND c.columnname = 'LastResult';
 END $$;
+
+-- Last Result must be updateable at column level (core Request windows mark it read-only on field)
+UPDATE ad_column c
+SET isupdateable = 'Y',
+    isalwaysupdateable = 'Y',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_table tb
+WHERE c.ad_table_id = tb.ad_table_id
+  AND tb.tablename = 'R_Request'
+  AND c.columnname = 'LastResult';
+
+UPDATE ad_tab t
+SET issinglerow = 'Y',
+    isreadonly = 'N',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_window w
+  WHERE t.ad_window_id = w.ad_window_id
+  AND w.name = 'Rostering Chat'
+  AND t.name = 'Chat'
+  AND t.tablevel = 0;
 
 -- ---------------------------------------------------------------------------
 -- 5. Updates tab fields (read-only message history)
@@ -542,6 +565,71 @@ ALTER TABLE r_request
 ALTER TABLE r_request
   ADD COLUMN IF NOT EXISTS aberp_closerosteringchat character(1);
 
+ALTER TABLE r_request
+  ADD COLUMN IF NOT EXISTS aberp_rosteringreply VARCHAR(2000);
+
+INSERT INTO ad_element (
+  ad_element_id, ad_client_id, ad_org_id, isactive,
+  created, createdby, updated, updatedby,
+  columnname, entitytype, name, printname, ad_element_uu
+)
+SELECT
+  (SELECT COALESCE(MAX(ad_element_id), 0) + 1 FROM ad_element),
+  0, 0, 'Y', NOW(), 100, NOW(), 100,
+  'AbERP_RosteringReply', 'Ab_ERP', 'Reply', 'Reply',
+  (
+    substring(md5('AbERP_RosteringReply-element'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringReply-element'), 9, 4) || '-4c04-8204-000000000004'
+  )
+WHERE NOT EXISTS (
+  SELECT 1 FROM ad_element WHERE columnname = 'AbERP_RosteringReply'
+);
+
+INSERT INTO ad_column (
+  ad_column_id, ad_client_id, ad_org_id, isactive,
+  created, createdby, updated, updatedby,
+  name, entitytype, columnname, ad_table_id,
+  ad_reference_id, fieldlength, version,
+  iskey, isparent, ismandatory, isupdateable, isidentifier, seqno,
+  istranslated, isencrypted, isselectioncolumn,
+  ad_element_id, issyncdatabase, isalwaysupdateable,
+  isautocomplete, isallowlogging, isallowcopy,
+  istoolbarbutton, issecure, fkconstrainttype, ishtml,
+  ad_column_uu
+)
+SELECT
+  (SELECT COALESCE(MAX(ad_column_id), 0) + 1 FROM ad_column),
+  0, 0, 'Y', NOW(), 100, NOW(), 100,
+  'Reply', 'Ab_ERP', 'AbERP_RosteringReply', tb.ad_table_id,
+  COALESCE(
+    (SELECT ad_reference_id FROM ad_reference WHERE name = 'Text' AND isactive = 'Y' LIMIT 1),
+    14
+  ),
+  2000, 0,
+  'N', 'N', 'N', 'Y', 'N', 0,
+  'N', 'N', 'N',
+  e.ad_element_id, 'Y', 'Y',
+  'N', 'Y', 'Y',
+  'N', 'N', 'N', 'N',
+  (
+    substring(md5('AbERP_RosteringReply-col'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringReply-col'), 9, 4) || '-4c05-8205-000000000005'
+  )
+FROM ad_element e
+CROSS JOIN ad_table tb
+WHERE e.columnname = 'AbERP_RosteringReply'
+  AND tb.tablename = 'R_Request' AND tb.isactive = 'Y'
+  AND NOT EXISTS (
+    SELECT 1 FROM ad_column c
+    WHERE c.columnname = 'AbERP_RosteringReply' AND c.ad_table_id = tb.ad_table_id
+  );
+
+UPDATE ad_column c
+SET isupdateable = 'Y', isalwaysupdateable = 'Y', updated = NOW(), updatedby = 100
+FROM ad_table tb, ad_element e
+WHERE c.ad_table_id = tb.ad_table_id AND tb.tablename = 'R_Request'
+  AND c.ad_element_id = e.ad_element_id AND e.columnname = 'AbERP_RosteringReply';
+
 INSERT INTO ad_element (
   ad_element_id, ad_client_id, ad_org_id, isactive,
   created, createdby, updated, updatedby,
@@ -655,6 +743,68 @@ WHERE e.columnname = 'AbERP_CloseRosteringChat'
     SELECT 1 FROM ad_column c
     WHERE c.columnname = 'AbERP_CloseRosteringChat' AND c.ad_table_id = tb.ad_table_id
   );
+
+-- Editable Reply field (compose message here) — after AbERP_RosteringReply column exists
+DO $$
+DECLARE
+  v_header_tab_id INTEGER;
+BEGIN
+  SELECT t.ad_tab_id INTO v_header_tab_id
+  FROM ad_tab t
+  JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+  WHERE w.name = 'Rostering Chat' AND t.name = 'Chat' AND t.tablevel = 0
+  LIMIT 1;
+
+  INSERT INTO ad_field (
+    ad_field_id, ad_client_id, ad_org_id, isactive,
+    created, createdby, updated, updatedby,
+    name, description, iscentrallymaintained,
+    ad_tab_id, ad_column_id,
+    isdisplayed, displaylength, isreadonly, seqno,
+    issameline, isheading, isfieldonly, isencrypted, entitytype,
+    isdisplayedgrid, xposition, numlines, columnspan,
+    isquickentry, istoolbarbutton, isadvancedfield, isdefaultfocus,
+    isupdateable, ad_field_uu
+  )
+  SELECT
+    (SELECT COALESCE(MAX(ad_field_id), 0) + 1 FROM ad_field),
+    0, 0, 'Y', NOW(), 100, NOW(), 100,
+    'Reply', 'Type your reply here, then click Send to Worker.', 'N',
+    v_header_tab_id, c.ad_column_id,
+    'Y', 0, 'N', 55,
+    'N', 'N', 'N', 'N', 'Ab_ERP',
+    'Y', 1, 3, 3,
+    'N', 'N', 'N', 'Y',
+    'Y',
+    (
+      substring(md5('AbERP_RosteringReply-field'), 1, 8) || '-' ||
+      substring(md5('AbERP_RosteringReply-field'), 9, 4) || '-4c06-8206-000000000006'
+    )
+  FROM ad_column c
+  JOIN ad_table tb ON tb.ad_table_id = c.ad_table_id AND tb.tablename = 'R_Request'
+  WHERE c.columnname = 'AbERP_RosteringReply' AND c.isactive = 'Y'
+    AND NOT EXISTS (
+      SELECT 1 FROM ad_field f
+      WHERE f.ad_tab_id = v_header_tab_id AND f.ad_column_id = c.ad_column_id
+    );
+
+  UPDATE ad_field f
+  SET isreadonly = 'N',
+      isupdateable = 'Y',
+      isdisplayed = 'Y',
+      isdisplayedgrid = 'Y',
+      numlines = 3,
+      columnspan = 3,
+      isdefaultfocus = 'Y',
+      name = 'Reply',
+      description = 'Type your reply here, then click Send to Worker.',
+      updated = NOW(),
+      updatedby = 100
+  FROM ad_column c
+  WHERE f.ad_column_id = c.ad_column_id
+    AND f.ad_tab_id = v_header_tab_id
+    AND c.columnname = 'AbERP_RosteringReply';
+END $$;
 
 -- Button fields on Chat tab
 DO $$

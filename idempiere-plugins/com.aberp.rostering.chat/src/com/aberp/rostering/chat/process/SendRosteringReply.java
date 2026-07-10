@@ -9,12 +9,15 @@ import org.compiere.model.MTable;
 import org.compiere.model.MUser;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
+import org.compiere.util.Util;
 
 /**
  * Send a rostering officer reply using the Last Result field on the request header.
  * Inserts R_RequestUpdate, assigns back to the worker, and clears the role queue.
  */
 public class SendRosteringReply extends SvrProcess {
+	private static final int WINDOW_SCAN_MAX = 512;
 	@Override
 	protected void prepare() {
 		// Reply text comes from LastResult on the selected R_Request record.
@@ -26,7 +29,7 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Run Send to Worker from a Rostering Chat request");
 		}
 
-		final int requestId = getRecord_ID();
+		final int requestId = resolveRequestId();
 		if (requestId <= 0) {
 			throw new AdempiereException("Select a chat thread first");
 		}
@@ -42,9 +45,9 @@ public class SendRosteringReply extends SvrProcess {
 
 		assertRosteringChatType(request);
 
-		final String trimmed = request.getLastResult() == null ? "" : request.getLastResult().trim();
+		final String trimmed = resolveReplyMessage(request);
 		if (trimmed.isEmpty()) {
-			throw new AdempiereException("Enter your reply in Last Result, then click Send to Worker");
+			throw new AdempiereException("Enter your reply in the Reply field, then click Send to Worker");
 		}
 		if (trimmed.length() > 2000) {
 			throw new AdempiereException("Last Result is too long (max 2000 characters)");
@@ -64,6 +67,7 @@ public class SendRosteringReply extends SvrProcess {
 		request.setAD_User_ID(workerUserId);
 		request.setAD_Role_ID(0);
 		request.setLastResult(trimmed);
+		request.set_ValueOfColumn("AbERP_RosteringReply", null);
 		request.setDateLastAction(new Timestamp(System.currentTimeMillis()));
 		if (!request.save()) {
 			throw new AdempiereException("Reply saved but failed to update request header");
@@ -75,7 +79,57 @@ public class SendRosteringReply extends SvrProcess {
 		return "@OK@";
 	}
 
-	/** Worker who opened the mobile chat — AD_User on request, else user linked to C_BPartner. */
+	/** Reply draft from WebUI context (unsaved) or persisted AbERP_RosteringReply column. */
+	private String resolveReplyMessage(MRequest request) {
+		final String contextDraft = getDraftReplyFromContext();
+		if (!Util.isEmpty(contextDraft)) {
+			return contextDraft.trim();
+		}
+
+		final Object dbDraft = request.get_Value("AbERP_RosteringReply");
+		if (dbDraft != null && !dbDraft.toString().trim().isEmpty()) {
+			return dbDraft.toString().trim();
+		}
+
+		return "";
+	}
+
+	private int resolveRequestId() {
+		if (getRecord_ID() > 0) {
+			return getRecord_ID();
+		}
+
+		int requestId = Env.getContextAsInt(getCtx(), "#R_Request_ID");
+		if (requestId > 0) {
+			return requestId;
+		}
+
+		for (int windowNo = 0; windowNo < WINDOW_SCAN_MAX; windowNo++) {
+			requestId = Env.getContextAsInt(getCtx(), windowNo, "R_Request_ID", true);
+			if (requestId > 0) {
+				return requestId;
+			}
+		}
+
+		return 0;
+	}
+
+	private String getDraftReplyFromContext() {
+		String draft = Env.getContext(getCtx(), "#AbERP_RosteringReply");
+		if (!Util.isEmpty(draft)) {
+			return draft;
+		}
+
+		for (int windowNo = 0; windowNo < WINDOW_SCAN_MAX; windowNo++) {
+			draft = Env.getContext(getCtx(), windowNo, "AbERP_RosteringReply", true);
+			if (!Util.isEmpty(draft)) {
+				return draft;
+			}
+		}
+
+		return null;
+	}
+
 	private int resolveWorkerUserId(MRequest request) {
 		if (request.getAD_User_ID() > 0) {
 			return request.getAD_User_ID();
