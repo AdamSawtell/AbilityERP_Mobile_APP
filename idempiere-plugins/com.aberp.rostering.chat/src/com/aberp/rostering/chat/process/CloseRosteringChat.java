@@ -19,11 +19,16 @@ public class CloseRosteringChat extends SvrProcess {
 
 	@Override
 	protected String doIt() throws Exception {
-		if (getTable_ID() != MTable.getTable_ID(MRequest.Table_Name)) {
+		final int requestTableId = MTable.getTable_ID(MRequest.Table_Name);
+		final int tableId = getTable_ID();
+		if (tableId > 0 && tableId != requestTableId) {
 			throw new AdempiereException("Run Close Chat from a Rostering Chat request");
 		}
 
-		final int requestId = getRecord_ID();
+		int requestId = getRecord_ID();
+		if (requestId <= 0) {
+			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
+		}
 		if (requestId <= 0) {
 			throw new AdempiereException("Select a chat thread first");
 		}

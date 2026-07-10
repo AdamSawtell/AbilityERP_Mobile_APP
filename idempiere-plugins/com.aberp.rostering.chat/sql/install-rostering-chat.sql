@@ -256,10 +256,10 @@ SELECT
   0, 0, 'Y',
   NOW(), 100, NOW(), 100,
   'Updates', 'Chat message history', utb.ad_table_id, w.ad_window_id, 20, 1,
-  'N', 'N', 'N', 'Y',
-  link_col.ad_column_id, 'N', 'N', 'N',
+  'Y', 'N', 'N', 'N',
+  NULL, 'N', 'N', 'N',
   'N', 'Ab_ERP', 'N', 'N',
-  link_col.ad_column_id, NULL, 'R_RequestUpdate.Created ASC',
+  NULL, NULL, 'R_RequestUpdate.Created ASC',
   'B', 'N', 'Y',
   (
     substring(md5('AbERP_RosteringChat-updates-tab'), 1, 8) || '-' ||
@@ -267,18 +267,27 @@ SELECT
   )
 FROM ad_window w
 CROSS JOIN ad_table utb
-CROSS JOIN ad_table rtb
-JOIN ad_column link_col ON link_col.ad_table_id = utb.ad_table_id AND link_col.columnname = 'R_Request_ID'
 WHERE w.name = 'Rostering Chat'
   AND utb.tablename = 'R_RequestUpdate' AND utb.isactive = 'Y'
-  AND rtb.tablename = 'R_Request' AND rtb.isactive = 'Y'
   AND NOT EXISTS (
     SELECT 1 FROM ad_tab t
     WHERE t.ad_window_id = w.ad_window_id AND t.name = 'Updates'
   );
 
 UPDATE ad_tab t
-SET isreadonly = 'Y',
+SET ad_column_id = NULL,
+    parent_column_id = NULL,
+    issinglerow = 'Y',
+    isreadonly = 'N',
+    isinsertrecord = 'N',
+    orderbyclause = 'R_RequestUpdate.Created ASC',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_window w
+WHERE t.ad_window_id = w.ad_window_id AND w.name = 'Rostering Chat' AND t.name = 'Updates';
+
+UPDATE ad_tab t
+SET isreadonly = 'N',
     isinsertrecord = 'N',
     orderbyclause = 'R_RequestUpdate.Created ASC',
     updated = NOW(),
@@ -296,7 +305,7 @@ DECLARE
   v_seq INTEGER := 10;
   v_col TEXT;
     v_cols TEXT[] := ARRAY[
-    'DocumentNo', 'Summary', 'R_Status_ID', 'AD_User_ID', 'C_BPartner_ID',
+    'Summary', 'R_Status_ID', 'AD_User_ID', 'C_BPartner_ID',
     'LastResult', 'DateLastAction', 'Created', 'Updated', 'SalesRep_ID'
   ];
   v_readonly TEXT;
@@ -322,7 +331,7 @@ BEGIN
 
   FOREACH v_col IN ARRAY v_cols LOOP
     v_display_grid := CASE
-      WHEN v_col IN ('DocumentNo', 'Summary', 'R_Status_ID', 'AD_User_ID', 'LastResult', 'DateLastAction', 'Updated')
+      WHEN v_col IN ('Summary', 'R_Status_ID', 'AD_User_ID', 'LastResult', 'DateLastAction', 'Updated')
         THEN 'Y'
       ELSE 'N'
     END;
@@ -404,6 +413,19 @@ FROM ad_window w
   AND w.name = 'Rostering Chat'
   AND t.name = 'Chat'
   AND t.tablevel = 0;
+
+-- Hide document number (internal id only)
+UPDATE ad_field f
+SET isdisplayed = 'N',
+    isdisplayedgrid = 'N',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_column c, ad_tab t, ad_window w
+WHERE f.ad_column_id = c.ad_column_id
+  AND f.ad_tab_id = t.ad_tab_id
+  AND t.ad_window_id = w.ad_window_id
+  AND w.name = 'Rostering Chat' AND t.name = 'Chat'
+  AND c.columnname = 'DocumentNo';
 
 -- ---------------------------------------------------------------------------
 -- 5. Updates tab fields (read-only message history)
@@ -864,7 +886,7 @@ BEGIN
     (SELECT COALESCE(MAX(ad_field_id), 0) + 1 FROM ad_field),
     0, 0, 'Y', NOW(), 100, NOW(), 100,
     'Close Chat', 'N', tab.ad_tab_id, c.ad_column_id,
-    'Y', '@R_Status_ID@<>' || v_closed_logic, 1, 'N', 120,
+    'Y', '@R_Status_ID@<>' || v_closed_logic, 1, 'N', 130,
     'Y', 'N', 'N', 'N', 'Ab_ERP',
     'Y', 3, 1, 2,
     'N', 'N',
@@ -889,6 +911,9 @@ BEGIN
   SET displaylogic = '@R_Status_ID@<>' || v_closed_logic,
       isdisplayed = 'Y',
       isdisplayedgrid = 'Y',
+      seqno = CASE WHEN c.columnname = 'AbERP_SendRosteringReply' THEN 110
+                   WHEN c.columnname = 'AbERP_CloseRosteringChat' THEN 130
+                   ELSE f.seqno END,
       name = CASE WHEN c.columnname = 'AbERP_SendRosteringReply' THEN 'Send to Worker' ELSE f.name END,
       updated = NOW(),
       updatedby = 100
