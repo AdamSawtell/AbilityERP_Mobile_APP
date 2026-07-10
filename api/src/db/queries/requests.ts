@@ -43,6 +43,8 @@ export interface TaskRow {
   last_message: string | null;
   last_message_at: string | null;
   is_closed: boolean;
+  /** Who should respond next: rostering officer, worker, or null when closed. */
+  awaiting_reply_from: "rostering" | "worker" | null;
 }
 
 export interface TaskMessageRow {
@@ -66,7 +68,12 @@ function mapTaskRow(row: {
   last_message?: string | null;
   last_message_at?: unknown;
   r_status_id?: number | null;
+  ad_role_id?: number | null;
 }): TaskRow {
+  const isClosed = row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED;
+  const queuedToRostering =
+    row.ad_role_id != null && Number(row.ad_role_id) === ROSTERING_ROLE_ID;
+
   return {
     id: row.id,
     document_no: row.document_no,
@@ -78,7 +85,8 @@ function mapTaskRow(row: {
     updated_at: formatTimestamp(row.updated_at),
     last_message: cleanRequestMessage(row.last_message ?? null),
     last_message_at: formatTimestamp(row.last_message_at),
-    is_closed: row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED,
+    is_closed: isClosed,
+    awaiting_reply_from: isClosed ? null : queuedToRostering ? "rostering" : "worker",
   };
 }
 
@@ -166,6 +174,7 @@ export async function getWorkerTasks(
        r.created AS created_at,
        r.updated AS updated_at,
        r.r_status_id,
+       r.ad_role_id,
        (
          SELECT ru.result FROM r_requestupdate ru
          WHERE ru.r_request_id = r.r_request_id AND ru.isactive = 'Y'
@@ -209,7 +218,8 @@ export async function getWorkerTask(
        COALESCE(role.name, 'Rostering Officer') AS assigned_to_role,
        r.created AS created_at,
        r.updated AS updated_at,
-       r.r_status_id
+       r.r_status_id,
+       r.ad_role_id
      FROM r_request r
      LEFT JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
      LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id

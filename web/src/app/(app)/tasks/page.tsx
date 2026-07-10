@@ -8,6 +8,7 @@ interface ChatResponse {
     status: string | null;
     assigned_to_role: string | null;
     is_closed: boolean;
+    awaiting_reply_from: "rostering" | "worker" | null;
   } | null;
   messages: {
     id: number;
@@ -16,6 +17,20 @@ interface ChatResponse {
     is_mine: boolean;
     created_at: string | null;
   }[];
+}
+
+function statusLabel(task: ChatResponse["task"]): string | null {
+  if (!task) return null;
+  if (task.is_closed) return "Closed";
+  if (task.awaiting_reply_from === "rostering") return "Waiting for rostering";
+  if (task.awaiting_reply_from === "worker") return "Rostering replied";
+  return task.status;
+}
+
+function statusClass(task: ChatResponse["task"]): string {
+  if (!task || task.is_closed) return "bg-gray-200 text-gray-700";
+  if (task.awaiting_reply_from === "rostering") return "bg-amber-100 text-amber-900";
+  return "bg-green-100 text-green-800";
 }
 
 export default async function TasksPage() {
@@ -28,15 +43,11 @@ export default async function TasksPage() {
         <p className="text-sm text-gray-600">
           Message your rostering team. Each conversation is a separate record in AbilityERP.
         </p>
-        {data?.task?.status ? (
+        {statusLabel(data?.task ?? null) ? (
           <span
-            className={`mt-2 inline-block rounded-full px-2 py-1 text-xs ${
-              data.task.is_closed
-                ? "bg-gray-200 text-gray-700"
-                : "bg-green-100 text-green-800"
-            }`}
+            className={`mt-2 inline-block rounded-full px-2 py-1 text-xs ${statusClass(data?.task ?? null)}`}
           >
-            {data.task.status}
+            {statusLabel(data?.task ?? null)}
           </span>
         ) : null}
       </div>
@@ -44,6 +55,7 @@ export default async function TasksPage() {
         requestId={data?.task?.id ?? null}
         messages={data?.messages ?? []}
         isClosed={data?.task?.is_closed ?? false}
+        awaitingReplyFrom={data?.task?.awaiting_reply_from ?? null}
       />
     </section>
   );

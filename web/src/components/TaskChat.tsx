@@ -21,18 +21,34 @@ function formatWhen(value: string | null): string {
   });
 }
 
+function statusLabel(isClosed: boolean, awaiting?: "rostering" | "worker" | null): string {
+  if (isClosed) return "Closed";
+  if (awaiting === "rostering") return "Waiting for rostering";
+  if (awaiting === "worker") return "Rostering replied — your turn";
+  return "Open";
+}
+
+function statusClass(isClosed: boolean, awaiting?: "rostering" | "worker" | null): string {
+  if (isClosed) return "bg-gray-200 text-gray-700";
+  if (awaiting === "rostering") return "bg-amber-100 text-amber-900";
+  return "bg-green-100 text-green-800";
+}
+
 export default function TaskChat({
   requestId: initialRequestId,
   messages: initialMessages,
   isClosed: initialIsClosed = false,
+  awaitingReplyFrom: initialAwaiting = null,
 }: {
   requestId: number | null;
   messages: TaskMessage[];
   isClosed?: boolean;
+  awaitingReplyFrom?: "rostering" | "worker" | null;
 }) {
   const router = useRouter();
   const [requestId, setRequestId] = useState(initialRequestId);
   const [isClosed, setIsClosed] = useState(initialIsClosed);
+  const [awaitingReplyFrom, setAwaitingReplyFrom] = useState(initialAwaiting);
   const [messages, setMessages] = useState(initialMessages);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -48,6 +64,7 @@ export default function TaskChat({
       if (data.task?.id) {
         setRequestId(data.task.id);
         setIsClosed(Boolean(data.task.is_closed));
+        setAwaitingReplyFrom(data.task.awaiting_reply_from ?? null);
       }
       if (data.messages) {
         setMessages(data.messages);
@@ -60,11 +77,12 @@ export default function TaskChat({
   useEffect(() => {
     setRequestId(initialRequestId);
     setIsClosed(initialIsClosed);
+    setAwaitingReplyFrom(initialAwaiting);
     setMessages(initialMessages);
-  }, [initialRequestId, initialIsClosed, initialMessages]);
+  }, [initialRequestId, initialIsClosed, initialAwaiting, initialMessages]);
 
   useEffect(() => {
-    const timer = setInterval(refreshMessages, 15000);
+    const timer = setInterval(refreshMessages, 10000);
     const onFocus = () => refreshMessages();
     window.addEventListener("focus", onFocus);
     return () => {
@@ -87,6 +105,7 @@ export default function TaskChat({
 
       setRequestId(data.task.id);
       setIsClosed(false);
+      setAwaitingReplyFrom("rostering");
       setMessages(data.messages ?? []);
       router.refresh();
     } catch (err) {
@@ -134,6 +153,7 @@ export default function TaskChat({
       if (!res.ok) throw new Error(data.error ?? "Send failed");
 
       setBody("");
+      setAwaitingReplyFrom("rostering");
       await refreshMessages();
       router.refresh();
     } catch (err) {
@@ -162,6 +182,12 @@ export default function TaskChat({
 
   return (
     <div className="flex flex-col gap-4">
+      {!isClosed ? (
+        <p className={`rounded-xl px-3 py-2 text-sm ${statusClass(isClosed, awaitingReplyFrom)}`}>
+          {statusLabel(isClosed, awaitingReplyFrom)}
+        </p>
+      ) : null}
+
       {isClosed ? (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           This conversation is closed. Start a new one to message rostering again.
