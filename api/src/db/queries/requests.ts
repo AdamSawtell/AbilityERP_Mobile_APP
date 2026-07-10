@@ -12,7 +12,21 @@ const ROSTERING_ROLE_ID = 1000012;
 const REQUEST_STATUS_OPEN = 1000000;
 const REQUEST_GROUP_ID = 1000003;
 const REQUEST_CATEGORY_ID = 1000031;
-const REQUEST_STATUS_CLOSED = 102;
+/** Fallback Closed status id — prefer resolveClosedStatusId() at runtime. */
+const REQUEST_STATUS_CLOSED_FALLBACK = 102;
+
+async function resolveClosedStatusId(): Promise<number> {
+  const result = await pool.query<{ r_status_id: number }>(
+    `SELECT r_status_id
+     FROM r_status
+     WHERE isactive = 'Y' AND LOWER(name) = 'closed'
+     ORDER BY r_status_id ASC
+     LIMIT 1`,
+  );
+  return result.rows[0]?.r_status_id
+    ? Number(result.rows[0].r_status_id)
+    : REQUEST_STATUS_CLOSED_FALLBACK;
+}
 
 async function getRosteringSalesRepId(): Promise<number> {
   const result = await pool.query<{ ad_user_id: number }>(
@@ -70,7 +84,10 @@ function mapTaskRow(row: {
   r_status_id?: number | null;
   ad_role_id?: number | null;
 }): TaskRow {
-  const isClosed = row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED;
+  const statusName = (row.status ?? "").trim().toLowerCase();
+  const isClosed =
+    statusName === "closed" ||
+    (row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED_FALLBACK);
   const queuedToRostering =
     row.ad_role_id != null && Number(row.ad_role_id) === ROSTERING_ROLE_ID;
 
@@ -108,7 +125,7 @@ async function insertStandaloneRequest(
   summary: string,
   firstMessage: string,
 ): Promise<number> {
-  const requestId = await nextSequenceId("R_Request");
+  const requestId = await nextSequenceId("R_Request", "r_request", "r_request_id");
   const salesRepId = await getRosteringSalesRepId();
   const message = firstMessage.slice(0, 2000);
 
@@ -146,7 +163,7 @@ async function insertStandaloneRequest(
     ],
   );
 
-  const updateId = await nextSequenceId("R_RequestUpdate");
+  const updateId = await nextSequenceId("R_RequestUpdate", "r_requestupdate", "r_requestupdate_id");
   await pool.query(
     `INSERT INTO r_requestupdate (
        r_requestupdate_id, ad_client_id, ad_org_id, isactive,
@@ -241,6 +258,7 @@ export async function getRosteringChatState(
   cBPartnerStaffId: number,
   adClientId: number,
 ): Promise<{ task: TaskRow | null; messages: TaskMessageRow[] }> {
+  const closedStatusId = await resolveClosedStatusId();
   const open = await pool.query(
     `SELECT r.r_request_id AS id
      FROM r_request r
@@ -254,7 +272,7 @@ export async function getRosteringChatState(
        r.created
      ) DESC
      LIMIT 1`,
-    [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+    [adUserId, cBPartnerStaffId, closedStatusId],
   );
 
   let requestId = open.rows[0]?.id ? Number(open.rows[0].id) : null;
@@ -292,7 +310,7 @@ export async function getRosteringChatState(
            r.created
          ) DESC
          LIMIT 1`,
-        [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+        [adUserId, cBPartnerStaffId, closedStatusId],
       );
       requestId = closed.rows[0]?.id ? Number(closed.rows[0].id) : null;
     }
@@ -330,6 +348,7 @@ export async function startRosteringChat(
   adClientId: number,
   firstMessage?: string,
 ): Promise<TaskRow> {
+  const closedStatusId = await resolveClosedStatusId();
   const open = await pool.query(
     `SELECT r.r_request_id AS id
      FROM r_request r
@@ -338,7 +357,7 @@ export async function startRosteringChat(
        AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
        AND r.r_status_id <> $3
      LIMIT 1`,
-    [adUserId, cBPartnerStaffId, REQUEST_STATUS_CLOSED],
+    [adUserId, cBPartnerStaffId, closedStatusId],
   );
   if (open.rows[0]?.id) {
     throw new Error("You already have an open chat with rostering");
@@ -373,14 +392,17 @@ export async function closeRosteringChat(
     throw new Error("This chat is already closed");
   }
 
+  const closedStatusId = await resolveClosedStatusId();
   await pool.query(
     `UPDATE r_request
      SET r_status_id = $2,
+         ad_role_id = 0,
          updated = NOW(),
          updatedby = $3,
-         datelastaction = NOW()
+         datelastaction = NOW(),
+         lastresult = COALESCE(lastresult, 'Chat closed')
      WHERE r_request_id = $1`,
-    [requestId, REQUEST_STATUS_CLOSED, adUserId],
+    [requestId, closedStatusId, adUserId],
   );
 
   return getWorkerTask(requestId, adUserId, cBPartnerStaffId);
@@ -453,7 +475,11 @@ export async function addTaskMessage(
     throw new Error("Message cannot be empty");
   }
 
-  const updateId = await nextSequenceId("R_RequestUpdate");
+  const updateId = await nextSequenceId(
+    "R_RequestUpdate",
+    "r_requestupdate",
+    "r_requestupdate_id",
+  );
   await pool.query(
     `INSERT INTO r_requestupdate (
        r_requestupdate_id, ad_client_id, ad_org_id, isactive,

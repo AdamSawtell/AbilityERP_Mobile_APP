@@ -1,12 +1,15 @@
 package com.aberp.rostering.chat.process;
 
+import java.sql.Timestamp;
+
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
+import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MStatus;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
-import org.compiere.util.DB;
 import org.compiere.process.SvrProcess;
+import org.compiere.util.DB;
 
 /**
  * Close a mobile rostering chat thread so the worker gets a fresh thread on next contact.
@@ -30,7 +33,7 @@ public class CloseRosteringChat extends SvrProcess {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
 		if (requestId <= 0) {
-			throw new AdempiereException("Select a chat thread first");
+			throw new AdempiereException("Select a chat thread first (open the row, then Close Chat)");
 		}
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
@@ -49,13 +52,33 @@ public class CloseRosteringChat extends SvrProcess {
 			throw new AdempiereException("This chat is already closed");
 		}
 
-		request.setR_Status_ID(closedStatusId);
-		if (!request.save()) {
+		final String closeNote = "Chat closed by rostering";
+		try {
+			final MRequestUpdate update = new MRequestUpdate(request);
+			update.setResult(closeNote);
+			update.save();
+		} catch (Exception ignored) {
+			// Non-fatal — status close is the important part
+		}
+
+		final int rows = DB.executeUpdateEx(
+				"UPDATE R_Request SET R_Status_ID=?, AD_Role_ID=0, LastResult=?, "
+						+ "DateLastAction=?, Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
+				new Object[] {
+						closedStatusId,
+						closeNote,
+						new Timestamp(System.currentTimeMillis()),
+						new Timestamp(System.currentTimeMillis()),
+						getAD_User_ID(),
+						requestId
+				},
+				get_TrxName());
+		if (rows <= 0) {
 			throw new AdempiereException("Failed to close chat");
 		}
 
-		addLog(requestId, null, null, "Chat closed — worker will get a new thread on next mobile message");
-		return "@OK@";
+		addLog(requestId, null, null, "Chat closed — worker can start a new conversation in the app");
+		return "@OK@ Chat closed";
 	}
 
 	private int resolveClosedStatusId() {
@@ -65,7 +88,6 @@ public class CloseRosteringChat extends SvrProcess {
 		if (closed != null && closed.get_ID() > 0) {
 			return closed.get_ID();
 		}
-		// Fallback used by mobile API when no open thread exists.
 		return 102;
 	}
 
