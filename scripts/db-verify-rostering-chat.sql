@@ -37,16 +37,27 @@ JOIN ad_role r ON r.ad_role_id = pa.ad_role_id
 WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE') AND pa.isactive = 'Y'
 ORDER BY p.value, r.name;
 
-SELECT 'Menu' AS check_type, m.ad_menu_id, m.name, m.seqno, m.parent_id, w.name AS window_name
+SELECT 'Request type' AS check_type, rt.r_requesttype_id, rt.name, rt.isactive
+FROM r_requesttype rt WHERE rt.name = 'Rostering Chat';
+
+SELECT 'Type role access' AS check_type, rt.name AS request_type, r.name AS role_name
+FROM aberp_requesttype_role atr
+JOIN r_requesttype rt ON rt.r_requesttype_id = atr.r_requesttype_id
+JOIN ad_role r ON r.ad_role_id = atr.ad_role_id
+WHERE rt.name = 'Rostering Chat' AND atr.isactive = 'Y'
+ORDER BY r.name;
+
+SELECT 'Menu' AS check_type, m.ad_menu_id, m.name, w.name AS window_name
 FROM ad_menu m
 LEFT JOIN ad_window w ON w.ad_window_id = m.ad_window_id
 WHERE m.name = 'Rostering Chat';
 
-SELECT 'Sample threads' AS check_type, r.r_request_id, r.documentno, r.summary, rs.name AS status,
-       u.name AS worker, r.lastresult, r.datelastaction
+SELECT 'Sample threads' AS check_type, r.r_request_id, r.documentno, r.summary, rt.name AS request_type,
+       rs.name AS status, u.name AS worker, r.lastresult, r.datelastaction
 FROM r_request r
+JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
 LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
 LEFT JOIN ad_user u ON u.ad_user_id = r.ad_user_id
-WHERE r.aberp_rostered_shift_id IS NULL AND r.isactive = 'Y'
+WHERE rt.name = 'Rostering Chat' AND r.isactive = 'Y'
 ORDER BY r.datelastaction DESC NULLS LAST, r.updated DESC
 LIMIT 10;

@@ -7,7 +7,7 @@ WebUI window for rostering officers to manage mobile app chat threads.
 | Feature | Detail |
 |---------|--------|
 | **Window** | **Rostering Chat** — filtered `R_Request` inbox |
-| **Filter** | Standalone mobile chat only (`AbERP_Rostered_Shift_ID IS NULL`, worker→rostering request type) |
+| **Filter** | `R_RequestType` = **Rostering Chat** only |
 | **History** | **Updates** tab — read-only `R_RequestUpdate` message list |
 | **Send Reply** | Process button — inserts `R_RequestUpdate`, updates `LastResult` (same path as mobile API) |
 | **Close Chat** | Process button — sets status to Closed; mobile opens a fresh thread next time |

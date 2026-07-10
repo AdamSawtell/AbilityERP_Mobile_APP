@@ -6,6 +6,7 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MTable;
+import org.compiere.util.DB;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 
@@ -53,6 +54,8 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("This window is for standalone mobile chat only");
 		}
 
+		assertRosteringChatType(request);
+
 		final int workerUserId = request.getAD_User_ID();
 		if (workerUserId <= 0) {
 			throw new AdempiereException("Request has no worker user — cannot reply");
@@ -72,6 +75,15 @@ public class SendRosteringReply extends SvrProcess {
 
 		addLog(update.get_ID(), null, null, "Reply sent to " + request.getAD_User().getName());
 		return "@OK@";
+	}
+
+	private static void assertRosteringChatType(MRequest request) {
+		final String typeName = DB.getSQLValueString(request.get_TrxName(),
+				"SELECT Name FROM R_RequestType WHERE R_RequestType_ID=?",
+				request.getR_RequestType_ID());
+		if (!"Rostering Chat".equals(typeName)) {
+			throw new AdempiereException("This process is for Rostering Chat threads only");
+		}
 	}
 
 	private static int getInt(Object value) {

@@ -1,8 +1,13 @@
 import { pool } from "../pool";
 import { formatTimestamp, nextSequenceId } from "../helpers";
 
-/** General worker → rostering request (not shift-specific). */
-const WORKER_REQUEST_TYPE_ID = 1000000;
+/** Dedicated request type for mobile worker ↔ rostering chat (see install-rostering-chat.sql). */
+const ROSTERING_CHAT_REQUEST_TYPE_NAME = "Rostering Chat";
+const ROSTERING_CHAT_TYPE_FILTER = `r.r_requesttype_id = (
+  SELECT r_requesttype_id FROM r_requesttype
+  WHERE name = '${ROSTERING_CHAT_REQUEST_TYPE_NAME}' AND isactive = 'Y'
+  LIMIT 1
+)`;
 const ROSTERING_ROLE_ID = 1000012;
 const REQUEST_STATUS_OPEN = 1000000;
 const REQUEST_GROUP_ID = 1000003;
@@ -74,7 +79,7 @@ function mapTaskRow(row: {
   };
 }
 
-const STANDALONE_REQUEST_FILTER = `r.aberp_rostered_shift_id IS NULL`;
+const STANDALONE_REQUEST_FILTER = ROSTERING_CHAT_TYPE_FILTER;
 
 /** Strip iDempiere system lines appended to request update text. */
 export function cleanRequestMessage(body: string | null): string | null {
@@ -108,16 +113,15 @@ async function insertStandaloneRequest(
      ) VALUES (
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
-       $13, $4, $5, $6, $7,
-       $8, '5', '7', 'F', 'C', 'C', 'Y', 'N',
-       $3, $9, $10, $11,
-       NOW(), $12
+       $12, (SELECT r_requesttype_id FROM r_requesttype WHERE name = $13 AND isactive = 'Y' LIMIT 1), $4, $5, $6,
+       $7, '5', '7', 'F', 'C', 'C', 'Y', 'N',
+       $3, $8, $9, $10,
+       NOW(), $11
      )`,
     [
       requestId,
       adClientId,
       adUserId,
-      WORKER_REQUEST_TYPE_ID,
       REQUEST_GROUP_ID,
       REQUEST_CATEGORY_ID,
       REQUEST_STATUS_OPEN,
@@ -127,6 +131,7 @@ async function insertStandaloneRequest(
       salesRepId,
       message,
       String(requestId),
+      ROSTERING_CHAT_REQUEST_TYPE_NAME,
     ],
   );
 

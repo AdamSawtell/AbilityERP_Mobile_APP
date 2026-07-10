@@ -13,7 +13,94 @@
 SET search_path TO adempiere;
 
 -- ---------------------------------------------------------------------------
--- 0. Prerequisites
+-- 0. Request type — Rostering Chat (dedicated mobile chat threads)
+-- ---------------------------------------------------------------------------
+INSERT INTO r_requesttype (
+  r_requesttype_id, ad_client_id, ad_org_id, isactive,
+  created, createdby, updated, updatedby,
+  name, description, isdefault, isselfservice,
+  duedatetolerance, isemailwhenoverdue, isemailwhendue, isinvoiced,
+  autoduedatedays, confidentialtype, isautochangerequest, isconfidentialinfo,
+  r_statuscategory_id, isindexed, r_requesttype_uu,
+  aberp_isrequest
+)
+SELECT
+  (SELECT COALESCE(MAX(r_requesttype_id), 0) + 1 FROM r_requesttype),
+  1000002, 0, 'Y',
+  NOW(), 100, NOW(), 100,
+  'Rostering Chat',
+  'Mobile worker ↔ rostering officer chat thread (PWA Tasks page).',
+  'N', 'Y',
+  7, 'N', 'N', 'N',
+  0, 'I', 'N', 'N',
+  1000000, 'N',
+  (
+    substring(md5('AbERP_RosteringChat-requesttype'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringChat-requesttype'), 9, 4) || '-4c01-8100-000000000001'
+  ),
+  'Y'
+WHERE NOT EXISTS (
+  SELECT 1 FROM r_requesttype WHERE name = 'Rostering Chat'
+);
+
+UPDATE r_requesttype
+SET isactive = 'Y',
+    description = 'Mobile worker ↔ rostering officer chat thread (PWA Tasks page).',
+    isselfservice = 'Y',
+    aberp_isrequest = 'Y',
+    updated = NOW(),
+    updatedby = 100
+WHERE name = 'Rostering Chat';
+
+-- Role access for the new request type
+INSERT INTO aberp_requesttype_role (
+  aberp_requesttype_role_id, ad_client_id, ad_org_id, isactive,
+  created, createdby, updated, updatedby,
+  name, description, value, r_requesttype_id, ad_role_id,
+  aberp_requesttype_role_uu
+)
+SELECT
+  (SELECT COALESCE(MAX(aberp_requesttype_role_id), 0) + 1 FROM aberp_requesttype_role),
+  1000002, 0, 'Y',
+  NOW(), 100, NOW(), 100,
+  '', '', (
+    SELECT COALESCE(MAX(value::INTEGER), 0) + 1 FROM aberp_requesttype_role
+  )::VARCHAR,
+  rt.r_requesttype_id,
+  roles.ad_role_id,
+  (
+    substring(md5('AbERP_RosteringChat-role-' || roles.ad_role_id::TEXT), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringChat-role-' || roles.ad_role_id::TEXT), 9, 4) || '-4c02-8100-000000000002'
+  )
+FROM r_requesttype rt
+CROSS JOIN (
+  SELECT ad_role_id FROM ad_role
+  WHERE name IN (
+    'Rostering Officer', 'AbilityERP Admin', 'System Administrator', 'Support Worker'
+  ) AND isactive = 'Y'
+) roles
+WHERE rt.name = 'Rostering Chat' AND rt.isactive = 'Y'
+  AND NOT EXISTS (
+    SELECT 1 FROM aberp_requesttype_role atr
+    WHERE atr.r_requesttype_id = rt.r_requesttype_id
+      AND atr.ad_role_id = roles.ad_role_id
+      AND atr.isactive = 'Y'
+  );
+
+-- Move existing mobile chat threads off generic Action type
+UPDATE r_request r
+SET r_requesttype_id = rt.r_requesttype_id,
+    updated = NOW(),
+    updatedby = 100
+FROM r_requesttype rt
+WHERE rt.name = 'Rostering Chat' AND rt.isactive = 'Y'
+  AND r.isactive = 'Y'
+  AND r.aberp_rostered_shift_id IS NULL
+  AND r.summary = 'Message to Rostering'
+  AND r.r_requesttype_id <> rt.r_requesttype_id;
+
+-- ---------------------------------------------------------------------------
+-- 0b. Prerequisites
 -- ---------------------------------------------------------------------------
 DO $$
 DECLARE
@@ -38,25 +125,13 @@ BEGIN
     RAISE EXCEPTION 'Source Request window not found (need an existing R_Request window to clone fields from)';
   END IF;
 
-  SELECT rt.r_requesttype_id INTO v_request_type_id
-  FROM r_requesttype rt
-  JOIN aberp_requesttype_role atr ON atr.r_requesttype_id = rt.r_requesttype_id AND atr.isactive = 'Y'
-  JOIN ad_role r ON r.ad_role_id = atr.ad_role_id AND r.isactive = 'Y'
-  WHERE r.name = 'Rostering Officer' AND rt.isactive = 'Y'
-  ORDER BY rt.r_requesttype_id ASC
+  SELECT r_requesttype_id INTO v_request_type_id
+  FROM r_requesttype
+  WHERE name = 'Rostering Chat' AND isactive = 'Y'
   LIMIT 1;
 
   IF v_request_type_id IS NULL THEN
-    SELECT r_requesttype_id INTO v_request_type_id
-    FROM r_request
-    WHERE aberp_rostered_shift_id IS NULL AND isactive = 'Y'
-    GROUP BY r_requesttype_id
-    ORDER BY COUNT(*) DESC
-    LIMIT 1;
-  END IF;
-
-  IF v_request_type_id IS NULL THEN
-    RAISE EXCEPTION 'Mobile chat request type not found (check aberp_requesttype_role or existing r_request rows)';
+    RAISE EXCEPTION 'Request type Rostering Chat not found — section 0 install failed';
   END IF;
 END $$;
 
@@ -76,7 +151,7 @@ SELECT
   NOW(), 100, NOW(), 100,
   'Rostering Chat',
   'Mobile worker chat threads between the PWA Tasks page and rostering officers.',
-  'Filtered view of standalone R_Request records (no shift link). Use Send Reply to respond; Updates tab shows message history.',
+  'Filtered view of R_Request records with request type Rostering Chat. Use Send Reply to respond; Updates tab shows message history.',
   'M', 'Y',
   'Ab_ERP', 'N', 'N', 0, 0,
   'N',
@@ -118,7 +193,7 @@ SELECT
   NULL, 'N', 'N', 'N',
   'N', 'Ab_ERP', 'N', 'N',
   NULL,
-  'R_Request.AbERP_Rostered_Shift_ID IS NULL',
+  'R_Request.R_RequestType_ID=0',
   'R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
   'B', 'N', 'Y',
   (
@@ -139,25 +214,16 @@ DECLARE
   v_type_id INTEGER;
   v_where TEXT;
 BEGIN
-  SELECT rr.r_requesttype_id INTO v_type_id
-  FROM r_request rr
-  WHERE rr.aberp_rostered_shift_id IS NULL AND rr.isactive = 'Y'
-  GROUP BY rr.r_requesttype_id
-  ORDER BY COUNT(*) DESC
+  SELECT rt.r_requesttype_id INTO v_type_id
+  FROM r_requesttype rt
+  WHERE rt.name = 'Rostering Chat' AND rt.isactive = 'Y'
   LIMIT 1;
 
   IF v_type_id IS NULL THEN
-    SELECT rt.r_requesttype_id INTO v_type_id
-    FROM r_requesttype rt
-    WHERE rt.isactive = 'Y' AND rt.name = 'Action'
-    LIMIT 1;
+    RAISE EXCEPTION 'Request type Rostering Chat not found for tab filter';
   END IF;
 
-  IF v_type_id IS NULL THEN
-    RAISE EXCEPTION 'Could not resolve mobile chat request type for Rostering Chat tab filter';
-  END IF;
-
-  v_where := 'R_Request.AbERP_Rostered_Shift_ID IS NULL AND R_Request.R_RequestType_ID=' || v_type_id;
+  v_where := 'R_Request.R_RequestType_ID=' || v_type_id;
 
   UPDATE ad_tab t
   SET whereclause = v_where,
@@ -851,5 +917,15 @@ BEGIN
   ) THEN
     RAISE EXCEPTION 'Install FAILED: ROSTERING_CHAT_REPLY process not created';
   END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM r_requesttype WHERE name = 'Rostering Chat' AND isactive = 'Y'
+  ) THEN
+    RAISE EXCEPTION 'Install FAILED: Rostering Chat request type not created';
+  END IF;
   RAISE NOTICE 'Rostering Chat install completed successfully';
 END $$;
+
+SELECT 'Request type' AS check_type, rt.r_requesttype_id, rt.name, rt.isactive,
+       (SELECT COUNT(*) FROM r_request r WHERE r.r_requesttype_id = rt.r_requesttype_id AND r.isactive = 'Y') AS thread_count
+FROM r_requesttype rt
+WHERE rt.name = 'Rostering Chat';

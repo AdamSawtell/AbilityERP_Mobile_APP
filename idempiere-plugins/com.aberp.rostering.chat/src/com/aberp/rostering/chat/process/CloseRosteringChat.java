@@ -5,6 +5,7 @@ import org.compiere.model.MRequest;
 import org.compiere.model.MStatus;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
+import org.compiere.util.DB;
 import org.compiere.process.SvrProcess;
 
 /**
@@ -36,6 +37,8 @@ public class CloseRosteringChat extends SvrProcess {
 			throw new AdempiereException("This window is for standalone mobile chat only");
 		}
 
+		assertRosteringChatType(request);
+
 		final int closedStatusId = resolveClosedStatusId();
 		if (request.getR_Status_ID() == closedStatusId) {
 			throw new AdempiereException("This chat is already closed");
@@ -59,6 +62,15 @@ public class CloseRosteringChat extends SvrProcess {
 		}
 		// Fallback used by mobile API when no open thread exists.
 		return 102;
+	}
+
+	private static void assertRosteringChatType(MRequest request) {
+		final String typeName = DB.getSQLValueString(request.get_TrxName(),
+				"SELECT Name FROM R_RequestType WHERE R_RequestType_ID=?",
+				request.getR_RequestType_ID());
+		if (!"Rostering Chat".equals(typeName)) {
+			throw new AdempiereException("This process is for Rostering Chat threads only");
+		}
 	}
 
 	private static int getInt(Object value) {
