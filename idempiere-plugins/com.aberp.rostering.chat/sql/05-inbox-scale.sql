@@ -82,9 +82,10 @@ WHERE c.ad_table_id = tb.ad_table_id AND tb.tablename = 'R_Request'
 -- ---------------------------------------------------------------------------
 -- 2. Multi-row inbox tab — awaiting rostering first, then most recent activity
 -- ---------------------------------------------------------------------------
+-- Multi-row list is optional; form mode (issinglerow=Y) is required so Reply edits are not ignored.
+-- Keep priority sort for Find / navigation order.
 UPDATE ad_tab t
-SET issinglerow = 'N',
-    orderbyclause = '(CASE WHEN R_Request.R_Status_ID <> 102 AND COALESCE(R_Request.AD_Role_ID,0)=1000012 THEN 0 ELSE 1 END), R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
+SET orderbyclause = '(CASE WHEN R_Request.R_Status_ID <> 102 AND COALESCE(R_Request.AD_Role_ID,0)=1000012 THEN 0 ELSE 1 END), R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
     updated = NOW(),
     updatedby = 100
 FROM ad_window w
