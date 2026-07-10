@@ -291,10 +291,23 @@ WHERE w.name = 'Rostering Chat'
   );
 
 UPDATE ad_tab t
-SET ad_column_id = NULL,
-    parent_column_id = NULL,
-    issinglerow = 'Y',
-    isreadonly = 'N',
+SET ad_column_id = (
+      SELECT c.ad_column_id
+      FROM ad_column c
+      JOIN ad_table tb ON tb.ad_table_id = c.ad_table_id
+      WHERE tb.tablename = 'R_RequestUpdate' AND c.columnname = 'R_Request_ID'
+      LIMIT 1
+    ),
+    parent_column_id = (
+      SELECT c.ad_column_id
+      FROM ad_column c
+      JOIN ad_table tb ON tb.ad_table_id = c.ad_table_id
+      WHERE tb.tablename = 'R_Request' AND c.columnname = 'R_Request_ID'
+      LIMIT 1
+    ),
+    whereclause = 'R_RequestUpdate.R_Request_ID=@R_Request_ID@',
+    issinglerow = 'N',
+    isreadonly = 'Y',
     isinsertrecord = 'N',
     orderbyclause = 'R_RequestUpdate.Created ASC',
     updated = NOW(),
@@ -303,7 +316,7 @@ FROM ad_window w
 WHERE t.ad_window_id = w.ad_window_id AND w.name = 'Rostering Chat' AND t.name = 'Updates';
 
 UPDATE ad_tab t
-SET isreadonly = 'N',
+SET isreadonly = 'Y',
     isinsertrecord = 'N',
     orderbyclause = 'R_RequestUpdate.Created ASC',
     updated = NOW(),

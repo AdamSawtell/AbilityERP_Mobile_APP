@@ -1,12 +1,14 @@
 package com.aberp.rostering.chat.process;
 
 import java.sql.Timestamp;
+import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MTable;
 import org.compiere.model.MUser;
+import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
 import org.compiere.util.Util;
@@ -16,9 +18,19 @@ import org.compiere.util.Util;
  * Inserts R_RequestUpdate, assigns back to the worker, and clears the role queue.
  */
 public class SendRosteringReply extends SvrProcess {
+	private String paramReply = null;
+
 	@Override
 	protected void prepare() {
-		// Reply text comes from AbERP_RosteringReply on the selected R_Request record.
+		for (ProcessInfoParameter para : getParameter()) {
+			String name = para.getParameterName();
+			if ("Reply".equalsIgnoreCase(name) || "AbERP_RosteringReply".equalsIgnoreCase(name)
+					|| "Message".equalsIgnoreCase(name)) {
+				if (para.getParameter() != null) {
+					paramReply = para.getParameter().toString();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -34,7 +46,7 @@ public class SendRosteringReply extends SvrProcess {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
 		if (requestId <= 0) {
-			throw new AdempiereException("Select a chat thread first");
+			throw new AdempiereException("Select a chat thread first (open the row, then Send to Worker)");
 		}
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
@@ -61,36 +73,90 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Could not resolve worker user for this chat thread");
 		}
 
-		final MRequestUpdate update = new MRequestUpdate(request);
-		update.setResult(trimmed);
-		if (!update.save()) {
+		final int updateId = insertRequestUpdate(request, trimmed);
+		if (updateId <= 0) {
 			throw new AdempiereException("Failed to save reply");
 		}
 
-		request.setAD_User_ID(workerUserId);
-		request.setAD_Role_ID(0);
-		request.setLastResult(trimmed);
-		request.set_ValueOfColumn("AbERP_RosteringReply", null);
-		request.setDateLastAction(new Timestamp(System.currentTimeMillis()));
-		if (!request.save()) {
-			throw new AdempiereException("Reply saved but failed to update request header");
-		}
+		// Clear draft, queue to worker, publish last message for app polling
+		DB.executeUpdateEx(
+				"UPDATE R_Request SET AD_User_ID=?, AD_Role_ID=0, LastResult=?, "
+						+ "AbERP_RosteringReply=NULL, DateLastAction=?, "
+						+ "Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
+				new Object[] {
+						workerUserId,
+						trimmed,
+						new Timestamp(System.currentTimeMillis()),
+						new Timestamp(System.currentTimeMillis()),
+						getAD_User_ID(),
+						requestId
+				},
+				get_TrxName());
 
 		final MUser worker = MUser.get(getCtx(), workerUserId);
 		final String workerName = worker != null && worker.get_ID() > 0 ? worker.getName() : String.valueOf(workerUserId);
-		addLog(update.get_ID(), null, null, "Reply sent to " + workerName);
-		return "@OK@";
+		addLog(updateId, null, null, "Reply sent to " + workerName + " (update " + updateId + ")");
+		return "@OK@ Reply saved to Updates and sent to " + workerName;
+	}
+
+	private int insertRequestUpdate(MRequest request, String message) {
+		try {
+			final MRequestUpdate update = new MRequestUpdate(request);
+			update.setResult(message);
+			if (update.save()) {
+				return update.get_ID();
+			}
+			log.log(Level.WARNING, "MRequestUpdate.save() returned false — falling back to SQL insert");
+		} catch (Exception ex) {
+			log.log(Level.WARNING, "MRequestUpdate failed — falling back to SQL insert", ex);
+		}
+
+		final int updateId = DB.getNextID(request.getAD_Client_ID(), "R_RequestUpdate", get_TrxName());
+		if (updateId <= 0) {
+			return 0;
+		}
+
+		final int rows = DB.executeUpdateEx(
+				"INSERT INTO R_RequestUpdate ("
+						+ "R_RequestUpdate_ID, AD_Client_ID, AD_Org_ID, IsActive, "
+						+ "Created, CreatedBy, Updated, UpdatedBy, "
+						+ "R_Request_ID, Result, ConfidentialTypeEntry"
+						+ ") VALUES (?, ?, 0, 'Y', ?, ?, ?, ?, ?, ?, 'C')",
+				new Object[] {
+						updateId,
+						request.getAD_Client_ID(),
+						new Timestamp(System.currentTimeMillis()),
+						getAD_User_ID(),
+						new Timestamp(System.currentTimeMillis()),
+						getAD_User_ID(),
+						request.get_ID(),
+						message
+				},
+				get_TrxName());
+		return rows > 0 ? updateId : 0;
 	}
 
 	private String resolveReplyMessage(MRequest request) {
+		if (!Util.isEmpty(paramReply)) {
+			return paramReply.trim();
+		}
+
 		final String contextDraft = RosteringChatContext.getDraftReply(getCtx());
 		if (!Util.isEmpty(contextDraft)) {
 			return contextDraft;
 		}
 
-		final Object dbDraft = request.get_Value("AbERP_RosteringReply");
-		if (dbDraft != null && !dbDraft.toString().trim().isEmpty()) {
-			return dbDraft.toString().trim();
+		// Fresh read from DB in case the form saved the draft
+		final String dbDraft = DB.getSQLValueStringEx(get_TrxName(),
+				"SELECT AbERP_RosteringReply FROM R_Request WHERE R_Request_ID=?",
+				request.get_ID());
+		if (!Util.isEmpty(dbDraft)) {
+			return dbDraft.trim();
+		}
+
+		final Object poDraft = request.get_Value("AbERP_RosteringReply");
+		if (poDraft != null && !poDraft.toString().trim().isEmpty()) {
+			return poDraft.toString().trim();
 		}
 
 		return "";

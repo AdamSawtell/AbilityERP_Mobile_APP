@@ -23,17 +23,28 @@ final class RosteringChatContext {
 			return requestId;
 		}
 
-		requestId = Env.getContextAsInt(ctx, "#R_Request.R_Request_ID");
+		requestId = Env.getContextAsInt(ctx, "R_Request_ID");
 		if (requestId > 0) {
 			return requestId;
 		}
 
+		requestId = Env.getContextAsInt(ctx, "#Record_ID");
+		if (requestId > 0) {
+			return requestId;
+		}
+
+		// WebUI often stores current record as windowNo|R_Request_ID
 		for (int windowNo = 0; windowNo < WINDOW_SCAN_MAX; windowNo++) {
 			requestId = Env.getContextAsInt(ctx, windowNo, "R_Request_ID", true);
 			if (requestId > 0) {
 				return requestId;
 			}
 			requestId = Env.getContextAsInt(ctx, windowNo, "R_Request_ID", false);
+			if (requestId > 0) {
+				return requestId;
+			}
+			// Some builds use TableName_ID only after tab activation
+			requestId = Env.getContextAsInt(ctx, windowNo, "R_Request.R_Request_ID", false);
 			if (requestId > 0) {
 				return requestId;
 			}
@@ -44,6 +55,11 @@ final class RosteringChatContext {
 
 	static String getDraftReply(Properties ctx) {
 		String draft = Env.getContext(ctx, "#AbERP_RosteringReply");
+		if (!Util.isEmpty(draft)) {
+			return draft.trim();
+		}
+
+		draft = Env.getContext(ctx, "AbERP_RosteringReply");
 		if (!Util.isEmpty(draft)) {
 			return draft.trim();
 		}
