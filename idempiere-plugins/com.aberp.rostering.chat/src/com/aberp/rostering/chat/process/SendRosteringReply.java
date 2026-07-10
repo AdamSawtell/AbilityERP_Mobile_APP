@@ -6,43 +6,29 @@ import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
 import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MTable;
-import org.compiere.util.DB;
-import org.compiere.process.ProcessInfoParameter;
+import org.compiere.model.MUser;
 import org.compiere.process.SvrProcess;
+import org.compiere.util.DB;
 
 /**
- * Send a rostering officer reply on a mobile worker chat thread.
- * Inserts R_RequestUpdate and updates the request header (same path as the mobile API).
+ * Send a rostering officer reply using the Last Result field on the request header.
+ * Inserts R_RequestUpdate, assigns back to the worker, and clears the role queue.
  */
 public class SendRosteringReply extends SvrProcess {
-	private String message;
-
 	@Override
 	protected void prepare() {
-		for (ProcessInfoParameter para : getParameter()) {
-			if ("Message".equals(para.getParameterName()) && para.getParameter() != null) {
-				message = para.getParameter().toString();
-			}
-		}
+		// Reply text comes from LastResult on the selected R_Request record.
 	}
 
 	@Override
 	protected String doIt() throws Exception {
 		if (getTable_ID() != MTable.getTable_ID(MRequest.Table_Name)) {
-			throw new AdempiereException("Run Send Reply from a Rostering Chat request");
+			throw new AdempiereException("Run Send to Worker from a Rostering Chat request");
 		}
 
 		final int requestId = getRecord_ID();
 		if (requestId <= 0) {
 			throw new AdempiereException("Select a chat thread first");
-		}
-
-		final String trimmed = message == null ? "" : message.trim();
-		if (trimmed.isEmpty()) {
-			throw new AdempiereException("Message cannot be empty");
-		}
-		if (trimmed.length() > 2000) {
-			throw new AdempiereException("Message is too long (max 2000 characters)");
 		}
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
@@ -56,9 +42,17 @@ public class SendRosteringReply extends SvrProcess {
 
 		assertRosteringChatType(request);
 
-		final int workerUserId = request.getAD_User_ID();
+		final String trimmed = request.getLastResult() == null ? "" : request.getLastResult().trim();
+		if (trimmed.isEmpty()) {
+			throw new AdempiereException("Enter your reply in Last Result, then click Send to Worker");
+		}
+		if (trimmed.length() > 2000) {
+			throw new AdempiereException("Last Result is too long (max 2000 characters)");
+		}
+
+		final int workerUserId = resolveWorkerUserId(request);
 		if (workerUserId <= 0) {
-			throw new AdempiereException("Request has no worker user — cannot reply");
+			throw new AdempiereException("Could not resolve worker user for this chat thread");
 		}
 
 		final MRequestUpdate update = new MRequestUpdate(request);
@@ -67,14 +61,40 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Failed to save reply");
 		}
 
+		request.setAD_User_ID(workerUserId);
+		request.setAD_Role_ID(0);
 		request.setLastResult(trimmed);
 		request.setDateLastAction(new Timestamp(System.currentTimeMillis()));
 		if (!request.save()) {
 			throw new AdempiereException("Reply saved but failed to update request header");
 		}
 
-		addLog(update.get_ID(), null, null, "Reply sent to " + request.getAD_User().getName());
+		final MUser worker = MUser.get(getCtx(), workerUserId);
+		final String workerName = worker != null && worker.get_ID() > 0 ? worker.getName() : String.valueOf(workerUserId);
+		addLog(update.get_ID(), null, null, "Reply sent to " + workerName);
 		return "@OK@";
+	}
+
+	/** Worker who opened the mobile chat — AD_User on request, else user linked to C_BPartner. */
+	private int resolveWorkerUserId(MRequest request) {
+		if (request.getAD_User_ID() > 0) {
+			return request.getAD_User_ID();
+		}
+
+		if (request.getC_BPartner_ID() > 0) {
+			final int userId = DB.getSQLValueEx(get_TrxName(),
+					"SELECT AD_User_ID FROM AD_User WHERE C_BPartner_ID=? AND IsActive='Y' ORDER BY AD_User_ID ASC",
+					request.getC_BPartner_ID());
+			if (userId > 0) {
+				return userId;
+			}
+		}
+
+		return DB.getSQLValueEx(get_TrxName(),
+				"SELECT ru.CreatedBy FROM R_RequestUpdate ru "
+						+ "WHERE ru.R_Request_ID=? AND ru.IsActive='Y' "
+						+ "ORDER BY ru.Created ASC",
+				request.get_ID());
 	}
 
 	private static void assertRosteringChatType(MRequest request) {

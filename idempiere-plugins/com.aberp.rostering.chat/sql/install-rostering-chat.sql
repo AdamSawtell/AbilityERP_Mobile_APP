@@ -150,7 +150,7 @@ SELECT
   NOW(), 100, NOW(), 100,
   'Rostering Chat',
   'Mobile worker chat threads between the PWA Tasks page and rostering officers.',
-  'Filtered view of R_Request records with request type Rostering Chat. Use Send Reply to respond; Updates tab shows message history.',
+  'Filtered view of R_Request records with request type Rostering Chat. Type a reply in Last Result, then Send to Worker; Updates tab shows history.',
   'M', 'Y',
   'Ab_ERP', 'N', 'N', 0, 0,
   'N',
@@ -294,10 +294,11 @@ DECLARE
   v_source_tab_id INTEGER;
   v_seq INTEGER := 10;
   v_col TEXT;
-  v_cols TEXT[] := ARRAY[
+    v_cols TEXT[] := ARRAY[
     'DocumentNo', 'Summary', 'R_Status_ID', 'AD_User_ID', 'C_BPartner_ID',
     'LastResult', 'DateLastAction', 'Created', 'Updated', 'SalesRep_ID'
   ];
+  v_readonly TEXT;
   v_display_grid TEXT;
 BEGIN
   SELECT t.ad_tab_id INTO v_header_tab_id
@@ -325,6 +326,8 @@ BEGIN
       ELSE 'N'
     END;
 
+    v_readonly := CASE WHEN v_col = 'LastResult' THEN 'N' ELSE 'Y' END;
+
     INSERT INTO ad_field (
       ad_field_id, ad_client_id, ad_org_id, isactive,
       created, createdby, updated, updatedby,
@@ -341,7 +344,7 @@ BEGIN
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       COALESCE(sf.name, c.name), sf.description, sf.help, 'N',
       v_header_tab_id, c.ad_column_id,
-      'Y', COALESCE(sf.displaylength, 0), 'Y', v_seq,
+      'Y', COALESCE(sf.displaylength, 0), v_readonly, v_seq,
       CASE WHEN v_col IN ('DateLastAction', 'Updated', 'SalesRep_ID') THEN 'Y' ELSE 'N' END,
       'N', 'N', 'N', 'Ab_ERP',
       v_display_grid, COALESCE(sf.xposition, 1), COALESCE(sf.numlines, 1), COALESCE(sf.columnspan, 1),
@@ -361,6 +364,22 @@ BEGIN
 
     v_seq := v_seq + 10;
   END LOOP;
+
+  UPDATE ad_field f
+  SET isreadonly = 'N',
+      isdisplayed = 'Y',
+      isdisplayedgrid = 'Y',
+      numlines = 3,
+      columnspan = 3,
+      isdefaultfocus = 'Y',
+      name = 'Reply (Last Result)',
+      description = 'Type your reply here, then click Send to Worker.',
+      updated = NOW(),
+      updatedby = 100
+  FROM ad_column c
+  WHERE f.ad_column_id = c.ad_column_id
+    AND f.ad_tab_id = v_header_tab_id
+    AND c.columnname = 'LastResult';
 END $$;
 
 -- ---------------------------------------------------------------------------
@@ -447,12 +466,12 @@ SELECT
   (SELECT COALESCE(MAX(ad_process_id), 0) + 1 FROM ad_process),
   0, 0, 'Y',
   NOW(), 100, NOW(), 100,
-  'ROSTERING_CHAT_REPLY', 'Send Reply',
-  'Send a reply to the worker on this mobile rostering chat thread.',
+  'ROSTERING_CHAT_REPLY', 'Send to Worker',
+  'Send the Last Result reply to the worker: creates an update, assigns the worker as User/Contact, and clears Role.',
   '3', 'Ab_ERP',
   'N', 'N',
   'com.aberp.rostering.chat.process.SendRosteringReply',
-  'N', 'N', 'Y',
+  'N', 'N', 'S',
   'N',
   (
     substring(md5('ROSTERING_CHAT_REPLY-process'), 1, 8) || '-' ||
@@ -494,37 +513,25 @@ WHERE NOT EXISTS (
   SELECT 1 FROM ad_process WHERE value = 'ROSTERING_CHAT_CLOSE'
 );
 
--- Send Reply parameter
-INSERT INTO ad_process_para (
-  ad_process_para_id, ad_client_id, ad_org_id, isactive,
-  created, createdby, updated, updatedby,
-  name, description, help,
-  ad_process_id, seqno, ad_reference_id,
-  columnname, iscentrallymaintained, fieldlength, ismandatory,
-  entitytype, isrange, ad_process_para_uu
-)
-SELECT
-  (SELECT COALESCE(MAX(ad_process_para_id), 0) + 1 FROM ad_process_para),
-  0, 0, 'Y',
-  NOW(), 100, NOW(), 100,
-  'Message', 'Reply message to send to the worker', 'Your reply appears in the worker mobile Tasks chat.',
-  p.ad_process_id, 10,
-  COALESCE(
-    (SELECT ad_reference_id FROM ad_reference WHERE name = 'Text' AND isactive = 'Y' LIMIT 1),
-    14
-  ),
-  'Message', 'N', 2000, 'Y',
-  'Ab_ERP', 'N',
-  (
-    substring(md5('ROSTERING_CHAT_REPLY-para'), 1, 8) || '-' ||
-    substring(md5('ROSTERING_CHAT_REPLY-para'), 9, 4) || '-4b03-8103-000000000003'
-  )
+-- Send to Worker: no parameter dialog (reply typed in Last Result field)
+UPDATE ad_process
+SET name = 'Send to Worker',
+    description = 'Send the Last Result reply to the worker: creates an update, assigns the worker as User/Contact, and clears Role.',
+    showhelp = 'S',
+    updated = NOW(),
+    updatedby = 100
+WHERE value = 'ROSTERING_CHAT_REPLY';
+
+UPDATE ad_process_para pp
+SET isactive = 'N', updated = NOW(), updatedby = 100
 FROM ad_process p
-WHERE p.value = 'ROSTERING_CHAT_REPLY'
-  AND NOT EXISTS (
-    SELECT 1 FROM ad_process_para pp
-    WHERE pp.ad_process_id = p.ad_process_id AND pp.columnname = 'Message'
-  );
+WHERE pp.ad_process_id = p.ad_process_id
+  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND pp.columnname = 'Message';
+
+UPDATE ad_element
+SET name = 'Send to Worker', printname = 'Send to Worker', updated = NOW(), updatedby = 100
+WHERE columnname = 'AbERP_SendRosteringReply';
 
 -- ---------------------------------------------------------------------------
 -- 7. Button columns on R_Request
@@ -543,7 +550,7 @@ INSERT INTO ad_element (
 SELECT
   (SELECT COALESCE(MAX(ad_element_id), 0) + 1 FROM ad_element),
   0, 0, 'Y', NOW(), 100, NOW(), 100,
-  'AbERP_SendRosteringReply', 'Ab_ERP', 'Send Reply', 'Send Reply',
+  'AbERP_SendRosteringReply', 'Ab_ERP', 'Send to Worker', 'Send to Worker',
   (
     substring(md5('AbERP_SendRosteringReply-element'), 1, 8) || '-' ||
     substring(md5('AbERP_SendRosteringReply-element'), 9, 4) || '-4c01-8201-000000000001'
@@ -584,7 +591,7 @@ INSERT INTO ad_column (
 SELECT
   (SELECT COALESCE(MAX(ad_column_id), 0) + 1 FROM ad_column),
   0, 0, 'Y', NOW(), 100, NOW(), 100,
-  'Send Reply', 'Ab_ERP', 'AbERP_SendRosteringReply', tb.ad_table_id,
+  'Send to Worker', 'Ab_ERP', 'AbERP_SendRosteringReply', tb.ad_table_id,
   COALESCE(
     (SELECT ad_reference_id FROM ad_reference WHERE name = 'Button' AND isactive = 'Y' LIMIT 1),
     28
@@ -672,8 +679,8 @@ BEGIN
   SELECT
     (SELECT COALESCE(MAX(ad_field_id), 0) + 1 FROM ad_field),
     0, 0, 'Y', NOW(), 100, NOW(), 100,
-    'Send Reply', 'N', tab.ad_tab_id, c.ad_column_id,
-    'Y', '@R_Status_ID@<>' || v_closed_logic, 1, 'N', 110,
+    'Send to Worker', 'N', tab.ad_tab_id, c.ad_column_id,
+    'Y', '@R_Status_ID@<>' || v_closed_logic, 1, 'N', 120,
     'N', 'N', 'N', 'N', 'Ab_ERP',
     'Y', 1, 1, 2,
     'N', 'N', 'Y',
@@ -732,6 +739,7 @@ BEGIN
   SET displaylogic = '@R_Status_ID@<>' || v_closed_logic,
       isdisplayed = 'Y',
       isdisplayedgrid = 'Y',
+      name = CASE WHEN c.columnname = 'AbERP_SendRosteringReply' THEN 'Send to Worker' ELSE f.name END,
       updated = NOW(),
       updatedby = 100
   FROM ad_tab tab
