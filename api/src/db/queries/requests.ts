@@ -187,13 +187,19 @@ export async function getWorkerTasks(
        r.ad_role_id,
        (
          SELECT ru.result FROM r_requestupdate ru
-         WHERE ru.r_request_id = r.r_request_id AND ru.isactive = 'Y'
-         ORDER BY ru.created DESC LIMIT 1
+         WHERE ru.r_request_id = r.r_request_id
+           AND ru.isactive = 'Y'
+           AND COALESCE(ru.confidentialtypeentry, 'A') <> 'C'
+         ORDER BY ru.created DESC, ru.r_requestupdate_id DESC
+         LIMIT 1
        ) AS last_message,
        (
          SELECT ru.created FROM r_requestupdate ru
-         WHERE ru.r_request_id = r.r_request_id AND ru.isactive = 'Y'
-         ORDER BY ru.created DESC LIMIT 1
+         WHERE ru.r_request_id = r.r_request_id
+           AND ru.isactive = 'Y'
+           AND COALESCE(ru.confidentialtypeentry, 'A') <> 'C'
+         ORDER BY ru.created DESC, ru.r_requestupdate_id DESC
+         LIMIT 1
        ) AS last_message_at
      FROM r_request r
      LEFT JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
@@ -203,8 +209,11 @@ export async function getWorkerTasks(
        AND ${STANDALONE_REQUEST_FILTER}
        AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
      ORDER BY COALESCE(
-       (SELECT MAX(ru.created) FROM r_requestupdate ru WHERE ru.r_request_id = r.r_request_id),
-       r.updated, r.created
+       (SELECT MAX(ru.created) FROM r_requestupdate ru
+         WHERE ru.r_request_id = r.r_request_id
+           AND ru.isactive = 'Y'
+           AND COALESCE(ru.confidentialtypeentry, 'A') <> 'C'),
+       r.datelastaction, r.created
      ) DESC
      LIMIT 100`,
     [adUserId, cBPartnerStaffId],
@@ -475,6 +484,8 @@ export async function addTaskMessage(
     "r_requestupdate",
     "r_requestupdate_id",
   );
+  // Public update only. Rostering Chat sync trigger sets Last Message + queue
+  // without touching updated/updatedby (avoids WebUI "changed by another user").
   await pool.query(
     `INSERT INTO r_requestupdate (
        r_requestupdate_id, ad_client_id, ad_org_id, isactive,
@@ -488,16 +499,18 @@ export async function addTaskMessage(
     [updateId, adClientId, adUserId, requestId, trimmed],
   );
 
+  // Belt-and-suspenders if trigger is missing — never bump optimistic lock columns.
   await pool.query(
     `UPDATE r_request
-     SET updated = NOW(),
-         updatedby = $2,
-         datelastaction = NOW(),
-         lastresult = $3,
-         ad_role_id = $4,
-         ad_user_id = $2
-     WHERE r_request_id = $1`,
-    [requestId, adUserId, trimmed, ROSTERING_ROLE_ID],
+     SET datelastaction = NOW(),
+         lastresult = $2,
+         ad_role_id = $3
+     WHERE r_request_id = $1
+       AND (
+         lastresult IS DISTINCT FROM $2
+         OR COALESCE(ad_role_id, 0) IS DISTINCT FROM $3
+       )`,
+    [requestId, trimmed, ROSTERING_ROLE_ID],
   );
 
   return { id: updateId };

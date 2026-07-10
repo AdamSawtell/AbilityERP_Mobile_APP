@@ -33,12 +33,16 @@ export const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000,
+  // Match iDempiere WebUI so timestamp-without-tz chat Created values sort correctly
+  options: "-c search_path=adempiere,public -c TimeZone=Australia/Adelaide",
 });
 
 pool.on("connect", (client) => {
-  client.query("SET search_path TO adempiere, public").catch((err) => {
-    console.error("[db] Failed to set search_path:", err.message);
-  });
+  client
+    .query("SET search_path TO adempiere, public; SET TIME ZONE 'Australia/Adelaide'")
+    .catch((err) => {
+      console.error("[db] Failed to set search_path/timezone:", err.message);
+    });
 });
 
 export async function checkDbConnection(): Promise<boolean> {

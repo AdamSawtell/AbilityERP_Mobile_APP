@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export interface TaskMessage {
   id: number;
@@ -21,6 +21,15 @@ function formatWhen(value: string | null): string {
   });
 }
 
+function formatDay(value: string | null): string {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
+
 function statusLabel(isClosed: boolean, awaiting?: "rostering" | "worker" | null): string {
   if (isClosed) return "Closed";
   if (awaiting === "rostering") return "Waiting for rostering";
@@ -32,6 +41,15 @@ function statusClass(isClosed: boolean, awaiting?: "rostering" | "worker" | null
   if (isClosed) return "bg-gray-200 text-gray-700";
   if (awaiting === "rostering") return "bg-amber-100 text-amber-900";
   return "bg-green-100 text-green-800";
+}
+
+function sortTimeline(messages: TaskMessage[]): TaskMessage[] {
+  return [...messages].sort((a, b) => {
+    const ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+    if (ta !== tb) return ta - tb;
+    return a.id - b.id;
+  });
 }
 
 export default function TaskChat({
@@ -49,12 +67,15 @@ export default function TaskChat({
   const [requestId, setRequestId] = useState(initialRequestId);
   const [isClosed, setIsClosed] = useState(initialIsClosed);
   const [awaitingReplyFrom, setAwaitingReplyFrom] = useState(initialAwaiting);
-  const [messages, setMessages] = useState(initialMessages);
+  const [messages, setMessages] = useState(() => sortTimeline(initialMessages));
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const [closing, setClosing] = useState(false);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  const timeline = useMemo(() => sortTimeline(messages), [messages]);
 
   const refreshMessages = useCallback(async () => {
     try {
@@ -67,7 +88,7 @@ export default function TaskChat({
         setAwaitingReplyFrom(data.task.awaiting_reply_from ?? null);
       }
       if (data.messages) {
-        setMessages(data.messages);
+        setMessages(sortTimeline(data.messages));
       }
     } catch {
       // ignore background refresh errors
@@ -78,7 +99,7 @@ export default function TaskChat({
     setRequestId(initialRequestId);
     setIsClosed(initialIsClosed);
     setAwaitingReplyFrom(initialAwaiting);
-    setMessages(initialMessages);
+    setMessages(sortTimeline(initialMessages));
   }, [initialRequestId, initialIsClosed, initialAwaiting, initialMessages]);
 
   useEffect(() => {
@@ -90,6 +111,10 @@ export default function TaskChat({
       window.removeEventListener("focus", onFocus);
     };
   }, [refreshMessages]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [timeline.length, requestId]);
 
   async function startNewChat() {
     setStarting(true);
@@ -106,7 +131,7 @@ export default function TaskChat({
       setRequestId(data.task.id);
       setIsClosed(false);
       setAwaitingReplyFrom("rostering");
-      setMessages(data.messages ?? []);
+      setMessages(sortTimeline(data.messages ?? []));
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start chat");
@@ -180,6 +205,8 @@ export default function TaskChat({
     );
   }
 
+  let lastDay = "";
+
   return (
     <div className="flex flex-col gap-4">
       {!isClosed ? (
@@ -194,35 +221,45 @@ export default function TaskChat({
         </div>
       ) : null}
 
-      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 min-h-[280px]">
-        {messages.length === 0 ? (
+      <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-4 min-h-[280px] max-h-[60vh] overflow-y-auto">
+        {timeline.length === 0 ? (
           <p className="text-center text-sm text-gray-500">No messages yet. Say hello to rostering.</p>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.is_mine ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
-                  msg.is_mine
-                    ? "bg-blue-600 text-white"
-                    : "border border-gray-200 bg-gray-100 text-gray-900"
-                }`}
-              >
-                {!msg.is_mine && msg.author_name ? (
-                  <p className="mb-1 text-xs font-semibold text-gray-600">{msg.author_name}</p>
+          timeline.map((msg) => {
+            const day = formatDay(msg.created_at);
+            const showDay = day && day !== lastDay;
+            if (showDay) lastDay = day;
+            return (
+              <div key={msg.id} className="space-y-2">
+                {showDay ? (
+                  <p className="text-center text-[11px] font-medium uppercase tracking-wide text-gray-400">
+                    {day}
+                  </p>
                 ) : null}
-                <p className="whitespace-pre-wrap text-inherit">{msg.body}</p>
-                <p
-                  className={`mt-1 text-[10px] ${msg.is_mine ? "text-blue-100" : "text-gray-500"}`}
-                >
-                  {formatWhen(msg.created_at)}
-                </p>
+                <div className={`flex ${msg.is_mine ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
+                      msg.is_mine
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-200 bg-gray-100 text-gray-900"
+                    }`}
+                  >
+                    {!msg.is_mine && msg.author_name ? (
+                      <p className="mb-1 text-xs font-semibold text-gray-600">{msg.author_name}</p>
+                    ) : null}
+                    <p className="whitespace-pre-wrap text-inherit">{msg.body}</p>
+                    <p
+                      className={`mt-1 text-[10px] ${msg.is_mine ? "text-blue-100" : "text-gray-500"}`}
+                    >
+                      {formatWhen(msg.created_at)}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
+        <div ref={bottomRef} />
       </div>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -237,34 +274,32 @@ export default function TaskChat({
           {starting ? "Starting…" : "Start new conversation"}
         </button>
       ) : (
-        <>
-          <form onSubmit={sendMessage} className="space-y-2">
-            <textarea
-              rows={3}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              placeholder="Message rostering…"
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
-            />
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={sending || !body.trim()}
-                className="flex-1 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-              >
-                {sending ? "Sending…" : "Send"}
-              </button>
-              <button
-                type="button"
-                onClick={closeChat}
-                disabled={closing}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 disabled:opacity-60"
-              >
-                {closing ? "Closing…" : "Close chat"}
-              </button>
-            </div>
-          </form>
-        </>
+        <form onSubmit={sendMessage} className="space-y-2">
+          <textarea
+            rows={3}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Message rostering…"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400"
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={sending || !body.trim()}
+              className="flex-1 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {sending ? "Sending…" : "Send"}
+            </button>
+            <button
+              type="button"
+              onClick={closeChat}
+              disabled={closing}
+              className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 disabled:opacity-60"
+            >
+              {closing ? "Closing…" : "Close chat"}
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );
