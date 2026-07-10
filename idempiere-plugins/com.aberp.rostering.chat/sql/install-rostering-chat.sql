@@ -60,12 +60,10 @@ INSERT INTO aberp_requesttype_role (
   aberp_requesttype_role_uu
 )
 SELECT
-  (SELECT COALESCE(MAX(aberp_requesttype_role_id), 0) + 1 FROM aberp_requesttype_role),
+  base.max_id + ROW_NUMBER() OVER (ORDER BY roles.ad_role_id),
   1000002, 0, 'Y',
   NOW(), 100, NOW(), 100,
-  '', '', (
-    SELECT COALESCE(MAX(value::INTEGER), 0) + 1 FROM aberp_requesttype_role
-  )::VARCHAR,
+  '', '', (base.max_id + ROW_NUMBER() OVER (ORDER BY roles.ad_role_id))::VARCHAR,
   rt.r_requesttype_id,
   roles.ad_role_id,
   (
@@ -73,6 +71,7 @@ SELECT
     substring(md5('AbERP_RosteringChat-role-' || roles.ad_role_id::TEXT), 9, 4) || '-4c02-8100-000000000002'
   )
 FROM r_requesttype rt
+CROSS JOIN (SELECT COALESCE(MAX(aberp_requesttype_role_id), 0) AS max_id FROM aberp_requesttype_role) base
 CROSS JOIN (
   SELECT ad_role_id FROM ad_role
   WHERE name IN (
