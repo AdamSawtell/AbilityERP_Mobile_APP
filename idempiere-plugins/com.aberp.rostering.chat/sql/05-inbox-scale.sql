@@ -141,7 +141,16 @@ END $$;
 
 UPDATE ad_field f
 SET isdisplayed = 'Y',
-    isreadonly = 'Y',
+    isreadonly = CASE c.columnname
+      WHEN 'AbERP_RosteringReply' THEN 'N'
+      WHEN 'AbERP_SendRosteringReply' THEN 'N'
+      WHEN 'AbERP_CloseRosteringChat' THEN 'N'
+      ELSE 'Y'
+    END,
+    isupdateable = CASE c.columnname
+      WHEN 'AbERP_RosteringReply' THEN 'Y'
+      ELSE COALESCE(f.isupdateable, 'N')
+    END,
     seqno = CASE c.columnname
       WHEN 'AD_User_ID' THEN 10
       WHEN 'R_Status_ID' THEN 20
@@ -194,6 +203,33 @@ WHERE f.ad_column_id = c.ad_column_id
     'LastResult', 'DateLastAction',
     'AbERP_RosteringReply', 'AbERP_SendRosteringReply', 'AbERP_CloseRosteringChat'
   );
+
+-- Reply must stay editable (do not fold into the read-only grid field update above)
+UPDATE ad_field f
+SET isreadonly = 'N',
+    isupdateable = 'Y',
+    isdisplayed = 'Y',
+    isdisplayedgrid = 'N',
+    isdefaultfocus = 'Y',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_column c, ad_tab t, ad_window w
+WHERE f.ad_column_id = c.ad_column_id
+  AND f.ad_tab_id = t.ad_tab_id
+  AND t.ad_window_id = w.ad_window_id
+  AND w.name = 'Rostering Chat'
+  AND t.name = 'Chat'
+  AND c.columnname = 'AbERP_RosteringReply';
+
+UPDATE ad_column c
+SET isupdateable = 'Y',
+    isalwaysupdateable = 'Y',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_table tb
+WHERE c.ad_table_id = tb.ad_table_id
+  AND tb.tablename = 'R_Request'
+  AND c.columnname = 'AbERP_RosteringReply';
 
 -- Re-show Last Message + Last Activity in grid (hidden by earlier trim)
 UPDATE ad_field f
