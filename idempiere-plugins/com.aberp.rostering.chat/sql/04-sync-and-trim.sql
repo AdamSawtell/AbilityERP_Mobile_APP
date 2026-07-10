@@ -63,4 +63,4 @@ FROM r_request r
 JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
 WHERE r.isactive = 'Y' AND r.aberp_rostered_shift_id IS NULL
 GROUP BY rt.name
-ORDER BY count DESC;
+ORDER BY threads DESC;
