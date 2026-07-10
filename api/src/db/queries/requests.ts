@@ -142,7 +142,7 @@ async function insertStandaloneRequest(
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
        $12, (SELECT r_requesttype_id FROM r_requesttype WHERE name = $13 AND isactive = 'Y' LIMIT 1), $4, $5, $6,
-       $7, '5', '7', 'F', 'C', 'C', 'Y', 'N',
+       $7, '5', '7', 'F', 'A', 'A', 'Y', 'N',
        $3, $8, $9, $10,
        NOW(), $11
      )`,
@@ -488,7 +488,7 @@ export async function addTaskMessage(
      ) VALUES (
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
-       $4, $5, 'C'
+       $4, $5, 'A'
      )`,
     [updateId, adClientId, adUserId, requestId, trimmed],
   );

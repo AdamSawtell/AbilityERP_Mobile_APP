@@ -7,7 +7,7 @@ PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
-VERSION="7.1.0.202607110720"
+VERSION="7.1.0.202607110800"
 JAR_NAME="com.aberp.rostering.chat_${VERSION}.jar"
 
 BASE_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.base_*.jar | head -1)
@@ -27,6 +27,7 @@ find "$SRC_DIR" -name '*.java' > "$BUILD_DIR/sources.txt"
 javac -encoding UTF-8 -source 11 -target 11 -classpath "$CLASSPATH" -d "$CLASSES_DIR" @"$BUILD_DIR/sources.txt"
 
 cp "$PLUGIN_DIR/rostering-chat-process.xml" "$CLASSES_DIR/"
+cp "$PLUGIN_DIR/rostering-chat-validator.xml" "$CLASSES_DIR/"
 
 mkdir -p "$BUILD_DIR/dist"
 jar cfm "$BUILD_DIR/dist/$JAR_NAME" "$PLUGIN_DIR/META-INF/MANIFEST.MF" -C "$CLASSES_DIR" .

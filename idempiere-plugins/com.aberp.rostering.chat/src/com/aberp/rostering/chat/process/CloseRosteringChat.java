@@ -92,11 +92,18 @@ public class CloseRosteringChat extends SvrProcess {
 	}
 
 	private int resolveClosedStatusId() {
+		// Prefer named Closed, else any active closed status
 		final MStatus closed = new Query(getCtx(), MStatus.Table_Name, "IsActive='Y' AND Name='Closed'", get_TrxName())
 				.setOrderBy("R_Status_ID ASC")
 				.first();
 		if (closed != null && closed.get_ID() > 0) {
 			return closed.get_ID();
+		}
+		final MStatus anyClosed = new Query(getCtx(), MStatus.Table_Name, "IsActive='Y' AND IsClosed='Y'", get_TrxName())
+				.setOrderBy("R_Status_ID ASC")
+				.first();
+		if (anyClosed != null && anyClosed.get_ID() > 0) {
+			return anyClosed.get_ID();
 		}
 		return 102;
 	}

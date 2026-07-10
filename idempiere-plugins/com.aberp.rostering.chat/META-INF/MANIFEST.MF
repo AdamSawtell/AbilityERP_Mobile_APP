@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rostering Chat
 Bundle-SymbolicName: com.aberp.rostering.chat
-Bundle-Version: 7.1.0.202607110720
+Bundle-Version: 7.1.0.202607110800
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.rostering.chat
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
-Service-Component: rostering-chat-process.xml
+Service-Component: rostering-chat-process.xml,rostering-chat-validator.xml
