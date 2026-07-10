@@ -8,6 +8,7 @@ import org.compiere.model.MRequestUpdate;
 import org.compiere.model.MStatus;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
+import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
 
@@ -15,9 +16,15 @@ import org.compiere.util.DB;
  * Close a mobile rostering chat thread so the worker gets a fresh thread on next contact.
  */
 public class CloseRosteringChat extends SvrProcess {
+	private int paramRequestId = 0;
+
 	@Override
 	protected void prepare() {
-		// Record context comes from the Rostering Chat header tab selection.
+		for (ProcessInfoParameter para : getParameter()) {
+			if (para.getParameterName() != null && "R_Request_ID".equalsIgnoreCase(para.getParameterName())) {
+				paramRequestId = para.getParameterAsInt();
+			}
+		}
 	}
 
 	@Override
@@ -28,7 +35,10 @@ public class CloseRosteringChat extends SvrProcess {
 			throw new AdempiereException("Run Close Chat from a Rostering Chat request");
 		}
 
-		int requestId = getRecord_ID();
+		int requestId = paramRequestId;
+		if (requestId <= 0) {
+			requestId = getRecord_ID();
+		}
 		if (requestId <= 0) {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
@@ -58,7 +68,7 @@ public class CloseRosteringChat extends SvrProcess {
 			update.setResult(closeNote);
 			update.save();
 		} catch (Exception ignored) {
-			// Non-fatal — status close is the important part
+			// Non-fatal
 		}
 
 		final int rows = DB.executeUpdateEx(

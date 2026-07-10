@@ -298,14 +298,8 @@ SET ad_column_id = (
       WHERE tb.tablename = 'R_RequestUpdate' AND c.columnname = 'R_Request_ID'
       LIMIT 1
     ),
-    parent_column_id = (
-      SELECT c.ad_column_id
-      FROM ad_column c
-      JOIN ad_table tb ON tb.ad_table_id = c.ad_table_id
-      WHERE tb.tablename = 'R_Request' AND c.columnname = 'R_Request_ID'
-      LIMIT 1
-    ),
-    whereclause = 'R_RequestUpdate.R_Request_ID=@R_Request_ID@',
+    parent_column_id = NULL,
+    whereclause = NULL,
     issinglerow = 'N',
     isreadonly = 'Y',
     isinsertrecord = 'N',

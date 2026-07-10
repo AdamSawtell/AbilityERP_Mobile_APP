@@ -14,17 +14,24 @@ import org.compiere.util.DB;
 import org.compiere.util.Util;
 
 /**
- * Send a rostering officer reply from the Reply field on the request header.
- * Inserts R_RequestUpdate, assigns back to the worker, and clears the role queue.
+ * Send a rostering officer reply to the worker.
+ * Prefer process parameters (R_Request_ID + Reply) so WebUI button context is reliable.
  */
 public class SendRosteringReply extends SvrProcess {
+	private int paramRequestId = 0;
 	private String paramReply = null;
 
 	@Override
 	protected void prepare() {
 		for (ProcessInfoParameter para : getParameter()) {
-			String name = para.getParameterName();
-			if ("Reply".equalsIgnoreCase(name) || "AbERP_RosteringReply".equalsIgnoreCase(name)
+			final String name = para.getParameterName();
+			if (Util.isEmpty(name)) {
+				continue;
+			}
+			if ("R_Request_ID".equalsIgnoreCase(name)) {
+				paramRequestId = para.getParameterAsInt();
+			} else if ("Reply".equalsIgnoreCase(name)
+					|| "AbERP_RosteringReply".equalsIgnoreCase(name)
 					|| "Message".equalsIgnoreCase(name)) {
 				if (para.getParameter() != null) {
 					paramReply = para.getParameter().toString();
@@ -41,7 +48,10 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Run Send to Worker from a Rostering Chat request");
 		}
 
-		int requestId = getRecord_ID();
+		int requestId = paramRequestId;
+		if (requestId <= 0) {
+			requestId = getRecord_ID();
+		}
 		if (requestId <= 0) {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
@@ -51,7 +61,7 @@ public class SendRosteringReply extends SvrProcess {
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
 		if (request.get_ID() <= 0) {
-			throw new AdempiereException("Request not found");
+			throw new AdempiereException("Request not found: " + requestId);
 		}
 
 		if (getInt(request.get_Value("AbERP_Rostered_Shift_ID")) > 0) {
@@ -62,7 +72,7 @@ public class SendRosteringReply extends SvrProcess {
 
 		final String trimmed = resolveReplyMessage(request);
 		if (trimmed.isEmpty()) {
-			throw new AdempiereException("Enter your reply in the Reply field, then click Send to Worker");
+			throw new AdempiereException("Enter your reply, then click OK / Send to Worker");
 		}
 		if (trimmed.length() > 2000) {
 			throw new AdempiereException("Reply is too long (max 2000 characters)");
@@ -75,10 +85,9 @@ public class SendRosteringReply extends SvrProcess {
 
 		final int updateId = insertRequestUpdate(request, trimmed);
 		if (updateId <= 0) {
-			throw new AdempiereException("Failed to save reply");
+			throw new AdempiereException("Failed to save reply into Updates");
 		}
 
-		// Clear draft, queue to worker, publish last message for app polling
 		DB.executeUpdateEx(
 				"UPDATE R_Request SET AD_User_ID=?, AD_Role_ID=0, LastResult=?, "
 						+ "AbERP_RosteringReply=NULL, DateLastAction=?, "
@@ -95,7 +104,7 @@ public class SendRosteringReply extends SvrProcess {
 
 		final MUser worker = MUser.get(getCtx(), workerUserId);
 		final String workerName = worker != null && worker.get_ID() > 0 ? worker.getName() : String.valueOf(workerUserId);
-		addLog(updateId, null, null, "Reply sent to " + workerName + " (update " + updateId + ")");
+		addLog(updateId, null, null, "Reply saved to Updates #" + updateId + " and sent to " + workerName);
 		return "@OK@ Reply saved to Updates and sent to " + workerName;
 	}
 
@@ -110,6 +119,13 @@ public class SendRosteringReply extends SvrProcess {
 		} catch (Exception ex) {
 			log.log(Level.WARNING, "MRequestUpdate failed — falling back to SQL insert", ex);
 		}
+
+		// Keep sequence ahead of live max to avoid duplicate keys
+		DB.executeUpdateEx(
+				"UPDATE AD_Sequence SET CurrentNext = GREATEST(CurrentNext, "
+						+ "COALESCE((SELECT MAX(R_RequestUpdate_ID)+IncrementNo FROM R_RequestUpdate), CurrentNext)) "
+						+ "WHERE Name='R_RequestUpdate'",
+				get_TrxName());
 
 		final int updateId = DB.getNextID(request.getAD_Client_ID(), "R_RequestUpdate", get_TrxName());
 		if (updateId <= 0) {
@@ -146,7 +162,6 @@ public class SendRosteringReply extends SvrProcess {
 			return contextDraft;
 		}
 
-		// Fresh read from DB in case the form saved the draft
 		final String dbDraft = DB.getSQLValueStringEx(get_TrxName(),
 				"SELECT AbERP_RosteringReply FROM R_Request WHERE R_Request_ID=?",
 				request.get_ID());
