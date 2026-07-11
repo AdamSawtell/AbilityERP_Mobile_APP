@@ -3,15 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import { NavIcons } from "./NavIcons";
 
 const navItems = [
-  { href: "/open-shifts", label: "Open", icon: "📋" },
-  { href: "/tasks", label: "Chat", icon: "💬" },
-  { href: "/shifts", label: "Schedule", icon: "📅" },
-  { href: "/roster", label: "Roster", icon: "👥" },
-  { href: "/credentials", label: "ID", icon: "🪪" },
-  { href: "/leave", label: "Leave", icon: "🏖️" },
-  { href: "/profile", label: "Profile", icon: "👤" },
+  { href: "/open-shifts", label: "Open", icon: NavIcons.open },
+  { href: "/tasks", label: "Chat", icon: NavIcons.chat },
+  { href: "/shifts", label: "Schedule", icon: NavIcons.schedule },
+  { href: "/roster", label: "Roster", icon: NavIcons.roster },
+  { href: "/credentials", label: "ID", icon: NavIcons.id },
+  { href: "/leave", label: "Leave", icon: NavIcons.leave },
+  { href: "/profile", label: "Profile", icon: NavIcons.profile },
 ];
 
 function NavLink({
@@ -21,7 +23,7 @@ function NavLink({
 }: {
   href: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
 }) {
   const pathname = usePathname();
   const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -33,7 +35,7 @@ function NavLink({
         active ? "text-blue-600 font-semibold" : "text-gray-500"
       }`}
     >
-      <span className="text-lg leading-none" aria-hidden>
+      <span className="leading-none" aria-hidden>
         {icon}
       </span>
       <span>{label}</span>
