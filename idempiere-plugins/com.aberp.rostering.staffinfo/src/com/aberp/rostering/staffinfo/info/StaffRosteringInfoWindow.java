@@ -2,6 +2,7 @@ package com.aberp.rostering.staffinfo.info;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
 
 import org.adempiere.webui.component.Label;
@@ -23,16 +24,16 @@ import org.zkoss.zul.Vbox;
  * Staff Rostering Info Window enhancements:
  * <ul>
  *   <li>Auto-wrap {@code %} on Like criteria</li>
- *   <li>Context banner showing shift Start/End used for leave/overlap filters</li>
- *   <li>When opened from Shift Employee with Start/End dates, exclude staff on
- *       approved leave overlapping the shift window and staff already rostered
- *       on an overlapping non-template shift — without {@code @StartDate@} in
- *       AD WhereClause</li>
+ *   <li>Context banner with shift document, dates and times</li>
+ *   <li>Shift-window leave / overlap exclusions (no {@code @StartDate@} in AD WhereClause)</li>
+ *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
+ *       with AD tickbox {@code Show Unmatched Staff} to include non-matches</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
 
 	public static final String INFO_WINDOW_UU = "2b4ab146-0809-47c6-96f3-8b841d60a6bf";
+	public static final String COL_SHOW_UNMATCHED = "AbERP_ShowUnmatchedStaff";
 
 	private final GridField launchField;
 	private Label contextBanner;
@@ -63,8 +64,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * After the criteria pane is attached to North, insert a read-only status line
-	 * so officers can see which shift dates drive leave/overlap filtering.
-	 * Prefer this over AD read-only {@code @StartDate@} criteria (those break loadInfoDefinition).
+	 * so officers can see which shift dates/times and needs filters apply.
 	 */
 	@Override
 	protected void renderParameterPane(org.zkoss.zul.North north) {
@@ -75,37 +75,90 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	@Override
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
+		if (contextBanner != null) {
+			contextBanner.setValue(buildContextBannerText());
+		}
 		super.executeQuery();
 	}
 
 	@Override
 	protected String getSQLWhere() {
-		String where = super.getSQLWhere();
-		String extra = buildShiftDateEligibilitySql();
-		if (Util.isEmpty(extra, true)) {
-			return where;
+		// AD "Show Unmatched Staff" is a flag only — its SelectClause is constant 'N',
+		// so clear the editor before super builds WHERE, then apply needs match in Java.
+		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
+		Object savedShowUnmatched = null;
+		boolean cleared = false;
+		if (showUnmatchedEditor != null) {
+			savedShowUnmatched = showUnmatchedEditor.getValue();
+			showUnmatchedEditor.setValue(null);
+			cleared = true;
 		}
-		if (Util.isEmpty(where, true)) {
-			return extra;
+
+		try {
+			String where = super.getSQLWhere();
+			StringBuilder extra = new StringBuilder();
+			appendClause(extra, buildShiftDateEligibilitySql());
+
+			boolean showUnmatched = isYes(savedShowUnmatched);
+			if (!showUnmatched) {
+				appendClause(extra, buildNeedsMatchSql());
+			}
+
+			if (extra.length() == 0) {
+				return where;
+			}
+			if (Util.isEmpty(where, true)) {
+				return extra.toString();
+			}
+			return where + " AND " + extra;
+		} finally {
+			if (cleared) {
+				showUnmatchedEditor.setValue(savedShowUnmatched);
+			}
+			if (contextBanner != null) {
+				contextBanner.setValue(buildContextBannerText());
+			}
 		}
-		return where + " AND " + extra;
+	}
+
+	private static void appendClause(StringBuilder sb, String clause) {
+		if (Util.isEmpty(clause, true)) {
+			return;
+		}
+		if (sb.length() > 0) {
+			sb.append(" AND ");
+		}
+		sb.append(clause);
+	}
+
+	private static boolean isYes(Object value) {
+		if (value == null) {
+			return false;
+		}
+		if (value instanceof Boolean) {
+			return ((Boolean) value).booleanValue();
+		}
+		String s = value.toString().trim();
+		return "Y".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s);
+	}
+
+	private WEditor findEditor(String columnName) {
+		if (editors == null || Util.isEmpty(columnName, true)) {
+			return null;
+		}
+		for (WEditor editor : editors) {
+			if (editor == null || editor.getGridField() == null) {
+				continue;
+			}
+			if (columnName.equalsIgnoreCase(editor.getGridField().getColumnName())) {
+				return editor;
+			}
+		}
+		return null;
 	}
 
 	private void ensureContextBanner(org.zkoss.zul.North north) {
-		if (north == null) {
-			return;
-		}
-		// Borderlayout North allows only one child — wrap banner + existing pane.
-		Component existing = north.getFirstChild();
-		if (existing == null) {
-			return;
-		}
 		if (contextBanner != null && contextBanner.getParent() != null) {
-			contextBanner.setValue(buildContextBannerText());
-			return;
-		}
-		// Already wrapped from a prior call
-		if (existing instanceof Vbox && contextBanner != null) {
 			contextBanner.setValue(buildContextBannerText());
 			return;
 		}
@@ -117,17 +170,52 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
 						+ "font-size:12px;line-height:1.35;white-space:normal;");
 
-		Vbox wrap = new Vbox();
-		wrap.setWidth("100%");
-		wrap.setSpacing("6px");
-		existing.detach();
-		wrap.appendChild(contextBanner);
-		wrap.appendChild(existing);
-		north.appendChild(wrap);
+		// North allows only ONE child. Prefer wrapping inside that child (often
+		// ZK north-body). Never insertBefore onto North itself.
+		Component northChild = north != null ? north.getFirstChild() : null;
+		if (northChild == null && parameterGrid != null) {
+			// Walk up from criteria grid to the North child container
+			Component p = parameterGrid.getParent();
+			while (p != null && p.getParent() != null && !(p.getParent() instanceof org.zkoss.zul.North)) {
+				p = p.getParent();
+			}
+			northChild = p;
+		}
+		if (northChild == null) {
+			return;
+		}
+
+		if (northChild instanceof Vbox) {
+			northChild.insertBefore(contextBanner, northChild.getFirstChild());
+			return;
+		}
+
+		// Single content under north-body (or similar): wrap content in Vbox
+		if (northChild.getChildren().size() == 1 && northChild.getFirstChild() != null) {
+			Component content = northChild.getFirstChild();
+			Vbox wrap = new Vbox();
+			wrap.setWidth("100%");
+			wrap.setSpacing("6px");
+			content.detach();
+			wrap.appendChild(contextBanner);
+			wrap.appendChild(content);
+			northChild.appendChild(wrap);
+			return;
+		}
+
+		// northChild itself is the criteria pane — replace North's only child with Vbox
+		if (north != null && northChild.getParent() == north) {
+			Vbox wrap = new Vbox();
+			wrap.setWidth("100%");
+			wrap.setSpacing("6px");
+			northChild.detach();
+			wrap.appendChild(contextBanner);
+			wrap.appendChild(northChild);
+			north.appendChild(wrap);
+		}
 	}
 
 	private String buildContextBannerText() {
-		Timestamp[] range = resolveShiftDateRange();
 		Integer shiftId = resolveCurrentShiftId();
 		String docNo = null;
 		if (shiftId != null && shiftId.intValue() > 0) {
@@ -136,24 +224,58 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					shiftId.intValue());
 		}
 
+		Timestamp[] range = resolveShiftDisplayRange();
+		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
+		boolean showUnmatched = isShowUnmatchedSelected();
+
 		if (range != null && range[0] != null && range[1] != null) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Shift filter active");
 			if (!Util.isEmpty(docNo, true)) {
 				sb.append(" (").append(docNo).append(')');
 			}
-			sb.append(": ").append(formatDate(range[0])).append(" – ").append(formatDate(range[1]));
-			sb.append(". Hiding staff on approved leave or already rostered on an overlapping shift for these dates.");
+			sb.append(": ").append(formatDateTime(range[0])).append(" – ").append(formatDateTime(range[1]));
+			sb.append(". Hiding staff on approved leave or already rostered on an overlapping shift.");
+			appendNeedsBanner(sb, needs, showUnmatched);
+			return sb.toString();
+		}
+
+		if (shiftId != null && shiftId.intValue() > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Shift context");
+			if (!Util.isEmpty(docNo, true)) {
+				sb.append(" (").append(docNo).append(')');
+			}
+			sb.append(" — no Start/End dates for leave/overlap.");
+			appendNeedsBanner(sb, needs, showUnmatched);
 			return sb.toString();
 		}
 
 		return "No shift Start/End in context. Only the On Approved Leave (today) filter applies — "
-				+ "open from Shift → Employee to use shift-date leave/overlap checks.";
+				+ "open from Shift → Employee to use shift-date leave/overlap and related needs matching.";
 	}
 
-	private String formatDate(Timestamp ts) {
+	private void appendNeedsBanner(StringBuilder sb, NeedsSummary needs, boolean showUnmatched) {
+		if (needs == null || !needs.hasAny()) {
+			sb.append(" No related rostering needs on this shift.");
+			return;
+		}
+		sb.append(' ').append(needs.describe());
+		if (showUnmatched) {
+			sb.append(" Show Unmatched Staff is Y — including staff who do not meet these needs.");
+		} else {
+			sb.append(" Showing staff who match these needs only (tick Show Unmatched Staff to include others).");
+		}
+	}
+
+	private boolean isShowUnmatchedSelected() {
+		WEditor ed = findEditor(COL_SHOW_UNMATCHED);
+		return ed != null && isYes(ed.getValue());
+	}
+
+	private String formatDateTime(Timestamp ts) {
 		Language lang = Env.getLanguage(Env.getCtx());
-		SimpleDateFormat df = DisplayType.getDateFormat(DisplayType.Date, lang);
+		SimpleDateFormat df = DisplayType.getDateFormat(DisplayType.DateTime, lang);
 		return df.format(ts);
 	}
 
@@ -190,7 +312,6 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * Append leave + overlap exclusions using parent shift Start/End when available.
-	 * Uses TO_DATE literals so we do not disturb InfoWindow parameter binding.
 	 */
 	private String buildShiftDateEligibilitySql() {
 		Timestamp[] range = resolveShiftDateRange();
@@ -227,44 +348,232 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		return sql.toString();
 	}
 
-	private Timestamp[] resolveShiftDateRange() {
-		Properties ctx = Env.getCtx();
-		int windowNo = getWindowNo();
-
-		Timestamp start = Env.getContextAsDate(ctx, windowNo, "StartDate");
-		Timestamp end = Env.getContextAsDate(ctx, windowNo, "EndDate");
-		if (start != null && end != null) {
-			return new Timestamp[] { start, end };
+	/**
+	 * Staff must satisfy every Related Rostering Need (SR/LOC/RS view): credentials,
+	 * gender, and must not be a restricted employee. Uses EXISTS — not FROM joins.
+	 */
+	private String buildNeedsMatchSql() {
+		Integer shiftId = resolveCurrentShiftId();
+		if (shiftId == null || shiftId.intValue() <= 0) {
+			return null;
+		}
+		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
+		if (needs == null || !needs.hasAny()) {
+			return null;
 		}
 
+		int id = shiftId.intValue();
+		StringBuilder sql = new StringBuilder();
+
+		if (needs.crdCount > 0) {
+			sql.append("NOT EXISTS (")
+					.append("SELECT 1 FROM AbERP_Related_Rostering_Needs_V rv ")
+					.append("WHERE rv.AbERP_Rostered_Shift_ID = ").append(id).append(' ')
+					.append("AND rv.IsActive = 'Y' AND rv.AbERP_NeedType = 'CRD' ")
+					.append("AND COALESCE(rv.AbERP_Credentials_ID,0) > 0 ")
+					.append("AND NOT EXISTS (")
+					.append("SELECT 1 FROM AbERP_CredentialAssignment ca ")
+					.append("WHERE ca.IsActive = 'Y' ")
+					.append("AND ca.AbERP_Credentials_ID = rv.AbERP_Credentials_ID ")
+					.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
+					.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ")
+					.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)")
+					.append("))");
+		}
+
+		if (needs.gdrCount > 0) {
+			if (sql.length() > 0) {
+				sql.append(" AND ");
+			}
+			sql.append("NOT EXISTS (")
+					.append("SELECT 1 FROM AbERP_Related_Rostering_Needs_V rv ")
+					.append("WHERE rv.AbERP_Rostered_Shift_ID = ").append(id).append(' ')
+					.append("AND rv.IsActive = 'Y' AND rv.AbERP_NeedType = 'GDR' ")
+					.append("AND COALESCE(rv.AbERP_Gender_ID,0) > 0 ")
+					.append("AND COALESCE(bp.AbERP_Gender_ID,0) <> rv.AbERP_Gender_ID")
+					.append(')');
+		}
+
+		if (needs.empCount > 0) {
+			if (sql.length() > 0) {
+				sql.append(" AND ");
+			}
+			sql.append("NOT EXISTS (")
+					.append("SELECT 1 FROM AbERP_Related_Rostering_Needs_V rv ")
+					.append("WHERE rv.AbERP_Rostered_Shift_ID = ").append(id).append(' ')
+					.append("AND rv.IsActive = 'Y' AND rv.AbERP_NeedType = 'EMP' ")
+					.append("AND rv.AbERP_User_Contact_ID = au.AD_User_ID")
+					.append(')');
+		}
+
+		return sql.length() > 0 ? sql.toString() : null;
+	}
+
+	private NeedsSummary summarizeRelatedNeeds(Integer shiftId) {
+		if (shiftId == null || shiftId.intValue() <= 0) {
+			return NeedsSummary.EMPTY;
+		}
+		int id = shiftId.intValue();
+		int crd = DB.getSQLValue(null,
+				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
+						+ "AND rv.AbERP_NeedType='CRD' AND COALESCE(rv.AbERP_Credentials_ID,0)>0",
+				id);
+		int gdr = DB.getSQLValue(null,
+				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
+						+ "AND rv.AbERP_NeedType='GDR' AND COALESCE(rv.AbERP_Gender_ID,0)>0",
+				id);
+		int emp = DB.getSQLValue(null,
+				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
+						+ "AND rv.AbERP_NeedType='EMP' AND COALESCE(rv.AbERP_User_Contact_ID,0)>0",
+				id);
+		if (crd < 0) {
+			crd = 0;
+		}
+		if (gdr < 0) {
+			gdr = 0;
+		}
+		if (emp < 0) {
+			emp = 0;
+		}
+		return new NeedsSummary(crd, gdr, emp);
+	}
+
+	/**
+	 * Display range prefers StartTime/EndTime when set; otherwise StartDate/EndDate.
+	 * When date and time are split (time on 1970-01-01), merge calendar date + clock.
+	 */
+	private Timestamp[] resolveShiftDisplayRange() {
+		ShiftTimes times = resolveShiftTimes();
+		if (times == null) {
+			return null;
+		}
+		Timestamp start = combineDateAndTime(times.startDate, times.startTime);
+		Timestamp end = combineDateAndTime(times.endDate, times.endTime);
+		if (start == null) {
+			start = times.startTime != null ? times.startTime : times.startDate;
+		}
+		if (end == null) {
+			end = times.endTime != null ? times.endTime : times.endDate;
+		}
+		if (start == null || end == null) {
+			return null;
+		}
+		return new Timestamp[] { start, end };
+	}
+
+	private Timestamp[] resolveShiftDateRange() {
+		ShiftTimes times = resolveShiftTimes();
+		if (times == null) {
+			return null;
+		}
+		Timestamp start = times.startDate != null ? times.startDate : times.startTime;
+		Timestamp end = times.endDate != null ? times.endDate : times.endTime;
+		if (start == null || end == null) {
+			return null;
+		}
+		return new Timestamp[] { start, end };
+	}
+
+	private ShiftTimes resolveShiftTimes() {
+		// Prefer the launching Shift / Employee tab and DB — do not trust bare
+		// window context StartDate/EndDate (other windows pollute those names).
 		GridTab staffTab = launchField != null ? launchField.getGridTab() : null;
 		if (staffTab != null) {
-			Object s = staffTab.getValue("StartDate");
-			Object e = staffTab.getValue("EndDate");
-			if (s instanceof Timestamp && e instanceof Timestamp) {
-				return new Timestamp[] { (Timestamp) s, (Timestamp) e };
+			ShiftTimes fromStaff = readTimesFromTab(staffTab);
+			if (fromStaff.hasDateOrTime()) {
+				return fromStaff;
 			}
 			GridTab parent = staffTab.getParentTab();
 			if (parent != null) {
-				s = parent.getValue("StartDate");
-				e = parent.getValue("EndDate");
-				if (s instanceof Timestamp && e instanceof Timestamp) {
-					return new Timestamp[] { (Timestamp) s, (Timestamp) e };
+				ShiftTimes fromParent = readTimesFromTab(parent);
+				if (fromParent.hasDateOrTime()) {
+					return fromParent;
 				}
 			}
 		}
 
 		Integer shiftId = resolveCurrentShiftId();
 		if (shiftId != null && shiftId.intValue() > 0) {
-			Timestamp startDb = DB.getSQLValueTS(null,
+			Timestamp startDate = DB.getSQLValueTS(null,
 					"SELECT StartDate FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			Timestamp endDb = DB.getSQLValueTS(null,
+			Timestamp endDate = DB.getSQLValueTS(null,
 					"SELECT EndDate FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			if (startDb != null && endDb != null) {
-				return new Timestamp[] { startDb, endDb };
+			Timestamp startTime = DB.getSQLValueTS(null,
+					"SELECT StartTime FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
+			Timestamp endTime = DB.getSQLValueTS(null,
+					"SELECT EndTime FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
+			ShiftTimes fromDb = new ShiftTimes(startDate, endDate, startTime, endTime);
+			if (fromDb.hasDateOrTime()) {
+				return fromDb;
+			}
+		}
+
+		// Only use window context dates when this Info is tied to a real shift id
+		if (shiftId != null && shiftId.intValue() > 0) {
+			Properties ctx = Env.getCtx();
+			int windowNo = getWindowNo();
+			ShiftTimes fromCtx = new ShiftTimes(
+					Env.getContextAsDate(ctx, windowNo, "StartDate"),
+					Env.getContextAsDate(ctx, windowNo, "EndDate"),
+					Env.getContextAsDate(ctx, windowNo, "StartTime"),
+					Env.getContextAsDate(ctx, windowNo, "EndTime"));
+			if (fromCtx.hasDateOrTime()) {
+				return fromCtx;
 			}
 		}
 		return null;
+	}
+
+	private ShiftTimes readTimesFromTab(GridTab tab) {
+		return new ShiftTimes(
+				asTimestamp(tab.getValue("StartDate")),
+				asTimestamp(tab.getValue("EndDate")),
+				asTimestamp(tab.getValue("StartTime")),
+				asTimestamp(tab.getValue("EndTime")));
+	}
+
+	private static Timestamp asTimestamp(Object v) {
+		return v instanceof Timestamp ? (Timestamp) v : null;
+	}
+
+	/**
+	 * Merge calendar day from {@code datePart} with clock from {@code timePart}.
+	 * If {@code timePart} is null, return {@code datePart}. If date is null, return time.
+	 */
+	private static Timestamp combineDateAndTime(Timestamp datePart, Timestamp timePart) {
+		if (datePart == null && timePart == null) {
+			return null;
+		}
+		if (timePart == null) {
+			return datePart;
+		}
+		if (datePart == null) {
+			return timePart;
+		}
+		// If datePart already carries a non-midnight time and timePart equals datePart, keep datePart
+		Calendar dateCal = Calendar.getInstance();
+		dateCal.setTimeInMillis(datePart.getTime());
+		Calendar timeCal = Calendar.getInstance();
+		timeCal.setTimeInMillis(timePart.getTime());
+
+		boolean dateHasClock = dateCal.get(Calendar.HOUR_OF_DAY) != 0
+				|| dateCal.get(Calendar.MINUTE) != 0
+				|| dateCal.get(Calendar.SECOND) != 0;
+		boolean timeIsEpochDay = timeCal.get(Calendar.YEAR) <= 1971;
+
+		if (dateHasClock && !timeIsEpochDay
+				&& datePart.getTime() == timePart.getTime()) {
+			return datePart;
+		}
+
+		dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+		dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+		dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+		dateCal.set(Calendar.MILLISECOND, 0);
+		return new Timestamp(dateCal.getTimeInMillis());
 	}
 
 	private Integer resolveCurrentShiftId() {
@@ -288,5 +597,70 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			}
 		}
 		return null;
+	}
+
+	private static final class ShiftTimes {
+		final Timestamp startDate;
+		final Timestamp endDate;
+		final Timestamp startTime;
+		final Timestamp endTime;
+
+		ShiftTimes(Timestamp startDate, Timestamp endDate, Timestamp startTime, Timestamp endTime) {
+			this.startDate = startDate;
+			this.endDate = endDate;
+			this.startTime = startTime;
+			this.endTime = endTime;
+		}
+
+		boolean hasDateOrTime() {
+			return startDate != null || endDate != null || startTime != null || endTime != null;
+		}
+	}
+
+	private static final class NeedsSummary {
+		static final NeedsSummary EMPTY = new NeedsSummary(0, 0, 0);
+		final int crdCount;
+		final int gdrCount;
+		final int empCount;
+
+		NeedsSummary(int crdCount, int gdrCount, int empCount) {
+			this.crdCount = crdCount;
+			this.gdrCount = gdrCount;
+			this.empCount = empCount;
+		}
+
+		boolean hasAny() {
+			return crdCount > 0 || gdrCount > 0 || empCount > 0;
+		}
+
+		String describe() {
+			StringBuilder sb = new StringBuilder("Related needs:");
+			boolean first = true;
+			if (crdCount > 0) {
+				sb.append(' ').append(crdCount).append(" credential");
+				if (crdCount != 1) {
+					sb.append('s');
+				}
+				first = false;
+			}
+			if (gdrCount > 0) {
+				if (!first) {
+					sb.append(',');
+				}
+				sb.append(' ').append(gdrCount).append(" gender");
+				first = false;
+			}
+			if (empCount > 0) {
+				if (!first) {
+					sb.append(',');
+				}
+				sb.append(' ').append(empCount).append(" restricted employee");
+				if (empCount != 1) {
+					sb.append('s');
+				}
+			}
+			sb.append('.');
+			return sb.toString();
+		}
 	}
 }

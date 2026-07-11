@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.1.0.2026071204"
+VERSION="1.1.0.2026071208"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -30,7 +30,7 @@ sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" "
 sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
 echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
-echo "Applying SQL 01 → 10 → 04"
+echo "Applying SQL 01 → 12 → 04"
 for f in \
   01-indexes.sql \
   02-rewrite-infowindow.sql \
@@ -42,6 +42,7 @@ for f in \
   09-find-fill-ux.sql \
   10-java-ux-org.sql \
   11-drop-redundant-criteria.sql \
+  12-needs-match-criteria.sql \
   04-verify.sql
 do
   echo "=== $f ==="
