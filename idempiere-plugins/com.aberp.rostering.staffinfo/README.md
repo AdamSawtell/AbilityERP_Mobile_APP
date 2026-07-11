@@ -73,13 +73,17 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/99-rollback.sql
 
 Then log out/in again.
 
-## Manual test
+## Browser smoke (EC2 WebUI — 2026-07-11)
 
-1. Open **Shift (Rostered)** → **Employee** tab → Search on **Employee (User) / Agency Staff**.
-2. Confirm the list opens quickly with Employee=Y default.
-3. Pick a user; confirm the Employee line receives `AbERP_User_Contact_ID`.
-4. With shift dates in context, confirm people on approved leave / overlapping shifts are hidden unless Show* is enabled.
-5. Open Related Info → Credentials Assigned / Rostered Shift.
+After restart + Cache Reset:
+
+1. Open **Employee (User) / Agency Staff Rostering Info** from Menu
+2. ReQuery with Employee=Yes
+3. **PASS:** 20 rows, Blake Fraser selectable, **no error dialog**
+
+Known limitation: leave/overlap EXISTS cannot use `@StartDate@` in WhereClause on this
+iDempiere build (`Cannot parse context` → ListModel -1). Eligibility filters are a follow-up
+(custom Info class or view). Related Info panels are disabled until remapped.
 
 ## Files
 

@@ -16,13 +16,14 @@ BEGIN
     RAISE EXCEPTION 'AD_InfoWindow UU 2b4ab146-0809-47c6-96f3-8b841d60a6bf not found';
   END IF;
 
-  -- Key column for Search return value
+  -- Key column for Search return value (must be ID/Integer for ZK keyView)
   UPDATE ad_infocolumn SET
     iskey = 'Y',
     isidentifier = 'N',
     isdisplayed = 'Y',
-    ishideinfocolumn = 'Y',
+    ishideinfocolumn = 'N',
     isquerycriteria = 'N',
+    ad_reference_id = 13,
     selectclause = 'au.AD_User_ID',
     updated = NOW(),
     updatedby = 100
@@ -42,7 +43,7 @@ BEGIN
     selectclause = '0',
     isquerycriteria = 'Y',
     isdisplayed = 'N',
-    ishideinfocolumn = 'N',
+    ishideinfocolumn = 'Y',
     ismultiselectcriteria = 'N',
     queryoperator = '=',
     queryfunction = NULL,
@@ -58,7 +59,7 @@ BEGIN
     selectclause = '0',
     isquerycriteria = 'Y',
     isdisplayed = 'N',
-    ishideinfocolumn = 'N',
+    ishideinfocolumn = 'Y',
     ismultiselectcriteria = 'N',
     queryoperator = '=',
     queryfunction = NULL,
@@ -76,6 +77,7 @@ BEGIN
     name = 'Current Rostered Shift',
     isquerycriteria = 'Y',
     isdisplayed = 'N',
+    ishideinfocolumn = 'Y',
     ismultiselectcriteria = 'N',
     queryoperator = '=',
     queryfunction = NULL,
@@ -94,6 +96,7 @@ BEGIN
     columnname = 'ShowUnavailabilityLeave',
     isquerycriteria = 'Y',
     isdisplayed = 'N',
+    ishideinfocolumn = 'Y',
     ismultiselectcriteria = 'N',
     queryoperator = '=',
     queryfunction = NULL,
@@ -113,6 +116,7 @@ BEGIN
     columnname = 'ShowOverlappingShifts',
     isquerycriteria = 'Y',
     isdisplayed = 'N',
+    ishideinfocolumn = 'Y',
     ismultiselectcriteria = 'N',
     queryoperator = '=',
     queryfunction = NULL,
@@ -149,7 +153,7 @@ BEGIN
   WHERE ad_infocolumn_uu = '92af7d4e-99ea-4939-8b8b-77bbb6599594';
   UPDATE ad_infocolumn SET selectclause = 'au.Name', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu = '79f02750-6838-46a3-bf5c-175b14666699';
-  UPDATE ad_infocolumn SET selectclause = 'bp.Name', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', updated = NOW(), updatedby = 100
+  UPDATE ad_infocolumn SET selectclause = 'bp.Name', columnname = 'BP_Name', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu = 'e4372e51-bedd-4cca-bfd6-ddac97def5ba';
   UPDATE ad_infocolumn SET selectclause = 'bp.IsEmployee', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', defaultvalue = 'Y', updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu = '3d98756a-2000-48dd-88d6-3a7c93d82fc1';

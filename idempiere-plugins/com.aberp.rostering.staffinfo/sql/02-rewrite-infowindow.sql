@@ -24,26 +24,10 @@ BEGIN
     || E'\nINNER JOIN C_BPartner bp ON (bp.C_BPartner_ID = au.C_BPartner_ID AND bp.IsActive = ''Y'')'
     || E'\nLEFT JOIN C_Job jb ON (jb.C_Job_ID = bp.C_Job_ID AND jb.IsActive = ''Y'')';
 
-  -- Leave/overlap exclusions apply only when StartDate+EndDate are supplied (from shift or criteria).
-  -- ShowUnavailabilityLeave=Y / ShowOverlappingShifts=Y disables the matching exclusion.
-  v_where :=
-    'au.IsActive = ''Y'''
-    || ' AND (''@ShowUnavailabilityLeave:N@''=''Y'' OR ''@StartDate@'' IN ('''',''0'') OR ''@EndDate@'' IN ('''',''0'')'
-    || ' OR NOT EXISTS (SELECT 1 FROM AbERP_Unavailability_Leave ul'
-    || ' WHERE ul.AbERP_User_Contact_ID=au.AD_User_ID AND ul.IsActive=''Y'''
-    || ' AND UPPER(COALESCE(ul.AbERP_ApproverStatus,''''))=''AP'''
-    || ' AND ul.StartDate < CAST(''@EndDate@'' AS TIMESTAMP)'
-    || ' AND ul.EndDate > CAST(''@StartDate@'' AS TIMESTAMP)))'
-    || ' AND (''@ShowOverlappingShifts:N@''=''Y'' OR ''@StartDate@'' IN ('''',''0'') OR ''@EndDate@'' IN ('''',''0'')'
-    || ' OR NOT EXISTS (SELECT 1 FROM AbERP_Rostered_ShiftStaff rss'
-    || ' INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=rss.AbERP_Rostered_Shift_ID'
-    || ' AND rs.IsActive=''Y'' AND COALESCE(rs.AbERP_isShiftRosteredTemplate,''N'')=''N'')'
-    || ' WHERE rss.AbERP_User_Contact_ID=au.AD_User_ID AND rss.IsActive=''Y'''
-    || ' AND COALESCE(rss.AbERP_User_Contact_ID,0)>0'
-    || ' AND rs.StartDate < CAST(''@EndDate@'' AS TIMESTAMP)'
-    || ' AND rs.EndDate > CAST(''@StartDate@'' AS TIMESTAMP)'
-    || ' AND (''@AbERP_Rostered_Shift_ID@'' IN ('''',''0'',''null'')'
-    || ' OR rs.AbERP_Rostered_Shift_ID <> CAST(NULLIF(regexp_replace(''@AbERP_Rostered_Shift_ID@'',''[^0-9]'','''',''g''),'''') AS NUMERIC))))';
+  -- Leave/overlap EXISTS with @StartDate@ cannot live in WhereClause:
+  -- InfoWindow.loadInfoDefinition fails with "Cannot parse context" and the UI
+  -- then throws ListModelTable field at 0,-1. Keep WhereClause static.
+  v_where := 'au.IsActive = ''Y''';
 
   IF length(v_from) > 2000 OR length(v_where) > 2000 THEN
     RAISE EXCEPTION 'Clause too long: from=% where=%', length(v_from), length(v_where);

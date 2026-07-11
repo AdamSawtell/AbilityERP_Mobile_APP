@@ -21,7 +21,7 @@ sudo cp "$DIST_JAR" "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME"
 sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" || true
 
 echo "Applying SQL 01 → 04"
-for f in 01-indexes.sql 02-rewrite-infowindow.sql 03-rewrite-infocolumns.sql 04-verify.sql; do
+for f in 01-indexes.sql 02-rewrite-infowindow.sql 03-rewrite-infocolumns.sql 05-hotfix-browser-smoke.sql 04-verify.sql; do
   echo "=== $f ==="
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/$f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/$f"
