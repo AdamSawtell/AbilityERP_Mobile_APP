@@ -58,3 +58,7 @@ WHERE ad_infocolumn_uu = '3402dcb1-ec9b-46b3-a8a6-8248b89cc4f4';
 -- Remove find/fill BP sync (09)
 DROP TRIGGER IF EXISTS aberp_shiftstaff_sync_bp_trg ON aberp_rostered_shiftstaff;
 DROP FUNCTION IF EXISTS aberp_shiftstaff_sync_bp_from_contact();
+
+-- Remove org sync (10)
+DROP TRIGGER IF EXISTS aberp_shiftstaff_sync_org_trg ON aberp_rostered_shiftstaff;
+DROP FUNCTION IF EXISTS aberp_shiftstaff_sync_org_from_shift();

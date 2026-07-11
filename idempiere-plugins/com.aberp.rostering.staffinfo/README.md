@@ -1,72 +1,61 @@
-# AbERP Rostering Staff Info — performance rewrite
+# AbERP Rostering Staff Info — performance rewrite + Java UX
 
-Standalone package that rewrites **Employee (User) / Agency Staff Rostering Info**
+Package that rewrites **Employee (User) / Agency Staff Rostering Info**
 (`AD_InfoWindow_UU = 2b4ab146-0809-47c6-96f3-8b841d60a6bf`) used on
 **Shift (Rostered) → Employee → Employee (User) / Agency Staff**.
+
+Includes SQL AD changes plus a small OSGi bundle (`IInfoFactory` + `IColumnCalloutFactory`).
 
 ## What it changes
 
 | Before | After |
 |--------|--------|
 | 9-table join fan-out + `DISTINCT` | `AD_User` + `C_BPartner` (+ optional `C_Job`) |
-| Leave / credentials / needs / BI view in FROM | Display/filter via EXISTS expressions (no `@ctx@`) |
-| `MaxQueryRecords=0`, Load Page Num on | Cap 500, page size 50, Load Page Num off |
-| No key / order | `AD_User_ID` key, `ORDER BY au.Name` |
-| Shift rows on org `*` (read-only Employee tab) | AbilityERP org assigned (`06`) |
+| Leave / credentials / needs / BI view in FROM | EXISTS filters; Java injects shift-date leave/overlap |
+| Manual `%` wildcards on Like | Auto-`%` wrap in `StaffRosteringInfoWindow` |
+| BP empty until save | Callout fills virtual BP display on contact pick |
+| Shift/staff on org `*` | Migration + org sync trigger + callout (`06`/`10`) |
 | Related Info off | Rostered Shift / Credentials / Alerts on (`08`) |
-| Exact Like finds / empty BP after pick | Name-first criteria, `%` help, BP sync trigger (`09`) |
 
-**On Approved Leave** (default **N**) hides staff with approved leave ending today or later.
-Clear the criteria or set **Y** to include them. **Has Future Shift** is display-only.
-
-**Find tip:** Name / Search Key / BP Name use `Like` + `Upper` — use wildcards, e.g. `%Fraser%`.
-
-Shift-window-specific date overlap (using `@StartDate@`) is still deferred — context tokens
-break `InfoWindow.loadInfoDefinition` on this iDempiere build.
+**On Approved Leave** (default **N**) is a CURRENT_DATE filter. When the Info is opened from
+a Shift with Start/End dates, Java also hides staff on approved leave overlapping that
+window and staff already rostered on an overlapping non-template shift — without putting
+`@StartDate@` into AD WhereClause.
 
 ## Requirements
 
 - Target DB already has this AbERP Info Window (same UUID).
-- PostgreSQL + iDempiere with `adempiere` schema.
-- No Java/OSGi code — AD + indexes only.
+- PostgreSQL + iDempiere 7.1 with `adempiere` schema.
+- Deploy restarts iDempiere (OSGi).
 
-## Build distribution JAR
+## Build / Install
 
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
-./build.sh
-```
-
-Produces `release/com.aberp.rostering.staffinfo_1.0.0.2026071123.jar`.
-
-## Install
-
-```bash
 ./deploy.sh
 ```
 
-Applies: `01` → `02` → `03` → `05` → `06` → `07` → `08` → `09` → `04`.
+Applies SQL `01`→`10`→`04`, installs OSGi jar, restarts iDempiere.
 
-Then **Cache Reset** (or log out/in). Restart only if AD cache stays sticky.
+Then **Cache Reset** (or log out/in).
+
+Produces `release/com.aberp.rostering.staffinfo_1.1.0.2026071201.jar`.
 
 ## Rollback
 
 ```bash
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/99-rollback.sql
+# then remove the OSGi jar / bundles.info entry and restart
 ```
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `sql/01-indexes.sql` | Contact / date / name indexes |
-| `sql/02-rewrite-infowindow.sql` | FROM / WHERE / paging |
-| `sql/03-rewrite-infocolumns.sql` | Criteria cleanup |
-| `sql/05-hotfix-browser-smoke.sql` | Browser smoke hotfix |
-| `sql/06-fix-shift-org.sql` | Move shifts/staff off org `*` |
-| `sql/07-eligibility-criteria.sql` | Leave filter + future-shift flag |
-| `sql/08-enable-related-info.sql` | Re-enable Related Info panels |
-| `sql/09-find-fill-ux.sql` | Criteria order, editable filters, BP sync trigger |
-| `sql/04-verify.sql` | AD dump + EXPLAIN |
+| `src/.../info/StaffRosteringInfoWindow.java` | Auto-`%` + shift-date eligibility |
+| `src/.../factory/StaffRosteringInfoFactory.java` | `IInfoFactory` |
+| `src/.../callout/CalloutShiftStaffContact.java` | BP + org on contact change |
+| `src/.../factory/StaffRosteringCalloutFactory.java` | `IColumnCalloutFactory` |
+| `sql/01`–`10` | AD rewrite, indexes, org, eligibility, UX |
 | `sql/99-rollback.sql` | Restore prior join-based definition |
