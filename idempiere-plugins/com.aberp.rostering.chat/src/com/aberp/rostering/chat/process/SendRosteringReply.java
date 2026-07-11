@@ -73,11 +73,13 @@ public class SendRosteringReply extends SvrProcess {
 			// WebUI button click saves the row first. The AbERP_RosteringReply trigger
 			// already copies Reply → LastResult/Updates and clears the draft. Treat that
 			// as a successful send so we do not show a false "type your reply" error.
+			// Do not require LastResult match — a concurrent worker message can overwrite it.
 			trimmed = recentAutoSavedReply(request.get_ID());
 		}
-		if (trimmed.isEmpty()) {
+		if (Util.isEmpty(trimmed)) {
 			throw new AdempiereException("Type your reply in the Reply field, then click Send Reply");
 		}
+		trimmed = trimmed.trim();
 		if (trimmed.length() > 2000) {
 			throw new AdempiereException("Reply is too long (max 2000 characters)");
 		}
@@ -118,21 +120,19 @@ public class SendRosteringReply extends SvrProcess {
 
 	/** Reply text just delivered by the save trigger (draft already cleared). */
 	private String recentAutoSavedReply(int requestId) {
-		// Latest Public update is ours and matches LastResult → save-trigger already sent.
-		return DB.getSQLValueStringEx(get_TrxName(),
+		// Most recent Public update by this user in the last 30s (save-trigger already sent).
+		// Avoid joining LastResult — a concurrent worker reply can overwrite it immediately.
+		final String result = DB.getSQLValueStringEx(get_TrxName(),
 				"SELECT ru.Result FROM R_RequestUpdate ru "
-						+ "JOIN R_Request r ON r.R_Request_ID = ru.R_Request_ID "
 						+ "WHERE ru.R_Request_ID=? "
 						+ "AND ru.IsActive='Y' "
 						+ "AND COALESCE(ru.ConfidentialTypeEntry,'A')='A' "
 						+ "AND ru.CreatedBy=? "
-						+ "AND TRIM(ru.Result)=TRIM(COALESCE(r.LastResult,'')) "
-						+ "AND ru.R_RequestUpdate_ID = ("
-						+ "  SELECT MAX(u2.R_RequestUpdate_ID) FROM R_RequestUpdate u2 "
-						+ "  WHERE u2.R_Request_ID = ru.R_Request_ID AND u2.IsActive='Y' "
-						+ "  AND COALESCE(u2.ConfidentialTypeEntry,'A')='A'"
-						+ ")",
+						+ "AND ru.Created > (CURRENT_TIMESTAMP - INTERVAL '30 seconds') "
+						+ "ORDER BY ru.R_RequestUpdate_ID DESC "
+						+ "FETCH FIRST 1 ROW ONLY",
 				requestId, getAD_User_ID());
+		return result == null ? "" : result;
 	}
 
 	private String resolveReplyMessage(MRequest request) {

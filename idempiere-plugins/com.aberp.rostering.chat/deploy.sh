@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607111355"
+VERSION="7.1.0.202607111450"
 SYMBOLIC="com.aberp.rostering.chat"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -31,6 +31,27 @@ echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES
 echo "Applying AD registration SQL"
 sudo cp "$PLUGIN_DIR/sql/install-rostering-chat.sql" /tmp/install-rostering-chat.sql
 sudo -u postgres psql -d idempiere -f /tmp/install-rostering-chat.sql
+
+# install-rostering-chat.sql resets field layout; re-apply silent Send/Close UX
+for sql in 21-send-button-awaiting-order.sql 24-silent-send-close.sql 25-silent-reply-default.sql; do
+  if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
+    echo "Applying $sql"
+    sudo cp "$PLUGIN_DIR/sql/$sql" "/tmp/$sql"
+    sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -c "SET search_path TO adempiere, public;" -f "/tmp/$sql"
+  fi
+done
+# Keep Send/Close visible (displaylogic on R_Status_ID can hide buttons when context is empty)
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 <<'EOSQL'
+SET search_path TO adempiere, public;
+UPDATE ad_field f
+SET displaylogic = NULL, updated = NOW(), updatedby = 100
+FROM ad_column c, ad_tab t, ad_window w
+WHERE f.ad_column_id = c.ad_column_id
+  AND f.ad_tab_id = t.ad_tab_id
+  AND t.ad_window_id = w.ad_window_id
+  AND w.name = 'Rostering Chat' AND t.name = 'Chat'
+  AND c.columnname IN ('AbERP_SendRosteringReply', 'AbERP_CloseRosteringChat');
+EOSQL
 
 echo "Restarting iDempiere via systemd"
 sudo systemctl restart idempiere
