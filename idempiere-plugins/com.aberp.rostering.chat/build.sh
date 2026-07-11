@@ -7,18 +7,22 @@ PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
-VERSION="7.1.0.202607111420"
+VERSION="7.1.0.202607111630"
 JAR_NAME="com.aberp.rostering.chat_${VERSION}.jar"
 
 BASE_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.base_*.jar | head -1)
 UTILS_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.plugin.utils_*.jar | head -1)
+UIZK_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.ui.zk_*.jar | head -1)
+ZUL_JAR=$(ls "$IDEMPIERE_HOME"/plugins/zul_*.jar | head -1)
+ZK_JAR=$(ls "$IDEMPIERE_HOME"/plugins/zk_*.jar | head -1)
+ZCOMMON_JAR=$(ls "$IDEMPIERE_HOME"/plugins/zcommon_*.jar | head -1)
 
-if [ ! -f "$BASE_JAR" ] || [ ! -f "$UTILS_JAR" ]; then
-  echo "Missing iDempiere base jars under $IDEMPIERE_HOME/plugins"
+if [ ! -f "$BASE_JAR" ] || [ ! -f "$UTILS_JAR" ] || [ ! -f "$UIZK_JAR" ]; then
+  echo "Missing iDempiere base/ui.zk jars under $IDEMPIERE_HOME/plugins"
   exit 1
 fi
 
-CLASSPATH="$BASE_JAR:$UTILS_JAR"
+CLASSPATH="$BASE_JAR:$UTILS_JAR:$UIZK_JAR:$ZUL_JAR:$ZK_JAR:$ZCOMMON_JAR"
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$CLASSES_DIR"
@@ -28,6 +32,7 @@ javac -encoding UTF-8 -source 11 -target 11 -classpath "$CLASSPATH" -d "$CLASSES
 
 cp "$PLUGIN_DIR/rostering-chat-process.xml" "$CLASSES_DIR/"
 cp "$PLUGIN_DIR/rostering-chat-validator.xml" "$CLASSES_DIR/"
+cp "$PLUGIN_DIR/rostering-chat-tabpanel.xml" "$CLASSES_DIR/"
 
 mkdir -p "$BUILD_DIR/dist"
 jar cfm "$BUILD_DIR/dist/$JAR_NAME" "$PLUGIN_DIR/META-INF/MANIFEST.MF" -C "$CLASSES_DIR" .
