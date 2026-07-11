@@ -11,7 +11,10 @@ export interface LeaveRow {
   approver_status: string | null;
 }
 
-export async function getLeaveRecords(cBPartnerStaffId: number): Promise<LeaveRow[]> {
+export async function getLeaveRecords(
+  cBPartnerStaffId: number,
+  adUserId: number,
+): Promise<LeaveRow[]> {
   const result = await pool.query<{
     id: number;
     start_date: unknown;
@@ -27,14 +30,25 @@ export async function getLeaveRecords(cBPartnerStaffId: number): Promise<LeaveRo
        l.enddate AS end_date,
        l.note,
        ut.name AS leave_type,
-       l.aberp_submitterstatus AS submitter_status,
-       l.aberp_approverstatus AS approver_status
+       COALESCE(ss.name, l.aberp_submitterstatus) AS submitter_status,
+       COALESCE(as_.name, l.aberp_approverstatus) AS approver_status
      FROM aberp_unavailability_leave l
      LEFT JOIN aberp_unavailability_type ut ON ut.aberp_unavailability_type_id = l.aberp_unavailability_type_id
-     WHERE l.c_bpartner_staff_id = $1 AND l.isactive = 'Y'
+     LEFT JOIN ad_ref_list ss
+       ON ss.value = l.aberp_submitterstatus
+      AND ss.ad_reference_id = (
+        SELECT ad_reference_id FROM ad_reference WHERE name = 'AbERP_SubmitterStatus_List' LIMIT 1
+      )
+     LEFT JOIN ad_ref_list as_
+       ON as_.value = l.aberp_approverstatus
+      AND as_.ad_reference_id = (
+        SELECT ad_reference_id FROM ad_reference WHERE name = 'AbERP_ApproverStatus_List' LIMIT 1
+      )
+     WHERE l.isactive = 'Y'
+       AND (l.c_bpartner_staff_id = $1 OR l.aberp_user_contact_id = $2)
      ORDER BY l.startdate DESC NULLS LAST
      LIMIT 50`,
-    [cBPartnerStaffId],
+    [cBPartnerStaffId, adUserId],
   );
 
   return result.rows.map((row) => ({
@@ -64,19 +78,25 @@ export async function createLeaveRequest(
   const typeId = leaveType.rows[0]?.id ?? null;
   const newId = await nextSequenceId("AbERP_Unavailability_Leave");
 
+  if (!typeId) {
+    throw new Error("No active leave type configured");
+  }
+
   await pool.query(
     `INSERT INTO aberp_unavailability_leave (
        aberp_unavailability_leave_id, ad_client_id, ad_org_id, isactive,
        created, createdby, updated, updatedby,
        c_bpartner_staff_id, aberp_user_contact_id,
        startdate, enddate, note, aberp_unavailability_type_id,
-       aberp_submitterstatus, processed
+       aberp_submitterstatus, aberp_approverstatus,
+       aberp_issubmitleaveclicked, processed
      ) VALUES (
        $1, $2, 0, 'Y',
        NOW(), $3, NOW(), $3,
        $4, $3,
        $5::timestamp, $6::timestamp, $7, $8,
-       'Submitted', 'N'
+       'SB', 'RV',
+       'Y', 'N'
      )`,
     [
       newId,

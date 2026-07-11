@@ -13,7 +13,7 @@ const leaveSchema = z.object({
 });
 
 router.get("/", async (req, res) => {
-  const items = await getLeaveRecords(req.user!.cBPartnerId);
+  const items = await getLeaveRecords(req.user!.cBPartnerId, req.user!.adUserId);
   res.json({ items });
 });
 
@@ -24,14 +24,18 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  const result = await createLeaveRequest(
-    req.user!.cBPartnerId,
-    req.user!.adUserId,
-    req.user!.adClientId,
-    parsed.data,
-  );
-
-  res.status(201).json(result);
+  try {
+    const result = await createLeaveRequest(
+      req.user!.cBPartnerId,
+      req.user!.adUserId,
+      req.user!.adClientId,
+      parsed.data,
+    );
+    res.status(201).json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Leave request failed";
+    res.status(500).json({ error: message });
+  }
 });
 
 export default router;
