@@ -2,6 +2,14 @@
 
 SET search_path TO adempiere;
 
+DELETE FROM ad_treenodemm
+WHERE node_id IN (
+  SELECT ad_menu_id FROM ad_menu WHERE ad_menu_uu = 'c1d2e3f4-a5b6-7788-9900-aabbccdde001'
+);
+
+DELETE FROM ad_menu
+WHERE ad_menu_uu = 'c1d2e3f4-a5b6-7788-9900-aabbccdde001';
+
 DELETE FROM ad_infocolumn
 WHERE ad_infocolumn_uu IN (
   'a8f3c2e1-9b47-4d6a-8e15-2c7f9a1b4d03', -- display

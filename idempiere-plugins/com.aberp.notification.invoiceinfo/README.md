@@ -41,7 +41,12 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
 | File | Purpose |
 |------|---------|
 | `sql/01-add-paid-criteria.sql` | Idempotent AD_InfoColumn insert/update |
+| `sql/04-add-info-menu.sql` | Menu Action=I so the Info Window opens directly |
 | `sql/02-verify.sql` | Confirm columns and criteria order |
 | `sql/03-functional-check.sql` | Sample paid/unpaid rows + AD presence |
-| `sql/99-rollback.sql` | Remove Paid InfoColumns |
+| `sql/99-rollback.sql` | Remove Paid InfoColumns + menu |
 | `deploy.sh` | Apply migration on server |
+
+**Note:** `AbERP Notification Run` → Create From needs
+`com.logilite.crm.notification.webui.WCreateNotificationLines`. If that plugin jar is
+missing, open the Info Window from the menu instead.
