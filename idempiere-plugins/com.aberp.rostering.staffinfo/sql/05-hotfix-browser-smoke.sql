@@ -7,6 +7,9 @@
 -- 5) Complex WhereClause with @StartDate@ → InfoWindow.loadInfoDefinition
 --    "Cannot parse context" → ListModelTable field at 0,-1
 --    FIX: WhereClause must stay simple/static (no @ctx@ tokens)
+-- 6) Nested @SQL= defaults with @+isEmployeeWindowOpenFromShift@ hang the
+--    Search field spinner when opened from Shift Employee tab
+--    FIX: clear those DefaultValue strings
 
 SET search_path TO adempiere;
 
@@ -117,8 +120,14 @@ BEGIN
   WHERE ad_infocolumn_uu = 'cd17a5c9-3430-4cbf-abba-7675900d4364';
   UPDATE ad_infocolumn SET selectclause = 'bp.AbERP_Gender_ID', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu = '22426da0-28ec-4047-8eff-0cb186e556b6';
-  UPDATE ad_infocolumn SET selectclause = 'bp.C_Job_ID', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y', updated = NOW(), updatedby = 100
+  UPDATE ad_infocolumn SET selectclause = 'bp.C_Job_ID', isactive = 'Y', isquerycriteria = 'Y', isdisplayed = 'Y',
+    defaultvalue = NULL, updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu = 'b70b7e4e-23f7-45e1-92b2-7b40e4e3c908';
+
+  -- Clear nested @SQL defaults that hang WSearchEditor when opened from Shift
+  UPDATE ad_infocolumn SET defaultvalue = NULL, updated = NOW(), updatedby = 100
+  WHERE ad_infowindow_id = v_iw
+    AND defaultvalue LIKE '%isEmployeeWindowOpenFromShift%';
 
   UPDATE ad_infocolumn SET isactive = 'Y', isquerycriteria = 'N', isdisplayed = 'Y', updated = NOW(), updatedby = 100
   WHERE ad_infocolumn_uu IN (
