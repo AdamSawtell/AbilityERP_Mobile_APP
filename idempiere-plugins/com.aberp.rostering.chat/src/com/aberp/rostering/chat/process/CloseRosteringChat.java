@@ -67,14 +67,18 @@ public class CloseRosteringChat extends SvrProcess {
 		// Public Updates row (same path the app timeline reads)
 		insertPublicUpdate(request, closeNote, now);
 
+		// Stamp Chat Assigned so WebUI never keeps a zombie "Response required"
+		// thread after Close Chat (physical column + status must agree).
 		final int rows = DB.executeUpdateEx(
 				"UPDATE R_Request SET R_Status_ID=?, AD_Role_ID=0, LastResult=?, "
-						+ "DateLastAction=?, AbERP_RosteringReply=NULL "
+						+ "DateLastAction=?, AbERP_RosteringReply=NULL, "
+						+ "AbERP_ChatAwaitingReply=? "
 						+ "WHERE R_Request_ID=?",
 				new Object[] {
 						closedStatusId,
 						closeNote,
 						now,
+						"Closed",
 						requestId
 				},
 				get_TrxName());

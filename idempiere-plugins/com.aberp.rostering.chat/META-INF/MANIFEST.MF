@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rostering Chat
 Bundle-SymbolicName: com.aberp.rostering.chat
-Bundle-Version: 7.1.0.202607111630
+Bundle-Version: 7.1.0.202607111645
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.rostering.chat
 Bundle-RequiredExecutionEnvironment: JavaSE-11
