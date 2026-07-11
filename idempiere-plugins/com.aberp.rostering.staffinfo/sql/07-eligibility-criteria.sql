@@ -52,7 +52,7 @@ BEGIN
       isquerycriteria = 'Y',
       ishideinfocolumn = 'N',
       ismultiselectcriteria = 'N',
-      isreadonly = 'Y',
+      isreadonly = 'N',
       iskey = 'N',
       isidentifier = 'N',
       ad_reference_id = 20,
@@ -61,7 +61,7 @@ BEGIN
       queryoperator = '=',
       queryfunction = NULL,
       seqno = 300,
-      seqnoselection = 100,
+      seqnoselection = 80,
       updated = NOW(),
       updatedby = 100
     WHERE ad_infocolumn_uu = 'a1b2c3d4-e5f6-7788-9900-aabbccdde001';
@@ -76,8 +76,8 @@ BEGIN
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'On Approved Leave', 'Y if approved leave ends today or later (CURRENT_DATE). Default filter N hides these staff.',
       v_iw, 'Ab_ERP', v_leave_sql, 300, 'Y', 'Y',
-      20, 'a1b2c3d4-e5f6-7788-9900-aabbccdde001', 'AbERP_OnApprovedLeave', 'N', 100, 'N', 'N',
-      'Y', 'N', 'N', 'N', '='
+      20, 'a1b2c3d4-e5f6-7788-9900-aabbccdde001', 'AbERP_OnApprovedLeave', 'N', 80, 'N', 'N',
+      'N', 'N', 'N', 'N', '='
     );
   END IF;
 

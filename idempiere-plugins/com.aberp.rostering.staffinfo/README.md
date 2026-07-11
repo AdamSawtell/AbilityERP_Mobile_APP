@@ -14,9 +14,12 @@ Standalone package that rewrites **Employee (User) / Agency Staff Rostering Info
 | No key / order | `AD_User_ID` key, `ORDER BY au.Name` |
 | Shift rows on org `*` (read-only Employee tab) | AbilityERP org assigned (`06`) |
 | Related Info off | Rostered Shift / Credentials / Alerts on (`08`) |
+| Exact Like finds / empty BP after pick | Name-first criteria, `%` help, BP sync trigger (`09`) |
 
 **On Approved Leave** (default **N**) hides staff with approved leave ending today or later.
 Clear the criteria or set **Y** to include them. **Has Future Shift** is display-only.
+
+**Find tip:** Name / Search Key / BP Name use `Like` + `Upper` — use wildcards, e.g. `%Fraser%`.
 
 Shift-window-specific date overlap (using `@StartDate@`) is still deferred — context tokens
 break `InfoWindow.loadInfoDefinition` on this iDempiere build.
@@ -35,7 +38,7 @@ chmod +x build.sh deploy.sh
 ./build.sh
 ```
 
-Produces `release/com.aberp.rostering.staffinfo_1.0.0.2026071122.jar`.
+Produces `release/com.aberp.rostering.staffinfo_1.0.0.2026071123.jar`.
 
 ## Install
 
@@ -43,7 +46,7 @@ Produces `release/com.aberp.rostering.staffinfo_1.0.0.2026071122.jar`.
 ./deploy.sh
 ```
 
-Applies: `01` → `02` → `03` → `05` → `06` → `07` → `08` → `04`.
+Applies: `01` → `02` → `03` → `05` → `06` → `07` → `08` → `09` → `04`.
 
 Then **Cache Reset** (or log out/in). Restart only if AD cache stays sticky.
 
@@ -57,12 +60,13 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/99-rollback.sql
 
 | File | Purpose |
 |------|---------|
-| `sql/01-indexes.sql` | Contact / date indexes |
+| `sql/01-indexes.sql` | Contact / date / name indexes |
 | `sql/02-rewrite-infowindow.sql` | FROM / WHERE / paging |
 | `sql/03-rewrite-infocolumns.sql` | Criteria cleanup |
 | `sql/05-hotfix-browser-smoke.sql` | Browser smoke hotfix |
 | `sql/06-fix-shift-org.sql` | Move shifts/staff off org `*` |
 | `sql/07-eligibility-criteria.sql` | Leave filter + future-shift flag |
 | `sql/08-enable-related-info.sql` | Re-enable Related Info panels |
+| `sql/09-find-fill-ux.sql` | Criteria order, editable filters, BP sync trigger |
 | `sql/04-verify.sql` | AD dump + EXPLAIN |
 | `sql/99-rollback.sql` | Restore prior join-based definition |

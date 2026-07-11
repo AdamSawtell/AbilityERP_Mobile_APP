@@ -4,7 +4,7 @@
 set -euo pipefail
 
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.0.0.2026071122"
+VERSION="1.0.0.2026071123"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
@@ -20,7 +20,7 @@ sudo mkdir -p "${IDEMPIERE_HOME}/customization-jar"
 sudo cp "$DIST_JAR" "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME"
 sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" || true
 
-echo "Applying SQL 01 → 08 → 04"
+echo "Applying SQL 01 → 09 → 04"
 for f in \
   01-indexes.sql \
   02-rewrite-infowindow.sql \
@@ -29,6 +29,7 @@ for f in \
   06-fix-shift-org.sql \
   07-eligibility-criteria.sql \
   08-enable-related-info.sql \
+  09-find-fill-ux.sql \
   04-verify.sql
 do
   echo "=== $f ==="

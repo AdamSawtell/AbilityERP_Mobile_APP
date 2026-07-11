@@ -22,3 +22,13 @@ CREATE INDEX IF NOT EXISTS aberp_unavail_leave_dates_active
 CREATE INDEX IF NOT EXISTS aberp_rostered_shift_active_nontemplate_dates
   ON aberp_rostered_shift (startdate, enddate)
   WHERE isactive = 'Y' AND COALESCE(aberp_isshiftrosteredtemplate, 'N') = 'N';
+
+-- Protect Upper(Like) name/key finds as staff volume grows
+CREATE INDEX IF NOT EXISTS ad_user_name_upper_idx
+  ON ad_user (upper(name::text));
+
+CREATE INDEX IF NOT EXISTS ad_user_value_upper_idx
+  ON ad_user (upper(value::text));
+
+CREATE INDEX IF NOT EXISTS c_bpartner_name_upper_idx
+  ON c_bpartner (upper(name::text));
