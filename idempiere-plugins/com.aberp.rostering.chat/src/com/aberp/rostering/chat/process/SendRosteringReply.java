@@ -54,7 +54,7 @@ public class SendRosteringReply extends SvrProcess {
 			requestId = RosteringChatContext.resolveRequestId(getCtx(), getProcessInfo());
 		}
 		if (requestId <= 0) {
-			throw new AdempiereException("Select a chat thread first, type Reply, then Send Reply");
+			throw new AdempiereException("Select a chat thread first, type Reply, then Send Chat");
 		}
 
 		final MRequest request = new MRequest(getCtx(), requestId, get_TrxName());
@@ -77,7 +77,7 @@ public class SendRosteringReply extends SvrProcess {
 			trimmed = recentAutoSavedReply(request.get_ID());
 		}
 		if (Util.isEmpty(trimmed)) {
-			throw new AdempiereException("Type your reply in the Reply field, then click Send Reply");
+			throw new AdempiereException("Type your reply in the Reply field, then click Send Chat");
 		}
 		trimmed = trimmed.trim();
 		if (trimmed.length() > 2000) {

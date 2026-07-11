@@ -106,7 +106,7 @@ SET ismandatory = CASE c.columnname
       ELSE COALESCE(f.isupdateable, 'N')
     END,
     defaultvalue = CASE c.columnname
-      WHEN 'Summary' THEN '''Message to Rostering'''
+      WHEN 'Summary' THEN '''Rostering Chat'''
       WHEN 'SalesRep_ID' THEN '@#AD_User_ID@'
       WHEN 'AD_Role_ID' THEN NULL  -- officer-initiated → awaiting worker (not queue 1000012)
       WHEN 'LastResult' THEN '''Hello — rostering would like to get in touch with you.'''
@@ -224,7 +224,7 @@ BEGIN
     END IF;
     NEW.datelastaction := COALESCE(NEW.datelastaction, NOW());
     IF NEW.summary IS NULL OR btrim(NEW.summary) = '' THEN
-      NEW.summary := 'Message to Rostering';
+      NEW.summary := 'Rostering Chat';
     END IF;
   END IF;
 

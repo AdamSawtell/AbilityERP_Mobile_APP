@@ -309,7 +309,7 @@ export async function getRosteringChatState(
         adUserId,
         cBPartnerStaffId,
         adClientId,
-        "Message to Rostering",
+        "Rostering Chat",
         "Hello — I would like to get in touch with rostering.",
       );
     } else {
@@ -387,7 +387,7 @@ export async function startRosteringChat(
     adUserId,
     cBPartnerStaffId,
     adClientId,
-    "Message to Rostering",
+    "Rostering Chat",
     message,
   );
 
@@ -431,7 +431,7 @@ export async function createStandaloneRequest(
   adClientId: number,
   data: { summary?: string; body: string },
 ): Promise<{ id: number }> {
-  const summary = (data.summary?.trim() || "Message to Rostering").slice(0, 255);
+  const summary = (data.summary?.trim() || "Rostering Chat").slice(0, 255);
   const body = data.body.trim();
   if (!body) {
     throw new Error("Message cannot be empty");

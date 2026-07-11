@@ -100,7 +100,7 @@ BEGIN
   -- Always keep Summary non-null (Send Reply saves the row first; empty Subject
   -- in the form would otherwise fail with NOT NULL on r_request.summary).
   IF NEW.summary IS NULL OR btrim(NEW.summary) = '' THEN
-    NEW.summary := 'Message to Rostering';
+    NEW.summary := 'Rostering Chat';
   END IF;
 
   -- Do not let a blank Last Message field wipe the real transcript on save.

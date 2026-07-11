@@ -69,7 +69,7 @@ public class RosteringChatValidator implements ModelValidator {
 			request.setAD_Role_ID(ROSTERING_ROLE_ID);
 		}
 		if (Util.isEmpty(request.getSummary()) && isRosteringChat(request)) {
-			request.setSummary("Message to Rostering");
+			request.setSummary("Rostering Chat");
 		}
 		return null;
 	}
