@@ -1,8 +1,10 @@
 package com.aberp.rostering.staffinfo.info;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
+import org.adempiere.webui.component.Label;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.info.InfoWindow;
 import org.compiere.model.GridField;
@@ -10,17 +12,22 @@ import org.compiere.model.GridTab;
 import org.compiere.model.MInfoColumn;
 import org.compiere.model.MInfoWindow;
 import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
+import org.compiere.util.Language;
 import org.compiere.util.Util;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zul.Vbox;
 
 /**
  * Staff Rostering Info Window enhancements:
  * <ul>
- *   <li>Auto-wrap {@code %} on Like criteria (Name / Search Key / BP Name)</li>
+ *   <li>Auto-wrap {@code %} on Like criteria</li>
+ *   <li>Context banner showing shift Start/End used for leave/overlap filters</li>
  *   <li>When opened from Shift Employee with Start/End dates, exclude staff on
  *       approved leave overlapping the shift window and staff already rostered
- *       on an overlapping non-template shift — without putting {@code @StartDate@}
- *       into AD WhereClause</li>
+ *       on an overlapping non-template shift — without {@code @StartDate@} in
+ *       AD WhereClause</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
@@ -28,6 +35,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	public static final String INFO_WINDOW_UU = "2b4ab146-0809-47c6-96f3-8b841d60a6bf";
 
 	private final GridField launchField;
+	private Label contextBanner;
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -53,6 +61,17 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		return iw != null && INFO_WINDOW_UU.equalsIgnoreCase(iw.getAD_InfoWindow_UU());
 	}
 
+	/**
+	 * After the criteria pane is attached to North, insert a read-only status line
+	 * so officers can see which shift dates drive leave/overlap filtering.
+	 * Prefer this over AD read-only {@code @StartDate@} criteria (those break loadInfoDefinition).
+	 */
+	@Override
+	protected void renderParameterPane(org.zkoss.zul.North north) {
+		super.renderParameterPane(north);
+		ensureContextBanner(north);
+	}
+
 	@Override
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
@@ -70,6 +89,72 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			return extra;
 		}
 		return where + " AND " + extra;
+	}
+
+	private void ensureContextBanner(org.zkoss.zul.North north) {
+		if (north == null) {
+			return;
+		}
+		// Borderlayout North allows only one child — wrap banner + existing pane.
+		Component existing = north.getFirstChild();
+		if (existing == null) {
+			return;
+		}
+		if (contextBanner != null && contextBanner.getParent() != null) {
+			contextBanner.setValue(buildContextBannerText());
+			return;
+		}
+		// Already wrapped from a prior call
+		if (existing instanceof Vbox && contextBanner != null) {
+			contextBanner.setValue(buildContextBannerText());
+			return;
+		}
+
+		contextBanner = new Label(buildContextBannerText());
+		contextBanner.setStyle(
+				"display:block;width:100%;box-sizing:border-box;"
+						+ "padding:8px 10px;margin:0;"
+						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
+						+ "font-size:12px;line-height:1.35;white-space:normal;");
+
+		Vbox wrap = new Vbox();
+		wrap.setWidth("100%");
+		wrap.setSpacing("6px");
+		existing.detach();
+		wrap.appendChild(contextBanner);
+		wrap.appendChild(existing);
+		north.appendChild(wrap);
+	}
+
+	private String buildContextBannerText() {
+		Timestamp[] range = resolveShiftDateRange();
+		Integer shiftId = resolveCurrentShiftId();
+		String docNo = null;
+		if (shiftId != null && shiftId.intValue() > 0) {
+			docNo = DB.getSQLValueString(null,
+					"SELECT DocumentNo FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?",
+					shiftId.intValue());
+		}
+
+		if (range != null && range[0] != null && range[1] != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Shift filter active");
+			if (!Util.isEmpty(docNo, true)) {
+				sb.append(" (").append(docNo).append(')');
+			}
+			sb.append(": ").append(formatDate(range[0])).append(" – ").append(formatDate(range[1]));
+			sb.append(". Hiding staff on approved leave or already rostered on an overlapping shift for these dates.");
+			return sb.toString();
+		}
+
+		return "No shift Start/End in context. Only the On Approved Leave (today) filter applies — "
+				+ "open from Shift → Employee to use shift-date leave/overlap checks.";
+	}
+
+	private String formatDate(Timestamp ts) {
+		Language lang = Env.getLanguage(Env.getCtx());
+		SimpleDateFormat df = DisplayType.getDateFormat(DisplayType.Date, lang);
+		return df.format(ts);
 	}
 
 	/**
@@ -133,7 +218,6 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				.append("AND rs.StartDate <= ").append(endSql).append(' ')
 				.append("AND rs.EndDate >= ").append(startSql);
 
-		// Exclude the current shift itself when editing an existing staff line
 		Integer currentShiftId = resolveCurrentShiftId();
 		if (currentShiftId != null && currentShiftId.intValue() > 0) {
 			sql.append(" AND rs.AbERP_Rostered_Shift_ID <> ").append(currentShiftId.intValue());
