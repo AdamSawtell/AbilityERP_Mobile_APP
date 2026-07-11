@@ -1,15 +1,15 @@
 ---
-description: Staging-first client update loop — install, review, fix until complete, then thin prod pack
+description: ADOPTED — Staging-first client update loop (install → review → fix → thin prod pack)
 alwaysApply: true
 ---
 
-# Client update loop (install → review → fix → pack)
+# ADOPTED: Client update loop (install → review → fix → pack)
 
-For AbilityERP / iDempiere work aimed at **another client** (or production), use this loop. Do **not** hand off “SQL that might work”.
+**This is the standard AbilityERP process for client / production iDempiere updates.** Do not hand off “SQL that might work” from seed/dev alone.
 
 ## Gate: staging access before claiming done
 
-Complete the loop on a **reachable non-prod host** that matches the target client as closely as possible (staging clone or restored dump).
+Complete the loop on a **reachable non-prod host** that matches the target client (staging clone or restored dump).
 
 Required access (ask once if missing):
 
@@ -18,31 +18,25 @@ Required access (ask once if missing):
 - WebUI admin login on that same build
 - OSGi console only if the change includes a JAR
 
-Never invent success from seed/dev alone when the deliverable is a client update.
-
 ## Loop (repeat until green)
 
 1. **Preflight** — UU/name lookup; fail closed if target missing.
 2. **Install** — apply ordered SQL; if JAR, copy files then **manual OSGi console** install/start.
 3. **Review** — verify SQL + WebUI smoke (Cache Reset / re-login first). Log pass/fail with evidence.
-4. **Fix** — patch migration or code; re-run from preflight. Do not skip broken Create From / missing plugins: document blocker or fix.
-5. **Complete** only when acceptance checks pass (or explicit out-of-scope blockers are written in the how-to).
+4. **Fix** — patch migration or code; re-run from preflight. Document or fix blockers (e.g. missing plugins).
+5. **Complete** only when acceptance checks pass (or explicit out-of-scope blockers are in the how-to).
 
 ## Then pack (two tiers)
 
-Follow `.cursor/rules/client-update-packs.mdc`.
+Follow `client-update-packs.mdc`.
 
-| Tier | When | Contents |
-|------|------|----------|
-| **Staging pack** | During the loop | Full `sql/` + `jar/` + `packout/` + long `HOW-TO-UPDATE.md` |
-| **Production pack** | After staging is green | **Least files**: one `01-APPLY.sql` (preflight+change+short verify), `99-ROLLBACK.sql`, short `HOW-TO.txt` |
+| Tier | Path pattern | Contents |
+|------|----------------|----------|
+| **Staging** | `Downloads\AbilityERP-ClientUpdate-<Feature>-<YYYYMMDD>\` | Full sql/jar/packout + HOW-TO |
+| **Production** | `Downloads\AbilityERP-ProdUpdate-<Feature>-<YYYYMMDD>\` | Least files: `01-APPLY.sql`, `99-ROLLBACK.sql`, `HOW-TO.txt` |
 
-Production pack path:
+Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients — use `*_UU`.
 
-`C:\Users\sawte\Downloads\AbilityERP-ProdUpdate-<Feature>-<YYYYMMDD>\`
+## Handoff
 
-Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients.
-
-## Handoff line
-
-End with: staging result (pass/fail), production pack path, and any residual blockers (e.g. missing Logilite form JAR).
+Staging result (pass/fail) + production pack path + residual blockers.

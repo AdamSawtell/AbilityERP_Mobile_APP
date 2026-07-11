@@ -1,11 +1,11 @@
 ---
-description: Client update packs — Downloads folder, manual JAR console install, UUID-safe AD SQL
+description: ADOPTED — Client update packs, manual JAR console, UUID-safe AD SQL
 alwaysApply: true
 ---
 
-# Client system updates (iDempiere)
+# ADOPTED: Client system updates (iDempiere)
 
-Process first: see `client-update-staging-loop.mdc` (**install → review → fix until complete** on staging, then pack).
+**Process first:** `client-update-staging-loop.mdc` (install → review → fix on staging, then pack).
 
 When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff. After staging is green, also emit a **thin production pack** (`AbilityERP-ProdUpdate-…`) with least files.
 
