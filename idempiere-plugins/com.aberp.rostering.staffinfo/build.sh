@@ -4,7 +4,7 @@
 set -euo pipefail
 
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.0.0.2026071101"
+VERSION="1.0.0.2026071122"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 DIST_DIR="$PLUGIN_DIR/build/dist"

@@ -1,0 +1,57 @@
+-- Move AbilityERP rostered shifts (and staff lines) off AD_Org_ID=0 (*).
+-- Org-0 detail tabs present as fully read-only in WebUI (no Search/More on Employee),
+-- so Shift → Employee → staff picker cannot open. Assign client org AbilityERP.
+
+SET search_path TO adempiere;
+
+DO $$
+DECLARE
+  v_client NUMERIC;
+  v_org NUMERIC;
+  n_shift INT;
+  n_staff INT;
+BEGIN
+  SELECT ad_client_id INTO v_client FROM ad_client WHERE name = 'AbilityERP' AND isactive = 'Y' LIMIT 1;
+  IF v_client IS NULL THEN
+    RAISE EXCEPTION 'AbilityERP client not found';
+  END IF;
+
+  SELECT ad_org_id INTO v_org
+  FROM ad_org
+  WHERE ad_client_id = v_client AND isactive = 'Y' AND ad_org_id > 0
+  ORDER BY ad_org_id
+  LIMIT 1;
+
+  IF v_org IS NULL THEN
+    RAISE EXCEPTION 'No non-zero org for AbilityERP client %', v_client;
+  END IF;
+
+  UPDATE aberp_rostered_shift SET
+    ad_org_id = v_org,
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_client_id = v_client AND ad_org_id = 0;
+  GET DIAGNOSTICS n_shift = ROW_COUNT;
+
+  UPDATE aberp_rostered_shiftstaff SET
+    ad_org_id = v_org,
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_client_id = v_client AND ad_org_id = 0;
+  GET DIAGNOSTICS n_staff = ROW_COUNT;
+
+  RAISE NOTICE 'Org fix client=% org=% shifts=% staff=%', v_client, v_org, n_shift, n_staff;
+END $$;
+
+-- Ensure Employee Search field stays editable on new/existing lines (More button)
+UPDATE ad_column SET
+  isalwaysupdateable = 'Y',
+  updated = NOW(),
+  updatedby = 100
+WHERE ad_column_id = (
+  SELECT c.ad_column_id
+  FROM ad_column c
+  JOIN ad_table t ON t.ad_table_id = c.ad_table_id
+  WHERE t.tablename = 'AbERP_Rostered_ShiftStaff'
+    AND c.columnname = 'AbERP_User_Contact_ID'
+);

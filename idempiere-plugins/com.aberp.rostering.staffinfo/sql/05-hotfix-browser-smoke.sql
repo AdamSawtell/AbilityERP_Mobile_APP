@@ -143,8 +143,7 @@ BEGIN
     '904ffc84-b66a-4ec4-9984-5b85f9ad9545'
   );
 
-  UPDATE ad_inforelated SET isactive = 'N', updated = NOW(), updatedby = 100
-  WHERE ad_infowindow_id = v_iw;
+  -- Related Info re-enabled in 08-enable-related-info.sql
 
   RAISE NOTICE 'Hotfix applied AD_InfoWindow_ID=% where=%', v_iw, v_where;
 END $$;

@@ -9,16 +9,17 @@ Standalone package that rewrites **Employee (User) / Agency Staff Rostering Info
 | Before | After |
 |--------|--------|
 | 9-table join fan-out + `DISTINCT` | `AD_User` + `C_BPartner` (+ optional `C_Job`) |
-| Leave / credentials / needs / BI view in FROM | `EXISTS` / `NOT EXISTS` in WhereClause |
+| Leave / credentials / needs / BI view in FROM | Display/filter via EXISTS expressions (no `@ctx@`) |
 | `MaxQueryRecords=0`, Load Page Num on | Cap 500, page size 50, Load Page Num off |
 | No key / order | `AD_User_ID` key, `ORDER BY au.Name` |
+| Shift rows on org `*` (read-only Employee tab) | AbilityERP org assigned (`06`) |
+| Related Info off | Rostered Shift / Credentials / Alerts on (`08`) |
 
-When Start/End dates are present (from shift context), approved leave and overlapping
-rostered shifts are excluded unless the officer enables **Show staff on leave** or
-**Show overlapping shifts**.
+**On Approved Leave** (default **N**) hides staff with approved leave ending today or later.
+Clear the criteria or set **Y** to include them. **Has Future Shift** is display-only.
 
-Credentials / needs multi-select join filters are deactivated. Use **Related Info**
-(Credentials Assigned, Rostered Shift) for drill-down.
+Shift-window-specific date overlap (using `@StartDate@`) is still deferred — context tokens
+break `InfoWindow.loadInfoDefinition` on this iDempiere build.
 
 ## Requirements
 
@@ -28,42 +29,23 @@ Credentials / needs multi-select join filters are deactivated. Use **Related Inf
 
 ## Build distribution JAR
 
-On any machine with `jar` (JDK):
-
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./build.sh
 ```
 
-Produces:
+Produces `release/com.aberp.rostering.staffinfo_1.0.0.2026071122.jar`.
 
-- `build/release/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar`
-- `release/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar` (committed release copy)
-
-Copy that JAR to other instances (e.g. `customization-jar/` or extract and run SQL).
-
-## Install on an instance
-
-### Option A — deploy script (on iDempiere server)
+## Install
 
 ```bash
-# from repo checkout or extracted package
 ./deploy.sh
 ```
 
-### Option B — apply SQL from the JAR
+Applies: `01` → `02` → `03` → `05` → `06` → `07` → `08` → `04`.
 
-```bash
-mkdir -p /tmp/staffinfo && cd /tmp/staffinfo
-jar xf /path/to/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/01-indexes.sql
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/02-rewrite-infowindow.sql
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/03-rewrite-infocolumns.sql
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/04-verify.sql
-```
-
-**No iDempiere restart required.** Log out and log back in (or Role Access Update / cache reset) so the Info Window AD cache refreshes.
+Then **Cache Reset** (or log out/in). Restart only if AD cache stays sticky.
 
 ## Rollback
 
@@ -71,27 +53,16 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/04-verify.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/99-rollback.sql
 ```
 
-Then log out/in again.
-
-## Browser smoke (EC2 WebUI — 2026-07-11)
-
-After restart + Cache Reset:
-
-1. Open **Employee (User) / Agency Staff Rostering Info** from Menu
-2. ReQuery with Employee=Yes
-3. **PASS:** 20 rows, Blake Fraser selectable, **no error dialog**
-
-Known limitation: leave/overlap EXISTS cannot use `@StartDate@` in WhereClause on this
-iDempiere build (`Cannot parse context` → ListModel -1). Eligibility filters are a follow-up
-(custom Info class or view). Related Info panels are disabled until remapped.
-
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `sql/01-indexes.sql` | Contact / date indexes for EXISTS paths |
-| `sql/02-rewrite-infowindow.sql` | FROM / WHERE / paging / DISTINCT |
-| `sql/03-rewrite-infocolumns.sql` | Criteria cleanup + display flags |
+| `sql/01-indexes.sql` | Contact / date indexes |
+| `sql/02-rewrite-infowindow.sql` | FROM / WHERE / paging |
+| `sql/03-rewrite-infocolumns.sql` | Criteria cleanup |
+| `sql/05-hotfix-browser-smoke.sql` | Browser smoke hotfix |
+| `sql/06-fix-shift-org.sql` | Move shifts/staff off org `*` |
+| `sql/07-eligibility-criteria.sql` | Leave filter + future-shift flag |
+| `sql/08-enable-related-info.sql` | Re-enable Related Info panels |
 | `sql/04-verify.sql` | AD dump + EXPLAIN |
 | `sql/99-rollback.sql` | Restore prior join-based definition |
-| `build/dist/*.jar` | Portable install artifact |

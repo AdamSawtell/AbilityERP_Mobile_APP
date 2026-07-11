@@ -1,10 +1,10 @@
 #!/bin/bash
 # Deploy AbERP Rostering Staff Info rewrite to the local iDempiere DB.
-# AD-only: no OSGi restart required. Users must log out/in to refresh AD cache.
+# AD-only: no OSGi restart required. Users must log out/in (or Cache Reset) to refresh AD cache.
 set -euo pipefail
 
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.0.0.2026071101"
+VERSION="1.0.0.2026071122"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
@@ -20,8 +20,17 @@ sudo mkdir -p "${IDEMPIERE_HOME}/customization-jar"
 sudo cp "$DIST_JAR" "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME"
 sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" || true
 
-echo "Applying SQL 01 → 04"
-for f in 01-indexes.sql 02-rewrite-infowindow.sql 03-rewrite-infocolumns.sql 05-hotfix-browser-smoke.sql 04-verify.sql; do
+echo "Applying SQL 01 → 08 → 04"
+for f in \
+  01-indexes.sql \
+  02-rewrite-infowindow.sql \
+  03-rewrite-infocolumns.sql \
+  05-hotfix-browser-smoke.sql \
+  06-fix-shift-org.sql \
+  07-eligibility-criteria.sql \
+  08-enable-related-info.sql \
+  04-verify.sql
+do
   echo "=== $f ==="
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/$f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/$f"
@@ -30,4 +39,4 @@ done
 echo
 echo "Deploy complete."
 echo "Artifact: ${IDEMPIERE_HOME}/customization-jar/$JAR_NAME"
-echo "Next: log out and log back into iDempiere WebUI, then open Shift Employee → Employee (User) search."
+echo "Next: Cache Reset (or log out/in), then test Shift → Employee → staff Search."

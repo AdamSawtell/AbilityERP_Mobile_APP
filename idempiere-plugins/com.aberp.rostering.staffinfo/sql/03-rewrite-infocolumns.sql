@@ -116,7 +116,6 @@ BEGIN
   WHERE ad_infowindow_id = v_iw
     AND defaultvalue LIKE '%isEmployeeWindowOpenFromShift%';
 
-  UPDATE ad_inforelated SET isactive = 'N', updated = NOW(), updatedby = 100
-  WHERE ad_infowindow_id = v_iw;
+  -- Related Info re-enabled in 08-enable-related-info.sql (do not deactivate here)
 
 END $$;
