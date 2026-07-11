@@ -32,8 +32,13 @@ echo "Applying AD registration SQL"
 sudo cp "$PLUGIN_DIR/sql/install-rostering-chat.sql" /tmp/install-rostering-chat.sql
 sudo -u postgres psql -d idempiere -f /tmp/install-rostering-chat.sql
 
-# install-rostering-chat.sql resets field layout; re-apply silent Send/Close UX
-for sql in 21-send-button-awaiting-order.sql 24-silent-send-close.sql 25-silent-reply-default.sql; do
+# install-rostering-chat.sql resets field layout; re-apply UX patches
+for sql in \
+  21-send-button-awaiting-order.sql \
+  24-silent-send-close.sql \
+  25-silent-reply-default.sql \
+  26-officer-create-chat.sql
+do
   if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
     echo "Applying $sql"
     sudo cp "$PLUGIN_DIR/sql/$sql" "/tmp/$sql"
