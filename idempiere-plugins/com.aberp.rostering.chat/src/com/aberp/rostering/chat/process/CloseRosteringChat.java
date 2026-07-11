@@ -82,9 +82,8 @@ public class CloseRosteringChat extends SvrProcess {
 			throw new AdempiereException("Failed to close chat");
 		}
 
-		addLog(requestId, null, null, "Chat closed — worker can start a new conversation in the app");
-		// Keep a short OK for Close (less frequent); Send Reply stays fully silent.
-		return "@OK@ Chat closed";
+		// Silent button: no Process completed popup (same as Send Reply).
+		return null;
 	}
 
 	/**
