@@ -5,7 +5,9 @@ alwaysApply: true
 
 # Client system updates (iDempiere)
 
-When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff.
+Process first: see `client-update-staging-loop.mdc` (**install → review → fix until complete** on staging, then pack).
+
+When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff. After staging is green, also emit a **thin production pack** (`AbilityERP-ProdUpdate-…`) with least files.
 
 ## Update pack location
 
