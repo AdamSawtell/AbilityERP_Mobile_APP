@@ -12,16 +12,20 @@ const ROSTERING_ROLE_ID = 1000012;
 const REQUEST_STATUS_OPEN = 1000000;
 const REQUEST_GROUP_ID = 1000003;
 const REQUEST_CATEGORY_ID = 1000031;
-/** Fallback Closed status id — prefer resolveClosedStatusId() at runtime. */
-const REQUEST_STATUS_CLOSED_FALLBACK = 102;
+/** Fallback: AbilityERP Core Status — Complete (Close Request). Avoid System 102 (cross-tenant). */
+const REQUEST_STATUS_CLOSED_FALLBACK = 1000002;
 
 async function resolveClosedStatusId(): Promise<number> {
   const result = await pool.query<{ r_status_id: number }>(
-    `SELECT r_status_id
-     FROM r_status
-     WHERE isactive = 'Y' AND LOWER(name) = 'closed'
-     ORDER BY r_status_id ASC
+    `SELECT rs.r_status_id
+     FROM r_status rs
+     JOIN r_requesttype rt ON rt.r_statuscategory_id = rs.r_statuscategory_id
+     WHERE rt.name = $1
+       AND rs.isactive = 'Y'
+       AND rs.isclosed = 'Y'
+     ORDER BY rs.seqno NULLS LAST, rs.r_status_id ASC
      LIMIT 1`,
+    [ROSTERING_CHAT_REQUEST_TYPE_NAME],
   );
   return result.rows[0]?.r_status_id
     ? Number(result.rows[0].r_status_id)
@@ -83,11 +87,19 @@ function mapTaskRow(row: {
   last_message_at?: unknown;
   r_status_id?: number | null;
   ad_role_id?: number | null;
+  status_is_closed?: string | boolean | null;
 }): TaskRow {
   const statusName = (row.status ?? "").trim().toLowerCase();
+  const flagClosed =
+    row.status_is_closed === true ||
+    row.status_is_closed === "Y" ||
+    row.status_is_closed === "y";
   const isClosed =
+    flagClosed ||
     statusName === "closed" ||
-    (row.r_status_id != null && Number(row.r_status_id) === REQUEST_STATUS_CLOSED_FALLBACK);
+    statusName.includes("complete (close") ||
+    (row.r_status_id != null &&
+      [REQUEST_STATUS_CLOSED_FALLBACK, 102].includes(Number(row.r_status_id)));
   const queuedToRostering =
     row.ad_role_id != null && Number(row.ad_role_id) === ROSTERING_ROLE_ID;
 
@@ -185,6 +197,7 @@ export async function getWorkerTasks(
        r.updated AS updated_at,
        r.r_status_id,
        r.ad_role_id,
+       rs.isclosed AS status_is_closed,
        (
          SELECT ru.result FROM r_requestupdate ru
          WHERE ru.r_request_id = r.r_request_id
@@ -238,7 +251,8 @@ export async function getWorkerTask(
        r.created AS created_at,
        r.updated AS updated_at,
        r.r_status_id,
-       r.ad_role_id
+       r.ad_role_id,
+       rs.isclosed AS status_is_closed
      FROM r_request r
      LEFT JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id
      LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
@@ -260,21 +274,21 @@ export async function getRosteringChatState(
   cBPartnerStaffId: number,
   adClientId: number,
 ): Promise<{ task: TaskRow | null; messages: TaskMessageRow[] }> {
-  const closedStatusId = await resolveClosedStatusId();
   const open = await pool.query(
     `SELECT r.r_request_id AS id
      FROM r_request r
+     LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
      WHERE r.isactive = 'Y'
        AND ${STANDALONE_REQUEST_FILTER}
        AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
-       AND r.r_status_id <> $3
+       AND COALESCE(rs.isclosed, 'N') <> 'Y'
      ORDER BY COALESCE(
        (SELECT MAX(ru.created) FROM r_requestupdate ru WHERE ru.r_request_id = r.r_request_id),
        r.updated,
        r.created
      ) DESC
      LIMIT 1`,
-    [adUserId, cBPartnerStaffId, closedStatusId],
+    [adUserId, cBPartnerStaffId],
   );
 
   let requestId = open.rows[0]?.id ? Number(open.rows[0].id) : null;
@@ -302,17 +316,18 @@ export async function getRosteringChatState(
       const closed = await pool.query(
         `SELECT r.r_request_id AS id
          FROM r_request r
+         LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
          WHERE r.isactive = 'Y'
            AND ${STANDALONE_REQUEST_FILTER}
            AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
-           AND r.r_status_id = $3
+           AND COALESCE(rs.isclosed, 'N') = 'Y'
          ORDER BY COALESCE(
            (SELECT MAX(ru.created) FROM r_requestupdate ru WHERE ru.r_request_id = r.r_request_id),
            r.updated,
            r.created
          ) DESC
          LIMIT 1`,
-        [adUserId, cBPartnerStaffId, closedStatusId],
+        [adUserId, cBPartnerStaffId],
       );
       requestId = closed.rows[0]?.id ? Number(closed.rows[0].id) : null;
     }
@@ -350,16 +365,16 @@ export async function startRosteringChat(
   adClientId: number,
   firstMessage?: string,
 ): Promise<TaskRow> {
-  const closedStatusId = await resolveClosedStatusId();
   const open = await pool.query(
     `SELECT r.r_request_id AS id
      FROM r_request r
+     LEFT JOIN r_status rs ON rs.r_status_id = r.r_status_id
      WHERE r.isactive = 'Y'
        AND ${STANDALONE_REQUEST_FILTER}
        AND (r.ad_user_id = $1 OR r.c_bpartner_id = $2)
-       AND r.r_status_id <> $3
+       AND COALESCE(rs.isclosed, 'N') <> 'Y'
      LIMIT 1`,
-    [adUserId, cBPartnerStaffId, closedStatusId],
+    [adUserId, cBPartnerStaffId],
   );
   if (open.rows[0]?.id) {
     throw new Error("You already have an open chat with rostering");

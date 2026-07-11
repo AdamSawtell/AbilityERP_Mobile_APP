@@ -4,16 +4,15 @@ import java.sql.Timestamp;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
-import org.compiere.model.MRequestUpdate;
-import org.compiere.model.MStatus;
 import org.compiere.model.MTable;
-import org.compiere.model.Query;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 
 /**
- * Close a mobile rostering chat thread so the worker gets a fresh thread on next contact.
+ * Close a mobile rostering chat thread so the worker can start a new conversation.
+ * Uses SQL only for status resolution (avoids cross-tenant R_Status PO reads).
  */
 public class CloseRosteringChat extends SvrProcess {
 	private int paramRequestId = 0;
@@ -57,29 +56,25 @@ public class CloseRosteringChat extends SvrProcess {
 
 		assertRosteringChatType(request);
 
-		final int closedStatusId = resolveClosedStatusId();
+		final int closedStatusId = resolveClosedStatusId(request);
 		if (request.getR_Status_ID() == closedStatusId) {
 			throw new AdempiereException("This chat is already closed");
 		}
 
 		final String closeNote = "Chat closed by rostering";
-		try {
-			final MRequestUpdate update = new MRequestUpdate(request);
-			update.setResult(closeNote);
-			update.save();
-		} catch (Exception ignored) {
-			// Non-fatal
-		}
+		final Timestamp now = new Timestamp(System.currentTimeMillis());
+
+		// Public Updates row (same path the app timeline reads)
+		insertPublicUpdate(request, closeNote, now);
 
 		final int rows = DB.executeUpdateEx(
 				"UPDATE R_Request SET R_Status_ID=?, AD_Role_ID=0, LastResult=?, "
-						+ "DateLastAction=?, Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
+						+ "DateLastAction=?, AbERP_RosteringReply=NULL "
+						+ "WHERE R_Request_ID=?",
 				new Object[] {
 						closedStatusId,
 						closeNote,
-						new Timestamp(System.currentTimeMillis()),
-						new Timestamp(System.currentTimeMillis()),
-						getAD_User_ID(),
+						now,
 						requestId
 				},
 				get_TrxName());
@@ -91,21 +86,60 @@ public class CloseRosteringChat extends SvrProcess {
 		return "@OK@ Chat closed";
 	}
 
-	private int resolveClosedStatusId() {
-		// Prefer named Closed, else any active closed status
-		final MStatus closed = new Query(getCtx(), MStatus.Table_Name, "IsActive='Y' AND Name='Closed'", get_TrxName())
-				.setOrderBy("R_Status_ID ASC")
-				.first();
-		if (closed != null && closed.get_ID() > 0) {
-			return closed.get_ID();
+	/**
+	 * Prefer a Closed status in this request type's category (tenant-safe).
+	 * Never load R_Status via PO — System Closed (102) triggers cross-tenant errors.
+	 */
+	private int resolveClosedStatusId(MRequest request) {
+		int id = DB.getSQLValue(get_TrxName(),
+				"SELECT rs.R_Status_ID FROM R_Status rs "
+						+ "JOIN R_RequestType rt ON rt.R_StatusCategory_ID = rs.R_StatusCategory_ID "
+						+ "WHERE rt.R_RequestType_ID=? AND rs.IsActive='Y' AND rs.IsClosed='Y' "
+						+ "ORDER BY rs.SeqNo NULLS LAST, rs.R_Status_ID ASC",
+				request.getR_RequestType_ID());
+		if (id > 0) {
+			return id;
 		}
-		final MStatus anyClosed = new Query(getCtx(), MStatus.Table_Name, "IsActive='Y' AND IsClosed='Y'", get_TrxName())
-				.setOrderBy("R_Status_ID ASC")
-				.first();
-		if (anyClosed != null && anyClosed.get_ID() > 0) {
-			return anyClosed.get_ID();
+		id = DB.getSQLValue(get_TrxName(),
+				"SELECT R_Status_ID FROM R_Status "
+						+ "WHERE IsActive='Y' AND IsClosed='Y' AND AD_Client_ID IN (0,?) "
+						+ "ORDER BY CASE WHEN LOWER(Name)='closed' THEN 0 ELSE 1 END, R_Status_ID ASC",
+				Env.getAD_Client_ID(getCtx()));
+		if (id > 0) {
+			return id;
 		}
-		return 102;
+		// AbilityERP Core Status — Complete (Close Request)
+		return 1000002;
+	}
+
+	private void insertPublicUpdate(MRequest request, String result, Timestamp now) {
+		try {
+			final int nextId = DB.getSQLValue(get_TrxName(),
+					"SELECT COALESCE(MAX(R_RequestUpdate_ID),0)+1 FROM R_RequestUpdate");
+			if (nextId <= 0) {
+				return;
+			}
+			DB.executeUpdateEx(
+					"INSERT INTO R_RequestUpdate ("
+							+ "R_RequestUpdate_ID, AD_Client_ID, AD_Org_ID, IsActive, "
+							+ "Created, CreatedBy, Updated, UpdatedBy, "
+							+ "R_Request_ID, Result, ConfidentialTypeEntry"
+							+ ") VALUES (?,?,?,'Y',?,?,?,?,?,?,'A')",
+					new Object[] {
+							nextId,
+							request.getAD_Client_ID(),
+							request.getAD_Org_ID(),
+							now,
+							getAD_User_ID(),
+							now,
+							getAD_User_ID(),
+							request.get_ID(),
+							result
+					},
+					get_TrxName());
+		} catch (Exception ignored) {
+			// Non-fatal — header status close is enough for the app
+		}
 	}
 
 	private static void assertRosteringChatType(MRequest request) {
