@@ -97,12 +97,24 @@ BEGIN
     NEW.salesrep_id := COALESCE(NEW.updatedby, NEW.createdby, 100);
   END IF;
 
+  -- Always keep Summary non-null (Send Reply saves the row first; empty Subject
+  -- in the form would otherwise fail with NOT NULL on r_request.summary).
+  IF NEW.summary IS NULL OR btrim(NEW.summary) = '' THEN
+    NEW.summary := 'Message to Rostering';
+  END IF;
+
+  -- Do not let a blank Last Message field wipe the real transcript on save.
+  -- apply_reply sets lastresult from Reply in the same BEFORE cycle when sending.
+  IF (NEW.lastresult IS NULL OR btrim(NEW.lastresult) = '')
+     AND (NEW.aberp_rosteringreply IS NULL OR btrim(COALESCE(NEW.aberp_rosteringreply, '')) = '')
+     AND TG_OP = 'UPDATE'
+     AND OLD.lastresult IS NOT NULL AND btrim(OLD.lastresult) <> '' THEN
+    NEW.lastresult := OLD.lastresult;
+  END IF;
+
   IF TG_OP = 'INSERT' THEN
     IF NEW.lastresult IS NULL OR btrim(NEW.lastresult) = '' THEN
       NEW.lastresult := 'Hello — rostering would like to get in touch with you.';
-    END IF;
-    IF NEW.summary IS NULL OR btrim(NEW.summary) = '' THEN
-      NEW.summary := 'Message to Rostering';
     END IF;
     NEW.datelastaction := COALESCE(NEW.datelastaction, NOW());
 
@@ -154,6 +166,20 @@ WHERE r.r_requesttype_id = rt.r_requesttype_id
   AND COALESCE(r.ad_role_id, 0) = 0
   AND r.createdby = r.ad_user_id
   AND r.isactive = 'Y';
+
+-- Subject must stay populated; make it read-only so Send Reply save cannot null it
+UPDATE ad_field f
+SET isreadonly = 'Y',
+    isupdateable = 'N',
+    updated = NOW(),
+    updatedby = 100
+FROM ad_column c, ad_tab t, ad_window w
+WHERE f.ad_column_id = c.ad_column_id
+  AND f.ad_tab_id = t.ad_tab_id
+  AND t.ad_window_id = w.ad_window_id
+  AND w.name = 'Rostering Chat'
+  AND t.name = 'Chat'
+  AND c.columnname IN ('Summary', 'LastResult');
 
 -- Recompute after repair
 UPDATE r_request r
