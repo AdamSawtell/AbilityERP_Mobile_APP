@@ -21,9 +21,9 @@ jar cfm "$DIST_DIR/$JAR_NAME" "$PLUGIN_DIR/META-INF/MANIFEST.MF" \
   -C "$STAGE_DIR" sql \
   -C "$STAGE_DIR" README.md
 
-mkdir -p "$PLUGIN_DIR/dist"
-cp "$DIST_DIR/$JAR_NAME" "$PLUGIN_DIR/dist/$JAR_NAME"
+mkdir -p "$PLUGIN_DIR/release"
+cp "$DIST_DIR/$JAR_NAME" "$PLUGIN_DIR/release/$JAR_NAME"
 
 echo "Built $DIST_DIR/$JAR_NAME"
-echo "Release copy: $PLUGIN_DIR/dist/$JAR_NAME"
+echo "Release copy: $PLUGIN_DIR/release/$JAR_NAME"
 jar tf "$DIST_DIR/$JAR_NAME"

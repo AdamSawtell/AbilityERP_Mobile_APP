@@ -38,8 +38,8 @@ chmod +x build.sh deploy.sh
 
 Produces:
 
-- `build/dist/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar`
-- `dist/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar` (committed release copy)
+- `build/release/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar`
+- `release/com.aberp.rostering.staffinfo_1.0.0.2026071101.jar` (committed release copy)
 
 Copy that JAR to other instances (e.g. `customization-jar/` or extract and run SQL).
 
