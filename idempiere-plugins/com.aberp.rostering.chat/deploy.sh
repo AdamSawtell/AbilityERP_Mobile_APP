@@ -37,7 +37,8 @@ for sql in \
   21-send-button-awaiting-order.sql \
   24-silent-send-close.sql \
   25-silent-reply-default.sql \
-  26-officer-create-chat.sql
+  26-officer-create-chat.sql \
+  27-chat-assigned-refresh.sql
 do
   if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
     echo "Applying $sql"
