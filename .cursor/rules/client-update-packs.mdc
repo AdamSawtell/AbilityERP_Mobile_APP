@@ -1,0 +1,57 @@
+---
+description: Client update packs — Downloads folder, manual JAR console install, UUID-safe AD SQL
+alwaysApply: true
+---
+
+# Client system updates (iDempiere)
+
+When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff.
+
+## Update pack location
+
+Create:
+
+`C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-<Feature>-<YYYYMMDD>\`
+
+Required layout:
+
+| Folder / file | Contents |
+|---------------|----------|
+| `HOW-TO-UPDATE.md` | Step-by-step client install (console JAR + SQL order + Cache Reset) |
+| `sql/` | Ordered, idempotent `.sql` (plus `99-rollback.sql` when safe) |
+| `jar/` | Built plugin JARs **or** `NO-JAR.txt` explaining AD/SQL-only |
+| `packout/` | 2Pack / Pack Out ZIP or XML **or** `NO-PACKOUT.txt` with why |
+| `docs/` | Short README / verify notes |
+
+Do **not** tell the client to pull git or run `deploy.sh` as the primary path. Pack is the deliverable.
+
+## JAR install (manual console only)
+
+- All OSGi JARs are installed **manually on the iDempiere OSGi console** (and/or copied to `plugins/` + `bundles.info` per that host’s runbook).
+- Do **not** assume automated `deploy.sh` / systemd restart is available on client hosts.
+- Document exact console steps in `HOW-TO-UPDATE.md` (stop/start bundle, refresh, Cache Reset).
+
+## UUID / ID portability (mandatory)
+
+Numeric `AD_*_ID` values **differ between clients**. Hardcoding IDs causes silent misses or wrong-row updates.
+
+**Rules for every AD migration SQL:**
+
+1. **Lookup targets by `*_UU` (preferred)** or by stable **Name + EntityType / TableName**, never by `AD_*_ID` alone.
+2. **New AbERP objects** get a **fixed UUID** we own; upsert `IF EXISTS (uu) UPDATE ELSE INSERT` using `nextid` for the numeric ID.
+3. **Comment** the seed/dev ID (e.g. `1000032`) only as a hint — runtime must resolve via UU/name.
+4. If the target UU is missing on a client, **`RAISE EXCEPTION`** with a clear message (or documented name fallback) — do not no-op.
+5. Prefer core references that are stable across instances (`AD_Reference_ID` 17/20, `_YesNo` 319, `AD_Element` IsPaid) only when known standard; otherwise resolve by name.
+
+```sql
+-- ✅ GOOD
+SELECT ad_infowindow_id INTO v_iw FROM ad_infowindow
+WHERE ad_infowindow_uu = '8fb1cd46-ed81-4cb9-8b83-7662caed9e62';
+
+-- ❌ BAD
+UPDATE ad_infocolumn SET ... WHERE ad_infowindow_id = 1000032;
+```
+
+## After packaging
+
+Commit the repo migration sources as usual, then confirm the Downloads pack is complete and point the user at that folder path.

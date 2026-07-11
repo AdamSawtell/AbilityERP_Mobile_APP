@@ -40,6 +40,7 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
 
 | File | Purpose |
 |------|---------|
+| `sql/00-preflight-uuids.sql` | Fail fast if Info Window UU missing |
 | `sql/01-add-paid-criteria.sql` | Idempotent AD_InfoColumn insert/update |
 | `sql/04-add-info-menu.sql` | Menu Action=I so the Info Window opens directly |
 | `sql/02-verify.sql` | Confirm columns and criteria order |
