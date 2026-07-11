@@ -83,6 +83,7 @@ public class CloseRosteringChat extends SvrProcess {
 		}
 
 		addLog(requestId, null, null, "Chat closed — worker can start a new conversation in the app");
+		// Keep a short OK for Close (less frequent); Send Reply stays fully silent.
 		return "@OK@ Chat closed";
 	}
 

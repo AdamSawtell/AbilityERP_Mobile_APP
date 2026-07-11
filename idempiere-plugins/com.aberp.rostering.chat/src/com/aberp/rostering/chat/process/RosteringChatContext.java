@@ -54,6 +54,31 @@ final class RosteringChatContext {
 	}
 
 	static String getDraftReply(Properties ctx) {
+		return getDraftReply(ctx, 0);
+	}
+
+	/** Prefer draft from the window that holds this request (avoids stale other tabs). */
+	static String getDraftReply(Properties ctx, int requestId) {
+		if (requestId > 0) {
+			for (int windowNo = 0; windowNo < WINDOW_SCAN_MAX; windowNo++) {
+				int winReq = Env.getContextAsInt(ctx, windowNo, "R_Request_ID", false);
+				if (winReq != requestId) {
+					winReq = Env.getContextAsInt(ctx, windowNo, "R_Request_ID", true);
+				}
+				if (winReq != requestId) {
+					continue;
+				}
+				String draft = Env.getContext(ctx, windowNo, "AbERP_RosteringReply", true);
+				if (!Util.isEmpty(draft)) {
+					return draft.trim();
+				}
+				draft = Env.getContext(ctx, windowNo, "AbERP_RosteringReply", false);
+				if (!Util.isEmpty(draft)) {
+					return draft.trim();
+				}
+			}
+		}
+
 		String draft = Env.getContext(ctx, "#AbERP_RosteringReply");
 		if (!Util.isEmpty(draft)) {
 			return draft.trim();

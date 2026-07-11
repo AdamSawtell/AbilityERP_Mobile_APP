@@ -5,7 +5,6 @@ import java.sql.Timestamp;
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MRequest;
 import org.compiere.model.MTable;
-import org.compiere.model.MUser;
 import org.compiere.process.ProcessInfoParameter;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
@@ -69,7 +68,13 @@ public class SendRosteringReply extends SvrProcess {
 
 		assertRosteringChatType(request);
 
-		final String trimmed = resolveReplyMessage(request);
+		String trimmed = resolveReplyMessage(request);
+		if (trimmed.isEmpty()) {
+			// WebUI button click saves the row first. The AbERP_RosteringReply trigger
+			// already copies Reply → LastResult/Updates and clears the draft. Treat that
+			// as a successful send so we do not show a false "type your reply" error.
+			trimmed = recentAutoSavedReply(request.get_ID());
+		}
 		if (trimmed.isEmpty()) {
 			throw new AdempiereException("Type your reply in the Reply field, then click Send Reply");
 		}
@@ -82,47 +87,63 @@ public class SendRosteringReply extends SvrProcess {
 			throw new AdempiereException("Could not resolve worker user for this chat thread");
 		}
 
-		// One UPDATE of the Reply column — BEFORE trigger copies to LastResult / clears draft /
-		// sets AD_Role_ID=0; AFTER trigger inserts Public R_RequestUpdate.
-		final int rows = DB.executeUpdateEx(
-				"UPDATE R_Request SET AbERP_RosteringReply=?, AD_User_ID=?, "
-						+ "Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
-				new Object[] {
-						trimmed,
-						workerUserId,
-						new Timestamp(System.currentTimeMillis()),
-						getAD_User_ID(),
-						requestId
-				},
-				get_TrxName());
-		if (rows <= 0) {
-			throw new AdempiereException("Failed to send reply — record may have changed, click ReQuery and try again");
-		}
-
-		final int updateId = DB.getSQLValueEx(get_TrxName(),
-				"SELECT MAX(R_RequestUpdate_ID) FROM R_RequestUpdate "
+		// If save-trigger already delivered this exact Public update, do not send twice.
+		final int alreadySent = DB.getSQLValueEx(get_TrxName(),
+				"SELECT COUNT(*) FROM R_RequestUpdate "
 						+ "WHERE R_Request_ID=? AND IsActive='Y' "
 						+ "AND COALESCE(ConfidentialTypeEntry,'A')='A' "
-						+ "AND TRIM(Result)=TRIM(?)",
-				requestId, trimmed);
+						+ "AND TRIM(Result)=TRIM(?) "
+						+ "AND Created > (CURRENT_TIMESTAMP - INTERVAL '15 seconds')",
+				request.get_ID(), trimmed);
+		if (alreadySent <= 0) {
+			final int rows = DB.executeUpdateEx(
+					"UPDATE R_Request SET AbERP_RosteringReply=?, AD_User_ID=?, "
+							+ "Updated=?, UpdatedBy=? WHERE R_Request_ID=?",
+					new Object[] {
+							trimmed,
+							workerUserId,
+							new Timestamp(System.currentTimeMillis()),
+							getAD_User_ID(),
+							request.get_ID()
+					},
+					get_TrxName());
+			if (rows <= 0) {
+				throw new AdempiereException("Failed to send reply — record may have changed, click ReQuery and try again");
+			}
+		}
 
-		final MUser worker = MUser.get(getCtx(), workerUserId);
-		final String workerName = worker != null && worker.get_ID() > 0
-				? worker.getName()
-				: String.valueOf(workerUserId);
-		addLog(updateId > 0 ? updateId : requestId, null, null,
-				"Reply sent to " + workerName);
-		return "@OK@ Reply sent to " + workerName;
+		// Silent button: no Process completed popup (no addLog / empty return).
+		return null;
+	}
+
+	/** Reply text just delivered by the save trigger (draft already cleared). */
+	private String recentAutoSavedReply(int requestId) {
+		// Latest Public update is ours and matches LastResult → save-trigger already sent.
+		return DB.getSQLValueStringEx(get_TrxName(),
+				"SELECT ru.Result FROM R_RequestUpdate ru "
+						+ "JOIN R_Request r ON r.R_Request_ID = ru.R_Request_ID "
+						+ "WHERE ru.R_Request_ID=? "
+						+ "AND ru.IsActive='Y' "
+						+ "AND COALESCE(ru.ConfidentialTypeEntry,'A')='A' "
+						+ "AND ru.CreatedBy=? "
+						+ "AND TRIM(ru.Result)=TRIM(COALESCE(r.LastResult,'')) "
+						+ "AND ru.R_RequestUpdate_ID = ("
+						+ "  SELECT MAX(u2.R_RequestUpdate_ID) FROM R_RequestUpdate u2 "
+						+ "  WHERE u2.R_Request_ID = ru.R_Request_ID AND u2.IsActive='Y' "
+						+ "  AND COALESCE(u2.ConfidentialTypeEntry,'A')='A'"
+						+ ")",
+				requestId, getAD_User_ID());
 	}
 
 	private String resolveReplyMessage(MRequest request) {
-		if (!Util.isEmpty(paramReply)) {
-			return paramReply.trim();
-		}
-
-		final String contextDraft = RosteringChatContext.getDraftReply(getCtx());
+		// Prefer typed form value in WebUI context (silent button — no dialog).
+		final String contextDraft = RosteringChatContext.getDraftReply(getCtx(), request.get_ID());
 		if (!Util.isEmpty(contextDraft)) {
 			return contextDraft;
+		}
+
+		if (!Util.isEmpty(paramReply)) {
+			return paramReply.trim();
 		}
 
 		final String dbDraft = DB.getSQLValueStringEx(get_TrxName(),
