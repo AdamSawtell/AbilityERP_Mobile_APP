@@ -7,13 +7,16 @@ const router = Router();
 router.use(requireAuth, requireSupportWorker);
 
 router.get("/", async (req, res) => {
-  const items = await getCredentials(req.user!.cBPartnerId);
+  const items = await getCredentials(req.user!.cBPartnerId, req.user!.adUserId);
   res.json({ items });
 });
 
 router.get("/id-card", async (req, res) => {
   const profile = await getProfile(req.user!.adUserId);
-  const credentialCount = await getCredentialCount(req.user!.cBPartnerId);
+  const credentialCount = await getCredentialCount(
+    req.user!.cBPartnerId,
+    req.user!.adUserId,
+  );
 
   res.json({
     idCard: {

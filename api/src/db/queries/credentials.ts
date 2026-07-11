@@ -10,7 +10,10 @@ export interface CredentialRow {
   status: string;
 }
 
-export async function getCredentials(cBPartnerStaffId: number): Promise<CredentialRow[]> {
+export async function getCredentials(
+  cBPartnerStaffId: number,
+  adUserId: number,
+): Promise<CredentialRow[]> {
   const result = await pool.query<{
     id: number;
     name: string;
@@ -31,11 +34,14 @@ export async function getCredentials(cBPartnerStaffId: number): Promise<Credenti
        END AS status
      FROM aberp_credentialassignment ca
      JOIN aberp_credentials c ON c.aberp_credentials_id = ca.aberp_credentials_id
-     LEFT JOIN aberp_credentialstype ct ON ct.aberp_credentialstype_id = ca.aberp_credentialstype_id
-     LEFT JOIN aberp_credentialscategory cc ON cc.aberp_credentialscategory_id = ca.aberp_credentialscategory_id
-     WHERE ca.c_bpartner_staff_id = $1 AND ca.isactive = 'Y'
+     LEFT JOIN aberp_credentialstype ct
+       ON ct.aberp_credentialstype_id = COALESCE(ca.aberp_credentialstype_id, c.aberp_credentialstype_id)
+     LEFT JOIN aberp_credentialscategory cc
+       ON cc.aberp_credentialscategory_id = COALESCE(ca.aberp_credentialscategory_id, c.aberp_credentialscategory_id)
+     WHERE ca.isactive = 'Y'
+       AND (ca.c_bpartner_staff_id = $1 OR ca.aberp_user_contact_id = $2)
      ORDER BY ca.aberp_expirydate ASC NULLS LAST, c.name ASC`,
-    [cBPartnerStaffId],
+    [cBPartnerStaffId, adUserId],
   );
 
   return result.rows.map((row) => ({
@@ -44,12 +50,16 @@ export async function getCredentials(cBPartnerStaffId: number): Promise<Credenti
   }));
 }
 
-export async function getCredentialCount(cBPartnerStaffId: number): Promise<number> {
+export async function getCredentialCount(
+  cBPartnerStaffId: number,
+  adUserId: number,
+): Promise<number> {
   const result = await pool.query<{ count: string }>(
     `SELECT COUNT(*)::text AS count
      FROM aberp_credentialassignment
-     WHERE c_bpartner_staff_id = $1 AND isactive = 'Y'`,
-    [cBPartnerStaffId],
+     WHERE isactive = 'Y'
+       AND (c_bpartner_staff_id = $1 OR aberp_user_contact_id = $2)`,
+    [cBPartnerStaffId, adUserId],
   );
   return Number(result.rows[0]?.count ?? 0);
 }
