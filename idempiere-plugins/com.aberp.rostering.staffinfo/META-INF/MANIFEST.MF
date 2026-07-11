@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbERP Rostering Staff Info Window
+Bundle-SymbolicName: com.aberp.rostering.staffinfo
+Bundle-Version: 1.0.0.2026071101
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.rostering.staffinfo
+AbERP-Package-Type: sql-ad
+AbERP-InfoWindow-UU: 2b4ab146-0809-47c6-96f3-8b841d60a6bf
+AbERP-Install: sql/install-all.sql
