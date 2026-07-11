@@ -41,6 +41,7 @@ for f in \
   08-enable-related-info.sql \
   09-find-fill-ux.sql \
   10-java-ux-org.sql \
+  11-drop-redundant-criteria.sql \
   04-verify.sql
 do
   echo "=== $f ==="
