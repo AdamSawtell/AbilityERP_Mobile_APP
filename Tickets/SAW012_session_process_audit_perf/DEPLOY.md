@@ -1,58 +1,54 @@
 # SAW012 — Deploy to another build (agent)
 
 **Ticket / slug:** `SAW012_session_process_audit_perf`  
-**Kind:** idempiere · **JAR:** No · **Status:** in-progress
+**Kind:** idempiere · **JAR:** No · **Status:** in-progress (HCO AD+HK applied; indexes/purge in flight)
 
 ## Required host access
 
 - SSH · `psql` · WebUI Admin · Cache Reset  
-- OSGi console: **not** required  
-- Disk / maintenance window for index build + optional purge (large tables)
+- Maintenance window for indexes + batched purge on large `AD_PInstance`
 
 ## Agent one-liner
 
 ```bash
-cd Tickets/SAW012_session_process_audit_perf
-# After SQL files exist (ordered):
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f sql/00-preflight.sql \
-  -f sql/01-highvolume-and-tab-ux.sql \
-  -f sql/02-indexes.sql \
-  -f sql/03-housekeeping.sql \
-  -f sql/04-verify.sql
-# Optional off-peak: sql/10-batched-purge.sql (retention days as agreed)
-# Then Cache Reset / re-login.
+cd Tickets/SAW012_session_process_audit_perf/sql
+psql -d idempiere -v ON_ERROR_STOP=1 \
+  -f 00-preflight.sql \
+  -f 01-highvolume-and-tab-ux.sql \
+  -f 03-housekeeping.sql
+bash run-indexes.sh          # CONCURRENTLY; long on big DBs
+# Cache Reset
+psql -d idempiere -v ON_ERROR_STOP=1 -f 10-batched-purge.sql   # re-run off-peak until 0
+psql -d idempiere -v ON_ERROR_STOP=1 -f 04-verify.sql
 ```
 
-Or thin prod pack: `Downloads\AbilityERP-ProdUpdate-SAW012_session_process_audit_perf-*\` → `HOW-TO.txt`.
+Thin prod pack: `Downloads\AbilityERP-ProdUpdate-SAW012_session_process_audit_perf-20260712\` → `HOW-TO.txt`.
 
 ## Package
 
-`Tickets/SAW012_session_process_audit_perf/sql/` (UU/name lookups only — never hardcode AD_*_ID).
+`Tickets/SAW012_session_process_audit_perf/sql/` — UU/name lookups only.
 
-Rollback: `sql/99-rollback.sql` (AD flags only; indexes/purge not fully reversible).
+Rollback: `99-rollback.sql` (AD only).
 
 ## AbilityERP Admin access
 
-No new window/process. Core **Session Audit** / **Process Audit** — grant/verify System Admin (and AbilityERP Admin if used) already have window access. Smoke as **Admin** on HCO.
+No new window. Smoke as **Admin**.
 
 ## WebUI smoke
 
 1. Cache Reset.
-2. Open **Process Audit** → Find dialog appears (High Volume) → filter last 7 days / one process → results in seconds, ≤ MaxQueryRecords.
-3. Open **Session Audit** → Find → recent sessions load; Change Audit child usable for a selected session.
-4. Confirm older rows still findable via date criteria (functionality preserved).
+2. **Process Audit** → Lookup Record (Find) with Created / Process / User → OK → ≤200 rows.
+3. **Session Audit** → Find → recent sessions.
+
+## Safety
+
+Never unbounded delete of `AD_PInstance` — FKs can CASCADE to `C_Order` / `C_OrderLine`. Use pack purge + `aberp_pinstance_ok_to_purge()`.
 
 ## Packs
 
-- Staging: `AbilityERP-ClientUpdate-SAW012_session_process_audit_perf-*`  
-- Prod: `AbilityERP-ProdUpdate-SAW012_session_process_audit_perf-*`
+- Staging: `AbilityERP-ClientUpdate-SAW012_session_process_audit_perf-20260712`
+- Prod: `AbilityERP-ProdUpdate-SAW012_session_process_audit_perf-20260712`
 
 ## External ticket text
 
-`Tickets/SAW012_session_process_audit_perf/EXTERNAL-SUMMARY.md`
-
-## Blockers / decisions before apply
-
-- Retention days for purge + HouseKeeping (suggested 90).
-- Whether Prod purge runs in same pack or as a separate maintenance step.
+`EXTERNAL-SUMMARY.md`

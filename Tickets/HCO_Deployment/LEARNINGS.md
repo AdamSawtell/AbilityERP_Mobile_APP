@@ -4,6 +4,32 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW012 Session/Process Audit performance
+
+**Result:** Pass on AD/UX/HouseKeeping. Indexes + batched purge long-running (expected). WebUI confirmed High Volume Find on Process Audit.
+
+### What worked
+
+- Core window/tab/field UUs matched; High Volume + MaxQueryRecords=200 + selection columns.
+- HouseKeeping `whereclause` is **varchar(255)** — FK-safe logic in `aberp_pinstance_ok_to_purge()` / `aberp_session_ok_to_purge()`.
+- Schedulers need `ad_schedule_id` (resolve **1 Day** UU `5a06dc76-704e-40f5-bfcf-724829332c50`).
+
+### Learnings → process fixes
+
+| Learning | Action |
+|----------|--------|
+| `AD_PInstance` → `C_Order`/`C_OrderLine` ON DELETE CASCADE — naive purge destroys orders | Pack helpers + HOW-TO warning |
+| Long discovery scans on `ad_pinstance` block CREATE INDEX CONCURRENTLY and WebUI | Kill stuck diagnostics before index/purge |
+| Duplicate `CREATE INDEX CONCURRENTLY` on same name stalls progress | Single `run-indexes.sh` only |
+| Menu search “Cache Reset” may show “No Records found” while list still lists it | Click list cell / System Admin path |
+
+### Ticket artefacts
+
+- `Tickets/SAW012_session_process_audit_perf/`
+- Downloads packs `*SAW012_session_process_audit_perf-20260712*`
+
+---
+
 ## 2026-07-12 — SAW007 Activity types (Email / Meeting / Phone / Note / Task)
 
 **Result:** Pass (SQL verify + WebUI Activity Type dropdown on Booking Generator).
