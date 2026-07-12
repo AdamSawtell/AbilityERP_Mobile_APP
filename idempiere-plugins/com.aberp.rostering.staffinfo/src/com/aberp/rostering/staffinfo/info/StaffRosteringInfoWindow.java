@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Properties;
 
+import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Label;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.info.InfoWindow;
@@ -18,6 +19,8 @@ import org.compiere.util.Env;
 import org.compiere.util.Language;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zul.Hbox;
 import org.zkoss.zul.Vbox;
 
 /**
@@ -38,6 +41,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	private final GridField launchField;
 	private Label contextBanner;
+	private Checkbox showUnmatchedCheckbox;
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -51,7 +55,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID, boolean lookup, GridField field) {
-		super(windowNo, tableName, keyColumn, queryValue, multipleSelection, whereClause, AD_InfoWindow_ID, lookup, field);
+		// Always multi-select so toolbar Select All / row checkboxes work for fill UX.
+		super(windowNo, tableName, keyColumn, queryValue, true, whereClause, AD_InfoWindow_ID, lookup, field);
 		this.launchField = field;
 	}
 
@@ -76,6 +81,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	@Override
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
+		clearInvalidIdCriteria();
 		if (contextBanner != null) {
 			contextBanner.setValue(buildContextBannerText());
 		}
@@ -84,9 +90,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	@Override
 	protected String getSQLWhere() {
-		// AD "Show Unmatched Staff" is a UI flag only (SelectClause au.IsActive,
-		// default blank). Never let it become SQL. Default must not be N — that
-		// would leak au.IsActive='N' and return zero active staff.
+		// Show Unmatched is a Java checkbox. Also clear/strip any leftover AD criterion.
 		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
 		Object savedShowUnmatched = null;
 		boolean cleared = false;
@@ -97,22 +101,25 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		try {
+			// InfoWindow appends getSQLWhere() directly after m_sqlMain (which already
+			// ends with "WHERE <windowWhere>"). The fragment MUST start with " AND "
+			// when non-empty — never strip that leading AND.
 			String where = stripShowUnmatchedSql(super.getSQLWhere());
 			StringBuilder extra = new StringBuilder();
 			appendClause(extra, buildShiftDateEligibilitySql());
 
-			boolean showUnmatched = isYes(savedShowUnmatched);
+			boolean showUnmatched = isShowUnmatchedSelected() || isYes(savedShowUnmatched);
 			if (!showUnmatched) {
 				appendClause(extra, buildNeedsMatchSql());
 			}
 
 			if (extra.length() == 0) {
-				return where;
+				return ensureLeadingAnd(where);
 			}
 			if (Util.isEmpty(where, true)) {
-				return extra.toString();
+				return ensureLeadingAnd(extra.toString());
 			}
-			return where + " AND " + extra;
+			return ensureLeadingAnd(where + " AND " + extra);
 		} finally {
 			if (cleared) {
 				showUnmatchedEditor.setValue(savedShowUnmatched);
@@ -124,24 +131,131 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	/**
+	 * Table/Table Direct / Multi-Select criteria often hold -1 (or {-1}) when blank.
+	 * ZK Intbox "no negative" then throws "non-negative only" on ReQuery
+	 * (esp. with All/Any checked). Hidden query criteria still build editors.
+	 */
+	private void clearInvalidIdCriteria() {
+		if (editors == null || editors.isEmpty()) {
+			return;
+		}
+		for (WEditor editor : editors) {
+			if (editor == null || editor.getGridField() == null) {
+				continue;
+			}
+			int displayType = editor.getGridField().getDisplayType();
+			boolean idLike = DisplayType.isID(displayType)
+					|| displayType == DisplayType.Integer
+					|| displayType == DisplayType.Table
+					|| displayType == DisplayType.TableDir
+					|| displayType == DisplayType.Search
+					|| displayType == DisplayType.ChosenMultipleSelectionTable
+					|| displayType == DisplayType.ChosenMultipleSelectionSearch
+					|| displayType == DisplayType.ChosenMultipleSelectionList;
+			if (!idLike) {
+				continue;
+			}
+			Object value = editor.getValue();
+			if (value == null) {
+				continue;
+			}
+			if (value instanceof Object[]) {
+				Object[] arr = (Object[]) value;
+				if (arr.length == 0 || onlyNonPositiveIds(arr)) {
+					editor.setValue(null);
+				}
+				continue;
+			}
+			if (value instanceof java.util.Collection) {
+				java.util.Collection<?> col = (java.util.Collection<?>) value;
+				if (col.isEmpty() || onlyNonPositiveIds(col.toArray())) {
+					editor.setValue(null);
+				}
+				continue;
+			}
+			int id = 0;
+			if (value instanceof Number) {
+				id = ((Number) value).intValue();
+			} else {
+				try {
+					id = Integer.parseInt(value.toString().trim());
+				} catch (Exception ex) {
+					continue;
+				}
+			}
+			if (id <= 0) {
+				editor.setValue(null);
+			}
+		}
+	}
+
+	private static boolean onlyNonPositiveIds(Object[] values) {
+		if (values == null || values.length == 0) {
+			return true;
+		}
+		for (Object v : values) {
+			if (v == null) {
+				continue;
+			}
+			int id;
+			if (v instanceof Number) {
+				id = ((Number) v).intValue();
+			} else {
+				try {
+					id = Integer.parseInt(v.toString().trim());
+				} catch (Exception ex) {
+					return false;
+				}
+			}
+			if (id > 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * InfoWindow concatenates getSQLWhere() onto m_sqlMain without inserting AND.
+	 * Non-empty fragments must therefore start with {@code AND}.
+	 */
+	private static String ensureLeadingAnd(String where) {
+		if (Util.isEmpty(where, true)) {
+			return "";
+		}
+		String trimmed = where.trim();
+		if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
+			return " " + trimmed;
+		}
+		return " AND " + trimmed;
+	}
+
+	/**
 	 * Remove Show-Unmatched flag fragments InfoWindow may still emit.
-	 * SelectClause is constant {@code 'N'} (default N → {@code 'N'='N'} harmless;
-	 * Y → {@code 'N'='Y'} stripped). Also strips legacy {@code 0} / {@code 'Y'} forms.
+	 * Legacy SelectClauses: constant {@code 'N'}/{@code 'Y'}, {@code 0}, or
+	 * {@code au.IsActive} (real column — must not leak into WHERE as a fake criterion).
+	 * Preserves a leading {@code AND} so {@link #ensureLeadingAnd} stays idempotent.
 	 */
 	private static String stripShowUnmatchedSql(String where) {
 		if (Util.isEmpty(where, true)) {
 			return where;
 		}
+		boolean hadLeadingAnd = where.trim().regionMatches(true, 0, "AND", 0, 3);
 		String cleaned = where;
 		cleaned = cleaned.replaceAll("(?i)\\(\\s*'[YN]'\\s*=\\s*'[YN]'\\s*\\)", " ");
 		cleaned = cleaned.replaceAll("(?i)\\(\\s*0\\s*=\\s*'[YN]'\\s*\\)", " ");
 		cleaned = cleaned.replaceAll("(?i)(?<!\\w)'[YN]'\\s*=\\s*'[YN]'", " ");
 		cleaned = cleaned.replaceAll("(?i)(?<!\\w)0\\s*=\\s*'[YN]'", " ");
+		// SelectClause au.IsActive (Show Unmatched) — do not leave bare au.IsActive='Y'
+		cleaned = cleaned.replaceAll("(?i)\\(\\s*au\\.IsActive\\s*=\\s*'[YN]'\\s*\\)", " ");
+		cleaned = cleaned.replaceAll("(?i)(?<!\\w)au\\.IsActive\\s*=\\s*'[YN]'", " ");
 		cleaned = cleaned.replaceAll("(?i)\\bAND\\s+AND\\b", " AND ");
 		cleaned = cleaned.replaceAll("(?i)^\\s*AND\\s+", "");
 		cleaned = cleaned.replaceAll("(?i)\\s+AND\\s*$", "");
 		cleaned = cleaned.replaceAll("\\s{2,}", " ").trim();
-		return cleaned;
+		if (cleaned.isEmpty()) {
+			return "";
+		}
+		return hadLeadingAnd ? " AND " + cleaned : cleaned;
 	}
 
 	private static void appendClause(StringBuilder sb, String clause) {
@@ -193,6 +307,30 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
 						+ "font-size:12px;line-height:1.35;white-space:normal;");
 
+		showUnmatchedCheckbox = new Checkbox();
+		showUnmatchedCheckbox.setText("Show Unmatched Staff");
+		showUnmatchedCheckbox.setTooltiptext(
+				"When unticked (default), only staff matching Related Rostering Needs are listed. "
+						+ "Credentials must be active and valid for the shift Start/End. "
+						+ "Tick to include everyone (leave/overlap filters still apply).");
+		showUnmatchedCheckbox.setChecked(false);
+		showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
+			if (contextBanner != null) {
+				contextBanner.setValue(buildContextBannerText());
+			}
+		});
+
+		Hbox flagRow = new Hbox();
+		flagRow.setWidth("100%");
+		flagRow.setSpacing("8px");
+		flagRow.appendChild(showUnmatchedCheckbox);
+
+		Vbox header = new Vbox();
+		header.setWidth("100%");
+		header.setSpacing("4px");
+		header.appendChild(contextBanner);
+		header.appendChild(flagRow);
+
 		// North allows only ONE child. Prefer wrapping inside that child (often
 		// ZK north-body). Never insertBefore onto North itself.
 		Component northChild = north != null ? north.getFirstChild() : null;
@@ -209,7 +347,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		if (northChild instanceof Vbox) {
-			northChild.insertBefore(contextBanner, northChild.getFirstChild());
+			northChild.insertBefore(header, northChild.getFirstChild());
 			return;
 		}
 
@@ -220,7 +358,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			wrap.setWidth("100%");
 			wrap.setSpacing("6px");
 			content.detach();
-			wrap.appendChild(contextBanner);
+			wrap.appendChild(header);
 			wrap.appendChild(content);
 			northChild.appendChild(wrap);
 			return;
@@ -232,7 +370,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			wrap.setWidth("100%");
 			wrap.setSpacing("6px");
 			northChild.detach();
-			wrap.appendChild(contextBanner);
+			wrap.appendChild(header);
 			wrap.appendChild(northChild);
 			north.appendChild(wrap);
 		}
@@ -292,6 +430,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	private boolean isShowUnmatchedSelected() {
+		if (showUnmatchedCheckbox != null) {
+			return showUnmatchedCheckbox.isChecked();
+		}
 		WEditor ed = findEditor(COL_SHOW_UNMATCHED);
 		return ed != null && isYes(ed.getValue());
 	}
