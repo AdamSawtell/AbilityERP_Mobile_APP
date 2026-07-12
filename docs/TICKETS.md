@@ -32,10 +32,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW009 | `support_day_pattern_number` | idempiere | Service Booking Line Support Start/End Day show pattern day number | done | [#9](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/9) | [`Tickets/SAW009_…`](../Tickets/SAW009_support_day_pattern_number/) |
 | SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_…`](../Tickets/SAW010_timesheet_approval_info_columns/) |
 | SAW011 | `accept_shift_request` | idempiere | Accept Shift Request: Response Log REQ → Employee tab assign | done | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) | [`Tickets/SAW011_…`](../Tickets/SAW011_accept_shift_request/) |
+| SAW012 | `session_process_audit_perf` | idempiere | Session/Process Audit usable on huge tables (High Volume, indexes, retention) | in-progress | [#12](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/12) | [`Tickets/SAW012_…`](../Tickets/SAW012_session_process_audit_perf/) |
 
 ## Next ID
 
-**SAW012**
+**SAW013**
 
 ## Naming reminder
 
