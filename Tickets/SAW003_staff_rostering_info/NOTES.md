@@ -37,3 +37,9 @@ Refresh when the JAR or SQL order changes:
 | `06-fix-shift-org.sql` | Skips when AbilityERP client missing | Still sets AlwaysUpdateable on contact column |
 
 **Smoke (Admin):** Menu → Employee (User) / Agency Staff Rostering Info shows **Staff Name**, Employee, Agency Staff, Java shift-filter banner, Related Info. Shift (Rostered) → Employee field remains wired to this IW.
+
+### HCO follow-up 2026-07-12 (tick boxes)
+
+- First HCO deploy used a **stale release JAR** (banner only; missing Java ticks).
+- Rebuilt from current source on HCO and redeployed � **Show Unmatched Staff** / **Show Unavailable Staff** now visible under Staff Name / Employee.
+
