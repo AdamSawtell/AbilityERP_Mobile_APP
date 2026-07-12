@@ -4,7 +4,9 @@ Canonical agent instructions: **`Tickets/SAW003_staff_rostering_info/DEPLOY.md`*
 
 ```bash
 chmod +x build.sh deploy.sh && ./deploy.sh
-# then Cache Reset / logout-in
+# then Cache Reset / logout-in (do not wipe OSGi configuration cache)
 ```
 
-SQL order is in `deploy.sh` (01→20→04). Packs: `AbilityERP-*-SAW003_staff_rostering_info-20260712`.
+- Bundle version: **`1.1.0.2026071219`**
+- SQL order is in `deploy.sh` (`01`→`20`→`04`). **`20-hide-clutter-columns.sql` must remain last** before `04-verify.sql`.
+- Packs: `AbilityERP-*-SAW003_staff_rostering_info-20260712` (JAR + HOW-TO refreshed with 1219).

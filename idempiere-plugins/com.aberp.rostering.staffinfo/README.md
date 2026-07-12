@@ -43,9 +43,20 @@ chmod +x build.sh deploy.sh
 
 Applies SQL via `deploy.sh` (`01`→`20`→`04`), installs OSGi jar, restarts iDempiere.
 
-Then **Cache Reset** (or log out/in).
+Then **Cache Reset** (or log out/in). **Do not** wipe the full OSGi configuration cache.
+
+Current bundle version: **`1.1.0.2026071219`**.
 
 Agent handoff: repo `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and this package’s `DEPLOY.md`.
+
+## Result grid (lean pick list)
+
+After `sql/20-hide-clutter-columns.sql` (must run **last** before verify):
+
+- Hidden from the **line**: BP Name, Status, Business Partner, Agency Staff – Approved for shifts
+- Agency Staff remains a **filter criterion** only
+- `C_BPartner_ID` stays active for Related Info (just not displayed)
+- Criteria label **Staff Name**; Show Unmatched / Show Unavailable layout from `19` + Java
 
 ## Rollback
 
@@ -58,9 +69,13 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f sql/99-rollback.sql
 
 | File | Purpose |
 |------|---------|
-| `src/.../info/StaffRosteringInfoWindow.java` | Auto-`%`, banner, leave/overlap, needs match |
+| `src/.../info/StaffRosteringInfoWindow.java` | Auto-`%`, banner, leave/overlap, needs match, criteria layout |
 | `src/.../factory/StaffRosteringInfoFactory.java` | `IInfoFactory` |
 | `src/.../callout/CalloutShiftStaffContact.java` | BP + org on contact change |
 | `src/.../factory/StaffRosteringCalloutFactory.java` | `IColumnCalloutFactory` |
-| `sql/01`–`12` | AD rewrite, indexes, org, eligibility, UX, needs tickbox |
+| `sql/01`–`17` | AD rewrite, indexes, org, eligibility, UX, needs tickbox, criteria fixes |
+| `sql/18-fix-result-grid-readonly.sql` | Selected-row display-only |
+| `sql/19-rename-staff-name.sql` | Staff Name label |
+| `sql/20-hide-clutter-columns.sql` | Hide clutter columns from result grid |
 | `sql/99-rollback.sql` | Restore prior join-based definition |
+| `release/*_1.1.0.2026071219.jar` | Pack / install JAR |
