@@ -1,8 +1,9 @@
 -- Phase 2 eligibility without @StartDate@ / @ctx@ tokens.
 -- Uses CURRENT_DATE-based EXISTS expressions as InfoColumns:
---   On Approved Leave  → query criteria, default N (hide people on approved leave)
+--   On Approved Leave  → display only (expression SelectClause breaks ZK ReQuery as criteria)
 --   Has Future Shift   → display only (officer visibility)
--- Safe: no context parse; no SelectClause '0'.
+-- Shift-open leave/overlap is filtered in StaffRosteringInfoWindow Java.
+-- Safe: no context parse; no SelectClause '0'; no expression query criteria.
 
 SET search_path TO adempiere;
 
@@ -44,20 +45,20 @@ BEGIN
   ) THEN
     UPDATE ad_infocolumn SET
       name = 'On Approved Leave',
-      description = 'Y if approved leave ends today or later (CURRENT_DATE). Default filter N hides these staff.',
+      description = 'Y if approved leave ends today or later (CURRENT_DATE). Display only — Java filters leave for shift window.',
       selectclause = v_leave_sql,
       columnname = 'AbERP_OnApprovedLeave',
       isactive = 'Y',
       isdisplayed = 'Y',
-      isquerycriteria = 'Y',
+      isquerycriteria = 'N',
       ishideinfocolumn = 'N',
       ismultiselectcriteria = 'N',
-      isreadonly = 'N',
+      isreadonly = 'Y',
       iskey = 'N',
       isidentifier = 'N',
       ad_reference_id = 20,
       ad_reference_value_id = NULL,
-      defaultvalue = 'N',
+      defaultvalue = NULL,
       queryoperator = '=',
       queryfunction = NULL,
       seqno = 300,
@@ -74,10 +75,10 @@ BEGIN
     ) VALUES (
       nextid((SELECT ad_sequence_id::integer FROM ad_sequence WHERE name = 'AD_InfoColumn' AND istableid = 'Y' LIMIT 1), 'N'::varchar),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
-      'On Approved Leave', 'Y if approved leave ends today or later (CURRENT_DATE). Default filter N hides these staff.',
-      v_iw, 'Ab_ERP', v_leave_sql, 300, 'Y', 'Y',
+      'On Approved Leave', 'Y if approved leave ends today or later (CURRENT_DATE). Display only — Java filters leave for shift window.',
+      v_iw, 'Ab_ERP', v_leave_sql, 300, 'Y', 'N',
       20, 'a1b2c3d4-e5f6-7788-9900-aabbccdde001', 'AbERP_OnApprovedLeave', 'N', 80, 'N', 'N',
-      'N', 'N', 'N', 'N', '='
+      'Y', 'N', 'N', NULL, '='
     );
   END IF;
 
@@ -126,8 +127,8 @@ BEGIN
     AND columnname IN ('ShowUnavailabilityLeave', 'ShowOverlappingShifts');
 
   UPDATE ad_infowindow SET
-    description = 'Fast staff picker for Shift Employee fill (lean User+BP). Default hides staff on approved leave.',
-    help = 'Search employees/agency staff for Shift (Rostered) Employee. On Approved Leave defaults to N (hide). Set to blank/Y to include. Has Future Shift is informational. Related Info: Rostered Shift, Credentials, Alerts.',
+    description = 'Fast staff picker for Shift Employee fill (lean User+BP). Shift-open path filters leave/overlap/credentials in Java.',
+    help = 'Search employees/agency staff for Shift (Rostered) Employee. On Approved Leave / Has Future Shift are informational. Leave/overlap for the parent shift is filtered in Java. Related Info: Rostered Shift, Credentials, Alerts.',
     updated = NOW(),
     updatedby = 100
   WHERE ad_infowindow_id = v_iw;

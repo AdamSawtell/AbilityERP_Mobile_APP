@@ -84,8 +84,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	@Override
 	protected String getSQLWhere() {
-		// AD "Show Unmatched Staff" is a UI flag only (SelectClause 0). Never let it
-		// become SQL — a leaked constant like 'N'='Y' returns 0 rows under AND mode.
+		// AD "Show Unmatched Staff" is a UI flag only (SelectClause constant 'N').
+		// Never let it become SQL — a leaked 'N'='Y' returns 0 rows under AND mode;
+		// au.IsActive with default N was worse (au.IsActive='N' → no active staff).
 		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
 		Object savedShowUnmatched = null;
 		boolean cleared = false;
@@ -123,17 +124,18 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * Remove any Show-Unmatched flag fragments that InfoWindow may still emit
-	 * (legacy SelectClause {@code 'N'} / {@code 0}, which break Yes-No criteria).
+	 * Remove Show-Unmatched flag fragments InfoWindow may still emit.
+	 * SelectClause is constant {@code 'N'} (default N → {@code 'N'='N'} harmless;
+	 * Y → {@code 'N'='Y'} stripped). Also strips legacy {@code 0} / {@code 'Y'} forms.
 	 */
 	private static String stripShowUnmatchedSql(String where) {
 		if (Util.isEmpty(where, true)) {
 			return where;
 		}
 		String cleaned = where;
-		cleaned = cleaned.replaceAll("(?i)\\(\\s*'N'\\s*=\\s*'[YN]'\\s*\\)", " ");
+		cleaned = cleaned.replaceAll("(?i)\\(\\s*'[YN]'\\s*=\\s*'[YN]'\\s*\\)", " ");
 		cleaned = cleaned.replaceAll("(?i)\\(\\s*0\\s*=\\s*'[YN]'\\s*\\)", " ");
-		cleaned = cleaned.replaceAll("(?i)(?<!\\w)'N'\\s*=\\s*'[YN]'", " ");
+		cleaned = cleaned.replaceAll("(?i)(?<!\\w)'[YN]'\\s*=\\s*'[YN]'", " ");
 		cleaned = cleaned.replaceAll("(?i)(?<!\\w)0\\s*=\\s*'[YN]'", " ");
 		cleaned = cleaned.replaceAll("(?i)\\bAND\\s+AND\\b", " AND ");
 		cleaned = cleaned.replaceAll("(?i)^\\s*AND\\s+", "");
