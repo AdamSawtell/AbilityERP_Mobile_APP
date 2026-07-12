@@ -28,7 +28,7 @@ chmod +x build.sh deploy.sh
 
 ## Ordered SQL (`deploy.sh`)
 
-`01-indexes` → `02-rewrite-infowindow` → `03-rewrite-infocolumns` → `05-hotfix-browser-smoke` → `06-fix-shift-org` → `07-eligibility-criteria` → `08-enable-related-info` → `09-find-fill-ux` → `10-java-ux-org` → `11-drop-redundant-criteria` → `12-needs-match-criteria` → `14-fix-show-unmatched-selectclause` → `15-fix-onapprovedleave-criteria` → `16-fix-nonnegative-id-criteria` → `17-fix-hidden-multiselect-criteria` → `18-fix-result-grid-readonly` → `19-rename-staff-name` → `20-hide-clutter-columns` → `04-verify`
+`01-indexes` → `02-rewrite-infowindow` → `03-rewrite-infocolumns` → `05-hotfix-browser-smoke` → `06-fix-shift-org` → `07-eligibility-criteria` → `08-enable-related-info` → `09-find-fill-ux` → `10-java-ux-org` → `11-drop-redundant-criteria` → `12-needs-match-criteria` → `14-fix-show-unmatched-selectclause` → `15-fix-onapprovedleave-criteria` → `16-fix-nonnegative-id-criteria` → `17-fix-hidden-multiselect-criteria` → `18-fix-result-grid-readonly` → `19-rename-staff-name` → `20-hide-clutter-columns` → `21-fix-nonnegative-multiselect` → `04-verify`
 
 Do **not** use stub `sql/install-all.sql` as the install.  
 Skip `13-load-test-needs-match.sql` unless load-testing.  
@@ -42,7 +42,8 @@ Info Window is pre-existing — Admin must already have (or be granted) access t
 
 - Prefer host `build.sh` so JAR version matches MANIFEST (or ship `release/*_1.1.0.2026071219.jar`).
 - `sql/06-fix-shift-org.sql` only moves org=`*` data for the **AbilityERP** seed client; on HCO it skips data move and still sets AlwaysUpdateable on the Employee Search column.
-- `sql/08-enable-related-info.sql` resolves Related Info / parent columns by UU/name (not seed InfoColumn IDs).
+- `sql/08-enable-related-info.sql` resolves Related Info / parent columns by **owned UU only** (never activate every `ColumnName=C_BPartner_ID` — that reactivates Multi Select “Support Receiver Needs” → ZK **non-negative only**).
+- `sql/21-fix-nonnegative-multiselect.sql` deactivates Multi Select leftovers; keeps Agency Staff as filter-only criteria.
 
 ## WebUI smoke
 

@@ -12,8 +12,10 @@
 | `18` | Result grid display-only when a row is selected |
 | `19` | **Staff Name** label; Show Unmatched under Staff Name, Show Unavailable under Employee (Java layout) |
 | `20` | Hide BP Name, Status, Business Partner, Agency Staff from **grid**; Agency Staff stays criteria |
+| `21` | Deactivate Multi Select leftovers (Support Receiver Needs) that cause ZK **non-negative only** |
 
 `20` must run **after** `03`/`05`/`09` on every full redeploy or those scripts re-show columns.
+`21` must run **after** `08` (Related Info) so Multi Select rows stay off.
 
 ## Packs
 
@@ -42,10 +44,11 @@ Refresh when the JAR or SQL order changes:
 
 | Area | Status |
 |------|--------|
-| SQL `01`?`20`?`04` | Applied on HCO |
+| SQL `01`?`21`?`04` | Applied on HCO (`21` 2026-07-12 non-negative Multiselect hotfix) |
 | Lean FROM / Staff Name / hide clutter | OK |
 | Related Info (7 links) | OK |
 | BP/org triggers + AlwaysUpdateable | OK |
 | Java ticks + needs/leave filters | OK after JAR rebuild |
 | Downloads packs JAR | Refreshed to ~46 KB |
-| Full smoke from Shift ? Employee Search | Still needs manual pass (automation hit parent-tab dialogs) |
+| Non-negative only popup | Fixed: `08` no longer activates all `C_BPartner_ID`; `21` kills Multi Select; logout/in required |
+| Full smoke from Shift ? Employee Search | Re-test ReQuery with All/Any after logout/in |

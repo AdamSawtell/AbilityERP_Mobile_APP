@@ -2,6 +2,25 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-12 — SAW003 non-negative only (ReQuery)
+
+**Result:** Hotfix applied on HCO (SQL only; no JAR change). Logout/in required.
+
+### Cause
+Portable `08-enable-related-info.sql` activated every `ColumnName=C_BPartner_ID`, including Multi Select **Support Receiver Needs** (`40d550c2-…`). Empty ChosenMultipleSelection holds `-1` → ZK **"non-negative only"** on ReQuery (esp. All/Any).
+
+### Fix (repo + HCO)
+| Change | Detail |
+|--------|--------|
+| Rewrite `08` | Activate parent BP/User by **owned UU only**; deactivate Multi Select / needs columns |
+| Add `21-fix-nonnegative-multiselect.sql` | Kill ref `200138` leftovers; restore Agency Staff filter-only criteria |
+| Do **not** clear all `isdisplayed=N` query criteria | That wrongly removed Agency Staff |
+
+### Smoke
+Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
+
+---
+
 ---
 
 ## 2026-07-12 — SAW003 Staff Rostering Info (Shift → Employee)

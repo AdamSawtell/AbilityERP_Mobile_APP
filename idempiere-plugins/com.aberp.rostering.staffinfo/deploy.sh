@@ -50,6 +50,7 @@ for f in \
   18-fix-result-grid-readonly.sql \
   19-rename-staff-name.sql \
   20-hide-clutter-columns.sql \
+  21-fix-nonnegative-multiselect.sql \
   04-verify.sql
 do
   echo "=== $f ==="
