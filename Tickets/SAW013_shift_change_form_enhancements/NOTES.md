@@ -24,9 +24,11 @@
 | SQL install + verify | Pass |
 | Dup INSERT trigger | Pass (blocked with clear message) |
 | Cache Reset | Pass |
-| WebUI grid load (no timeout) | Pass |
-| Status matches Requests child (e.g. 1000003 → Not Approved) | Pass |
-| Create hidden when Submitted | DisplayLogic installed; confirm on detail after refresh |
+| WebUI grid load (no timeout) | Pass — 3826 rows / physical Status column |
+| Status matches Requests child | Pass — Doc `1003753` Pending matches Requests tab |
+| WITH request Create hidden | Pass — Submitted checked RO; Create not shown |
+| WITHOUT request Create visible | Pass — Doc `1003729` Submitted unchecked; Status blank; Create shown; Requests 0 |
+| WebUI save (no Status/Submitted corruption) | Pass — toggled Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged; Active restored |
 
 ## HCO Future Deployments variables
 

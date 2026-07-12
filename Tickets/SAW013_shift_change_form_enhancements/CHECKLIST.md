@@ -8,10 +8,13 @@
 - [x] Clear any leftover ColumnSQL (`03`)
 - [x] Verify SQL (sample doc + triggers)
 - [x] Cache Reset / re-login
-- [x] WebUI: grid loads (no timeout)
-- [x] WebUI: status mirrors request (grid + Requests tab)
+- [x] WebUI: grid loads (no timeout) — 1–25/3826 OK after physical columns
+- [x] WebUI: status mirrors request (grid + Requests tab) — Doc `1003753`
+- [x] WebUI: WITH request — Submitted checked, Create button hidden
+- [x] WebUI: WITHOUT request — Doc `1003729` Submitted unchecked, Status blank, Create visible, Requests 0
+- [x] WebUI save E2E — toggle Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged
 - [x] AD: Request Submitted field + Create DisplayLogic
 - [x] Trigger: second insert blocked
 - [x] Packs built
 - [x] EXTERNAL-SUMMARY ready
-- [ ] Mark done when issue updated / pushed
+- [x] Mark done when issue updated / pushed
