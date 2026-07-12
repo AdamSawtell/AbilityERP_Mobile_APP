@@ -26,10 +26,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW007 | `activity_tab_integration` | idempiere | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | [`Tickets/SAW007_…`](../Tickets/SAW007_activity_tab_integration/) |
 | SAW008 | `build_from_scratch_review` | meta | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | _(no folder)_ |
 | SAW009 | `support_day_pattern_number` | idempiere | Service Booking Line Support Start/End Day show pattern day number | done | [#9](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/9) | [`Tickets/SAW009_…`](../Tickets/SAW009_support_day_pattern_number/) |
+| SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_…`](../Tickets/SAW010_timesheet_approval_info_columns/) |
 
 ## Next ID
 
-**SAW010**
+**SAW011**
 
 ## Naming reminder
 
