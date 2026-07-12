@@ -84,8 +84,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	@Override
 	protected String getSQLWhere() {
-		// AD "Show Unmatched Staff" is a flag only — its SelectClause is constant 'N',
-		// so clear the editor before super builds WHERE, then apply needs match in Java.
+		// AD "Show Unmatched Staff" is a UI flag only (SelectClause 0). Never let it
+		// become SQL — a leaked constant like 'N'='Y' returns 0 rows under AND mode.
 		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
 		Object savedShowUnmatched = null;
 		boolean cleared = false;
@@ -96,7 +96,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		try {
-			String where = super.getSQLWhere();
+			String where = stripShowUnmatchedSql(super.getSQLWhere());
 			StringBuilder extra = new StringBuilder();
 			appendClause(extra, buildShiftDateEligibilitySql());
 
@@ -120,6 +120,26 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				contextBanner.setValue(buildContextBannerText());
 			}
 		}
+	}
+
+	/**
+	 * Remove any Show-Unmatched flag fragments that InfoWindow may still emit
+	 * (legacy SelectClause {@code 'N'}, or {@code 0='Y'}/{@code 0='N'}).
+	 */
+	private static String stripShowUnmatchedSql(String where) {
+		if (Util.isEmpty(where, true)) {
+			return where;
+		}
+		String cleaned = where;
+		cleaned = cleaned.replaceAll("(?i)\\(\\s*'N'\\s*=\\s*'[YN]'\\s*\\)", " ");
+		cleaned = cleaned.replaceAll("(?i)\\(\\s*0\\s*=\\s*'[YN]'\\s*\\)", " ");
+		cleaned = cleaned.replaceAll("(?i)(?<!\\w)'N'\\s*=\\s*'[YN]'", " ");
+		cleaned = cleaned.replaceAll("(?i)(?<!\\w)0\\s*=\\s*'[YN]'", " ");
+		cleaned = cleaned.replaceAll("(?i)\\bAND\\s+AND\\b", " AND ");
+		cleaned = cleaned.replaceAll("(?i)^\\s*AND\\s+", "");
+		cleaned = cleaned.replaceAll("(?i)\\s+AND\\s*$", "");
+		cleaned = cleaned.replaceAll("\\s{2,}", " ").trim();
+		return cleaned;
 	}
 
 	private static void appendClause(StringBuilder sb, String clause) {

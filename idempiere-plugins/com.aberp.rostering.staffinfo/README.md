@@ -45,7 +45,7 @@ Applies SQL `01`→`12`→`04`, installs OSGi jar, restarts iDempiere.
 
 Then **Cache Reset** (or log out/in).
 
-Produces `release/com.aberp.rostering.staffinfo_1.1.0.2026071209.jar`.
+Produces `release/com.aberp.rostering.staffinfo_1.1.0.2026071210.jar`.
 
 ## Rollback
 
