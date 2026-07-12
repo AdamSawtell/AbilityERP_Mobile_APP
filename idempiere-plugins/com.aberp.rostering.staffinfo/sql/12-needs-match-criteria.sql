@@ -1,7 +1,8 @@
 -- Show Unmatched Staff tickbox + help for Related Rostering Needs matching.
--- The Yes/No criterion is a UI flag only (SelectClause 0 — iDempiere context-only
--- pattern). Never use constant 'N': when ticked Y that becomes 'N'='Y' and returns
--- 0 rows under AND (All) mode. StaffRosteringInfoWindow applies EXISTS match in Java.
+-- The Yes/No criterion is a UI flag only. SelectClause is au.IsActive (type-safe for
+-- Yes-No); Java clears the editor before super.getSQLWhere() so it never filters.
+-- Never use constant 'N' ('N'='Y' → 0 rows) or bare 0 ("non-negative only" on Yes-No).
+-- StaffRosteringInfoWindow applies EXISTS match in Java against AbERP_Related_Rostering_Needs_V.
 
 SET search_path TO adempiere;
 
@@ -24,7 +25,7 @@ BEGIN
       name = 'Show Unmatched Staff',
       description = 'When N (default), only staff matching Related Rostering Needs are shown. Credentials must be active and valid for the shift Start/End (not just today). Set Y to include unmatched staff.',
       help = 'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials (must cover the shift dates), gender mismatch, and restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
-      selectclause = '0',
+      selectclause = 'au.IsActive',
       columnname = 'AbERP_ShowUnmatchedStaff',
       isactive = 'Y',
       isdisplayed = 'N',
@@ -56,7 +57,7 @@ BEGIN
       'Show Unmatched Staff',
       'When N (default), only staff matching Related Rostering Needs are shown. Credentials must be active and valid for the shift Start/End (not just today). Set Y to include unmatched staff.',
       'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials (must cover the shift dates), gender mismatch, and restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
-      v_iw, 'Ab_ERP', '0', 320, 'N', 'Y',
+      v_iw, 'Ab_ERP', 'au.IsActive', 320, 'N', 'Y',
       20, 'a1b2c3d4-e5f6-7788-9900-aabbccdde003', 'AbERP_ShowUnmatchedStaff', 'N', 90, 'N', 'N',
       'N', 'Y', 'N', 'N', '='
     );

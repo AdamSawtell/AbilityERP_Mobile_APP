@@ -124,7 +124,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * Remove any Show-Unmatched flag fragments that InfoWindow may still emit
-	 * (legacy SelectClause {@code 'N'}, or {@code 0='Y'}/{@code 0='N'}).
+	 * (legacy SelectClause {@code 'N'} / {@code 0}, which break Yes-No criteria).
 	 */
 	private static String stripShowUnmatchedSql(String where) {
 		if (Util.isEmpty(where, true)) {
