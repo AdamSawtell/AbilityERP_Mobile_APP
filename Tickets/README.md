@@ -11,6 +11,8 @@ Create `Tickets/SAW###_<short_snake_function>/` when the work includes:
 
 Do **not** create a folder for app-only or meta/process tickets (`Kind: app` / `Kind: meta`).
 
+**One folder per project.** If two ticket IDs describe the same deliverable, keep a single `Tickets/SAW###_…` home and point the other ID at it in `docs/TICKETS.md` — do not leave a duplicate stub folder.
+
 ## Folder layout
 
 ```

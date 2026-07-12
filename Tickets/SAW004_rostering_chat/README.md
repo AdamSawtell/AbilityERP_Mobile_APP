@@ -4,13 +4,14 @@
 |--|--|
 | **Status** | done |
 | **Kind** | both |
-| **GitHub** | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) |
+| **GitHub** | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) (also [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) merged here) |
 | **Slug** | `SAW004_rostering_chat` |
-| **Also covers** | SAW006 “Requests window clone” ([#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6)) — same project |
 
 ## Goal
 
 Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_RequestUpdate`. The window is a trimmed **clone of Requests**, filtered to request type **Rostering Chat**, with reply/close aligned to the mobile Chat (`/tasks`) path.
+
+(Formerly tracked separately as SAW006 “Requests window clone” — same deliverable.)
 
 ## Source of truth
 
@@ -35,4 +36,4 @@ App chat inbox/sync must stay compatible with WebUI reply/close/status. Kind **b
 
 ## Packs
 
-- `AbilityERP-*-SAW004_rostering_chat-*` (do **not** pack as SAW006)
+- `AbilityERP-*-SAW004_rostering_chat-*`

@@ -22,7 +22,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW003 | `staff_rostering_info` | idempiere | Staff Rostering Info Window rewrite / UX / needs-match | in-progress | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) | [`Tickets/SAW003_…`](../Tickets/SAW003_staff_rostering_info/) |
 | SAW004 | `rostering_chat` | both | Rostering Chat WebUI and sync (Requests-window clone) | done | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) | [`Tickets/SAW004_…`](../Tickets/SAW004_rostering_chat/) |
 | SAW005 | `leave_and_credentials_fixes` | app | Leave submit, approved-leave UX icons, credentials list | done | [#5](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/5) | _(app — no folder)_ |
-| SAW006 | `requests_window_clone` | idempiere | **Duplicate of SAW004** — Requests clone = Rostering Chat | done | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | [`→ SAW004`](../Tickets/SAW004_rostering_chat/) / stub [`SAW006`](../Tickets/SAW006_requests_window_clone/) |
+| SAW006 | `requests_window_clone` | — | Merged into SAW004 (Requests clone = Rostering Chat) | done | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | [`Tickets/SAW004_rostering_chat`](../Tickets/SAW004_rostering_chat/) |
 | SAW007 | `activity_tab_integration` | idempiere | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | [`Tickets/SAW007_…`](../Tickets/SAW007_activity_tab_integration/) |
 | SAW008 | `build_from_scratch_review` | meta | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | _(no folder)_ |
 
