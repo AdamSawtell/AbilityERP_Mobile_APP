@@ -28,13 +28,13 @@ ORDER BY f.seqno;
 
 SELECT 'Processes' AS check_type, p.value, p.name, p.classname
 FROM ad_process p
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE');
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close');
 
 SELECT 'Access' AS check_type, p.value, r.name AS role_name, pa.isreadwrite
 FROM ad_process_access pa
 JOIN ad_process p ON p.ad_process_id = pa.ad_process_id
 JOIN ad_role r ON r.ad_role_id = pa.ad_role_id
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE') AND pa.isactive = 'Y'
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close') AND pa.isactive = 'Y'
 ORDER BY p.value, r.name;
 
 SELECT 'Request type' AS check_type, rt.r_requesttype_id, rt.name, rt.isactive

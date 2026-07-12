@@ -54,8 +54,8 @@ After deploy: **log out and log back in** on the WebUI.
 
 | Value | Class |
 |-------|-------|
-| `ROSTERING_CHAT_REPLY` | `com.aberp.rostering.chat.process.SendRosteringReply` |
-| `ROSTERING_CHAT_CLOSE` | `com.aberp.rostering.chat.process.CloseRosteringChat` |
+| `AbERP_RosteringChat_Send` | `com.aberp.rostering.chat.process.SendRosteringReply` |
+| `AbERP_RosteringChat_Close` | `com.aberp.rostering.chat.process.CloseRosteringChat` |
 
 ## Role access
 

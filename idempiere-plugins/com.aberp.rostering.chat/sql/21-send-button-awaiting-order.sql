@@ -270,7 +270,7 @@ SET showhelp = 'N',
     help = 'Type in Reply, then click Send Reply.',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_REPLY';
+WHERE value = 'AbERP_RosteringChat_Send';
 
 -- Process params: pull Reply from field, request from context
 UPDATE ad_process_para pp
@@ -285,7 +285,7 @@ SET defaultvalue = CASE pp.columnname
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND p.value = 'AbERP_RosteringChat_Send'
   AND pp.columnname IN ('Reply', 'AbERP_RosteringReply', 'R_Request_ID');
 
 -- 5) Updates tab: time order + Public only (hide Confidential duplicates)

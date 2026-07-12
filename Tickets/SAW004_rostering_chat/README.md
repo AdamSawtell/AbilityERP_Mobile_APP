@@ -28,7 +28,7 @@ Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_Request
 | Tabs | **Chat** (`R_Request`), **Updates** (`R_RequestUpdate`) |
 | Request type | **Rostering Chat** |
 | Menu | **Rostering Chat** (near Shift Rostered) |
-| Processes | `ROSTERING_CHAT_REPLY`, `ROSTERING_CHAT_CLOSE` |
+| Processes | `AbERP_RosteringChat_Send`, `AbERP_RosteringChat_Close` |
 
 ## Dependencies (app)
 

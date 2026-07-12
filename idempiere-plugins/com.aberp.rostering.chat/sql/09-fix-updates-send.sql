@@ -78,13 +78,13 @@ SET showhelp = 'Y',
     description = 'Sends your reply to the worker and saves it on the Updates tab.',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_REPLY';
+WHERE value = 'AbERP_RosteringChat_Send';
 
 UPDATE ad_process
 SET showhelp = 'Y',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_CLOSE';
+WHERE value = 'AbERP_RosteringChat_Close';
 
 -- R_Request_ID parameter (hidden from user via displaylogic, filled from context)
 DO $$
@@ -93,7 +93,7 @@ DECLARE
   v_para_id INTEGER;
   v_table_id INTEGER;
 BEGIN
-  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'ROSTERING_CHAT_REPLY' LIMIT 1;
+  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'AbERP_RosteringChat_Send' LIMIT 1;
   SELECT ad_table_id INTO v_table_id FROM ad_table WHERE tablename = 'R_Request' LIMIT 1;
 
   SELECT ad_process_para_id INTO v_para_id
@@ -121,8 +121,8 @@ BEGIN
       22, 'Y', 'N', 'Ab_ERP',
       '@R_Request_ID@', '@0@=1', -- hide (always false displaylogic)
       'N',
-      substring(md5('ROSTERING_CHAT_REPLY-para-req'), 1, 8) || '-' ||
-      substring(md5('ROSTERING_CHAT_REPLY-para-req'), 9, 4) || '-4f11-8511-000000000011'
+      substring(md5('AbERP_RosteringChat_Send-para-req'), 1, 8) || '-' ||
+      substring(md5('AbERP_RosteringChat_Send-para-req'), 9, 4) || '-4f11-8511-000000000011'
     );
   ELSE
     UPDATE ad_process_para
@@ -161,8 +161,8 @@ BEGIN
       'Reply', 'N',
       2000, 'Y', 'N', 'Ab_ERP',
       '@AbERP_RosteringReply@', 'N',
-      substring(md5('ROSTERING_CHAT_REPLY-para-Reply2'), 1, 8) || '-' ||
-      substring(md5('ROSTERING_CHAT_REPLY-para-Reply2'), 9, 4) || '-4f12-8512-000000000012'
+      substring(md5('AbERP_RosteringChat_Send-para-Reply2'), 1, 8) || '-' ||
+      substring(md5('AbERP_RosteringChat_Send-para-Reply2'), 9, 4) || '-4f12-8512-000000000012'
     );
   ELSE
     UPDATE ad_process_para
@@ -183,7 +183,7 @@ DECLARE
   v_process_id INTEGER;
   v_para_id INTEGER;
 BEGIN
-  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'ROSTERING_CHAT_CLOSE' LIMIT 1;
+  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'AbERP_RosteringChat_Close' LIMIT 1;
 
   SELECT ad_process_para_id INTO v_para_id
   FROM ad_process_para
@@ -207,8 +207,8 @@ BEGIN
       19, 'R_Request_ID', 'N',
       22, 'Y', 'N', 'Ab_ERP',
       '@R_Request_ID@', '@0@=1', 'N',
-      substring(md5('ROSTERING_CHAT_CLOSE-para-req'), 1, 8) || '-' ||
-      substring(md5('ROSTERING_CHAT_CLOSE-para-req'), 9, 4) || '-4f13-8513-000000000013'
+      substring(md5('AbERP_RosteringChat_Close-para-req'), 1, 8) || '-' ||
+      substring(md5('AbERP_RosteringChat_Close-para-req'), 9, 4) || '-4f13-8513-000000000013'
     );
   ELSE
     UPDATE ad_process_para
@@ -243,5 +243,5 @@ WHERE w.name = 'Rostering Chat' AND t.name = 'Updates';
 SELECT 'paras' AS check_type, p.value, pp.seqno, pp.columnname, pp.defaultvalue, pp.ismandatory, pp.displaylogic
 FROM ad_process p
 JOIN ad_process_para pp ON pp.ad_process_id = p.ad_process_id AND pp.isactive = 'Y'
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE')
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close')
 ORDER BY p.value, pp.seqno;

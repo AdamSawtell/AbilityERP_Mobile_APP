@@ -80,13 +80,13 @@ SET showhelp = 'N',
     description = 'Sends the Reply field to the worker: creates an Updates row and clears the rostering queue.',
     updated = NOW(),
     updatedby = 100
-WHERE p.value = 'ROSTERING_CHAT_REPLY';
+WHERE p.value = 'AbERP_RosteringChat_Send';
 
 UPDATE ad_process p
 SET showhelp = 'N',
     updated = NOW(),
     updatedby = 100
-WHERE p.value = 'ROSTERING_CHAT_CLOSE';
+WHERE p.value = 'AbERP_RosteringChat_Close';
 
 -- Reply parameter: filled from @AbERP_RosteringReply@ when button is clicked (no dialog)
 INSERT INTO ad_process_para (
@@ -111,11 +111,11 @@ SELECT
   2000, 'N', 'N', 'Ab_ERP',
   '@AbERP_RosteringReply@', 'N',
   (
-    substring(md5('ROSTERING_CHAT_REPLY-para-Reply'), 1, 8) || '-' ||
-    substring(md5('ROSTERING_CHAT_REPLY-para-Reply'), 9, 4) || '-4f01-8501-000000000001'
+    substring(md5('AbERP_RosteringChat_Send-para-Reply'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringChat_Send-para-Reply'), 9, 4) || '-4f01-8501-000000000001'
   )
 FROM ad_process p
-WHERE p.value = 'ROSTERING_CHAT_REPLY'
+WHERE p.value = 'AbERP_RosteringChat_Send'
   AND NOT EXISTS (
     SELECT 1 FROM ad_process_para pp
     WHERE pp.ad_process_id = p.ad_process_id AND pp.columnname = 'Reply' AND pp.isactive = 'Y'
@@ -130,7 +130,7 @@ SET isactive = 'Y',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND p.value = 'AbERP_RosteringChat_Send'
   AND pp.columnname = 'Reply';
 
 -- Keep Reply field editable
@@ -166,4 +166,4 @@ WHERE w.name = 'Rostering Chat' AND t.name = 'Updates';
 SELECT 'process' AS check_type, p.value, p.ad_table_id, p.showhelp, pp.columnname, pp.defaultvalue
 FROM ad_process p
 LEFT JOIN ad_process_para pp ON pp.ad_process_id = p.ad_process_id AND pp.isactive = 'Y'
-WHERE p.value = 'ROSTERING_CHAT_REPLY';
+WHERE p.value = 'AbERP_RosteringChat_Send';

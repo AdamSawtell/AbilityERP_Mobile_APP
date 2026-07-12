@@ -116,7 +116,7 @@ SET name = 'Send Chat',
     help = 'Type your message in Reply, then click Send Chat.',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_REPLY';
+WHERE value = 'AbERP_RosteringChat_Send';
 
 UPDATE ad_column
 SET name = 'Send Chat',

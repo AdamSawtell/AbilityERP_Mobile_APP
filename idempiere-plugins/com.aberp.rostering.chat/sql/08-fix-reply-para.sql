@@ -8,7 +8,7 @@ SET isactive = 'N',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND p.value = 'AbERP_RosteringChat_Send'
   AND pp.columnname = 'Message';
 
 UPDATE ad_process p
@@ -16,7 +16,7 @@ SET showhelp = 'N',
     description = 'Sends the Reply field to the worker: creates an Updates row and clears the rostering queue.',
     updated = NOW(),
     updatedby = 100
-WHERE p.value = 'ROSTERING_CHAT_REPLY';
+WHERE p.value = 'AbERP_RosteringChat_Send';
 
 -- Reuse existing para row if present (any columnname at seq 10), else insert
 DO $$
@@ -24,7 +24,7 @@ DECLARE
   v_process_id INTEGER;
   v_para_id INTEGER;
 BEGIN
-  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'ROSTERING_CHAT_REPLY' LIMIT 1;
+  SELECT ad_process_id INTO v_process_id FROM ad_process WHERE value = 'AbERP_RosteringChat_Send' LIMIT 1;
 
   SELECT ad_process_para_id INTO v_para_id
   FROM ad_process_para
@@ -78,8 +78,8 @@ BEGIN
       2000, 'N', 'N', 'Ab_ERP',
       '@AbERP_RosteringReply@', 'N',
       (
-        substring(md5('ROSTERING_CHAT_REPLY-para-Reply'), 1, 8) || '-' ||
-        substring(md5('ROSTERING_CHAT_REPLY-para-Reply'), 9, 4) || '-4f01-8501-000000000001'
+        substring(md5('AbERP_RosteringChat_Send-para-Reply'), 1, 8) || '-' ||
+        substring(md5('AbERP_RosteringChat_Send-para-Reply'), 9, 4) || '-4f01-8501-000000000001'
       )
     );
   END IF;
@@ -112,4 +112,4 @@ WHERE w.name = 'Rostering Chat' AND t.name = 'Updates';
 SELECT 'para' AS check_type, pp.columnname, pp.defaultvalue, pp.isactive, pp.seqno
 FROM ad_process_para pp
 JOIN ad_process p ON p.ad_process_id = pp.ad_process_id
-WHERE p.value = 'ROSTERING_CHAT_REPLY';
+WHERE p.value = 'AbERP_RosteringChat_Send';

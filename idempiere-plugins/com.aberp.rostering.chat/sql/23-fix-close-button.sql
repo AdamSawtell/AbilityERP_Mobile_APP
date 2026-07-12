@@ -12,7 +12,7 @@ SET showhelp = 'N',
     help = 'Closes the thread. The worker app can then start a new chat.',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_CLOSE';
+WHERE value = 'AbERP_RosteringChat_Close';
 
 -- Hidden context param only
 UPDATE ad_process_para pp
@@ -24,7 +24,7 @@ SET ismandatory = 'N',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_CLOSE'
+  AND p.value = 'AbERP_RosteringChat_Close'
   AND pp.columnname = 'R_Request_ID';
 
 -- 2) Re-bind Close button column → process
@@ -40,7 +40,7 @@ FROM ad_table tb, ad_process p
 WHERE c.ad_table_id = tb.ad_table_id
   AND tb.tablename = 'R_Request'
   AND c.columnname = 'AbERP_CloseRosteringChat'
-  AND p.value = 'ROSTERING_CHAT_CLOSE';
+  AND p.value = 'AbERP_RosteringChat_Close';
 
 UPDATE ad_field f
 SET isdisplayed = 'Y',
@@ -91,7 +91,7 @@ WHERE r.r_requesttype_id = rt.r_requesttype_id
   AND r.r_status_id = 102
   AND r.isactive = 'Y';
 
-SELECT 'close_proc' AS c, value, showhelp, classname FROM ad_process WHERE value = 'ROSTERING_CHAT_CLOSE';
+SELECT 'close_proc' AS c, value, showhelp, classname FROM ad_process WHERE value = 'AbERP_RosteringChat_Close';
 SELECT 'awaiting' AS c, LEFT(columnsql, 200) FROM ad_column WHERE columnname = 'AbERP_ChatAwaitingReply';
 SELECT 'migrated' AS c, COUNT(*) FROM r_request r
 JOIN r_requesttype rt ON rt.r_requesttype_id = r.r_requesttype_id

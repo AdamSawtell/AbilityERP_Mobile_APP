@@ -183,13 +183,13 @@ SET ismandatory = 'N',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value IN ('ROSTERING_CHAT_CLOSE', 'ROSTERING_CHAT_REPLY');
+  AND p.value IN ('AbERP_RosteringChat_Close', 'AbERP_RosteringChat_Send');
 
 UPDATE ad_process
 SET showhelp = 'S',
     updated = NOW(),
     updatedby = 100
-WHERE value IN ('ROSTERING_CHAT_CLOSE', 'ROSTERING_CHAT_REPLY');
+WHERE value IN ('AbERP_RosteringChat_Close', 'AbERP_RosteringChat_Send');
 
 -- Hidden defaults so NEW chats get the right type + queue
 DO $$

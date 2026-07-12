@@ -519,6 +519,12 @@ END $$;
 -- ---------------------------------------------------------------------------
 -- 6. Processes
 -- ---------------------------------------------------------------------------
+-- Migrate legacy search keys if present
+UPDATE ad_process SET value = 'AbERP_RosteringChat_Send', updated = NOW(), updatedby = 100
+WHERE value = 'ROSTERING_CHAT_REPLY';
+UPDATE ad_process SET value = 'AbERP_RosteringChat_Close', updated = NOW(), updatedby = 100
+WHERE value = 'ROSTERING_CHAT_CLOSE';
+
 INSERT INTO ad_process (
   ad_process_id, ad_client_id, ad_org_id, isactive,
   created, createdby, updated, updatedby,
@@ -534,20 +540,21 @@ SELECT
   (SELECT COALESCE(MAX(ad_process_id), 0) + 1 FROM ad_process),
   0, 0, 'Y',
   NOW(), 100, NOW(), 100,
-  'ROSTERING_CHAT_REPLY', 'Send to Worker',
-  'Send the Last Result reply to the worker: creates an update, assigns the worker as User/Contact, and clears Role.',
+  'AbERP_RosteringChat_Send', 'Send Chat',
+  'Send the Reply field to the worker app.',
   '3', 'Ab_ERP',
   'N', 'N',
   'com.aberp.rostering.chat.process.SendRosteringReply',
   'N', 'N', 'S',
   'N',
   (
-    substring(md5('ROSTERING_CHAT_REPLY-process'), 1, 8) || '-' ||
-    substring(md5('ROSTERING_CHAT_REPLY-process'), 9, 4) || '-4b01-8101-000000000001'
+    substring(md5('AbERP_RosteringChat_Send-process'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringChat_Send-process'), 9, 4) || '-4b01-8101-000000000001'
   ),
   'P', 'N'
 WHERE NOT EXISTS (
-  SELECT 1 FROM ad_process WHERE value = 'ROSTERING_CHAT_REPLY'
+  SELECT 1 FROM ad_process
+  WHERE value IN ('AbERP_RosteringChat_Send', 'ROSTERING_CHAT_REPLY')
 );
 
 INSERT INTO ad_process (
@@ -565,40 +572,41 @@ SELECT
   (SELECT COALESCE(MAX(ad_process_id), 0) + 1 FROM ad_process),
   0, 0, 'Y',
   NOW(), 100, NOW(), 100,
-  'ROSTERING_CHAT_CLOSE', 'Close Chat',
-  'Close this mobile chat thread. The worker gets a fresh thread on their next message.',
+  'AbERP_RosteringChat_Close', 'Close Chat',
+  'Close this chat so the worker can start a new conversation.',
   '3', 'Ab_ERP',
   'N', 'N',
   'com.aberp.rostering.chat.process.CloseRosteringChat',
   'N', 'N', 'S',
   'N',
   (
-    substring(md5('ROSTERING_CHAT_CLOSE-process'), 1, 8) || '-' ||
-    substring(md5('ROSTERING_CHAT_CLOSE-process'), 9, 4) || '-4b02-8102-000000000002'
+    substring(md5('AbERP_RosteringChat_Close-process'), 1, 8) || '-' ||
+    substring(md5('AbERP_RosteringChat_Close-process'), 9, 4) || '-4b02-8102-000000000002'
   ),
   'P', 'N'
 WHERE NOT EXISTS (
-  SELECT 1 FROM ad_process WHERE value = 'ROSTERING_CHAT_CLOSE'
+  SELECT 1 FROM ad_process
+  WHERE value IN ('AbERP_RosteringChat_Close', 'ROSTERING_CHAT_CLOSE')
 );
 
--- Send to Worker: no parameter dialog (reply typed in Last Result field)
+-- Send Chat: no parameter dialog (reply typed in Reply field)
 UPDATE ad_process
-SET name = 'Send to Worker',
-    description = 'Send the Last Result reply to the worker: creates an update, assigns the worker as User/Contact, and clears Role.',
+SET name = 'Send Chat',
+    description = 'Send the Reply field to the worker app.',
     showhelp = 'S',
     updated = NOW(),
     updatedby = 100
-WHERE value = 'ROSTERING_CHAT_REPLY';
+WHERE value = 'AbERP_RosteringChat_Send';
 
 UPDATE ad_process_para pp
 SET isactive = 'N', updated = NOW(), updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND p.value = 'AbERP_RosteringChat_Send'
   AND pp.columnname = 'Message';
 
 UPDATE ad_element
-SET name = 'Send to Worker', printname = 'Send to Worker', updated = NOW(), updatedby = 100
+SET name = 'Send Chat', printname = 'Send Chat', updated = NOW(), updatedby = 100
 WHERE columnname = 'AbERP_SendRosteringReply';
 
 -- ---------------------------------------------------------------------------
@@ -740,7 +748,7 @@ SELECT
     substring(md5('AbERP_SendRosteringReply-col'), 9, 4) || '-4c03-8203-000000000003'
   )
 FROM ad_element e
-JOIN ad_process p ON p.value = 'ROSTERING_CHAT_REPLY'
+JOIN ad_process p ON p.value = 'AbERP_RosteringChat_Send'
 CROSS JOIN ad_table tb
 WHERE e.columnname = 'AbERP_SendRosteringReply'
   AND tb.tablename = 'R_Request' AND tb.isactive = 'Y'
@@ -780,7 +788,7 @@ SELECT
     substring(md5('AbERP_CloseRosteringChat-col'), 9, 4) || '-4c04-8204-000000000004'
   )
 FROM ad_element e
-JOIN ad_process p ON p.value = 'ROSTERING_CHAT_CLOSE'
+JOIN ad_process p ON p.value = 'AbERP_RosteringChat_Close'
 CROSS JOIN ad_table tb
 WHERE e.columnname = 'AbERP_CloseRosteringChat'
   AND tb.tablename = 'R_Request' AND tb.isactive = 'Y'
@@ -964,7 +972,7 @@ CROSS JOIN (
   UNION ALL
   SELECT 0, 0
 ) AS roles(ad_role_id, ad_client_id)
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE')
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close')
   AND NOT EXISTS (
     SELECT 1 FROM ad_process_access x
     WHERE x.ad_process_id = p.ad_process_id
@@ -1170,13 +1178,13 @@ ORDER BY t.seqno;
 
 SELECT 'Processes' AS check_type, p.value, p.classname, p.isactive
 FROM ad_process p
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE');
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close');
 
 SELECT 'Process access' AS check_type, p.value, r.name AS role_name
 FROM ad_process_access pa
 JOIN ad_process p ON p.ad_process_id = pa.ad_process_id
 JOIN ad_role r ON r.ad_role_id = pa.ad_role_id
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE') AND pa.isactive = 'Y'
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close') AND pa.isactive = 'Y'
 ORDER BY p.value, r.name;
 
 SELECT 'Button fields' AS check_type, f.name, f.isdisplayed, f.displaylogic
@@ -1193,9 +1201,9 @@ BEGIN
     RAISE EXCEPTION 'Install FAILED: Rostering Chat window not created';
   END IF;
   IF NOT EXISTS (
-    SELECT 1 FROM ad_process WHERE value = 'ROSTERING_CHAT_REPLY' AND isactive = 'Y'
+    SELECT 1 FROM ad_process WHERE value = 'AbERP_RosteringChat_Send' AND isactive = 'Y'
   ) THEN
-    RAISE EXCEPTION 'Install FAILED: ROSTERING_CHAT_REPLY process not created';
+    RAISE EXCEPTION 'Install FAILED: AbERP_RosteringChat_Send process not created';
   END IF;
   IF NOT EXISTS (
     SELECT 1 FROM r_requesttype WHERE name = 'Rostering Chat' AND isactive = 'Y'

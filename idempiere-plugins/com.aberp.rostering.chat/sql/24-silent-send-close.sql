@@ -10,7 +10,7 @@ UPDATE ad_process
 SET showhelp = 'S',
     updated = NOW(),
     updatedby = 100
-WHERE value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE');
+WHERE value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close');
 
 -- 2) Hide / deactivate ALL process parameters (visible params force a dialog)
 UPDATE ad_process_para pp
@@ -21,7 +21,7 @@ SET isactive = 'N',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE');
+  AND p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close');
 
 -- Keep R_Request_ID as inactive context-only default (process uses getRecord_ID)
 UPDATE ad_process_para pp
@@ -33,7 +33,7 @@ SET isactive = 'Y',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE')
+  AND p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close')
   AND pp.columnname = 'R_Request_ID';
 
 -- Reply param: inactive — form field AbERP_RosteringReply is the source of truth
@@ -45,7 +45,7 @@ SET isactive = 'N',
     updatedby = 100
 FROM ad_process p
 WHERE pp.ad_process_id = p.ad_process_id
-  AND p.value = 'ROSTERING_CHAT_REPLY'
+  AND p.value = 'AbERP_RosteringChat_Send'
   AND pp.columnname IN ('Reply', 'AbERP_RosteringReply', 'Message');
 
 -- 3) Reply field: editable compose box on the Chat tab
@@ -89,7 +89,7 @@ FROM ad_table tb, ad_process p
 WHERE c.ad_table_id = tb.ad_table_id
   AND tb.tablename = 'R_Request'
   AND c.columnname = 'AbERP_SendRosteringReply'
-  AND p.value = 'ROSTERING_CHAT_REPLY';
+  AND p.value = 'AbERP_RosteringChat_Send';
 
 UPDATE ad_field f
 SET isdisplayed = 'Y',
@@ -120,7 +120,7 @@ FROM ad_table tb, ad_process p
 WHERE c.ad_table_id = tb.ad_table_id
   AND tb.tablename = 'R_Request'
   AND c.columnname = 'AbERP_CloseRosteringChat'
-  AND p.value = 'ROSTERING_CHAT_CLOSE';
+  AND p.value = 'AbERP_RosteringChat_Close';
 
 UPDATE ad_field f
 SET isdisplayed = 'Y',
@@ -139,11 +139,11 @@ WHERE f.ad_column_id = c.ad_column_id
   AND c.columnname = 'AbERP_CloseRosteringChat';
 
 SELECT 'proc' AS c, value, showhelp FROM ad_process
-WHERE value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE')
+WHERE value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close')
 ORDER BY value;
 
 SELECT 'para' AS c, p.value, pp.columnname, pp.isactive, pp.displaylogic, pp.ismandatory
 FROM ad_process_para pp
 JOIN ad_process p ON p.ad_process_id = pp.ad_process_id
-WHERE p.value IN ('ROSTERING_CHAT_REPLY', 'ROSTERING_CHAT_CLOSE')
+WHERE p.value IN ('AbERP_RosteringChat_Send', 'AbERP_RosteringChat_Close')
 ORDER BY p.value, pp.seqno;
