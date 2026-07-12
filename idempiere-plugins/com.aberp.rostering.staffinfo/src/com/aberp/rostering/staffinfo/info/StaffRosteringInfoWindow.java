@@ -27,7 +27,8 @@ import org.zkoss.zul.Vbox;
  *   <li>Context banner with shift document, dates and times</li>
  *   <li>Shift-window leave / overlap exclusions (no {@code @StartDate@} in AD WhereClause)</li>
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
- *       with AD tickbox {@code Show Unmatched Staff} to include non-matches</li>
+ *       with AD tickbox {@code Show Unmatched Staff} to include non-matches;
+ *       credentials must be active and valid for the shift Start/End dates</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
@@ -264,7 +265,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		if (showUnmatched) {
 			sb.append(" Show Unmatched Staff is Y — including staff who do not meet these needs.");
 		} else {
-			sb.append(" Showing staff who match these needs only (tick Show Unmatched Staff to include others).");
+			sb.append(" Showing staff who match these needs only (credentials must be active and valid for the shift dates; tick Show Unmatched Staff to include others).");
 		}
 	}
 
@@ -351,6 +352,10 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/**
 	 * Staff must satisfy every Related Rostering Need (SR/LOC/RS view): credentials,
 	 * gender, and must not be a restricted employee. Uses EXISTS — not FROM joins.
+	 * <p>
+	 * Credentials must be active and <em>in date for the whole shift window</em>:
+	 * StartDate null or on/before shift start; ExpiryDate null or on/after shift end
+	 * (not merely CURRENT_DATE).
 	 */
 	private String buildNeedsMatchSql() {
 		Integer shiftId = resolveCurrentShiftId();
@@ -363,6 +368,14 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		int id = shiftId.intValue();
+		Timestamp[] range = resolveShiftDateRange();
+		String shiftStartSql = null;
+		String shiftEndSql = null;
+		if (range != null && range[0] != null && range[1] != null) {
+			shiftStartSql = DB.TO_DATE(range[0]);
+			shiftEndSql = DB.TO_DATE(range[1]);
+		}
+
 		StringBuilder sql = new StringBuilder();
 
 		if (needs.crdCount > 0) {
@@ -376,9 +389,18 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					.append("WHERE ca.IsActive = 'Y' ")
 					.append("AND ca.AbERP_Credentials_ID = rv.AbERP_Credentials_ID ")
 					.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
-					.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ")
-					.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)")
-					.append("))");
+					.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ");
+			if (shiftStartSql != null && shiftEndSql != null) {
+				// Valid for the whole shift window (not CURRENT_DATE):
+				// started on/before shift start; expires on/after shift end (or never).
+				sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= ").append(shiftStartSql).append(") ")
+						.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= ")
+						.append(shiftEndSql).append(')');
+			} else {
+				sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= CURRENT_DATE) ")
+						.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)");
+			}
+			sql.append("))");
 		}
 
 		if (needs.gdrCount > 0) {

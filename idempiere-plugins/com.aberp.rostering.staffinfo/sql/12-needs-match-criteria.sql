@@ -23,8 +23,8 @@ BEGIN
   ) THEN
     UPDATE ad_infocolumn SET
       name = 'Show Unmatched Staff',
-      description = 'When N (default), only staff matching Related Rostering Needs (credentials/gender/restricted) are shown. Set Y to include unmatched staff.',
-      help = 'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials or gender, and excludes restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
+      description = 'When N (default), only staff matching Related Rostering Needs are shown. Credentials must be active and valid for the shift Start/End (not just today). Set Y to include unmatched staff.',
+      help = 'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials (must cover the shift dates), gender mismatch, and restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
       selectclause = '''N''',
       columnname = 'AbERP_ShowUnmatchedStaff',
       isactive = 'Y',
@@ -55,8 +55,8 @@ BEGIN
       nextid((SELECT ad_sequence_id::integer FROM ad_sequence WHERE name = 'AD_InfoColumn' AND istableid = 'Y' LIMIT 1), 'N'::varchar),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Show Unmatched Staff',
-      'When N (default), only staff matching Related Rostering Needs (credentials/gender/restricted) are shown. Set Y to include unmatched staff.',
-      'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials or gender, and excludes restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
+      'When N (default), only staff matching Related Rostering Needs are shown. Credentials must be active and valid for the shift Start/End (not just today). Set Y to include unmatched staff.',
+      'Related needs come from the shift Related Rostering Needs tab (location, support receiver, shift rules). Default hides staff missing required credentials (must cover the shift dates), gender mismatch, and restricted employees. Tick Y to list everyone (still applies leave/overlap filters).',
       v_iw, 'Ab_ERP', '''N''', 320, 'N', 'Y',
       20, 'a1b2c3d4-e5f6-7788-9900-aabbccdde003', 'AbERP_ShowUnmatchedStaff', 'N', 90, 'N', 'N',
       'N', 'Y', 'N', 'N', '='
@@ -64,8 +64,8 @@ BEGIN
   END IF;
 
   UPDATE ad_infowindow SET
-    description = 'Fast staff picker for Shift Employee fill. Matches Related Rostering Needs by default; leave/overlap by shift dates.',
-    help = 'Find by User Name (wildcards auto-added). From Shift Employee: hides approved leave / overlapping roster for the shift window; shows only staff matching Related Rostering Needs (credentials, gender, restricted employee) unless Show Unmatched Staff is Y. On Approved Leave (today) remains an extra filter. Banner shows shift times and needs summary.',
+    description = 'Fast staff picker for Shift Employee fill. Matches Related Rostering Needs by default; credentials valid for shift dates; leave/overlap by shift window.',
+    help = 'Find by User Name (wildcards auto-added). From Shift Employee: hides approved leave / overlapping roster for the shift window; shows only staff matching Related Rostering Needs (credentials must be active and cover the shift Start/End, plus gender / restricted employee) unless Show Unmatched Staff is Y. On Approved Leave (today) remains an extra filter. Banner shows shift times and needs summary.',
     updated = NOW(),
     updatedby = 100
   WHERE ad_infowindow_id = v_iw;
