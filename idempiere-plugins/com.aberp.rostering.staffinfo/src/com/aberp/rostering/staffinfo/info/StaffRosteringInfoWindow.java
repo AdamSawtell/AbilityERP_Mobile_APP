@@ -2,7 +2,10 @@ package com.aberp.rostering.staffinfo.info;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import org.adempiere.webui.component.Checkbox;
@@ -16,7 +19,6 @@ import org.compiere.model.MInfoWindow;
 import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
-import org.compiere.util.Language;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
@@ -27,10 +29,10 @@ import org.zkoss.zul.Vbox;
  * Staff Rostering Info Window enhancements:
  * <ul>
  *   <li>Auto-wrap {@code %} on Like criteria</li>
- *   <li>Context banner with shift document, dates and times</li>
- *   <li>Shift-window leave / overlap exclusions (no {@code @StartDate@} in AD WhereClause)</li>
+ *   <li>Context banner (Shift / Required / Filters) with credential names</li>
+ *   <li>Shift-window leave / overlap exclusions (toggle via Show Unavailable Staff)</li>
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
- *       with AD tickbox {@code Show Unmatched Staff} to include non-matches;
+ *       with Show Unmatched Staff to include non-matches;
  *       credentials must be active and valid for the shift Start/End dates</li>
  * </ul>
  */
@@ -42,6 +44,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private final GridField launchField;
 	private Label contextBanner;
 	private Checkbox showUnmatchedCheckbox;
+	private Checkbox showUnavailableCheckbox;
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -106,7 +109,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			// when non-empty — never strip that leading AND.
 			String where = stripShowUnmatchedSql(super.getSQLWhere());
 			StringBuilder extra = new StringBuilder();
-			appendClause(extra, buildShiftDateEligibilitySql());
+			if (!isShowUnavailableSelected()) {
+				appendClause(extra, buildShiftDateEligibilitySql());
+			}
 
 			boolean showUnmatched = isShowUnmatchedSelected() || isYes(savedShowUnmatched);
 			if (!showUnmatched) {
@@ -305,14 +310,26 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				"display:block;width:100%;box-sizing:border-box;"
 						+ "padding:8px 10px;margin:0;"
 						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
-						+ "font-size:12px;line-height:1.35;white-space:normal;");
+						+ "font-size:12px;line-height:1.45;white-space:pre-line;");
+
+		showUnavailableCheckbox = new Checkbox();
+		showUnavailableCheckbox.setText("Show Unavailable Staff");
+		showUnavailableCheckbox.setTooltiptext(
+				"When unticked (default), staff on approved leave or already rostered on an "
+						+ "overlapping shift for this window are hidden. Tick to include them.");
+		showUnavailableCheckbox.setChecked(false);
+		showUnavailableCheckbox.addEventListener(Events.ON_CHECK, event -> {
+			if (contextBanner != null) {
+				contextBanner.setValue(buildContextBannerText());
+			}
+		});
 
 		showUnmatchedCheckbox = new Checkbox();
 		showUnmatchedCheckbox.setText("Show Unmatched Staff");
 		showUnmatchedCheckbox.setTooltiptext(
 				"When unticked (default), only staff matching Related Rostering Needs are listed. "
 						+ "Credentials must be active and valid for the shift Start/End. "
-						+ "Tick to include everyone (leave/overlap filters still apply).");
+						+ "Tick to include staff who do not meet those needs.");
 		showUnmatchedCheckbox.setChecked(false);
 		showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
 			if (contextBanner != null) {
@@ -322,7 +339,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		Hbox flagRow = new Hbox();
 		flagRow.setWidth("100%");
-		flagRow.setSpacing("8px");
+		flagRow.setSpacing("16px");
+		flagRow.appendChild(showUnavailableCheckbox);
 		flagRow.appendChild(showUnmatchedCheckbox);
 
 		Vbox header = new Vbox();
@@ -387,46 +405,52 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		Timestamp[] range = resolveShiftDisplayRange();
 		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
+		boolean showUnavailable = isShowUnavailableSelected();
 		boolean showUnmatched = isShowUnmatchedSelected();
 
-		if (range != null && range[0] != null && range[1] != null) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Shift filter active");
-			if (!Util.isEmpty(docNo, true)) {
-				sb.append(" (").append(docNo).append(')');
+		if (range == null || range[0] == null || range[1] == null) {
+			if (shiftId != null && shiftId.intValue() > 0) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? shiftId : docNo);
+				sb.append(" | (no Start/End times in context)\n");
+				sb.append("Required: ").append(needs.requiredLine()).append('\n');
+				sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials()));
+				return sb.toString();
 			}
-			sb.append(": ").append(formatDateTime(range[0])).append(" – ").append(formatDateTime(range[1]));
-			sb.append(". Hiding staff on approved leave or already rostered on an overlapping shift.");
-			appendNeedsBanner(sb, needs, showUnmatched);
-			return sb.toString();
+			return "No shift in context. Open from Shift → Employee to apply leave/overlap and "
+					+ "required-credential filters.\n"
+					+ "Required: (none)\n"
+					+ "Filters: Reminder: Check employee alerts before assigning.";
 		}
 
-		if (shiftId != null && shiftId.intValue() > 0) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Shift context");
-			if (!Util.isEmpty(docNo, true)) {
-				sb.append(" (").append(docNo).append(')');
-			}
-			sb.append(" — no Start/End dates for leave/overlap.");
-			appendNeedsBanner(sb, needs, showUnmatched);
-			return sb.toString();
-		}
-
-		return "No shift Start/End in context. Only the On Approved Leave (today) filter applies — "
-				+ "open from Shift → Employee to use shift-date leave/overlap and related needs matching.";
+		StringBuilder sb = new StringBuilder();
+		sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? "?" : docNo);
+		sb.append(" | ").append(formatBannerRange(range[0], range[1])).append('\n');
+		sb.append("Required: ").append(needs.requiredLine()).append('\n');
+		sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials()));
+		return sb.toString();
 	}
 
-	private void appendNeedsBanner(StringBuilder sb, NeedsSummary needs, boolean showUnmatched) {
-		if (needs == null || !needs.hasAny()) {
-			sb.append(" No related rostering needs on this shift.");
-			return;
-		}
-		sb.append(' ').append(needs.describe());
-		if (showUnmatched) {
-			sb.append(" Show Unmatched Staff is Y — including staff who do not meet these needs.");
+	private static String buildFiltersLine(boolean showUnavailable, boolean showUnmatched,
+			boolean hasCredentials) {
+		StringBuilder sb = new StringBuilder("Filters: ");
+		if (showUnavailable) {
+			sb.append("Including unavailable staff and overlapping shifts");
 		} else {
-			sb.append(" Showing staff who match these needs only (credentials must be active and valid for the shift dates; tick Show Unmatched Staff to include others).");
+			sb.append("Excluding unavailable staff and overlapping shifts")
+					.append(" (tick \"Show Unavailable Staff\" to include)");
 		}
+		sb.append("; ");
+		if (!hasCredentials) {
+			sb.append("no required credentials on this shift");
+		} else if (showUnmatched) {
+			sb.append("including staff without valid required credentials");
+		} else {
+			sb.append("showing only staff with valid required credentials")
+					.append(" (tick \"Show Unmatched Staff\" to include)");
+		}
+		sb.append(". Reminder: Check employee alerts before assigning.");
+		return sb.toString();
 	}
 
 	private boolean isShowUnmatchedSelected() {
@@ -437,10 +461,20 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		return ed != null && isYes(ed.getValue());
 	}
 
-	private String formatDateTime(Timestamp ts) {
-		Language lang = Env.getLanguage(Env.getCtx());
-		SimpleDateFormat df = DisplayType.getDateFormat(DisplayType.DateTime, lang);
-		return df.format(ts);
+	private boolean isShowUnavailableSelected() {
+		return showUnavailableCheckbox != null && showUnavailableCheckbox.isChecked();
+	}
+
+	/** Banner range: {@code 9 Jul 2026, 4:00 PM – 11:00 PM}. */
+	private String formatBannerRange(Timestamp start, Timestamp end) {
+		SimpleDateFormat day = new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH);
+		SimpleDateFormat time = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
+		String startDay = day.format(start);
+		String endDay = day.format(end);
+		if (startDay.equals(endDay)) {
+			return startDay + ", " + time.format(start) + " – " + time.format(end);
+		}
+		return startDay + ", " + time.format(start) + " – " + endDay + ", " + time.format(end);
 	}
 
 	/**
@@ -599,31 +633,66 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			return NeedsSummary.EMPTY;
 		}
 		int id = shiftId.intValue();
-		int crd = DB.getSQLValue(null,
-				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+		List<String> required = new ArrayList<>();
+
+		String credNames = DB.getSQLValueString(null,
+				"SELECT string_agg(x.name, ', ' ORDER BY x.name) FROM ("
+						+ "SELECT DISTINCT c.Name AS name FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "INNER JOIN AbERP_Credentials c ON (c.AbERP_Credentials_ID = rv.AbERP_Credentials_ID) "
 						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
-						+ "AND rv.AbERP_NeedType='CRD' AND COALESCE(rv.AbERP_Credentials_ID,0)>0",
+						+ "AND rv.AbERP_NeedType='CRD' AND COALESCE(rv.AbERP_Credentials_ID,0)>0"
+						+ ") x",
 				id);
-		int gdr = DB.getSQLValue(null,
-				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+		int crd = 0;
+		if (!Util.isEmpty(credNames, true)) {
+			for (String part : credNames.split(",")) {
+				String name = part.trim();
+				if (!name.isEmpty()) {
+					required.add(name);
+					crd++;
+				}
+			}
+		}
+
+		String genderNames = DB.getSQLValueString(null,
+				"SELECT string_agg(x.name, ', ' ORDER BY x.name) FROM ("
+						+ "SELECT DISTINCT g.Name AS name FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "INNER JOIN AbERP_Gender g ON (g.AbERP_Gender_ID = rv.AbERP_Gender_ID) "
 						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
-						+ "AND rv.AbERP_NeedType='GDR' AND COALESCE(rv.AbERP_Gender_ID,0)>0",
+						+ "AND rv.AbERP_NeedType='GDR' AND COALESCE(rv.AbERP_Gender_ID,0)>0"
+						+ ") x",
 				id);
-		int emp = DB.getSQLValue(null,
-				"SELECT COUNT(*) FROM AbERP_Related_Rostering_Needs_V rv "
+		int gdr = 0;
+		if (!Util.isEmpty(genderNames, true)) {
+			for (String part : genderNames.split(",")) {
+				String name = part.trim();
+				if (!name.isEmpty()) {
+					required.add(name);
+					gdr++;
+				}
+			}
+		}
+
+		String empNames = DB.getSQLValueString(null,
+				"SELECT string_agg(x.name, ', ' ORDER BY x.name) FROM ("
+						+ "SELECT DISTINCT u.Name AS name FROM AbERP_Related_Rostering_Needs_V rv "
+						+ "INNER JOIN AD_User u ON (u.AD_User_ID = rv.AbERP_User_Contact_ID) "
 						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
-						+ "AND rv.AbERP_NeedType='EMP' AND COALESCE(rv.AbERP_User_Contact_ID,0)>0",
+						+ "AND rv.AbERP_NeedType='EMP' AND COALESCE(rv.AbERP_User_Contact_ID,0)>0"
+						+ ") x",
 				id);
-		if (crd < 0) {
-			crd = 0;
+		int emp = 0;
+		if (!Util.isEmpty(empNames, true)) {
+			for (String part : empNames.split(",")) {
+				String name = part.trim();
+				if (!name.isEmpty()) {
+					required.add("Exclude " + name);
+					emp++;
+				}
+			}
 		}
-		if (gdr < 0) {
-			gdr = 0;
-		}
-		if (emp < 0) {
-			emp = 0;
-		}
-		return new NeedsSummary(crd, gdr, emp);
+
+		return new NeedsSummary(crd, gdr, emp, required);
 	}
 
 	/**
@@ -803,48 +872,38 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	private static final class NeedsSummary {
-		static final NeedsSummary EMPTY = new NeedsSummary(0, 0, 0);
+		static final NeedsSummary EMPTY = new NeedsSummary(0, 0, 0, new ArrayList<String>());
 		final int crdCount;
 		final int gdrCount;
 		final int empCount;
+		final List<String> requiredLabels;
 
-		NeedsSummary(int crdCount, int gdrCount, int empCount) {
+		NeedsSummary(int crdCount, int gdrCount, int empCount, List<String> requiredLabels) {
 			this.crdCount = crdCount;
 			this.gdrCount = gdrCount;
 			this.empCount = empCount;
+			this.requiredLabels = requiredLabels != null ? requiredLabels : new ArrayList<String>();
 		}
 
 		boolean hasAny() {
 			return crdCount > 0 || gdrCount > 0 || empCount > 0;
 		}
 
-		String describe() {
-			StringBuilder sb = new StringBuilder("Related needs:");
-			boolean first = true;
-			if (crdCount > 0) {
-				sb.append(' ').append(crdCount).append(" credential");
-				if (crdCount != 1) {
-					sb.append('s');
-				}
-				first = false;
+		boolean hasCredentials() {
+			return crdCount > 0;
+		}
+
+		String requiredLine() {
+			if (requiredLabels.isEmpty()) {
+				return "(none)";
 			}
-			if (gdrCount > 0) {
-				if (!first) {
-					sb.append(',');
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < requiredLabels.size(); i++) {
+				if (i > 0) {
+					sb.append(", ");
 				}
-				sb.append(' ').append(gdrCount).append(" gender");
-				first = false;
+				sb.append(requiredLabels.get(i));
 			}
-			if (empCount > 0) {
-				if (!first) {
-					sb.append(',');
-				}
-				sb.append(' ').append(empCount).append(" restricted employee");
-				if (empCount != 1) {
-					sb.append('s');
-				}
-			}
-			sb.append('.');
 			return sb.toString();
 		}
 	}
