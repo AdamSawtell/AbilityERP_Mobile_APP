@@ -32,11 +32,15 @@ Follow `client-update-packs.mdc`.
 
 | Tier | Path pattern | Contents |
 |------|----------------|----------|
-| **Staging** | `Downloads\AbilityERP-ClientUpdate-<Feature>-<YYYYMMDD>\` | Full sql/jar/packout + HOW-TO |
-| **Production** | `Downloads\AbilityERP-ProdUpdate-<Feature>-<YYYYMMDD>\` | Least files: `01-APPLY.sql`, `99-ROLLBACK.sql`, `HOW-TO.txt` |
+| **Staging** | `Downloads\AbilityERP-ClientUpdate-SAW###_<slug>-<YYYYMMDD>\` | Full sql/jar/packout + HOW-TO |
+| **Production** | `Downloads\AbilityERP-ProdUpdate-SAW###_<slug>-<YYYYMMDD>\` | Least files: `01-APPLY.sql`, `99-ROLLBACK.sql`, `HOW-TO.txt` |
 
 Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients — use `*_UU`.
 
+## Ticket ID
+
+Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it.
+
 ## Handoff
 
-Staging result (pass/fail) + production pack path + residual blockers.
+Staging result (pass/fail) + production pack path + residual blockers + **SAW###**.

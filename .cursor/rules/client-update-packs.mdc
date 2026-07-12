@@ -7,13 +7,15 @@ alwaysApply: true
 
 **Process first:** `client-update-staging-loop.mdc` (install → review → fix on staging, then pack).
 
-When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff. After staging is green, also emit a **thin production pack** (`AbilityERP-ProdUpdate-…`) with least files.
+When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff. After staging is green, also emit a **thin production pack** (`AbilityERP-ProdUpdate-SAW###_…`) with least files. Pack and issue titles must include the **SAW###** ticket (see `ticket-ids.mdc`).
 
 ## Update pack location
 
 Create:
 
-`C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-<Feature>-<YYYYMMDD>\`
+`C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-SAW###_<short_snake>-<YYYYMMDD>\`
+
+Example: `AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-20260712`
 
 Required layout:
 

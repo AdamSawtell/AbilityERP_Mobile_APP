@@ -1,0 +1,49 @@
+---
+description: ADOPTED — Every workstream gets a SAW### ticket ID (branches, commits, packs, GitHub)
+alwaysApply: true
+---
+
+# ADOPTED: Ticket IDs (SAW###)
+
+All new AbilityERP development work starts with a **Ticket ID** and a short description.
+
+## Format
+
+`SAW###_<short_snake_function>`
+
+Examples:
+
+- `SAW001_paid_filter_invoice_send_info`
+- `SAW003_staff_rostering_info`
+
+| Piece | Rule |
+|-------|------|
+| `SAW` | Fixed prefix (AbilityERP / Adam Sawtell track) |
+| `###` | Zero-padded integer from `docs/TICKETS.md` (next free number) |
+| `_short_snake_function` | Lowercase snake, function/outcome, not a novel |
+
+## Where the ID must appear
+
+1. **GitHub Issue** title: `SAW001 — Paid filter on Notification SR Invoice Send Info` (labels: `ticket`, `done` or `in-progress`)
+2. **Branch** (when not committing straight to main): `SAW001_paid_filter_invoice_send_info`
+3. **Commits**: prefix subject with `SAW001:` (e.g. `SAW001: add Paid InfoColumn criteria`)
+4. **Downloads packs**: `AbilityERP-ClientUpdate-SAW001_paid_filter_…-YYYYMMDD` and `AbilityERP-ProdUpdate-SAW001_…-YYYYMMDD`
+5. **Chat rename**: start with the ticket id when work begins
+6. **Registry**: add/update the row in `docs/TICKETS.md` in the same session
+
+## Starting new work
+
+1. Read `docs/TICKETS.md` → allocate next `SAW###`
+2. Create GitHub issue immediately (status `in-progress`)
+3. Append registry row
+4. Then implement (and follow client update loop when shipping to a client)
+
+## Parallel agents / in-flight work
+
+- If `docs/TICKETS.md` or uncommitted files show **another agent in progress**, **do not** edit those paths or force-push their branches.
+- Allocate a **new** ticket for your stream; note overlaps in the issue body.
+- Never close or reassign another agent’s `in-progress` ticket without explicit user instruction.
+
+## Retroactive tagging
+
+Recent completed work may be registered and given GitHub issues without rewriting git history. Prefer new commits that reference `SAW###:` over history rewrites.
