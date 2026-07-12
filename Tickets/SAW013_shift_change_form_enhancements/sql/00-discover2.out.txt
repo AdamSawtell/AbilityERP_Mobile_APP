@@ -1,0 +1,105 @@
+﻿=== WINDOW by Shift Change name / menu ===
+ ad_window_id |          name           |             ad_window_uu             | entitytype 
+--------------+-------------------------+--------------------------------------+------------
+      1000137 | HCO Forms and Approvals | b3919637-5125-4d2d-a9f7-6d751835f537 | Ab_ERP
+(1 row)
+
+=== MENU Shift Change ===
+ ad_menu_id |          name           | action | ad_window_id | ad_process_id |              ad_menu_uu              
+------------+-------------------------+--------+--------------+---------------+--------------------------------------
+    1000179 | HCO Forms and Approvals | W      |      1000137 |               | 88c9b257-8b97-4834-911f-cc2e968bcf93
+(1 row)
+
+=== TABS for AbERP_ShiftChange table ===
+ ad_window_id |       window_name       | ad_tab_id |        tab_name         |              ad_tab_uu               | seqno | tablevel | whereclause | ad_column_id | link_column | parent_column_id | parent_column 
+--------------+-------------------------+-----------+-------------------------+--------------------------------------+-------+----------+-------------+--------------+-------------+------------------+---------------
+      1000137 | HCO Forms and Approvals |   1000284 | HCO Forms and Approvals | a22481e4-c47f-43e3-ab9e-6c54a31ce2a1 |    10 |        0 |             |              |             |                  | 
+(1 row)
+
+=== CHILD TABS under Shift Change windows ===
+ ad_window_id |       window_name       | ad_tab_id |          name           | tablevel |     tablename     |                                 whereclause                                 | ad_column_id | link_col | parent_column_id | parent_col 
+--------------+-------------------------+-----------+-------------------------+----------+-------------------+-----------------------------------------------------------------------------+--------------+----------+------------------+------------
+      1000137 | HCO Forms and Approvals |   1000284 | HCO Forms and Approvals |        0 | AbERP_ShiftChange |                                                                             |              |          |                  | 
+      1000137 | HCO Forms and Approvals |   1000285 | Requests                |        1 | R_Request         | AD_Table_ID=@0|_TabInfo_AD_Table_ID@ AND record_id=@0|AbERP_ShiftChange_ID@ |              |          |                  | 
+      1000137 | HCO Forms and Approvals |   1000357 | Updates                 |        2 | R_RequestUpdate   |                                                                             |              |          |                  | 
+(3 rows)
+
+=== COLUMNS AbERP_ShiftChange ===
+ ad_column_id |           columnname            |                     name                      | ad_reference_id | ad_reference_value_id | has_columnsql |                                                   columnsql                                                   | isupdateable | ismandatory | ad_process_id |             ad_column_uu             | fieldlength 
+--------------+---------------------------------+-----------------------------------------------+-----------------+-----------------------+---------------+---------------------------------------------------------------------------------------------------------------+--------------+-------------+---------------+--------------------------------------+-------------
+      1005172 | AD_Client_ID                    | Client                                        |              19 |                       | f             |                                                                                                               | N            | Y           |               | 31aa479a-bf40-4ef8-a5fe-f1c6d28e330d |          22
+      1005173 | AD_Org_ID                       | Organization                                  |              19 |                       | f             |                                                                                                               | N            | Y           |               | c847d7d4-174b-4259-b699-e7e0fbc28137 |          22
+      1006690 | AbERP_CreateShiftChangeRequest  | Create Shift Change Request                   |              28 |                       | f             |                                                                                                               | Y            | N           |       1000051 | ff29b657-8beb-48f9-9a5b-6c4c67b25109 |           1
+      1005194 | AbERP_IsSupportedByExtraFunding | Are these changes supported by extra funding? |              20 |                       | f             |                                                                                                               | Y            | N           |               | c2320ed0-2648-43ff-8b6a-300536b8e5da |           1
+      1007341 | AbERP_MasterLocation_ID         | Contract Location                             |              30 |               1000005 | f             |                                                                                                               | Y            | N           |               | ec5c83ef-e4b9-4ecb-9a8b-a0fc5eaaa89d |          10
+      1005187 | AbERP_Rostered_Shift_ID         | Rostered Shift                                |              30 |               1000164 | f             |                                                                                                               | Y            | N           |               | c75acb0a-6076-4f0d-9e7e-ec39aca31f81 |          22
+      1005171 | AbERP_ShiftChange_ID            | Shift Change Request                          |              13 |                       | f             |                                                                                                               | N            | Y           |               | f5de0449-ffd4-4a9c-b86c-71d1687be2c3 |          22
+      1005174 | AbERP_ShiftChange_UU            | AbERP_ShiftChange_UU                          |              10 |                       | f             |                                                                                                               | Y            | N           |               | 7243f3d9-8a61-4470-a515-45fd15433307 |          36
+      1005193 | AbERP_Transport_Required        | Transport Required                            |              20 |                       | f             |                                                                                                               | Y            | N           |               | 4dc508ca-86b1-4077-a36b-c331ae0cc39f |           1
+      1005190 | AbERP_User_Contact_ID           | Employee (User) / Agency Staff                |              30 |               1000215 | f             |                                                                                                               | Y            | N           |               | 2e3d4bef-f46b-4130-b5ed-97752a24270e |          22
+      1005192 | C_BPartner_ID                   | Business Partner                              |              30 |               1000154 | f             |                                                                                                               | Y            | N           |               | 291c12fb-885d-4985-bdd1-993e12cbe24c |          22
+      1005191 | C_BPartner_Staff_ID             | Staff                                         |              30 |                   138 | t             | (SELECT ad_user.C_BPartner_ID FROM ad_user WHERE AbERP_ShiftChange.aberp_user_contact_id=ad_user.ad_user_id ) | N            | N           |               | 2c0691cc-db1e-4f03-9b81-aaf682fe9ee5 |          10
+      1005175 | Created                         | Created                                       |              16 |                       | f             |                                                                                                               | N            | Y           |               | 25b0e978-c651-4a73-b8c4-7386331a6be0 |           7
+      1005176 | CreatedBy                       | Created By                                    |              18 |                   110 | f             |                                                                                                               | N            | Y           |               | b1b8aba5-66da-4afd-a16d-f09eaf38757c |          22
+      1005180 | DocumentNo                      | Document No                                   |              10 |                       | f             |                                                                                                               | Y            | N           |               | 2e702ca9-a72a-432c-a676-de7ad6847501 |          30
+      1005189 | EndDate                         | End Date                                      |              16 |                       | f             |                                                                                                               | Y            | N           |               | e6438da1-4185-4d53-8b9d-c9dfeb46919c |           7
+      1007339 | HCO_NewRatio                    | New Ratio                                     |              10 |                       | f             |                                                                                                               | Y            | N           |               | daa1363d-0a58-4ae2-a9e5-7a5e59997229 |          10
+      1007340 | HCO_NomineeReq                  | Client Nominee Request                        |              20 |                       | f             |                                                                                                               | Y            | N           |               | eadd1681-e574-4aeb-aa56-e76b0e634878 |          10
+      1005177 | IsActive                        | Active                                        |              20 |                       | f             |                                                                                                               | Y            | Y           |               | b21e9a2b-47a5-4b6f-a115-961605cf2f16 |           1
+      1005185 | Priority                        | Priority                                      |              17 |                   154 | f             |                                                                                                               | Y            | N           |               | 7742d1cd-ee05-40c9-be34-acce5740286e |           1
+      1005181 | R_Group_ID                      | Group                                         |              19 |                       | f             |                                                                                                               | Y            | N           |               | ca174623-d8af-4ff1-a7de-1182405cf2da |          10
+      1005182 | R_RequestType_ID                | Request Type                                  |              19 |                       | f             |                                                                                                               | Y            | N           |               | 6ec5c4ee-bc4b-4a4c-8e8e-efcbf95bf95d |          22
+      1005184 | R_Resolution_ID                 | Resolution                                    |              19 |                       | f             |                                                                                                               | Y            | N           |               | 283823f8-b37a-423b-9151-44eb68c009b5 |          22
+      1005183 | R_Status_ID                     | Status                                        |              19 |                       | f             |                                                                                                               | Y            | N           |               | 5529625c-7d78-4723-b5b2-076f6ac9d588 |          10
+      1005188 | StartDate                       | Start Date                                    |              16 |                       | f             |                                                                                                               | Y            | N           |               | 6343eabd-e5a2-4b28-935e-f90225f8b2be |           7
+      1005186 | Summary                         | Summary                                       |              14 |                       | f             |                                                                                                               | Y            | N           |               | 85181e16-3563-4f30-8edb-be42f045ac21 |         500
+      1005178 | Updated                         | Updated                                       |              16 |                       | f             |                                                                                                               | N            | Y           |               | 8a8ce605-88d2-43a9-80e1-0af55be3cb4d |           7
+      1005179 | UpdatedBy                       | Updated By                                    |              18 |                   110 | f             |                                                                                                               | N            | Y           |               | cfcd9e2b-d200-4f25-9488-a81969c8cce7 |          22
+(28 rows)
+
+=== PHYSICAL columns on aberp_shiftchange ===
+           column_name           |          data_type          | character_maximum_length 
+---------------------------------+-----------------------------+--------------------------
+ aberp_shiftchange_id            | numeric                     |                         
+ ad_client_id                    | numeric                     |                         
+ ad_org_id                       | numeric                     |                         
+ aberp_shiftchange_uu            | character varying           |                       36
+ created                         | timestamp without time zone |                         
+ createdby                       | numeric                     |                         
+ isactive                        | character                   |                        1
+ updated                         | timestamp without time zone |                         
+ updatedby                       | numeric                     |                         
+ documentno                      | character varying           |                       30
+ r_group_id                      | numeric                     |                         
+ r_requesttype_id                | numeric                     |                         
+ r_status_id                     | numeric                     |                         
+ r_resolution_id                 | numeric                     |                         
+ priority                        | character                   |                        1
+ summary                         | character varying           |                     2000
+ aberp_rostered_shift_id         | numeric                     |                         
+ startdate                       | timestamp without time zone |                         
+ enddate                         | timestamp without time zone |                         
+ aberp_user_contact_id           | numeric                     |                         
+ c_bpartner_id                   | numeric                     |                         
+ aberp_transport_required        | character                   |                        1
+ aberp_issupportedbyextrafunding | character                   |                        1
+ aberp_createshiftchangerequest  | character                   |                        1
+ hco_newratio                    | character varying           |                       10
+ hco_nomineereq                  | character                   |                        1
+ aberp_masterlocation_id         | numeric                     |                         
+(27 rows)
+
+=== PROCESSES related ===
+ ad_process_id |           value           |             name             |                           classname                           |            ad_process_uu             | entitytype 
+---------------+---------------------------+------------------------------+---------------------------------------------------------------+--------------------------------------+------------
+       1000051 | CreateRequestFromTemplate | Create Request From Template | com.logilite.template.request.process.RequestCopyFromTemplate | 3a8e1690-80f7-41b5-9ed9-96f5f3796823 | U
+(1 row)
+
+=== Button columns on ShiftChange ===
+ ad_column_id |           columnname           | ad_reference_id | ad_process_id |         process_name         | istoolbarbutton |             ad_column_uu             
+--------------+--------------------------------+-----------------+---------------+------------------------------+-----------------+--------------------------------------
+      1006690 | AbERP_CreateShiftChangeRequest |              28 |       1000051 | Create Request From Template | N               | ff29b657-8beb-48f9-9a5b-6c4c67b25109
+      1005182 | R_RequestType_ID               |              19 |               |                              | N               | 6ec5c4ee-bc4b-4a4c-8e8e-efcbf95bf95d
+      1005183 | R_Status_ID                    |              19 |               |                              | N               | 5529625c-7d78-4723-b5b2-076f6ac9d588
+(3 rows)
+

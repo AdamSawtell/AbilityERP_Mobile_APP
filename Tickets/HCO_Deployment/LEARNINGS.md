@@ -2,6 +2,20 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW013 HCO Forms: virtual ColumnSQL times out on large grids
+
+**Window:** HCO Forms and Approvals (`AbERP_ShiftChange`, ~3.8k rows).
+
+**Tried:** Virtual ColumnSQL on `R_Status_ID` / `AbERP_RequestSubmitted` mirroring linked `R_Request`.
+
+**Result:** `GridTable.waitLoadingForRow` **Timeout loading row 1** (30s). Correlated subqueries on every grid row; also `ORDER BY`/`FETCH FIRST` in ColumnSQL broke AccessSqlParser earlier.
+
+**Fix adopted:** Physical read-only Status + `AbERP_RequestSubmitted`, synced by `AFTER` trigger on `R_Request`; DisplayLogic hides Create; BEFORE INSERT blocks duplicate active requests. One-time backfill. No JAR. No HCO `*_UU` overwrites.
+
+**Smoke:** Grid loads; Status matches Requests child (e.g. Doc 1000003 / Not Approved); dup INSERT blocked.
+
+---
+
 ## 2026-07-12 — SAW003 Shift Search: real cause of "non-negative only"
 
 **Browser:** Shift `#1102425` Staff Search showed popup **non-negative only**.

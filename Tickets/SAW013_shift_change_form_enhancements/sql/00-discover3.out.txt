@@ -1,0 +1,140 @@
+﻿=== R_Request sample linked to ShiftChange ===
+ ad_table_id |             ad_table_uu              
+-------------+--------------------------------------
+     1000195 | 136fd0b7-e2b0-40a1-846f-1e198b8c232d
+(1 row)
+
+=== Linked requests count / status ===
+=== Duplicate requests per ShiftChange ===
+ssh : psql:/tmp/saw013-00-discover3.sql:16: ERROR:  column r.isinactive does not exist
+At C:\Users\sawte\AppData\Local\Temp\ps-script-b924aba7-cf77-4ef7-9725-443db9c0bf17.ps1:79 char:329
++ ... cover3.sql; ssh -i $key -o StrictHostKeyChecking=no ubuntu@32.236.127 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (psql:/tmp/saw01... does not exist:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+LINE 4:        r.created, r.processed, r.isinactive
+                                       ^
+HINT:  Perhaps you meant to reference the column "r.isactive".
+ record_id | req_count |                                        request_ids                                        |                                          docnos                                           
+-----------+-----------+-------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------
+   1001695 |        11 | {1002381,1002382,1002383,1002384,1002385,1002386,1002387,1002388,1002389,1002390,1002391} | {1002349,1002350,1002351,1002352,1002353,1002354,1002355,1002356,1002357,1002358,1002359}
+   1001686 |         9 | {1002354,1002355,1002356,1002357,1002358,1002359,1002360,1002361,1002364}                 | {1002322,1002323,1002324,1002325,1002326,1002327,1002328,1002329,1002332}
+   1001691 |         7 | {1002369,1002370,1002371,1002372,1002373,1002374,1002375}                                 | {1002337,1002338,1002339,1002340,1002341,1002342,1002343}
+   1000137 |         4 | {1000683,1000684,1000685,1000927}                                                         | {1000651,1000652,1000653,1000895}
+   1000012 |         3 | {1000557,1000896,1000916}                                                                 | {1000525,1000864,1000884}
+   1002280 |         3 | {1003173,1003174,1003188}                                                                 | {1003140,1003141,1003155}
+   1002625 |         3 | {1003733,1003812,1003815}                                                                 | {1003699,1003778,1003781}
+   1001007 |         3 | {1001613,1001615,1001616}                                                                 | {1001581,1001583,1001584}
+   1001215 |         3 | {1001833,1001834,1001836}                                                                 | {1001801,1001802,1001804}
+   1001338 |         3 | {1001969,1001973,1001974}                                                                 | {1001937,1001941,1001942}
+   1000518 |         3 | {1001116,1001117,1001118}                                                                 | {1001084,1001085,1001086}
+   1001692 |         3 | {1002376,1002377,1002378}                                                                 | {1002344,1002345,1002346}
+   1000020 |         3 | {1000563,1000913,1000918}                                                                 | {1000531,1000881,1000886}
+   1001953 |         3 | {1002752,1002771,1002788}                                                                 | {1002720,1002739,1002756}
+   1000147 |         3 | {1000695,1000696,1000701}                                                                 | {1000663,1000664,1000669}
+   1000377 |         3 | {1000965,1000966,1000967}                                                                 | {1000933,1000934,1000935}
+   1000453 |         3 | {1001046,1001047,1001048}                                                                 | {1001014,1001015,1001016}
+   1000476 |         3 | {1001073,1001074,1001075}                                                                 | {1001041,1001042,1001043}
+   1000530 |         3 | {1001132,1001133,1001137}                                                                 | {1001100,1001101,1001105}
+   1002651 |         3 | {1003788,1003813,1003814}                                                                 | {1003754,1003779,1003780}
+(20 rows)
+
+=== ShiftChange status vs request status mismatch ===
+ aberp_shiftchange_id | documentno | sc_status_id |              sc_status              | r_request_id | req_status_id |             req_status              
+----------------------+------------+--------------+-------------------------------------+--------------+---------------+-------------------------------------
+              1003846 | 1003753    |              |                                     |      1005930 |       1000073 | Pending - With Service Development
+              1003845 | 1003752    |              |                                     |      1005929 |       1000073 | Pending - With Service Development
+              1003844 | 1003751    |              |                                     |      1005927 |       1000111 | Pending - With Service Development
+              1003843 | 1003750    |              |                                     |      1005926 |       1000111 | Pending - With Service Development
+              1003842 | 1003749    |      1000077 | Actioned - Added to Roster Template |      1005925 |       1000077 | Actioned - Added to Roster Template
+              1003841 | 1003748    |      1000122 | Complete                            |      1005922 |       1000122 | Complete
+              1003840 | 1003747    |      1000115 | Actioned - Added to Roster          |      1005921 |       1000115 | Actioned - Added to Roster
+              1003839 | 1003746    |      1000113 | Approved                            |      1005920 |       1000113 | Approved
+              1003838 | 1003745    |      1000115 | Actioned - Added to Roster          |      1005919 |       1000115 | Actioned - Added to Roster
+              1003837 | 1003744    |      1000114 | Not Approved                        |      1005918 |       1000114 | Not Approved
+              1003836 | 1003743    |      1000115 | Actioned - Added to Roster          |      1005917 |       1000115 | Actioned - Added to Roster
+              1003835 | 1003742    |      1000115 | Actioned - Added to Roster          |      1005916 |       1000115 | Actioned - Added to Roster
+              1003834 | 1003741    |      1000115 | Actioned - Added to Roster          |      1005915 |       1000115 | Actioned - Added to Roster
+              1003833 | 1003740    |      1000115 | Actioned - Added to Roster          |      1005914 |       1000115 | Actioned - Added to Roster
+              1003832 | 1003739    |              |                                     |      1005913 |       1000114 | Not Approved
+              1003831 | 1003738    |      1000122 | Complete                            |      1005912 |       1000122 | Complete
+              1003830 | 1003737    |      1000122 | Complete                            |      1005911 |       1000122 | Complete
+              1003829 | 1003736    |      1000122 | Complete                            |      1005908 |       1000122 | Complete
+              1003828 | 1003735    |      1000077 | Actioned - Added to Roster Template |      1005907 |       1000077 | Actioned - Added to Roster Template
+              1003827 | 1003734    |      1000077 | Actioned - Added to Roster Template |      1005906 |       1000077 | Actioned - Added to Roster Template
+              1003826 | 1003733    |      1000122 | Complete                            |      1005905 |       1000122 | Complete
+              1003825 | 1003732    |              |                                     |      1005902 |       1000111 | Pending - With Service Development
+              1003824 | 1003731    |      1000122 | Complete                            |      1005900 |       1000122 | Complete
+              1003823 | 1003730    |              |                                     |      1005901 |       1000111 | Pending - With Service Development
+              1003821 | 1003728    |      1000113 | Approved                            |      1005897 |       1000113 | Approved
+(25 rows)
+
+=== Fields on main tab (status / button / request) ===
+ ad_field_id |             name             |           columnname           | seqno | isdisplayed | isreadonly | displaylogic |             ad_field_uu              | entitytype 
+-------------+------------------------------+--------------------------------+-------+-------------+------------+--------------+--------------------------------------+------------
+     1006669 | Resolution                   | R_Resolution_ID                |     0 | N           | N          |              | 8209c924-7991-4fef-8060-8b19056416a7 | Ab_ERP
+     1006665 | Document No                  | DocumentNo                     |    10 | Y           | N          |              | fff060fa-b19a-45b1-9ac9-6eef96561693 | Ab_ERP
+     1006667 | Request Type                 | R_RequestType_ID               |    20 | Y           | N          |              | 2d729c93-07c0-4cbf-8d1b-3f6a21d4d1a1 | Ab_ERP
+     1006668 | Status                       | R_Status_ID                    |    30 | Y           | N          |              | 81040c68-c3e0-4a51-96e1-8384c88c3c0d | Ab_ERP
+     1006671 | Summary                      | Summary                        |    40 | Y           | N          |              | 725fb666-2896-4963-a497-c895fda6fd1a | Ab_ERP
+     1008412 | Create Request From Template | AbERP_CreateShiftChangeRequest |   140 | Y           | N          |              | 19cd57a6-f079-498e-a71f-13296d0132b6 | Ab_ERP
+(6 rows)
+
+=== All displayed fields on main tab ===
+ seqno |             name             |           columnname           | isreadonly |                                                                                                                                                                                                                                 displaylogic                                                                                                                                                                                                                                  | isdisplayed 
+-------+------------------------------+--------------------------------+------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------
+    10 | Document No                  | DocumentNo                     | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+    20 | Request Type                 | R_RequestType_ID               | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+    30 | Status                       | R_Status_ID                    | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+    40 | Summary                      | Summary                        | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+    50 | New Start Date               | StartDate                      | N          | @R_RequestType_ID@=1000028 | @R_RequestType_ID@=1000039 | @R_RequestType_ID@=1000035 | @R_RequestType_ID@=1000032 | @R_RequestType_ID@=1000025 | @R_RequestType_ID@=1000038 | @R_RequestType_ID@=1000031 | @R_RequestType_ID@=1000030 | @R_RequestType_ID@=1000026 | @R_RequestType_ID@=1000044 | @R_RequestType_ID@=1000046 | @R_RequestType_ID@=1000042 | @R_RequestType_ID@=1000024 | @R_RequestType_ID@=1000019 | @R_RequestType_ID@=1000020 | @R_RequestType_ID@=1000021 | Y
+    60 | New End Date                 | EndDate                        | N          | @R_RequestType_ID@=1000028 | @R_RequestType_ID@=1000039 | @R_RequestType_ID@=1000035 | @R_RequestType_ID@=1000032 | @R_RequestType_ID@=1000025 | @R_RequestType_ID@=1000038 | @R_RequestType_ID@=1000031 | @R_RequestType_ID@=1000030 | @R_RequestType_ID@=1000026 | @R_RequestType_ID@=1000044 | @R_RequestType_ID@=1000046 | @R_RequestType_ID@=1000042 | @R_RequestType_ID@=1000024 | @R_RequestType_ID@=1000019 | @R_RequestType_ID@=1000020 | @R_RequestType_ID@=1000021 | Y
+    70 | Rostered Shift               | AbERP_Rostered_Shift_ID        | N          | @R_RequestType_ID@!1000026 & @R_RequestType_ID@!1000045                                                                                                                                                                                                                                                                                                                                                                                                                       | Y
+    80 | Employee                     | AbERP_User_Contact_ID          | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+    90 | Contract Location            | AbERP_MasterLocation_ID        | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   100 | New Ratio                    | HCO_NewRatio                   | N          | @R_RequestType_ID@=1000039 | @R_RequestType_ID@=1000035 | @R_RequestType_ID@=1000032 | @R_RequestType_ID@=1000025 | @R_RequestType_ID@=1000038 | @R_RequestType_ID@=1000031 | @R_RequestType_ID@=1000030 | @R_RequestType_ID@=1000044 | @R_RequestType_ID@=1000046 | @R_RequestType_ID@=1000043                                                                                                                                                                               | Y
+   110 | Client                       | C_BPartner_ID                  | N          | @R_RequestType_ID@!1000028 & @R_RequestType_ID@!1000039 & @R_RequestType_ID@!1000027 & @R_RequestType_ID@!1000029 & @R_RequestType_ID@!1000045 & @R_RequestType_ID@!1000048                                                                                                                                                                                                                                                                                                   | Y
+   120 | Is transport required?       | AbERP_Transport_Required       | N          | @R_RequestType_ID@=1000035 | @R_RequestType_ID@=1000032 | @R_RequestType_ID@=1000026 | @R_RequestType_ID@=1000044 | @R_RequestType_ID@=1000046                                                                                                                                                                                                                                                                                                                                | Y
+   130 | Client Nominee Request       | HCO_NomineeReq                 | N          | @R_RequestType_ID@=1000027 | @R_RequestType_ID@=1000040 | @R_RequestType_ID@=1000035 | @R_RequestType_ID@=1000032 | @R_RequestType_ID@=1000031 | @R_RequestType_ID@=1000030 | @R_RequestType_ID@=1000033 | @R_RequestType_ID@=1000034 | @R_RequestType_ID@=1000044 | @R_RequestType_ID@=1000046 | @R_RequestType_ID@=1000042 | @R_RequestType_ID@=1000041                                                                                                                     | Y
+   140 | Create Request From Template | AbERP_CreateShiftChangeRequest | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   150 | Created                      | Created                        | Y          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   160 | Created By                   | CreatedBy                      | Y          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   170 | Updated                      | Updated                        | Y          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   180 | Updated By                   | UpdatedBy                      | Y          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+   190 | Active                       | IsActive                       | N          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Y
+(19 rows)
+
+=== R_Status reference / validation ===
+ ad_column_id | columnname  | ad_reference_id | ad_val_rule_id |         valrule          |                                       code                                        
+--------------+-------------+-----------------+----------------+--------------------------+-----------------------------------------------------------------------------------
+        13484 | R_Status_ID |              19 |            261 | R_Status of Request Type | EXISTS (SELECT * FROM R_RequestType rt                                           +
+              |             |                 |                |                          | INNER JOIN R_StatusCategory sc ON (rt.R_StatusCategory_ID=sc.R_StatusCategory_ID)+
+              |             |                 |                |                          | WHERE R_Status.R_StatusCategory_ID=sc.R_StatusCategory_ID                        +
+              |             |                 |                |                          | AND rt.R_RequestType_ID=@R_RequestType_ID@)
+      1005183 | R_Status_ID |              19 |            261 | R_Status of Request Type | EXISTS (SELECT * FROM R_RequestType rt                                           +
+              |             |                 |                |                          | INNER JOIN R_StatusCategory sc ON (rt.R_StatusCategory_ID=sc.R_StatusCategory_ID)+
+              |             |                 |                |                          | WHERE R_Status.R_StatusCategory_ID=sc.R_StatusCategory_ID                        +
+              |             |                 |                |                          | AND rt.R_RequestType_ID=@R_RequestType_ID@)
+(2 rows)
+
+=== Process params CreateRequestFromTemplate ===
+ ad_process_para_id |     columnname     |       name       | seqno | ismandatory | ad_reference_id 
+--------------------+--------------------+------------------+-------+-------------+-----------------
+            1000113 | RequestTemplate_ID | Request Template |    10 | Y           |              18
+(1 row)
+
+=== Tab UUs ===
+ ad_tab_id |          name           |              ad_tab_uu               
+-----------+-------------------------+--------------------------------------
+   1000284 | HCO Forms and Approvals | a22481e4-c47f-43e3-ab9e-6c54a31ce2a1
+   1000285 | Requests                | f1d2db08-9c6a-4134-8dfc-6eeeb0cc67db
+   1000357 | Updates                 | 953328fb-66b5-4650-843d-bae84ee98d6b
+(3 rows)
+
+=== Window UU ===
+ ad_window_id |          name           |             ad_window_uu             
+--------------+-------------------------+--------------------------------------
+      1000137 | HCO Forms and Approvals | b3919637-5125-4d2d-a9f7-6d751835f537
+(1 row)
+

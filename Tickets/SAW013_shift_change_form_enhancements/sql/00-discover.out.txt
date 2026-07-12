@@ -1,0 +1,31 @@
+﻿=== TABLE AbERP_ShiftChange ===
+ ad_table_id |          tablename          |             ad_table_uu              | isview | entitytype 
+-------------+-----------------------------+--------------------------------------+--------+------------
+     1000110 | AbERP_Shift_Type            | 298b5e7b-dc64-43c4-a398-5a7f2502f5ef | N      | Ab_ERP
+     1000195 | AbERP_ShiftChange           | 136fd0b7-e2b0-40a1-846f-1e198b8c232d | N      | Ab_ERP
+     1000196 | aberp_shift_shifttemplate_v | 8ee475fc-3884-4910-b023-d0acd88a54f2 | Y      | Ab_ERP
+(3 rows)
+
+=== WINDOW AbERP_ShiftChange ===
+ ad_window_id |       name        |             ad_window_uu             | entitytype 
+--------------+-------------------+--------------------------------------+------------
+      1000008 | Relationship Type | 2e2ed629-0727-46a5-969f-96d15b4bcea6 | Ab_ERP
+(1 row)
+
+=== TABS on window ===
+ ad_tab_id |       name        |              ad_tab_uu               | ad_table_id |       tablename        | seqno | tablevel | whereclause | ad_column_id | parent_column_id 
+-----------+-------------------+--------------------------------------+-------------+------------------------+-------+----------+-------------+--------------+------------------
+   1000008 | Relationship Type | e7be0fa9-0e61-4ac4-a098-272fac521964 |     1000010 | AbERP_RelationshipType |    10 |        0 |             |              |                 
+(1 row)
+
+=== COLUMNS on AbERP_ShiftChange (status / request related) ===
+ssh : psql:/tmp/saw013-00-discover.sql:33: ERROR:  column c.iscolumnsql does not exist
+At C:\Users\sawte\AppData\Local\Temp\ps-script-9b1f26aa-db47-4dfe-bbe3-75f45d1be2f4.ps1:79 char:327
++ ... scover.sql; ssh -i $key -o StrictHostKeyChecking=no ubuntu@32.236.127 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (psql:/tmp/saw01... does not exist:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+LINE 2:        c.iscolumnsql, c.columnsql, c.isupdateable, c.ismanda...
+               ^
+HINT:  Perhaps you meant to reference the column "c.columnsql".
