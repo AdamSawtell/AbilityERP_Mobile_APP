@@ -1,0 +1,42 @@
+---
+description: ADOPTED — HCO client ticket installs (never change HCO UUIDs; log learnings)
+alwaysApply: true
+---
+
+# ADOPTED: HCO Deployment (client install)
+
+When installing tickets onto the **HCO** customer build, follow this rule in addition to `client-update-staging-loop.mdc` and `client-update-packs.mdc`.
+
+## Living docs (source of truth for HCO)
+
+| Path | Purpose |
+|------|---------|
+| `Tickets/HCO_Deployment/README.md` | Access, hard rules, install loop, per-ticket index |
+| `Tickets/HCO_Deployment/LEARNINGS.md` | Chronological learnings — **append after every HCO install** |
+
+Also update that ticket’s **`HCO Future Deployments variables`** section in `Tickets/SAW###_…/NOTES.md` (or DEPLOY.md).
+
+## Hard rules
+
+1. **Never change any `*_UU` already on the HCO build.**
+2. Fix the **AbilityERP update process** (SQL / lookups / grants / menu parents) when UU/name/ID issues appear — then commit + push for future production releases.
+3. Resolve targets by `*_UU` or stable **name** — never hardcode `AD_*_ID`.
+4. After each HCO install (pass or fail with a process fix): append `LEARNINGS.md` and the ticket HCO variables section.
+
+## Access (HCO Test)
+
+- SSH: `ubuntu@32.236.127.117` — key `%USERPROFILE%\.ssh\HCObusiness.pem` (from `d:\HCObusiness.pem`; user-only ACL)
+- WebUI: `http://32.236.127.117/webui/` — `SuperUser` / `HCOflamingo`
+- Smoke role: usually **Admin** (AbilityERP Admin may exist in AD but not on SuperUser’s role dialog)
+- DB: `idempiere` / `adempiere` / `flamingo`
+
+## Process expectations on HCO
+
+- Grant Info Window / window / process access by role **name** to both **Admin** and **AbilityERP Admin** when the feature is menued or newly exposed.
+- Menu tree parents: resolve by summary folder **name** (e.g. `Ability ERP`), not seed `AD_Menu_ID` / tree node IDs.
+- Never overwrite an existing client object’s `*_UU` when matching by name — only set UU on INSERT of AbERP-owned objects.
+- Cache Reset or logout/in before WebUI smoke.
+
+## Agent chat
+
+When doing HCO installs, rename the Agents chat to `HCO Install SAW###` (or keep `HCO Install Agent` between tickets).

@@ -2,7 +2,7 @@
 
 Checklist for any new feature, window, process, button, or API surface in this project.
 
-Also see: `.cursor/rules/ticket-ids.mdc`, `Tickets/README.md` (`DEPLOY.md` + **`EXTERNAL-SUMMARY.md`**), `client-update-staging-loop.mdc`.
+Also see: `.cursor/rules/ticket-ids.mdc`, `Tickets/README.md` (`DEPLOY.md` + **`EXTERNAL-SUMMARY.md`**), `client-update-staging-loop.mdc`, **`hco-deployment.mdc`** + [`Tickets/HCO_Deployment/`](../Tickets/HCO_Deployment/) (HCO client installs — never change HCO UUIDs; append learnings).
 
 ---
 
@@ -31,6 +31,8 @@ Grant (in the migration / install SQL, not as a manual afterthought):
 | Operational roles (e.g. Rostering Officer `1000012`) | client-specific | `1000002` | When that role uses the feature day-to-day |
 
 **Portability:** resolve AbilityERP Admin by **role name** (and client) on other builds if IDs differ; still document seed IDs as hints only.
+
+**HCO:** SuperUser’s role dialog often exposes operational **Admin**, not AbilityERP Admin. Grant Info Window / window / process access by **name** to both **Admin** and **AbilityERP Admin**. See `Tickets/HCO_Deployment/LEARNINGS.md`.
 
 After granting access, users must **log out and log back in** (or run **Role Access Update**) before menus/buttons appear.
 

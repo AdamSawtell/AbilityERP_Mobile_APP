@@ -41,6 +41,14 @@ Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients — use `*_
 
 Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it. Kind is `idempiere` or `both` — keep the workstream home under `Tickets/SAW###_<slug>/` with complete **`DEPLOY.md`**, **`EXTERNAL-SUMMARY.md`** (customer copy/paste), and **AbilityERP Admin** access grants for new windows/processes/Info Windows/forms (`docs/DEV-REQUIREMENTS.md`). App-only work does not use `Tickets/`.
 
+## HCO client installs
+
+When the target is **HCO**, also follow `.cursor/rules/hco-deployment.mdc` and `Tickets/HCO_Deployment/`:
+
+- **Never change HCO `*_UU` values** — fix the update process instead.
+- Append learnings to `Tickets/HCO_Deployment/LEARNINGS.md`.
+- Record ticket-local variables under **HCO Future Deployments variables** in `Tickets/SAW###_…/NOTES.md`.
+
 ## Handoff
 
-Staging result (pass/fail) + production pack path + residual blockers + **SAW###** + link to `Tickets/SAW###_…`.
+Staging result (pass/fail) + production pack path + residual blockers + **SAW###** + link to `Tickets/SAW###_…` (+ HCO learnings link when applicable).

@@ -49,6 +49,8 @@ Enough for a new agent to install on another build. Must also grant **AbilityERP
 
 Same slug everywhere: Agents chat, branch, Downloads packs, this folder.
 
-See `.cursor/rules/ticket-ids.mdc`, `client-update-staging-loop.mdc`, and `docs/DEV-REQUIREMENTS.md`.
+See `.cursor/rules/ticket-ids.mdc`, `client-update-staging-loop.mdc`, `hco-deployment.mdc`, and `docs/DEV-REQUIREMENTS.md`.
+
+**HCO client installs:** [`HCO_Deployment/`](HCO_Deployment/) — access, hard rules (never change HCO UUIDs), and [`LEARNINGS.md`](HCO_Deployment/LEARNINGS.md) (append after every HCO install). Per-ticket: keep **HCO Future Deployments variables** in that ticket’s `NOTES.md`.
 
 **Final agent readiness matrix:** [`AGENT-READY.md`](AGENT-READY.md).
