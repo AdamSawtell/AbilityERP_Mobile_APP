@@ -41,16 +41,18 @@ Examples:
 4. **Downloads packs** (idempiere/both): `AbilityERP-ClientUpdate-SAW001_…` and `AbilityERP-ProdUpdate-SAW001_…`
 5. **Chat / Agents sidebar**: rename immediately to `SAW###_<short_snake_function>`
 6. **Registry**: add/update the row in `docs/TICKETS.md` (include **Kind** + Home link)
-7. **Tickets folder** (idempiere/both only): create `Tickets/SAW###_<slug>/` with `README.md`, `NOTES.md`, `CHECKLIST.md` in the same session
+7. **Tickets folder** (idempiere/both only): create `Tickets/SAW###_<slug>/` with `README.md`, **`DEPLOY.md`**, `NOTES.md`, `CHECKLIST.md` in the same session
+8. **Deploy handoff (vital):** `DEPLOY.md` + the GitHub issue body must be enough for a **new agent** to install on another build from this repository alone (plugin path, JAR yes/no, ordered SQL or `deploy.sh`, restart/cache, smoke, blockers, packs). See `Tickets/README.md`.
 
 ## Starting new work
 
 1. Read `docs/TICKETS.md` → allocate next `SAW###`
 2. Choose **Kind** (`idempiere` | `both` | `app` | `meta`)
-3. Create GitHub issue immediately (status `in-progress`)
+3. Create GitHub issue immediately (status `in-progress`) with a **Deploy** section (or link to `Tickets/…/DEPLOY.md` + one-liner)
 4. Append registry row
-5. If Kind is `idempiere` or `both`: scaffold `Tickets/SAW###_<slug>/`
+5. If Kind is `idempiere` or `both`: scaffold `Tickets/SAW###_<slug>/` including **`DEPLOY.md`**
 6. Then implement (follow client update loop when shipping to a client)
+7. Before marking `done` for idempiere/both: `DEPLOY.md` is complete and the GitHub issue Deploy section matches it
 
 ## Parallel agents / in-flight work
 

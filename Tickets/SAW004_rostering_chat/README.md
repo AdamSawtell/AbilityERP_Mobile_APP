@@ -7,19 +7,13 @@
 | **GitHub** | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) (also [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) merged here) |
 | **Slug** | `SAW004_rostering_chat` |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** (ticket) and plugin [`idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md`](../../idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md).
+
 ## Goal
 
 Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_RequestUpdate`. The window is a trimmed **clone of Requests**, filtered to request type **Rostering Chat**, with reply/close aligned to the mobile Chat (`/tasks`) path.
-
-## Deploy to another build (agent)
-
-**Primary instructions:** [`idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md`](../../idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md)
-
-```bash
-cd idempiere-plugins/com.aberp.rostering.chat
-sudo ./deploy.sh
-# then: sql/verify-install.sql  (also run at end of deploy.sh)
-```
 
 ## Source of truth
 

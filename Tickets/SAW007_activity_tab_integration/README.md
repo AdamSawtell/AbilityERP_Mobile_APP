@@ -7,6 +7,10 @@
 | **GitHub** | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) |
 | **Slug** | `SAW007_activity_tab_integration` |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** — use portable `register-contactactivity-tabs.sql` on other builds (not seed window IDs alone).
+
 ## Goal
 
 Activity tab on multiple windows; user/contact wiring on other builds as needed.

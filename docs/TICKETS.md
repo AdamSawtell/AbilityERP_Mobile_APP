@@ -4,6 +4,8 @@ Allocate the next free `SAW###` before starting work. Keep this file in sync wit
 
 **Agents sidebar title:** `SAW###_<short_snake_function>`
 
+**Deploy handoff (vital):** for Kind `idempiere` / `both`, `Tickets/SAW###_…/DEPLOY.md` + the GitHub issue **Deploy** section must be enough for a new agent to install on another build from this repo alone.
+
 **Kind**
 
 | Value | Meaning | `Tickets/` folder? |

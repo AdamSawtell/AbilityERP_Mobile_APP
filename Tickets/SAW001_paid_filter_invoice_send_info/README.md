@@ -7,6 +7,10 @@
 | **GitHub** | [#1](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/1) |
 | **Slug** | `SAW001_paid_filter_invoice_send_info` |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** — required reading for any agent installing this ticket.
+
 ## Goal
 
 Add a **Paid** Yes/No/blank search filter (and display column) to Info Window **Notification SR Invoice Send Info**, using `C_Invoice.IsPaid`.

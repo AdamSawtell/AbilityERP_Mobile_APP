@@ -8,6 +8,10 @@
 | **Slug** | `timesheet_approval_info_columns` |
 | **Source** | #901558 (05/11/2025) |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** — SQL pack for Info columns; approval process JAR is a separate host dependency.
+
 ## Goal
 
 Clean up **Timesheet Approval** Info Window (`AD_InfoWindow_UU = 40d6a2d7-3bbc-431e-940c-ce75829a68e4`): remove unused result columns, dedupe employee display, add Break Start / Break End after Shift Type.

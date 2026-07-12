@@ -7,6 +7,10 @@
 | **GitHub** | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) |
 | **Slug** | `SAW003_staff_rostering_info` |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** — required; status is still **in-progress** (coordinate before deploy).
+
 ## Goal
 
 Staff Rostering Info Window rewrite / UX / needs-match criteria.

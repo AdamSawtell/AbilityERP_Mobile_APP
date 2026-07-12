@@ -39,7 +39,7 @@ Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients — use `*_
 
 ## Ticket ID
 
-Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it. Kind is `idempiere` or `both` — keep the workstream home under `Tickets/SAW###_<slug>/` (checklist + notes + dependency list). App-only work does not use `Tickets/`.
+Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it. Kind is `idempiere` or `both` — keep the workstream home under `Tickets/SAW###_<slug>/` with a complete **`DEPLOY.md`** (and matching GitHub Deploy section) so a new agent can install from the repo alone. App-only work does not use `Tickets/`.
 
 ## Handoff
 

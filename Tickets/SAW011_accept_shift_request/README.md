@@ -7,6 +7,10 @@
 | **GitHub** | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) |
 | **Slug** | `SAW011_accept_shift_request` |
 
+## Deploy (other builds)
+
+**→ [`DEPLOY.md`](DEPLOY.md)** — JAR + `install-accept-shift-request.sql` + restart.
+
 ## Goal
 
 On **Shift (Rostered) → Response Log**, rostering officers can **Accept Shift Request** for a **Yes – Request Shift (`REQ`)** row. That assigns the worker on the **Employee** tab, marks the log reviewed, and publishes the shift.
