@@ -53,5 +53,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW010](../SAW010_timesheet_approval_info_columns/NOTES.md#hco-future-deployments-variables) | Timesheet Approval Info columns — HCO install 2026-07-12 |
 | [SAW009](../SAW009_support_day_pattern_number/NOTES.md#hco-future-deployments-variables) | Support Start/End Day pattern numbers — HCO install 2026-07-12 |
 | [SAW001](../SAW001_paid_filter_invoice_send_info/NOTES.md#hco-future-deployments-variables) | Paid filter Info Window — first HCO install 2026-07-12 |
+| [SAW014](../SAW014_support_location_contact_grid/NOTES.md#hco-future-deployments-variables) | Support Location Email/Phone grid ColumnSQL — HCO install 2026-07-13 |
 
 Append new rows as tickets are installed.

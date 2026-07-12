@@ -273,6 +273,38 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-13 — SAW014 Support Location contact grid columns
+
+**Result:** Pass
+
+### What worked
+- Root cause confirmed: `AbERP_Email` / `AbERP_Phone` / `AbERP_Phone2` used `@SQL=` virtual columns (iDempiere 7 evaluates only selected grid row).
+- Fix: correlated subquery `ColumnSQL` against `C_BPartner_Location` (same pattern as existing `AbERP_Location_Address` on this table). Also fixed `AbERP_LocationName` / `AbERP_Location_IsActive`.
+- Applied on HCO; Cache Reset; Grid View showed Email/Phone on unselected rows; blank rows matched DB (no contact on BP Location).
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| Prefer subquery ColumnSQL over `@SQL=` for any grid-displayed virtual column | Documented in ticket NOTES; migration is UU-safe UPDATE only |
+| Menu search may show “No Records found” while results still list the window | Click `a.menu-href` / Ability ERP tree item (same as prior Cache Reset learning) |
+
+### HCO local IDs (hints only — do not use in portable SQL)
+
+| Object | HCO ID | UU |
+|--------|--------|-----|
+| Window Support Location | 1000016 | `6ef3c558-3ec8-4f0c-be40-89f35d8acebf` |
+| Table AbERP_Support_Location | 1000017 | `4ed40b98-ca31-4404-a20b-ea9000d5c51d` |
+| Col AbERP_Email | 1001645 | `bd54d23d-44b6-42d7-b8c8-30b3e7b826e6` |
+| Col AbERP_Phone | 1001646 | `5f9a40e5-248b-48bd-848f-532ae4601006` |
+| Col AbERP_Phone2 | 1001647 | `f41c821a-90fb-4b8b-95c6-8bf2f181f8e7` |
+
+### Ticket artefacts
+
+- `Tickets/SAW014_support_location_contact_grid/`
+- Downloads packs `*SAW014_support_location_contact_grid-20260713*`
+
+---
+
 <!-- Template for next entry:
 
 ## YYYY-MM-DD — SAW### short title
