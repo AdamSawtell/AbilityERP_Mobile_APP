@@ -23,6 +23,7 @@ import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Div;
+import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
@@ -83,6 +84,10 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		// Criteria stay editable even when AD_InfoColumn.IsReadOnly=Y (needed so the
 		// result grid does not paint dropdown editors on the selected row).
 		ensureCriteriaEditorsWritable();
+		// ZK validates Intbox "no negative" *before* executeQuery(); clear -1 and
+		// strip that constraint so All/Any / blank ID editors cannot popup.
+		clearInvalidIdCriteria();
+		neutralizeIdEditorConstraints();
 		ensureContextBanner(north);
 	}
 
@@ -103,6 +108,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
 		clearInvalidIdCriteria();
+		neutralizeIdEditorConstraints();
 		if (contextBanner != null) {
 			contextBanner.setValue(buildContextBannerText());
 		}
@@ -208,6 +214,53 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			}
 			if (id <= 0) {
 				editor.setValue(null);
+			}
+		}
+	}
+
+	/**
+	 * ZK attaches constraint "no negative" to ID Intboxes. Validation runs on
+	 * ReQuery <em>before</em> {@link #executeQuery()}, so clearing -1 there is
+	 * too late. Strip the constraint and null any non-positive Intbox values on
+	 * the criteria pane (and nested children).
+	 */
+	private void neutralizeIdEditorConstraints() {
+		if (editors != null) {
+			for (WEditor editor : editors) {
+				if (editor == null) {
+					continue;
+				}
+				stripIntboxConstraints(editor.getComponent());
+			}
+		}
+		if (parameterGrid != null) {
+			stripIntboxConstraints(parameterGrid);
+			Component northish = parameterGrid.getParent();
+			int depth = 0;
+			while (northish != null && depth < 6) {
+				stripIntboxConstraints(northish);
+				northish = northish.getParent();
+				depth++;
+			}
+		}
+	}
+
+	private static void stripIntboxConstraints(Component root) {
+		if (root == null) {
+			return;
+		}
+		if (root instanceof Intbox) {
+			Intbox box = (Intbox) root;
+			box.setConstraint((String) null);
+			Integer val = box.getValue();
+			if (val != null && val.intValue() <= 0) {
+				box.setValue(null);
+			}
+		}
+		java.util.List<Component> children = root.getChildren();
+		if (children != null) {
+			for (Component child : children) {
+				stripIntboxConstraints(child);
 			}
 		}
 	}

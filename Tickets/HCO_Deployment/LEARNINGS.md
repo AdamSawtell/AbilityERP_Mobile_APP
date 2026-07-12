@@ -2,7 +2,24 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
-## 2026-07-12 — SAW003 non-negative only (ReQuery)
+## 2026-07-12 — SAW003 non-negative only (round 2 — JAR + editors)
+
+**Result:** Pass after SQL `22` + JAR rebuild with Intbox constraint strip. Hard restart required (soft restart left old Java process).
+
+### Clarification
+**Empty staff list ≠ non-negative popup.** No matches → `0 Rows found`. Popup = ZK Intbox `-1` validation (often before `executeQuery`).
+
+### Extra fix
+| Change | Detail |
+|--------|--------|
+| `22-harden-nonnegative-editors.sql` | Gender/Position → String names; deactivate leftover Search cols |
+| Java `neutralizeIdEditorConstraints()` | Strip `no negative` on Intboxes at criteria render (before ReQuery validate) |
+| Hard restart | `systemctl stop` + kill leftover `idempiere` java, then start |
+
+### Smoke
+Menu Info → ReQuery All/Any → **210 rows**, no popup.
+
+---
 
 **Result:** Hotfix applied on HCO (SQL only; no JAR change). Logout/in required.
 

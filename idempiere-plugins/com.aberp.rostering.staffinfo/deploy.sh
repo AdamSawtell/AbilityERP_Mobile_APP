@@ -51,6 +51,7 @@ for f in \
   19-rename-staff-name.sql \
   20-hide-clutter-columns.sql \
   21-fix-nonnegative-multiselect.sql \
+  22-harden-nonnegative-editors.sql \
   04-verify.sql
 do
   echo "=== $f ==="

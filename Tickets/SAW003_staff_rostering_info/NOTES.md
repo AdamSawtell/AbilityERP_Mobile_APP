@@ -13,9 +13,12 @@
 | `19` | **Staff Name** label; Show Unmatched under Staff Name, Show Unavailable under Employee (Java layout) |
 | `20` | Hide BP Name, Status, Business Partner, Agency Staff from **grid**; Agency Staff stays criteria |
 | `21` | Deactivate Multi Select leftovers (Support Receiver Needs) that cause ZK **non-negative only** |
+| `22` | Gender/Position as String names; deactivate leftover Search cols; Java strips Intbox `no negative` |
 
 `20` must run **after** `03`/`05`/`09` on every full redeploy or those scripts re-show columns.
-`21` must run **after** `08` (Related Info) so Multi Select rows stay off.
+`21`/`22` must run **after** `08` (Related Info) so Multi Select / Search leftovers stay off.
+
+**Empty results ? non-negative popup.** No staff matching needs ? `0 Rows found` (tick **Show Unmatched Staff**). Popup is ZK `-1` Intbox validation.
 
 ## Packs
 
