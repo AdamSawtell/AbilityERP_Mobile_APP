@@ -41,11 +41,11 @@ chmod +x build.sh deploy.sh
 ./deploy.sh
 ```
 
-Applies SQL `01`→`12`→`04`, installs OSGi jar, restarts iDempiere.
+Applies SQL via `deploy.sh` (`01`→`20`→`04`), installs OSGi jar, restarts iDempiere.
 
 Then **Cache Reset** (or log out/in).
 
-Produces `release/com.aberp.rostering.staffinfo_1.1.0.2026071211.jar`.
+Agent handoff: repo `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and this package’s `DEPLOY.md`.
 
 ## Rollback
 
