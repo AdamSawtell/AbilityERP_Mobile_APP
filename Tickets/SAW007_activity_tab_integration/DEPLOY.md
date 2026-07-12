@@ -33,8 +33,11 @@ chmod +x build.sh deploy.sh
 1. `sql/01-add-link-columns.sql`  
 2. `register-contactactivity-tabs.sql` (repo package root)  
 3. `fix-activity-user-contact.sql`  
+4. `sql/04-ensure-activity-types.sql` — Email / Meeting / Phone call / Case Note / Task on each window  
 
 Optional: `hide-activity-user-contact.sql`
+
+**HCO delta (tabs already installed):** run only `sql/04-ensure-activity-types.sql`, then logout/in.
 
 **Seed-only (reference tenant):** `sql/02-add-activity-tabs.sql` + `sql/03-update-activity-type-windows.sql` via `ABERP_ACTIVITY_SEED_SQL=1`.
 
@@ -44,12 +47,14 @@ Tabs are added to **existing** windows — Admin needs access to those parent wi
 
 ## WebUI smoke
 
-Each target window → **Activity** → New → save; confirm user/contact behaviour after fix script.
+Each target window → **Activity** → New → Activity Type shows **Email, Meeting, Phone call, Case Note, Task**; save; confirm user/contact behaviour after fix script.
 
 ## Packs
 
 - Staging: `Downloads\AbilityERP-ClientUpdate-SAW007_activity_tab_integration-20260712\`
-- Prod: `Downloads\AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712\` (portable SQL only)
+- Prod: `Downloads\AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712\`  
+  - Fresh: `01-APPLY.sql`  
+  - HCO already installed: `02-DELTA-activity-types-only.sql`
 
 ## External ticket text
 

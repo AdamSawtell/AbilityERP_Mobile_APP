@@ -36,6 +36,7 @@ else
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/01-add-link-columns.sql"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/register-contactactivity-tabs.sql"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/fix-activity-user-contact.sql"
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/04-ensure-activity-types.sql"
 fi
 
 echo "Restarting iDempiere via systemd"

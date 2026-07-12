@@ -4,6 +4,30 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW007 Activity types (Email / Meeting / Phone / Note / Task)
+
+**Result:** Pass (SQL verify + WebUI Activity Type dropdown on Booking Generator).
+
+### What worked
+
+- Enabled list values `EM`, `ME`, `PC`, `CN`, `TA` on windows by **name** (HCO IDs `1000163` / `1000075` / `1000073`).
+- Delta `sql/04-ensure-activity-types.sql` appended 6 missing grants (PC/CN/TA on SB + SA); EM/ME already present.
+- WebUI dropdown showed Email, Meeting, Phone call, Case Note, Task (plus other types already granted to BG).
+
+### Learnings → process fixes
+
+| Learning | Action taken |
+|----------|----------------|
+| Register step 4 skipped SB/SA when BG ID already in description | Per-window append if missing; dedicated `04-ensure-activity-types.sql` in deploy + packs |
+| Business “Note” = list **Case Note** (`CN`) | Documented in EXTERNAL-SUMMARY / HOW-TO / NOTES |
+
+### Packs / next HCO prod
+
+- Staging: `Downloads\AbilityERP-ClientUpdate-SAW007_activity_tab_integration-20260712\`
+- Prod: `Downloads\AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712\` — use **`02-DELTA-activity-types-only.sql`** when tabs already installed
+
+---
+
 ## 2026-07-12 — SAW007 Activity tab integration
 
 **Result:** Pass (SQL + WebUI smoke Booking Generator → Activity). No HCO `*_UU` overwritten.

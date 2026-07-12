@@ -19,5 +19,17 @@
 | Physical cols before install | Missing `aberp_bookinggenerator_id`, `c_order_id` | Added by portable `01` / register |
 | Marker JAR on host | Not installed | AD-only smoke passed without JAR |
 | Smoke role | **Admin** | Logout/in required after field AD changes |
+| Required Activity Types | EM, ME, PC, CN, TA | Email, Meeting, Phone call, Case Note (Note), Task — all three windows |
+| Delta SQL (types only) | `sql/04-ensure-activity-types.sql` | Applied HCO 2026-07-12 after first tab install |
 
 **Do not** set `ABERP_ACTIVITY_SEED_SQL=1` on HCO.
+
+### HCO next install / prod update note
+
+If Activity tabs are already present, the next HCO production update only needs:
+
+`AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712\02-DELTA-activity-types-only.sql`
+
+(or repo `sql/04-ensure-activity-types.sql`)
+
+Fresh HCO-like hosts: full portable order including `04`. After apply: logout/in; Activity Type must list Email, Meeting, Phone call, Case Note, Task.

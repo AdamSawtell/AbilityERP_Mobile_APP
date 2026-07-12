@@ -380,41 +380,58 @@ END $$;
 
 -- ---------------------------------------------------------------------------
 -- 4. Activity type filtering + Included Activities validation rule
+-- Email / Meeting / Phone call / Case Note / Task on each target window.
+-- Append each window ID only if missing (do not skip when only BG is present).
 -- ---------------------------------------------------------------------------
-UPDATE ad_ref_list rl
-SET description = TRIM(BOTH ',' FROM
-      COALESCE(NULLIF(description, ''), '')
-      || CASE WHEN description IS NULL OR description = '' THEN '' ELSE ',' END
-      || (
-        SELECT string_agg(w.ad_window_id::text, ',' ORDER BY w.name)
-        FROM ad_window w
-        WHERE w.name IN ('Booking Generator', 'Service Booking', 'Service Agreement (Project)')
-          AND w.isactive = 'Y'
-      )
-    ),
-    updated = NOW(),
-    updatedby = 100
-WHERE rl.ad_reference_id = (
-    SELECT c.ad_reference_value_id
-    FROM ad_column c
-    JOIN ad_table t ON t.ad_table_id = c.ad_table_id
-    WHERE t.tablename = 'C_ContactActivity' AND c.columnname = 'ContactActivityType'
-    LIMIT 1
-  )
-  AND rl.isactive = 'Y'
-  AND rl.value IN ('10000006', 'APP', 'EM', 'ME', 'PC', 'TA', 'CN')
-  AND EXISTS (
-    SELECT 1 FROM ad_window w
+DO $$
+DECLARE
+  v_ref_id INTEGER;
+  v_win RECORD;
+  v_type TEXT;
+  v_types TEXT[] := ARRAY['EM', 'ME', 'PC', 'CN', 'TA'];
+  v_desc TEXT;
+BEGIN
+  SELECT c.ad_reference_value_id INTO v_ref_id
+  FROM ad_column c
+  JOIN ad_table t ON t.ad_table_id = c.ad_table_id
+  WHERE t.tablename = 'C_ContactActivity' AND c.columnname = 'ContactActivityType'
+  LIMIT 1;
+  IF v_ref_id IS NULL THEN
+    RAISE EXCEPTION 'ContactActivityType list reference not found';
+  END IF;
+
+  FOR v_win IN
+    SELECT w.ad_window_id, w.name
+    FROM ad_window w
     WHERE w.name IN ('Booking Generator', 'Service Booking', 'Service Agreement (Project)')
       AND w.isactive = 'Y'
-  )
-  AND (
-    rl.description IS NULL
-    OR rl.description NOT LIKE '%' || (
-      SELECT w.ad_window_id::text FROM ad_window w
-      WHERE w.name = 'Booking Generator' AND w.isactive = 'Y' LIMIT 1
-    ) || '%'
-  );
+  LOOP
+    FOREACH v_type IN ARRAY v_types LOOP
+      SELECT description INTO v_desc
+      FROM ad_ref_list
+      WHERE ad_reference_id = v_ref_id AND value = v_type AND isactive = 'Y';
+
+      IF NOT FOUND THEN
+        RAISE WARNING 'Activity type % missing — skip for %', v_type, v_win.name;
+        CONTINUE;
+      END IF;
+
+      IF v_desc IS NULL OR (
+        ',' || v_desc || ',' NOT LIKE '%,' || v_win.ad_window_id::text || ',%'
+      ) THEN
+        UPDATE ad_ref_list
+        SET description = TRIM(BOTH ',' FROM
+              COALESCE(NULLIF(description, ''), '')
+              || CASE WHEN description IS NULL OR description = '' THEN '' ELSE ',' END
+              || v_win.ad_window_id::text
+            ),
+            updated = NOW(),
+            updatedby = 100
+        WHERE ad_reference_id = v_ref_id AND value = v_type AND isactive = 'Y';
+      END IF;
+    END LOOP;
+  END LOOP;
+END $$;
 
 UPDATE ad_val_rule vr
 SET code = vr.code || COALESCE((

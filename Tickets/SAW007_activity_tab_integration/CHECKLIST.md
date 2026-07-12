@@ -7,3 +7,4 @@
 - [x] Re-verify on HCO after install (2026-07-12)
 - [x] Smoke Activity tab as **Admin** (Booking Generator New: BP inherit, User empty, User/Contact hidden)
 - [x] DB verify Service Booking + Service Agreement Activity tabs present
+- [x] Activity Types Email / Meeting / Phone call / Case Note / Task on all three windows (HCO + packs)
