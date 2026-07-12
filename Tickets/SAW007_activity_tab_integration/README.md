@@ -1,4 +1,4 @@
-# SAW007 — Activity tab integration
+# SAW007 ? Activity tab integration
 
 | | |
 |--|--|
@@ -9,7 +9,11 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — use portable `register-contactactivity-tabs.sql` on other builds (not seed window IDs alone).
+**? [`DEPLOY.md`](DEPLOY.md)** ? use portable `register-contactactivity-tabs.sql` on other builds (not seed window IDs alone).
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
@@ -22,7 +26,7 @@ Activity tab on multiple windows; user/contact wiring on other builds as needed.
 
 ## Dependencies (app)
 
-None unless a client build requires matching app behaviour — note here if so.
+None unless a client build requires matching app behaviour ? note here if so.
 
 ## Packs
 

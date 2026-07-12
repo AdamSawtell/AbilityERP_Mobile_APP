@@ -1,4 +1,4 @@
-# SAW010 — Timesheet Approval Info Window column cleanup
+# SAW010 ? Timesheet Approval Info Window column cleanup
 
 | | |
 |--|--|
@@ -10,7 +10,11 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — SQL pack for Info columns; approval process JAR is a separate host dependency.
+**? [`DEPLOY.md`](DEPLOY.md)** ? SQL pack for Info columns; approval process JAR is a separate host dependency.
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
@@ -23,7 +27,7 @@ Clean up **Timesheet Approval** Info Window (`AD_InfoWindow_UU = 40d6a2d7-3bbc-4
 
 ## Dependencies (app)
 
-None — Info Window / Application Dictionary only.
+None ? Info Window / Application Dictionary only.
 
 ## Packs
 

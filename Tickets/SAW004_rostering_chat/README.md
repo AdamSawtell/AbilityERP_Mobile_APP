@@ -1,4 +1,4 @@
-# SAW004 — Rostering Chat
+# SAW004 ? Rostering Chat
 
 | | |
 |--|--|
@@ -9,7 +9,11 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** (ticket) and plugin [`idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md`](../../idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md).
+**? [`DEPLOY.md`](DEPLOY.md)** (ticket) and plugin [`idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md`](../../idempiere-plugins/com.aberp.rostering.chat/DEPLOY.md).
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
@@ -18,8 +22,8 @@ Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_Request
 ## Source of truth
 
 - Plugin: `idempiere-plugins/com.aberp.rostering.chat/`
-- Install AD: `…/sql/install-rostering-chat.sql` + patches `21`…`33` (order in `DEPLOY.md` / `deploy.sh`)
-- Verify: `…/sql/verify-install.sql`
+- Install AD: `?/sql/install-rostering-chat.sql` + patches `21`?`33` (order in `DEPLOY.md` / `deploy.sh`)
+- Verify: `?/sql/verify-install.sql`
 - Java: `SendRosteringReply`, `CloseRosteringChat`, `RosteringChatValidator`, `RosteringChatTabPanel`
 - App: `web/src/app/(app)/tasks/`, `web/src/components/TaskChat.tsx`, `api` request/chat routes
 
@@ -35,7 +39,7 @@ Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_Request
 
 ## Known portability caveat
 
-Chat Assigned logic hardcodes **Rostering Officer** as `AD_Role_ID = 1000012` on the reference tenant. `verify-install.sql` warns if the target role ID differs — fix before production use.
+Chat Assigned logic hardcodes **Rostering Officer** as `AD_Role_ID = 1000012` on the reference tenant. `verify-install.sql` warns if the target role ID differs ? fix before production use.
 
 ## Dependencies (app)
 

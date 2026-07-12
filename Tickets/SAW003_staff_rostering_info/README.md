@@ -1,4 +1,4 @@
-# SAW003 — Staff Rostering Info Window
+# SAW003 ? Staff Rostering Info Window
 
 | | |
 |--|--|
@@ -9,11 +9,15 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — agent one-liner, SQL order, packs, smoke.
+**? [`DEPLOY.md`](DEPLOY.md)** ? agent one-liner, SQL order, packs, smoke.
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
-Rewrite **Employee (User) / Agency Staff Rostering Info** used on **Shift (Rostered) → Employee**: lean query, leave/overlap + needs-match in Java, UX wildcards, Related Info, org/BP callouts.
+Rewrite **Employee (User) / Agency Staff Rostering Info** used on **Shift (Rostered) ? Employee**: lean query, leave/overlap + needs-match in Java, UX wildcards, Related Info, org/BP callouts.
 
 ## Source of truth
 

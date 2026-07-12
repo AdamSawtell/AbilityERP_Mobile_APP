@@ -17,30 +17,35 @@ Do **not** create a folder for app-only or meta/process tickets (`Kind: app` / `
 
 ```
 Tickets/SAW###_<slug>/
-  README.md      # goal, status, GitHub, source paths, dependencies
-  DEPLOY.md      # REQUIRED — enough for a new agent to install on another build
-  NOTES.md       # decisions, blockers, smoke results
-  CHECKLIST.md   # staging install → review → fix → packs
-  sql/           # optional: pack/apply/verify/rollback copies or pointers
+  README.md             # goal, status, GitHub, source paths
+  EXTERNAL-SUMMARY.md   # REQUIRED — copy/paste into the external customer ticket
+  DEPLOY.md             # REQUIRED — agent install on another build
+  NOTES.md              # decisions, blockers, smoke results
+  CHECKLIST.md          # staging install → review → fix → packs
+  sql/                  # optional pack/verify copies
 ```
 
-### `DEPLOY.md` must include
+### `EXTERNAL-SUMMARY.md` (end user / external ticket)
 
-1. Plugin / package path in this repo  
-2. JAR yes/no (and symbolic name / restart if yes)  
-3. Ordered SQL (or `deploy.sh` as the single command)  
-4. Preflight / verify  
-5. Cache Reset vs `systemctl restart idempiere`  
-6. WebUI smoke steps  
-7. Known blockers / portability risks  
-8. Pack paths (Downloads) **or** “apply from repo; no pack yet”
+Plain-language update for the **external ticket** (not for agents). Must be ready to copy/paste and cover:
 
-**GitHub issue body** for Kind `idempiere` / `both` must contain the same Deploy block (or an explicit link to `Tickets/SAW###_…/DEPLOY.md` plus the one-liner install command). A new agent pointed at the repository must be able to deploy without hunting chat history.
+- What’s been done  
+- What changed (windows / fields / behaviour)  
+- Impact / who is affected  
+- How to test (business smoke)  
+- Access note: **AbilityERP Admin** can see/use all new windows, tabs, Info Windows, and processes  
+- Any residual caveats  
 
-**Source of truth** for plugin migrations remains under `idempiere-plugins/…`. Prefer pointers in `DEPLOY.md` over duplicating evolving SQL.
+### `DEPLOY.md` (agents)
+
+Enough for a new agent to install on another build. Must also grant **AbilityERP Admin** access to every new window / process / Info Window / form (see `docs/DEV-REQUIREMENTS.md`).
+
+**GitHub issue** for Kind `idempiere` / `both`: Deploy section + link to `DEPLOY.md`. Link or attach `EXTERNAL-SUMMARY.md` when advising the customer ticket is ready.
+
+**Source of truth** for plugin migrations remains under `idempiere-plugins/…`.
 
 ## Naming
 
 Same slug everywhere: Agents chat, branch, Downloads packs, this folder.
 
-See `.cursor/rules/ticket-ids.mdc` and `client-update-staging-loop.mdc`.
+See `.cursor/rules/ticket-ids.mdc`, `client-update-staging-loop.mdc`, and `docs/DEV-REQUIREMENTS.md`.

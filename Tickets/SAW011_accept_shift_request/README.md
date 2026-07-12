@@ -1,4 +1,4 @@
-# SAW011 — Accept Shift Request
+# SAW011 ? Accept Shift Request
 
 | | |
 |--|--|
@@ -9,11 +9,15 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — JAR + `install-accept-shift-request.sql` + restart.
+**? [`DEPLOY.md`](DEPLOY.md)** ? JAR + `install-accept-shift-request.sql` + restart.
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
-On **Shift (Rostered) → Response Log**, rostering officers can **Accept Shift Request** for a **Yes – Request Shift (`REQ`)** row. That assigns the worker on the **Employee** tab, marks the log reviewed, and publishes the shift.
+On **Shift (Rostered) ? Response Log**, rostering officers can **Accept Shift Request** for a **Yes ? Request Shift (`REQ`)** row. That assigns the worker on the **Employee** tab, marks the log reviewed, and publishes the shift.
 
 ## Source of truth
 

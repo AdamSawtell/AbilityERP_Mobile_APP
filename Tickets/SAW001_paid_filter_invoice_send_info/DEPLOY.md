@@ -1,34 +1,34 @@
 # SAW001 — Deploy to another build
 
-**Ticket:** `SAW001_paid_filter_invoice_send_info` · **Kind:** idempiere · **JAR:** No (AD SQL only)
+**Ticket:** SAW001_paid_filter_invoice_send_info · **Kind:** idempiere · **JAR:** No (AD SQL only)
 
 ## Agent one-liner
 
-```bash
+bash
 cd idempiere-plugins/com.aberp.notification.invoiceinfo
 chmod +x deploy.sh && sudo ./deploy.sh
 # then Cache Reset (or logout/in). No iDempiere restart.
-```
+
 
 ## Package
 
-`idempiere-plugins/com.aberp.notification.invoiceinfo/`
+idempiere-plugins/com.aberp.notification.invoiceinfo/
 
 ## Ordered SQL (if not using deploy.sh)
 
-1. `sql/00-preflight-uuids.sql` — fails if Info Window UU missing  
-2. `sql/01-add-paid-criteria.sql`  
-3. `sql/04-add-info-menu.sql`  
-4. `sql/02-verify.sql`  
-5. `sql/03-functional-check.sql`  
+1. sql/00-preflight-uuids.sql — fails if Info Window UU missing  
+2. sql/01-add-paid-criteria.sql  
+3. sql/04-add-info-menu.sql  
+4. sql/02-verify.sql  
+5. sql/03-functional-check.sql  
 
-Rollback: `sql/99-rollback.sql`
+Rollback: sql/99-rollback.sql
 
-Target Info Window UU: `8fb1cd46-ed81-4cb9-8b83-7662caed9e62`
+Target Info Window UU: 8fb1cd46-ed81-4cb9-8b83-7662caed9e62
 
 ## Restart / cache
 
-- **No** `systemctl restart idempiere`
+- **No** systemctl restart idempiere
 - **Yes** Cache Reset or logout/in
 
 ## WebUI smoke
@@ -40,10 +40,15 @@ Target Info Window UU: `8fb1cd46-ed81-4cb9-8b83-7662caed9e62`
 
 ## Blockers / notes
 
-- Create From may fail without `com.logilite.crm.notification.webui.WCreateNotificationLines` — open Info Window from menu instead (pre-existing).
-- Thin prod Downloads pack may be missing; staging pack name pattern: `AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*`.
+- Create From may fail without com.logilite.crm.notification.webui.WCreateNotificationLines — open Info Window from menu instead (pre-existing).
+- Thin prod Downloads pack may be missing; staging pack name pattern: AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*.
+
+
+## AbilityERP Admin access (mandatory)
+
+Install SQL / deploy must grant **AbilityERP Admin** access to every new or newly exposed **window**, **process**, **Info Window**, and **form** (and process access for toolbar buttons). See docs/DEV-REQUIREMENTS.md. After grant: Role Access Update or logout/in. Smoke as Admin.
 
 ## Packs
 
-- Staging (if present): `Downloads\AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*`
-- Prod: create `AbilityERP-ProdUpdate-SAW001_…` before client go-live (least files: apply + rollback + HOW-TO)
+- Staging (if present): Downloads\AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*
+- Prod: create AbilityERP-ProdUpdate-SAW001_… before client go-live (least files: apply + rollback + HOW-TO)

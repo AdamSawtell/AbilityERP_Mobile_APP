@@ -1,4 +1,4 @@
-# SAW009 — Display service pattern day number on Service Booking Lines
+# SAW009 ? Display service pattern day number on Service Booking Lines
 
 | | |
 |--|--|
@@ -9,11 +9,15 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — SQL-only; prefer thin prod pack when present.
+**? [`DEPLOY.md`](DEPLOY.md)** ? SQL-only; prefer thin prod pack when present.
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
-Make `C_OrderLine.AbERP_Support_Start_Day` and `AbERP_Support_End_Day` on Service Booking Line display the numbered service-pattern day format already used by Booking Generator – Service Pattern Line (`AbERP_ServicePattern`), e.g. `01 - Monday` / `08 - Monday`.
+Make `C_OrderLine.AbERP_Support_Start_Day` and `AbERP_Support_End_Day` on Service Booking Line display the numbered service-pattern day format already used by Booking Generator ? Service Pattern Line (`AbERP_ServicePattern`), e.g. `01 - Monday` / `08 - Monday`.
 
 ## Source of truth
 
@@ -22,7 +26,7 @@ Make `C_OrderLine.AbERP_Support_Start_Day` and `AbERP_Support_End_Day` on Servic
 
 ## Dependencies (app)
 
-None — WebUI / Application Dictionary only.
+None ? WebUI / Application Dictionary only.
 
 ## Packs
 

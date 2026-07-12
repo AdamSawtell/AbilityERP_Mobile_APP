@@ -1,4 +1,4 @@
-# SAW001 — Paid filter on Notification SR Invoice Send Info
+# SAW001 ? Paid filter on Notification SR Invoice Send Info
 
 | | |
 |--|--|
@@ -9,7 +9,11 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — required reading for any agent installing this ticket.
+**? [`DEPLOY.md`](DEPLOY.md)** ? required reading for any agent installing this ticket.
+
+## External ticket (copy/paste)
+
+**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
 
 ## Goal
 
@@ -22,7 +26,7 @@ Add a **Paid** Yes/No/blank search filter (and display column) to Info Window **
 
 ## Dependencies (app)
 
-None — Info Window / WebUI only.
+None ? Info Window / WebUI only.
 
 ## Packs
 

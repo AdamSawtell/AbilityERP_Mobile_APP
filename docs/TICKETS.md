@@ -6,6 +6,8 @@ Allocate the next free `SAW###` before starting work. Keep this file in sync wit
 
 **Deploy handoff (vital):** for Kind `idempiere` / `both`, `Tickets/SAW###_…/DEPLOY.md` + the GitHub issue **Deploy** section must be enough for a new agent to install on another build from this repo alone.
 
+**External ticket handoff (vital):** `Tickets/SAW###_…/EXTERNAL-SUMMARY.md` — copy/paste for the customer ticket (done / changed / impact / test / Admin access). See also `docs/DEV-REQUIREMENTS.md` (AbilityERP Admin must get window/process/Info/form access).
+
 **Kind**
 
 | Value | Meaning | `Tickets/` folder? |
