@@ -1,4 +1,6 @@
 -- SAW009: AD_Field on Service Booking → Service Booking Line
+-- Resolve columns by owned UU first, else by ColumnName (keep client column UU).
+-- If a field already exists on the tab for that column, update it — do not overwrite field UU.
 SET search_path TO adempiere;
 
 DO $$
@@ -7,6 +9,7 @@ DECLARE
   v_col_start NUMERIC;
   v_col_end NUMERIC;
   v_seq_field INTEGER;
+  v_field NUMERIC;
   v_uu_f_start CONSTANT VARCHAR := 'c0a90003-50a9-4009-a001-000000000003';
   v_uu_f_end   CONSTANT VARCHAR := 'c0a90004-50a9-4009-a001-000000000004';
   v_uu_c_start CONSTANT VARCHAR := 'c0a90001-50a9-4009-a001-000000000001';
@@ -48,8 +51,16 @@ BEGIN
   WHERE name = 'AD_Field' AND istableid = 'Y'
   LIMIT 1;
 
-  -- Place next to AbERP_ServicePattern (seqno 400)
-  IF EXISTS (SELECT 1 FROM ad_field WHERE ad_field_uu = v_uu_f_start) THEN
+  -- Support Start Day field
+  SELECT ad_field_id INTO v_field FROM ad_field WHERE ad_field_uu = v_uu_f_start;
+  IF v_field IS NULL THEN
+    SELECT ad_field_id INTO v_field
+    FROM ad_field
+    WHERE ad_tab_id = v_tab AND ad_column_id = v_col_start
+    LIMIT 1;
+  END IF;
+
+  IF v_field IS NOT NULL THEN
     UPDATE ad_field SET
       name = 'Support Start Day',
       ad_tab_id = v_tab,
@@ -63,7 +74,8 @@ BEGIN
       entitytype = 'Ab_ERP',
       updated = NOW(),
       updatedby = 100
-    WHERE ad_field_uu = v_uu_f_start;
+    WHERE ad_field_id = v_field;
+    -- do not set ad_field_uu
   ELSE
     INSERT INTO ad_field (
       ad_field_id, ad_client_id, ad_org_id, isactive,
@@ -90,7 +102,17 @@ BEGIN
     );
   END IF;
 
-  IF EXISTS (SELECT 1 FROM ad_field WHERE ad_field_uu = v_uu_f_end) THEN
+  -- Support End Day field
+  v_field := NULL;
+  SELECT ad_field_id INTO v_field FROM ad_field WHERE ad_field_uu = v_uu_f_end;
+  IF v_field IS NULL THEN
+    SELECT ad_field_id INTO v_field
+    FROM ad_field
+    WHERE ad_tab_id = v_tab AND ad_column_id = v_col_end
+    LIMIT 1;
+  END IF;
+
+  IF v_field IS NOT NULL THEN
     UPDATE ad_field SET
       name = 'Support End Day',
       ad_tab_id = v_tab,
@@ -104,7 +126,7 @@ BEGIN
       entitytype = 'Ab_ERP',
       updated = NOW(),
       updatedby = 100
-    WHERE ad_field_uu = v_uu_f_end;
+    WHERE ad_field_id = v_field;
   ELSE
     INSERT INTO ad_field (
       ad_field_id, ad_client_id, ad_org_id, isactive,

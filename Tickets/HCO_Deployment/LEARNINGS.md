@@ -4,6 +4,35 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW009 Support day pattern number (Service Booking Line)
+
+**Result:** Pass (SQL + WebUI smoke). No existing HCO column UUIDs changed.
+
+### What worked
+
+- Tab / reference / element UUs matched Core.
+- Columns already existed on HCO as **String** storing weekday names; switched to List **14 Day Roster Period** without changing column UUs.
+- Backfill from `AbERP_ServicePattern` (48019 lines) → values `1`..`15`; WebUI shows e.g. `13 - Saturday`.
+- Sync trigger installed.
+
+### Learnings → process fixes
+
+| Learning | Action taken |
+|----------|----------------|
+| `01` previously set `ad_column_uu = our UU` when matching by ColumnName — would overwrite HCO UUs | Keep existing UU; only update reference/list/properties |
+| HCO already had weekday-text data in the same physical columns | Backfill from pattern only (no weekday→day-01 guessing) |
+| HCO “14 Day Roster Period” list labels start Monday (`01 - Monday`), not Sunday | Do not rewrite list; display whatever the client list defines |
+| Physical columns already `varchar(100)` | `ADD COLUMN IF NOT EXISTS` skips; do not force shrink to 5 |
+| New fields may not keep pack-owned field UUs on insert | Resolve fields by tab + column; never overwrite existing field UU |
+| Menu tree “Service Booking” opens reliably via `a.menu-href` click | Prefer menu-href over treecell-only click for WebUI smoke |
+
+### Ticket artefacts
+
+- `Tickets/SAW009_support_day_pattern_number/NOTES.md` → HCO Future Deployments variables  
+- `Tickets/SAW009_…/hco/run-install.sh`
+
+---
+
 ## 2026-07-12 — SAW001 Paid filter (Notification SR Invoice Send Info)
 
 **Result:** Pass (SQL + WebUI smoke). No HCO UUIDs changed. Process hardened and pushed (`9f720f5`).

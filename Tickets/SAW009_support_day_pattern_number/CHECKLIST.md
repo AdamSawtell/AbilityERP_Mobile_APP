@@ -12,5 +12,6 @@
 - [x] No pricing/qty logic changes (AD display + copy only)
 - [x] Staging pack
 - [x] Thin production pack
-- [ ] Full WebUI smoke after re-login (optional follow-up)
-- [ ] Registry + issue → done after push
+- [x] HCO Test install 2026-07-12 (column UUs preserved; WebUI `13 - Saturday`)
+- [x] HCO Future Deployments variables + LEARNINGS.md updated
+- [x] Process hardened: never overwrite existing AD_Column / AD_Field UUs

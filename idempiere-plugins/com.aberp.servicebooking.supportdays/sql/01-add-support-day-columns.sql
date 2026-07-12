@@ -2,6 +2,9 @@
 -- Display uses the same List as AbERP_ServicePattern.AbERP_RosterStartDay/EndDay
 -- ("14 Day Roster Period" → names like 02 - Monday / 09 - Monday).
 -- Stored value = list Value (pattern day number as text: '1'..'15'), not weekday-only text.
+--
+-- HCO / multi-client: if AD_Column already exists by ColumnName with a different UU,
+-- UPDATE properties only — NEVER overwrite ad_column_uu.
 SET search_path TO adempiere;
 
 ALTER TABLE c_orderline
@@ -61,7 +64,7 @@ BEGIN
       ad_table_id = v_table,
       ad_reference_id = 17,
       ad_reference_value_id = v_ref,
-      fieldlength = 5,
+      fieldlength = GREATEST(fieldlength, 5),
       ad_element_id = v_el_start,
       entitytype = 'Ab_ERP',
       isupdateable = 'Y',
@@ -74,12 +77,12 @@ BEGIN
     SELECT 1 FROM ad_column
     WHERE ad_table_id = v_table AND columnname = 'AbERP_Support_Start_Day'
   ) THEN
+    -- Keep client UU (HCO already has these columns).
     UPDATE ad_column SET
-      ad_column_uu = v_uu_start,
       name = 'Support Start Day',
       ad_reference_id = 17,
       ad_reference_value_id = v_ref,
-      fieldlength = 5,
+      fieldlength = GREATEST(fieldlength, 5),
       ad_element_id = v_el_start,
       entitytype = 'Ab_ERP',
       isupdateable = 'Y',
@@ -89,6 +92,7 @@ BEGIN
       updated = NOW(),
       updatedby = 100
     WHERE ad_table_id = v_table AND columnname = 'AbERP_Support_Start_Day';
+    RAISE NOTICE 'SAW009: kept existing AD_Column UU for AbERP_Support_Start_Day (did not overwrite)';
   ELSE
     INSERT INTO ad_column (
       ad_column_id, ad_client_id, ad_org_id, isactive,
@@ -125,7 +129,7 @@ BEGIN
       ad_table_id = v_table,
       ad_reference_id = 17,
       ad_reference_value_id = v_ref,
-      fieldlength = 5,
+      fieldlength = GREATEST(fieldlength, 5),
       ad_element_id = v_el_end,
       entitytype = 'Ab_ERP',
       isupdateable = 'Y',
@@ -139,11 +143,10 @@ BEGIN
     WHERE ad_table_id = v_table AND columnname = 'AbERP_Support_End_Day'
   ) THEN
     UPDATE ad_column SET
-      ad_column_uu = v_uu_end,
       name = 'Support End Day',
       ad_reference_id = 17,
       ad_reference_value_id = v_ref,
-      fieldlength = 5,
+      fieldlength = GREATEST(fieldlength, 5),
       ad_element_id = v_el_end,
       entitytype = 'Ab_ERP',
       isupdateable = 'Y',
@@ -153,6 +156,7 @@ BEGIN
       updated = NOW(),
       updatedby = 100
     WHERE ad_table_id = v_table AND columnname = 'AbERP_Support_End_Day';
+    RAISE NOTICE 'SAW009: kept existing AD_Column UU for AbERP_Support_End_Day (did not overwrite)';
   ELSE
     INSERT INTO ad_column (
       ad_column_id, ad_client_id, ad_org_id, isactive,
