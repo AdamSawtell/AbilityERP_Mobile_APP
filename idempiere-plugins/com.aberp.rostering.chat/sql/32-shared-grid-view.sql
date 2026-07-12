@@ -95,7 +95,13 @@ WHERE f.ad_column_id = c.ad_column_id
 -- Form mode required so Reply edits are not ignored (toggle to Grid for triage)
 UPDATE ad_tab t
 SET issinglerow = 'Y',
-    whereclause = 'R_Request.R_RequestType_ID=1000017',
+    whereclause = 'R_Request.R_RequestType_ID=' || (
+      SELECT rt.r_requesttype_id::text
+      FROM r_requesttype rt
+      WHERE rt.name = 'Rostering Chat' AND rt.isactive = 'Y'
+      ORDER BY rt.r_requesttype_id
+      LIMIT 1
+    ),
     orderbyclause = 'R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
     updated = NOW(),
     updatedby = 100

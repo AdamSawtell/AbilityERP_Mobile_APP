@@ -1,5 +1,6 @@
 #!/bin/bash
 # Deploy Rostering Chat plugin to iDempiere and register AD metadata.
+# See DEPLOY.md for agent handoff / other-build notes.
 set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
@@ -9,6 +10,16 @@ SYMBOLIC="com.aberp.rostering.chat"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
 BUNDLES_INFO="${IDEMPIERE_HOME}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
+
+apply_sql() {
+  local src="$1"
+  local base
+  base="$(basename "$src")"
+  echo "Applying $base"
+  sudo cp "$src" "/tmp/$base"
+  sudo chown postgres:postgres "/tmp/$base"
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/$base"
+}
 
 if [ ! -f "$BUILT_JAR" ]; then
   echo "Building plugin..."
@@ -29,8 +40,7 @@ sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
 echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
 echo "Applying AD registration SQL"
-sudo cp "$PLUGIN_DIR/sql/install-rostering-chat.sql" /tmp/install-rostering-chat.sql
-sudo -u postgres psql -d idempiere -f /tmp/install-rostering-chat.sql
+apply_sql "$PLUGIN_DIR/sql/install-rostering-chat.sql"
 
 # install-rostering-chat.sql resets field layout; re-apply UX patches
 for sql in \
@@ -47,11 +57,10 @@ for sql in \
   33-rename-processes.sql
 do
   if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
-    echo "Applying $sql"
-    sudo cp "$PLUGIN_DIR/sql/$sql" "/tmp/$sql"
-    sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -c "SET search_path TO adempiere, public;" -f "/tmp/$sql"
+    apply_sql "$PLUGIN_DIR/sql/$sql"
   fi
 done
+
 # Keep Send/Close visible (displaylogic on R_Status_ID can hide buttons when context is empty)
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 <<'EOSQL'
 SET search_path TO adempiere, public;
@@ -92,4 +101,10 @@ if [ -d "$CHUBOE_UTILS" ]; then
   fi
 fi
 
+echo "Running verify-install.sql"
+if [ -f "$PLUGIN_DIR/sql/verify-install.sql" ]; then
+  apply_sql "$PLUGIN_DIR/sql/verify-install.sql" || true
+fi
+
 echo "Deploy complete — log out/in on WebUI, then open Rostering Chat"
+echo "Agent handoff: see DEPLOY.md"

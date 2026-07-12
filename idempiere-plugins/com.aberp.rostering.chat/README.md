@@ -2,34 +2,27 @@
 
 WebUI window for rostering officers to manage mobile app chat threads.
 
+**Deploying to another build?** Start with [`DEPLOY.md`](./DEPLOY.md) (agent handoff).
+
 ## What it does
 
 | Feature | Detail |
 |---------|--------|
 | **Window** | **Rostering Chat** — filtered `R_Request` inbox |
-| **Filter** | `R_RequestType` = **Rostering Chat** only |
+| **Filter** | Request type **Rostering Chat** only; default open = **Response required** |
 | **History** | **Updates** tab — read-only `R_RequestUpdate` message list |
-| **Reply** | Editable **Last Result** field — type your message on the header |
-| **Send to Worker** | Button — creates `R_RequestUpdate`, sets worker as User/Contact, clears Role, saves |
-| **Close Chat** | Button — sets status to Closed; mobile opens a fresh thread next time |
+| **Reply** | **Reply** field + **Send Chat** / **Close Chat** |
+| **Grid** | Shared columns via `AD_Field` SeqNoGrid (Last Activity, Chat Assigned, Worker, Last Message) |
 
-Worker recipient is resolved from User/Contact on the request (the mobile worker who opened the thread).
-
-## Build (on iDempiere server)
+## Build / deploy (on iDempiere server)
 
 ```bash
 cd idempiere-plugins/com.aberp.rostering.chat
 chmod +x build.sh deploy.sh
-./build.sh
+sudo ./deploy.sh
 ```
 
-## Deploy
-
-```bash
-./deploy.sh
-```
-
-Or from your dev machine:
+From a workstation against a remote host:
 
 ```bash
 bash scripts/deploy-rostering-chat-plugin.sh
@@ -40,25 +33,23 @@ After deploy: **log out and log back in** on the WebUI.
 ## Manual test
 
 1. Log in as **Rostering Officer** or **AbilityERP Admin**.
-2. Open **Rostering Chat** (menu near Shift (Rostered)).
-3. Confirm only mobile chat threads appear.
-4. Open a thread → **Updates** tab shows message history.
-5. Type a reply in **Reply (Last Result)** → click **Send to Worker** → confirm update in Updates and on mobile Tasks.
-6. Click **Close Chat** → confirm status becomes Closed; mobile gets a new thread on next message.
+2. Open **Rostering Chat**.
+3. Confirm inbox shows **Response required** only (Lookup Lookup for other states).
+4. Toggle Grid — columns: Last Activity, Chat Assigned, Worker, Last Message.
+5. Type Reply → **Send Chat** → message appears in Updates / mobile Tasks.
+6. **Close Chat** → Closed; worker can start a new conversation.
 
-## SQL
+## Processes (role access)
 
-- `sql/install-rostering-chat.sql` — idempotent AD install (window, tabs, fields, processes, access, menu)
+| Value | Name | Class |
+|-------|------|--------|
+| `AbERP_RosteringChat_Send` | Send Chat | `com.aberp.rostering.chat.process.SendRosteringReply` |
+| `AbERP_RosteringChat_Close` | Close Chat | `com.aberp.rostering.chat.process.CloseRosteringChat` |
 
-## Processes
+Also grant window **Rostering Chat**.
 
-| Value | Class |
-|-------|-------|
-| `AbERP_RosteringChat_Send` | `com.aberp.rostering.chat.process.SendRosteringReply` |
-| `AbERP_RosteringChat_Close` | `com.aberp.rostering.chat.process.CloseRosteringChat` |
+## Role access (default install)
 
-## Role access
-
-- AbilityERP Admin (`1000004`)
-- Rostering Officer (`1000012`)
-- System Administrator (`0`)
+- AbilityERP Admin
+- Rostering Officer
+- System Administrator

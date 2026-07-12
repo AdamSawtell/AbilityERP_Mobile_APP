@@ -36,7 +36,13 @@ WHERE f.ad_column_id = c.ad_column_id
 -- Keep type filter only (do NOT bake Response required into WhereClause —
 -- that would permanently hide Closed / Awaiting worker from Find).
 UPDATE ad_tab t
-SET whereclause = 'R_Request.R_RequestType_ID=1000017',
+SET whereclause = 'R_Request.R_RequestType_ID=' || (
+      SELECT rt.r_requesttype_id::text
+      FROM r_requesttype rt
+      WHERE rt.name = 'Rostering Chat' AND rt.isactive = 'Y'
+      ORDER BY rt.r_requesttype_id
+      LIMIT 1
+    ),
     orderbyclause = 'R_Request.DateLastAction DESC NULLS LAST, R_Request.Updated DESC',
     updated = NOW(),
     updatedby = 100
@@ -67,8 +73,13 @@ DECLARE
   v_table_id INTEGER;
   v_tab_id INTEGER;
   v_window_id INTEGER;
-  v_client_id INTEGER := 1000002;
+  v_client_id INTEGER;
 BEGIN
+  SELECT COALESCE(
+    (SELECT ad_client_id FROM ad_client WHERE name = 'AbilityERP' AND isactive = 'Y' ORDER BY ad_client_id LIMIT 1),
+    (SELECT ad_client_id FROM ad_client WHERE ad_client_id > 0 AND isactive = 'Y' ORDER BY ad_client_id LIMIT 1)
+  ) INTO v_client_id;
+
   SELECT ad_table_id INTO v_table_id FROM ad_table WHERE tablename = 'R_Request';
   SELECT t.ad_tab_id, w.ad_window_id
     INTO v_tab_id, v_window_id
@@ -180,6 +191,7 @@ ORDER BY isdefault DESC, name;
 
 SELECT 'counts' AS c, aberp_chatawaitingreply, COUNT(*)::int
 FROM r_request
-WHERE r_requesttype_id = 1000017 AND isactive = 'Y'
+WHERE r_requesttype_id = (SELECT r_requesttype_id FROM r_requesttype WHERE name = 'Rostering Chat' AND isactive = 'Y' ORDER BY 1 LIMIT 1)
+  AND isactive = 'Y'
 GROUP BY aberp_chatawaitingreply
 ORDER BY 1;
