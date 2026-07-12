@@ -77,3 +77,23 @@ Select clauses: `t.AbERP_Break_Start`, `t.AbERP_Break_End`. No new DB columns.
 | Filters still shown | Pass |
 | Select row → Set Timesheet Approved Status dialog | Pass |
 | Process execute to completion | Fail — ClassNotFoundException (pre-existing missing JAR) |
+
+## HCO Future Deployments variables
+
+Recorded from HCO Test (`32.236.127.117`) on 2026-07-12. **No HCO `*_UU` values changed** (existing InfoColumns matched pack UUs; Break Start/End inserted with owned UUs).
+
+| Variable | Pack / seed | HCO observed |
+|----------|-------------|--------------|
+| Info Window UU | `40d6a2d7-3bbc-431e-940c-ce75829a68e4` | **same** (local ID `1000036`) |
+| Process UU | `3a3c2c41-995c-41ba-9fde-caeaacee1d75` | **same** — binds to Timesheet ID col `1000203` |
+| Hide-by-UU columns | Shift Cost / Name / IsEmployee / Activity / BP / Staff | **all UUs matched** on HCO |
+| Break Start InfoColumn UU | `c4e8a1b2-5d6f-4a7c-9e01-2b3d4f5a6c70` | inserted as this UU |
+| Break End InfoColumn UU | `d5f9b2c3-6e70-4b8d-a012-3c4e5f6a7b81` | inserted as this UU |
+| Physical break cols | required | present (`aberp_break_start` / `aberp_break_end`) |
+| Admin IW access | AbilityERP Admin | granted **Admin** + AbilityERP Admin |
+
+### HCO install outcome
+
+- Pass: SQL verify + WebUI grid = Employee/Agency Staff, Start, End, Shift Type, **Break Start**, **Break End**, Contract Location, Description, Status, Supervisor.
+- Hidden from grid (filters kept): Shift Cost, Name, Business Partner, Activity, Employee Yes/No.
+- Approve process execute not re-tested (known JAR dependency — out of scope for this SQL pack).

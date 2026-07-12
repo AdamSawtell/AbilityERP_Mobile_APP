@@ -21,6 +21,7 @@
 - [x] Approval process dialog opens on selected row (Timesheet ID bind intact)
 - [x] No SQL/UI errors from Info Window query
 - [~] Process class execution: **blocked on staging** by pre-existing `ClassNotFoundException: com.aberp.timesheetapproval.processes.setstatus` (JAR not installed)
+- [x] **HCO Test install 2026-07-12** — columns + Break Start/End WebUI pass; learnings logged
 - [ ] **Client build:** review/restore timesheetapproval process JAR and retest **AbERP Set Timesheet Approved Status** end-to-end (see NOTES)
 
 ## Packs

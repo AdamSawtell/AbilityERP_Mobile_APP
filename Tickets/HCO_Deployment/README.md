@@ -6,7 +6,7 @@ Living home for installing AbilityERP tickets onto the **HCO** customer build. A
 |--|--|
 | **Host** | `32.236.127.117` (hostname `Test`) |
 | **WebUI** | `http://32.236.127.117/webui/` — title like `AvERP HCO Test001 …` |
-| **SSH** | `ubuntu@32.236.127.117` — key `C:\Users\sawte\.ssh\HCObusiness.pem` (copy of `d:\HCObusiness.pem`; OpenSSH needs user-only ACL) |
+| **SSH** | `ubuntu@32.236.127.117` — key `C:\Users\sawte\.ssh\HCObusiness.pem` (copy of `d:\HCObusiness.pem`; OpenSSH needs user-only ACL). Prefer `ssh` stdin upload over multi-file `scp` if SCP hangs; kill stale local `ssh.exe`/`scp.exe` if connects stall. |
 | **WebUI login** | `SuperUser` / `HCOflamingo` |
 | **Typical role** | **Admin** (HCO SuperUser role dialog — not always AbilityERP Admin) |
 | **DB** | `idempiere` · user `adempiere` · password `flamingo` · schema `adempiere` |
@@ -48,6 +48,7 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 
 | Ticket | Notes |
 |--------|--------|
+| [SAW010](../SAW010_timesheet_approval_info_columns/NOTES.md#hco-future-deployments-variables) | Timesheet Approval Info columns — HCO install 2026-07-12 |
 | [SAW009](../SAW009_support_day_pattern_number/NOTES.md#hco-future-deployments-variables) | Support Start/End Day pattern numbers — HCO install 2026-07-12 |
 | [SAW001](../SAW001_paid_filter_invoice_send_info/NOTES.md#hco-future-deployments-variables) | Paid filter Info Window — first HCO install 2026-07-12 |
 

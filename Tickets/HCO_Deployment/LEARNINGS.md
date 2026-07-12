@@ -4,6 +4,32 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW010 Timesheet Approval Info columns
+
+**Result:** Pass (SQL + WebUI column smoke). Existing InfoColumn UUs unchanged (matched pack).
+
+### What worked
+
+- Info Window UU `40d6a2d7-…` and all hide-target InfoColumn UUs matched Core on HCO.
+- Break Start/End inserted with owned UUs; order after Shift Type confirmed in WebUI.
+- Filters still show Business Partner / Activity / Employee; grid does not.
+
+### Learnings → process fixes
+
+| Learning | Action taken |
+|----------|----------------|
+| Prefer `ssh` stdin upload over multi-file `scp` on this Windows host (scp/ssh sessions were hanging) | Document in HCO README access notes |
+| Stale local `ssh.exe` processes can block new HCO connections | Kill hung ssh/scp before retry |
+| Do **not** run `04-seed-test-rows.sql` on HCO (hardcoded client/org) | Already noted in DEPLOY.md — reinforced |
+| Grant Info Window access to **Admin** + AbilityERP Admin even when IW already existed | Applied on HCO install |
+
+### Ticket artefacts
+
+- `Tickets/SAW010_timesheet_approval_info_columns/NOTES.md` → HCO Future Deployments variables  
+- `Tickets/SAW010_…/hco/run-install.sh`
+
+---
+
 ## 2026-07-12 — SAW009 Support day pattern number (Service Booking Line)
 
 **Result:** Pass (SQL + WebUI smoke). No existing HCO column UUIDs changed.
