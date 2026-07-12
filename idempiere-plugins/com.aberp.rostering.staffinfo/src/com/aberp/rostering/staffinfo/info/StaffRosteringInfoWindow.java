@@ -22,7 +22,9 @@ import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zul.Hbox;
+import org.zkoss.zul.Div;
+import org.zkoss.zul.Row;
+import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
 
 /**
@@ -318,6 +320,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private void ensureContextBanner(org.zkoss.zul.North north) {
 		if (contextBanner != null && contextBanner.getParent() != null) {
 			contextBanner.setValue(buildContextBannerText());
+			placeFilterCheckboxes();
 			return;
 		}
 
@@ -328,42 +331,12 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
 						+ "font-size:12px;line-height:1.45;white-space:pre-line;");
 
-		showUnavailableCheckbox = new Checkbox();
-		showUnavailableCheckbox.setText("Show Unavailable Staff");
-		showUnavailableCheckbox.setTooltiptext(
-				"When unticked (default), staff on approved leave or already rostered on an "
-						+ "overlapping shift for this window are hidden. Tick to include them.");
-		showUnavailableCheckbox.setChecked(false);
-		showUnavailableCheckbox.addEventListener(Events.ON_CHECK, event -> {
-			if (contextBanner != null) {
-				contextBanner.setValue(buildContextBannerText());
-			}
-		});
-
-		showUnmatchedCheckbox = new Checkbox();
-		showUnmatchedCheckbox.setText("Show Unmatched Staff");
-		showUnmatchedCheckbox.setTooltiptext(
-				"When unticked (default), only staff matching Related Rostering Needs are listed. "
-						+ "Credentials must be active and valid for the shift Start/End. "
-						+ "Tick to include staff who do not meet those needs.");
-		showUnmatchedCheckbox.setChecked(false);
-		showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
-			if (contextBanner != null) {
-				contextBanner.setValue(buildContextBannerText());
-			}
-		});
-
-		Hbox flagRow = new Hbox();
-		flagRow.setWidth("100%");
-		flagRow.setSpacing("16px");
-		flagRow.appendChild(showUnavailableCheckbox);
-		flagRow.appendChild(showUnmatchedCheckbox);
+		ensureFilterCheckboxes();
 
 		Vbox header = new Vbox();
 		header.setWidth("100%");
 		header.setSpacing("4px");
 		header.appendChild(contextBanner);
-		header.appendChild(flagRow);
 
 		// North allows only ONE child. Prefer wrapping inside that child (often
 		// ZK north-body). Never insertBefore onto North itself.
@@ -377,11 +350,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			northChild = p;
 		}
 		if (northChild == null) {
+			placeFilterCheckboxes();
 			return;
 		}
 
 		if (northChild instanceof Vbox) {
 			northChild.insertBefore(header, northChild.getFirstChild());
+			placeFilterCheckboxes();
 			return;
 		}
 
@@ -395,6 +370,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			wrap.appendChild(header);
 			wrap.appendChild(content);
 			northChild.appendChild(wrap);
+			placeFilterCheckboxes();
 			return;
 		}
 
@@ -408,6 +384,71 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			wrap.appendChild(northChild);
 			north.appendChild(wrap);
 		}
+		placeFilterCheckboxes();
+	}
+
+	/** Create the two filter checkboxes once (placement is separate). */
+	private void ensureFilterCheckboxes() {
+		if (showUnavailableCheckbox == null) {
+			showUnavailableCheckbox = new Checkbox();
+			showUnavailableCheckbox.setText("Show Unavailable Staff");
+			showUnavailableCheckbox.setTooltiptext(
+					"When unticked (default), staff on approved leave or already rostered on an "
+							+ "overlapping shift for this window are hidden. Tick to include them.");
+			showUnavailableCheckbox.setChecked(false);
+			showUnavailableCheckbox.addEventListener(Events.ON_CHECK, event -> {
+				if (contextBanner != null) {
+					contextBanner.setValue(buildContextBannerText());
+				}
+			});
+		}
+		if (showUnmatchedCheckbox == null) {
+			showUnmatchedCheckbox = new Checkbox();
+			showUnmatchedCheckbox.setText("Show Unmatched Staff");
+			showUnmatchedCheckbox.setTooltiptext(
+					"When unticked (default), only staff matching Related Rostering Needs are listed. "
+							+ "Credentials must be active and valid for the shift Start/End. "
+							+ "Tick to include staff who do not meet those needs.");
+			showUnmatchedCheckbox.setChecked(false);
+			showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
+				if (contextBanner != null) {
+					contextBanner.setValue(buildContextBannerText());
+				}
+			});
+		}
+	}
+
+	/**
+	 * Sit filter ticks under criteria columns:
+	 * Show Unmatched under Staff Name, Show Unavailable under Employee.
+	 */
+	private void placeFilterCheckboxes() {
+		ensureFilterCheckboxes();
+		if (parameterGrid == null || parameterGrid.getRows() == null) {
+			return;
+		}
+		if (showUnmatchedCheckbox.getParent() != null
+				|| showUnavailableCheckbox.getParent() != null) {
+			return;
+		}
+
+		Row flagRow = new Row();
+		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
+		flagRow.appendChild(new Space()); // under Staff Name label
+		flagRow.appendChild(wrapCheckbox(showUnmatchedCheckbox));
+		flagRow.appendChild(new Space()); // under Employee label
+		flagRow.appendChild(wrapCheckbox(showUnavailableCheckbox));
+		flagRow.appendChild(new Space()); // under Agency label
+		flagRow.appendChild(new Space()); // under Agency editor
+		flagRow.appendChild(new Space()); // under All/Any
+		parameterGrid.getRows().appendChild(flagRow);
+	}
+
+	private static Div wrapCheckbox(Checkbox checkbox) {
+		Div wrap = new Div();
+		wrap.setStyle("padding-top:2px;");
+		wrap.appendChild(checkbox);
+		return wrap;
 	}
 
 	private String buildContextBannerText() {
