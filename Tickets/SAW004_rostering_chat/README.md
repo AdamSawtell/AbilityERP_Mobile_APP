@@ -6,21 +6,33 @@
 | **Kind** | both |
 | **GitHub** | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) |
 | **Slug** | `SAW004_rostering_chat` |
+| **Also covers** | SAW006 “Requests window clone” ([#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6)) — same project |
 
 ## Goal
 
-Rostering Chat WebUI and sync with the mobile/app surface.
+Rostering officers get a WebUI inbox for worker chat on `R_Request` / `R_RequestUpdate`. The window is a trimmed **clone of Requests**, filtered to request type **Rostering Chat**, with reply/close aligned to the mobile Chat (`/tasks`) path.
 
 ## Source of truth
 
-- iDempiere / WebUI rostering chat plugin and AD SQL (under `idempiere-plugins/` — update path if renamed)
-- App chat sync / UX under `web/` (list concrete paths when touching this ticket again)
+- Plugin: `idempiere-plugins/com.aberp.rostering.chat/`
+- Install AD: `…/sql/install-rostering-chat.sql` (+ follow-on `04-`…`31-*.sql`)
+- Java: `SendRosteringReply`, `CloseRosteringChat`, `RosteringChatValidator`, `RosteringChatTabPanel`
+- App: `web/src/app/(app)/tasks/`, `web/src/components/TaskChat.tsx`, `web/src/app/api/requests/chat/`, `api/src/routes/requests.ts`, `api/src/db/queries/requests.ts`
+
+## Window / menu
+
+| Object | Name |
+|--------|------|
+| Window | **Rostering Chat** |
+| Tabs | **Chat** (`R_Request`), **Updates** (`R_RequestUpdate`) |
+| Request type | **Rostering Chat** |
+| Menu | **Rostering Chat** (near Shift Rostered) |
+| Processes | `ROSTERING_CHAT_REPLY`, `ROSTERING_CHAT_CLOSE` |
 
 ## Dependencies (app)
 
-App chat inbox/sync must stay compatible with WebUI reply/close/status behaviour. Document exact routes/files when revisiting.
+App chat inbox/sync must stay compatible with WebUI reply/close/status. Kind **both** when shipping ERP + app in one release.
 
 ## Packs
 
-- ERP changes via `AbilityERP-*-SAW004_rostering_chat-*` when shipping AD/plugin
-- App deploys separately (Amplify / normal app release) when Kind includes app
+- `AbilityERP-*-SAW004_rostering_chat-*` (do **not** pack as SAW006)

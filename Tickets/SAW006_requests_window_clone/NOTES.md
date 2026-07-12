@@ -1,3 +1,3 @@
 # SAW006 notes
 
-- In progress — keep ownership to the agent working this stream.
+Closed as duplicate of SAW004. No separate plugin or pack.

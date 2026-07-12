@@ -1,24 +1,18 @@
-# SAW006 — Requests window clone
+# SAW006 — Requests window clone → **superseded by SAW004**
 
 | | |
 |--|--|
-| **Status** | in-progress |
-| **Kind** | idempiere |
+| **Status** | done (duplicate) |
+| **Kind** | idempiere (merged into **both** under SAW004) |
 | **GitHub** | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) |
-| **Slug** | `SAW006_requests_window_clone` |
+| **Canonical ticket** | [`SAW004_rostering_chat`](../SAW004_rostering_chat/) / [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) |
 
-## Goal
+## Verdict
 
-New iDempiere window cloned from Requests (AD / window setup).
+Same project as Rostering Chat. The “clone Requests” AD window **is** the Rostering Chat window in `idempiere-plugins/com.aberp.rostering.chat/`.
+
+**Do not** start a second Requests clone under this ID. All new work → SAW004 (or a new SAW### if a distinct follow-on).
 
 ## Source of truth
 
-- AD SQL / packout for the cloned window (record paths as they land)
-
-## Dependencies (app)
-
-None unless the app is pointed at the new window/process — list paths here if that happens.
-
-## Packs
-
-- `AbilityERP-*-SAW006_requests_window_clone-*`
+See [SAW004 README](../SAW004_rostering_chat/README.md).

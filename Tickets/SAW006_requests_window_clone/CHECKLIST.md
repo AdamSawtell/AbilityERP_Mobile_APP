@@ -1,8 +1,5 @@
 # SAW006 checklist
 
-- [ ] Preflight (UUID-safe) on staging
-- [ ] Apply AD / window setup
-- [ ] WebUI review
-- [ ] Fix until complete
-- [ ] Staging client pack
-- [ ] Thin prod pack (when client-bound)
+- [x] Confirmed same deliverable as SAW004
+- [x] Canonical home: `Tickets/SAW004_rostering_chat/`
+- [x] Do not ship packs as SAW006
