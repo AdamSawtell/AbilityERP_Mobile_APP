@@ -40,12 +40,13 @@ Info Window is pre-existing — Admin must already have (or be granted) access t
 
 ## Portability risks
 
-- `sql/08-enable-related-info.sql` may reference numeric InfoRelated / InfoColumn IDs — verify Related Info links on target; patch by UU/name if wrong.  
-- Prefer host `build.sh` so JAR version matches MANIFEST.
+- Prefer host `build.sh` so JAR version matches MANIFEST (or ship `release/*_1.1.0.2026071219.jar`).
+- `sql/06-fix-shift-org.sql` only moves org=`*` data for the **AbilityERP** seed client; on HCO it skips data move and still sets AlwaysUpdateable on the Employee Search column.
+- `sql/08-enable-related-info.sql` resolves Related Info / parent columns by UU/name (not seed InfoColumn IDs).
 
 ## WebUI smoke
 
-Shift (Rostered) → Employee → staff Search: wildcards, leave/needs, Related Info, contact→BP. See also `EXTERNAL-SUMMARY.md`.
+Shift (Rostered) → Employee → staff Search: wildcards, leave/needs, Related Info, contact→BP. See also `EXTERNAL-SUMMARY.md`. Confirm Info Window title **Employee (User) / Agency Staff Rostering Info** with **Staff Name** criteria.
 
 ## Packs
 

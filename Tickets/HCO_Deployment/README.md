@@ -48,6 +48,7 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 
 | Ticket | Notes |
 |--------|--------|
+| [SAW003](../SAW003_staff_rostering_info/NOTES.md#hco-future-deployments-variables) | Staff Rostering Info on Shift (Rostered) → Employee — HCO install 2026-07-12 |
 | [SAW007](../SAW007_activity_tab_integration/NOTES.md#hco-future-deployments-variables) | Activity tabs on BG / Service Booking / Service Agreement — HCO install 2026-07-12 |
 | [SAW010](../SAW010_timesheet_approval_info_columns/NOTES.md#hco-future-deployments-variables) | Timesheet Approval Info columns — HCO install 2026-07-12 |
 | [SAW009](../SAW009_support_day_pattern_number/NOTES.md#hco-future-deployments-variables) | Support Start/End Day pattern numbers — HCO install 2026-07-12 |

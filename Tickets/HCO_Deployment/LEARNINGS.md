@@ -4,6 +4,32 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW003 Staff Rostering Info (Shift → Employee)
+
+**Result:** Pass (SQL + JAR restart + WebUI Info Window smoke). No HCO `*_UU` overwritten.
+
+### What worked
+
+- Info Window UU already on HCO as local `1000034`; Employee tab `AbERP_User_Contact_ID` already uses ref → that IW.
+- Applied full SQL order (`01`→`20`→`04`) + JAR `1.1.0.2026071219` + restart (WebUI 200).
+- WebUI: Info Window shows **Staff Name**, Employee=Yes, Agency Staff criteria, Java banner (“Shift filter active…”), Related Info tabs.
+
+### Learnings → process fixes
+
+| Learning | Action taken |
+|----------|----------------|
+| `06` raised EXCEPTION when AbilityERP client missing → blocked HCO deploy | Soft-skip NOTICE; still set AlwaysUpdateable on `AbERP_User_Contact_ID` |
+| `08` hardcoded seed InfoColumn IDs `1000143`/`1000236` (wrong on HCO: `1000181`/`1000246`) | Rewrite `08` by InfoColumn UU / ColumnName + Related UU/name |
+| HCO has ~39k org=`*` shifts | Do not bulk re-org; smoke non-`*` shifts; document in NOTES |
+| Large JAR upload via base64 over SSH can hang | Prefer single-file `scp` for JARs; SQL via stdin |
+
+### Ticket artefacts
+
+- `Tickets/SAW003_staff_rostering_info/NOTES.md` → HCO Future Deployments variables  
+- Process: `sql/06-fix-shift-org.sql`, `sql/08-enable-related-info.sql`
+
+---
+
 ## 2026-07-12 — SAW012 Session/Process Audit performance
 
 **Result:** Pass on AD/UX/HouseKeeping. Indexes + batched purge long-running (expected). WebUI confirmed High Volume Find on Process Audit.
