@@ -9,6 +9,8 @@ alwaysApply: true
 
 When finishing an AbilityERP / iDempiere change destined for **another client build**, always produce a **Downloads update pack** before handoff. After staging is green, also emit a **thin production pack** (`AbilityERP-ProdUpdate-SAW###_…`) with least files. Pack and issue titles must include the **SAW###** ticket (see `ticket-ids.mdc`).
 
+These packs are for **Kind `idempiere` or `both`**. Keep the workstream home under `Tickets/SAW###_<slug>/` (update CHECKLIST/NOTES; list any app dependency paths in README). Do not invent a `Tickets/` folder for pure `app` / `meta` work.
+
 ## Update pack location
 
 Create:
@@ -58,4 +60,4 @@ UPDATE ad_infocolumn SET ... WHERE ad_infowindow_id = 1000032;
 
 ## After packaging
 
-Commit the repo migration sources as usual, then confirm the Downloads pack is complete and point the user at that folder path.
+Commit the repo migration sources as usual, update `Tickets/SAW###_<slug>/CHECKLIST.md` (and NOTES if needed), then confirm the Downloads pack is complete and point the user at that folder path.
