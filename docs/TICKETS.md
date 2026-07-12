@@ -2,36 +2,34 @@
 
 Allocate the next free `SAW###` before starting work. Keep this file in sync with GitHub issues.
 
-**Agents sidebar title format:** `SAW###_<short_snake_function>` (same as branch/pack slug).
+**Agents sidebar title:** `SAW###_<short_snake_function>`
+
+**Kind**
+
+| Value | Meaning | `Tickets/` folder? |
+|-------|---------|-------------------|
+| `idempiere` | AD / plugin / WebUI / client pack | **Yes** — `Tickets/SAW###_<slug>/` |
+| `both` | ERP drop **plus** required app/API dependency | **Yes** — ERP home + `Dependencies (app)` in README |
+| `app` | Mobile/web only | No — stay in app tree |
+| `meta` | Process/rules/review only | No |
 
 Status: `done` | `in-progress` | `blocked`
 
-| ID | Slug | Description | Status | GitHub | Agents chat title |
-|----|------|-------------|--------|--------|-------------------|
-| SAW001 | `paid_filter_invoice_send_info` | Paid filter on Notification SR Invoice Send Info | done | [#1](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/1) | `SAW001_paid_filter_invoice_send_info` |
-| SAW002 | `ticket_ids_and_update_loop` | SAW### tickets + staging client-update loop rules | done | [#2](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/2) | `SAW002_ticket_ids_and_update_loop` |
-| SAW003 | `staff_rostering_info` | Staff Rostering Info Window rewrite / UX / needs-match | in-progress | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) | `SAW003_staff_rostering_info` |
-| SAW004 | `rostering_chat` | Rostering Chat WebUI and sync | done | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) | `SAW004_rostering_chat` |
-| SAW005 | `leave_and_credentials_fixes` | Leave submit, approved-leave UX icons, credentials list | done | [#5](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/5) | `SAW005_leave_credentials_ux` |
-| SAW006 | `requests_window_clone` | New iDempiere window cloned from Requests | in-progress | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | `SAW006_requests_window_clone` |
-| SAW007 | `activity_tab_integration` | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | `SAW007_activity_tab_integration` |
-| SAW008 | `build_from_scratch_review` | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | `SAW008_build_from_scratch_review` |
+| ID | Slug | Kind | Description | Status | GitHub | Home |
+|----|------|------|-------------|--------|--------|------|
+| SAW001 | `paid_filter_invoice_send_info` | idempiere | Paid filter on Notification SR Invoice Send Info | done | [#1](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/1) | [`Tickets/SAW001_…`](../Tickets/SAW001_paid_filter_invoice_send_info/) |
+| SAW002 | `ticket_ids_and_update_loop` | meta | SAW### tickets + staging client-update loop + Tickets/ layout | done | [#2](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/2) | _(no folder)_ |
+| SAW003 | `staff_rostering_info` | idempiere | Staff Rostering Info Window rewrite / UX / needs-match | in-progress | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) | [`Tickets/SAW003_…`](../Tickets/SAW003_staff_rostering_info/) |
+| SAW004 | `rostering_chat` | both | Rostering Chat WebUI and sync | done | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) | [`Tickets/SAW004_…`](../Tickets/SAW004_rostering_chat/) |
+| SAW005 | `leave_and_credentials_fixes` | app | Leave submit, approved-leave UX icons, credentials list | done | [#5](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/5) | _(app — no folder)_ |
+| SAW006 | `requests_window_clone` | idempiere | New iDempiere window cloned from Requests | in-progress | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | [`Tickets/SAW006_…`](../Tickets/SAW006_requests_window_clone/) |
+| SAW007 | `activity_tab_integration` | idempiere | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | [`Tickets/SAW007_…`](../Tickets/SAW007_activity_tab_integration/) |
+| SAW008 | `build_from_scratch_review` | meta | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | _(no folder)_ |
 
 ## Next ID
 
 **SAW009**
 
-## Sidebar rename map (open each agent → ask rename)
-
-| Current sidebar name | Rename to |
-|----------------------|-----------|
-| Employee rostering info win… | `SAW003_staff_rostering_info` |
-| Ticket ID SAW-xxx rule | `SAW002_ticket_ids_and_update_loop` |
-| iDempiere requests window | `SAW006_requests_window_clone` |
-| Leave approved UX icons | `SAW005_leave_credentials_ux` |
-| Activity tab integration in iDe… | `SAW007_activity_tab_integration` |
-| AbilityERP build review | `SAW008_build_from_scratch_review` |
-
 ## Naming reminder
 
-`SAW###_<short_snake_function>` — see `.cursor/rules/ticket-ids.mdc`.
+`SAW###_<short_snake_function>` — see `.cursor/rules/ticket-ids.mdc` and [`Tickets/README.md`](../Tickets/README.md).

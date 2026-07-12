@@ -22,25 +22,40 @@ Examples:
 | `###` | Zero-padded integer from `docs/TICKETS.md` (next free number) |
 | `_short_snake_function` | Lowercase snake, function/outcome, not a novel |
 
+## Kind (where work lives)
+
+| Kind | Meaning | Create `Tickets/SAW###_<slug>/`? |
+|------|---------|--------------------------------|
+| `idempiere` | AD / plugin / WebUI / client pack | **Yes** |
+| `both` | ERP change **plus** required app/API dependency | **Yes** (ERP home + list app paths under Dependencies) |
+| `app` | Mobile/web product only | **No** — code stays under `web/` (etc.) |
+| `meta` | Rules, process, reviews | **No** |
+
+`Tickets/` is for **iDempiere delivery and its dependencies**, not a second copy of the mobile app. Plugin source of truth stays under `idempiere-plugins/…`; the ticket folder holds README / NOTES / CHECKLIST and optional pack/verify SQL pointers.
+
 ## Where the ID must appear
 
 1. **GitHub Issue** title: `SAW001 — Paid filter on Notification SR Invoice Send Info` (labels: `ticket`, `done` or `in-progress`)
 2. **Branch** (when not committing straight to main): `SAW001_paid_filter_invoice_send_info`
 3. **Commits**: prefix subject with `SAW001:` (e.g. `SAW001: add Paid InfoColumn criteria`)
-4. **Downloads packs**: `AbilityERP-ClientUpdate-SAW001_paid_filter_…-YYYYMMDD` and `AbilityERP-ProdUpdate-SAW001_…-YYYYMMDD`
-5. **Chat / Agents sidebar**: rename immediately to `SAW###_<short_snake_function>` (e.g. `SAW003_staff_rostering_info`). Do not leave titles like “Ticket ID SAW-xxx rule”.
-6. **Registry**: add/update the row in `docs/TICKETS.md` in the same session
+4. **Downloads packs** (idempiere/both): `AbilityERP-ClientUpdate-SAW001_…` and `AbilityERP-ProdUpdate-SAW001_…`
+5. **Chat / Agents sidebar**: rename immediately to `SAW###_<short_snake_function>`
+6. **Registry**: add/update the row in `docs/TICKETS.md` (include **Kind** + Home link)
+7. **Tickets folder** (idempiere/both only): create `Tickets/SAW###_<slug>/` with `README.md`, `NOTES.md`, `CHECKLIST.md` in the same session
 
 ## Starting new work
 
 1. Read `docs/TICKETS.md` → allocate next `SAW###`
-2. Create GitHub issue immediately (status `in-progress`)
-3. Append registry row
-4. Then implement (and follow client update loop when shipping to a client)
+2. Choose **Kind** (`idempiere` | `both` | `app` | `meta`)
+3. Create GitHub issue immediately (status `in-progress`)
+4. Append registry row
+5. If Kind is `idempiere` or `both`: scaffold `Tickets/SAW###_<slug>/`
+6. Then implement (follow client update loop when shipping to a client)
 
 ## Parallel agents / in-flight work
 
-- If `docs/TICKETS.md` or uncommitted files show **another agent in progress**, **do not** edit those paths or force-push their branches.
+- If `docs/TICKETS.md` or an `in-progress` ticket README lists paths, **do not** edit those paths or force-push their branches.
+- Prefer editing only that ticket’s `Tickets/SAW###_*` folder plus the source paths named in its README.
 - Allocate a **new** ticket for your stream; note overlaps in the issue body.
 - Never close or reassign another agent’s `in-progress` ticket without explicit user instruction.
 

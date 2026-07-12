@@ -39,8 +39,8 @@ Prefer SQL-only when no JAR. Never hardcode `AD_*_ID` across clients — use `*_
 
 ## Ticket ID
 
-Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it.
+Every client update stream needs a **SAW###** id (see `ticket-ids.mdc` + `docs/TICKETS.md`). Pack folder names and GitHub issues must include it. Kind is `idempiere` or `both` — keep the workstream home under `Tickets/SAW###_<slug>/` (checklist + notes + dependency list). App-only work does not use `Tickets/`.
 
 ## Handoff
 
-Staging result (pass/fail) + production pack path + residual blockers + **SAW###**.
+Staging result (pass/fail) + production pack path + residual blockers + **SAW###** + link to `Tickets/SAW###_…`.

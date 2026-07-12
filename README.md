@@ -11,11 +11,12 @@ Every workstream gets a ticket ID: `SAW###_<short_snake_function>` (example: `SA
 | Where | Link |
 |-------|------|
 | **Registry** | [`docs/TICKETS.md`](docs/TICKETS.md) |
+| **iDempiere ticket homes** | [`Tickets/`](Tickets/) (`Kind: idempiere` / `both` only) |
 | **GitHub Issues** | [Issues labeled `ticket`](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues?q=label%3Aticket) |
 | **Open / in progress** | [Issues with `in-progress`](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues?q=label%3Ain-progress+is%3Aopen) |
 | **Rules** | [`.cursor/rules/ticket-ids.mdc`](.cursor/rules/ticket-ids.mdc) |
 
-Commits and Downloads packs should include the `SAW###` id. Next free ID is listed at the bottom of `docs/TICKETS.md`.
+Commits and Downloads packs should include the `SAW###` id. Next free ID is listed at the bottom of `docs/TICKETS.md`. Pure app work is `Kind: app` (no `Tickets/` folder).
 
 ## Repository structure
 
@@ -24,10 +25,12 @@ Commits and Downloads packs should include the `SAW###` id. Next free ID is list
 ├── api/          Express API (EC2, port 3001)
 ├── scripts/      EC2 install & update scripts
 ├── deploy/       Per-environment .env templates
-├── docs/         Worker guide, tickets (TICKETS.md), push notifications
+├── docs/         Worker guide, tickets registry (TICKETS.md), push notifications
+├── Tickets/      iDempiere (+ dependency) workstream homes (SAW###_…)
 ├── .cursor/rules/ Project agent rules (tickets, client update loop)
 └── ARCHITECTURE.md
 ```
+
 
 ## Worker features (Phase 1 scope)
 
