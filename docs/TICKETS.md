@@ -33,7 +33,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_…`](../Tickets/SAW010_timesheet_approval_info_columns/) |
 | SAW011 | `accept_shift_request` | idempiere | Accept Shift Request: Response Log REQ → Employee tab assign | done | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) | [`Tickets/SAW011_…`](../Tickets/SAW011_accept_shift_request/) |
 | SAW012 | `session_process_audit_perf` | idempiere | Session/Process Audit usable on huge tables (High Volume, indexes, retention) | in-progress | [#12](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/12) | [`Tickets/SAW012_…`](../Tickets/SAW012_session_process_audit_perf/) |
-| SAW013 | `shift_change_form_enhancements` | idempiere | HCO Forms: auto Request Status + prevent duplicate Create Request | in-progress | [#13](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/13) | [`Tickets/SAW013_…`](../Tickets/SAW013_shift_change_form_enhancements/) |
+| SAW013 | `shift_change_form_enhancements` | idempiere | HCO Forms: auto Request Status + prevent duplicate Create Request | done | [#13](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/13) | [`Tickets/SAW013_…`](../Tickets/SAW013_shift_change_form_enhancements/) |
 
 ## Next ID
 
