@@ -15,13 +15,13 @@ UPDATE ad_infocolumn SET
   updatedby = 100
 WHERE ad_infocolumn_uu = 'a1b2c3d4-e5f6-7788-9900-aabbccdde001';
 
--- Show Unmatched: constant 'N' (safe default); never au.IsActive (leaks 0 rows)
+-- Show Unmatched: au.IsActive + NULL default (never default N — that hides all active staff)
 UPDATE ad_infocolumn SET
-  selectclause = '''N''',
+  selectclause = 'au.IsActive',
   isquerycriteria = 'Y',
   isdisplayed = 'N',
   ishideinfocolumn = 'Y',
-  defaultvalue = 'N',
+  defaultvalue = NULL,
   updated = NOW(),
   updatedby = 100
 WHERE ad_infocolumn_uu = 'a1b2c3d4-e5f6-7788-9900-aabbccdde003';

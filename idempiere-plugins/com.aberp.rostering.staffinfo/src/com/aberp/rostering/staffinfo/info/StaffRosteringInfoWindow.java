@@ -84,9 +84,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	@Override
 	protected String getSQLWhere() {
-		// AD "Show Unmatched Staff" is a UI flag only (SelectClause constant 'N').
-		// Never let it become SQL — a leaked 'N'='Y' returns 0 rows under AND mode;
-		// au.IsActive with default N was worse (au.IsActive='N' → no active staff).
+		// AD "Show Unmatched Staff" is a UI flag only (SelectClause au.IsActive,
+		// default blank). Never let it become SQL. Default must not be N — that
+		// would leak au.IsActive='N' and return zero active staff.
 		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
 		Object savedShowUnmatched = null;
 		boolean cleared = false;
