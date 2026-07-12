@@ -27,10 +27,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW008 | `build_from_scratch_review` | meta | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | _(no folder)_ |
 | SAW009 | `support_day_pattern_number` | idempiere | Service Booking Line Support Start/End Day show pattern day number | done | [#9](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/9) | [`Tickets/SAW009_…`](../Tickets/SAW009_support_day_pattern_number/) |
 | SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_…`](../Tickets/SAW010_timesheet_approval_info_columns/) |
+| SAW011 | `accept_shift_request` | idempiere | Accept Shift Request: Response Log REQ → Employee tab assign | done | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) | [`Tickets/SAW011_…`](../Tickets/SAW011_accept_shift_request/) |
 
 ## Next ID
 
-**SAW011**
+**SAW012**
 
 ## Naming reminder
 
