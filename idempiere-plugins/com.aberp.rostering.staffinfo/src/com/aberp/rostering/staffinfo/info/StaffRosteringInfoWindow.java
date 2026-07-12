@@ -84,11 +84,39 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		// Criteria stay editable even when AD_InfoColumn.IsReadOnly=Y (needed so the
 		// result grid does not paint dropdown editors on the selected row).
 		ensureCriteriaEditorsWritable();
-		// ZK validates Intbox "no negative" *before* executeQuery(); clear -1 and
-		// strip that constraint so All/Any / blank ID editors cannot popup.
+		// ZK client validates Intbox "no negative" *before* onUserQuery/executeQuery.
+		// Strip constraints + clear -1 as soon as criteria exist, then again after attach.
+		sanitizeIdEditors();
+		ensureContextBanner(north);
+		// Editors / Related panes may finish attaching after North render.
+		Events.echoEvent("onSanitizeIdEditors", this, null);
+	}
+
+	/** Echoed after layout so late-created Intboxes (Search embeds, Related) are cleaned. */
+	public void onSanitizeIdEditors() {
+		sanitizeIdEditors();
+	}
+
+	/**
+	 * ReQuery path: InfoPanel.onUserQuery → validateParameters → query.
+	 * Must sanitize here — executeQuery is too late (and client may already reject -1).
+	 */
+	@Override
+	public void onUserQuery() {
+		sanitizeIdEditors();
+		super.onUserQuery();
+	}
+
+	@Override
+	public boolean validateParameters() {
+		sanitizeIdEditors();
+		return super.validateParameters();
+	}
+
+	private void sanitizeIdEditors() {
 		clearInvalidIdCriteria();
 		neutralizeIdEditorConstraints();
-		ensureContextBanner(north);
+		stripIntboxConstraints(this);
 	}
 
 	/** Keep north criteria editors writable after grid columns are marked read-only. */
@@ -107,8 +135,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	@Override
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
-		clearInvalidIdCriteria();
-		neutralizeIdEditorConstraints();
+		sanitizeIdEditors();
 		if (contextBanner != null) {
 			contextBanner.setValue(buildContextBannerText());
 		}
@@ -255,6 +282,17 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			Integer val = box.getValue();
 			if (val != null && val.intValue() <= 0) {
 				box.setValue(null);
+			}
+		}
+		// Search / Table editors often wrap an Intbox; also clear Bandbox raw "-1"
+		if (root instanceof org.zkoss.zul.Bandbox) {
+			org.zkoss.zul.Bandbox band = (org.zkoss.zul.Bandbox) root;
+			String raw = band.getValue();
+			if (raw != null) {
+				String t = raw.trim();
+				if (t.isEmpty() || "-1".equals(t) || "0".equals(t)) {
+					band.setValue(null);
+				}
 			}
 		}
 		java.util.List<Component> children = root.getChildren();

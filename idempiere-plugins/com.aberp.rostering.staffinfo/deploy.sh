@@ -52,6 +52,7 @@ for f in \
   20-hide-clutter-columns.sql \
   21-fix-nonnegative-multiselect.sql \
   22-harden-nonnegative-editors.sql \
+  23-force-no-id-criteria.sql \
   04-verify.sql
 do
   echo "=== $f ==="

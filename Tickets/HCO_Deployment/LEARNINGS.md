@@ -2,7 +2,20 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
-## 2026-07-12 — SAW003 non-negative only (round 2 — JAR + editors)
+## 2026-07-12 — SAW003 non-negative (round 3 — onUserQuery)
+
+**Result:** Menu Info ReQuery All/Any = **210 rows, no popup** after JAR with `onUserQuery`/`validateParameters` sanitize + SQL `23`.
+
+### Seed SLUG progress (commits that fixed this before)
+`07c0e5c` → `c44fe33` → `165d19e` → **`6596eba`** (16/17 SQL + `clearInvalidIdCriteria`). Popup is ZK Intbox `-1` on **ReQuery path**, not “no staff match”.
+
+### Why prior HCO fix felt incomplete
+`InfoPanel.onUserQuery()` runs **before** `executeQuery()`. Client/server can reject `-1` Intboxes before our old clear ran. Now sanitize in `onUserQuery` + `validateParameters` + echo after render.
+
+### Retest
+Logout/in → Shift (Rostered) → Employee → Search → ReQuery with All/Any.
+
+---
 
 **Result:** Pass after SQL `22` + JAR rebuild with Intbox constraint strip. Hard restart required (soft restart left old Java process).
 
