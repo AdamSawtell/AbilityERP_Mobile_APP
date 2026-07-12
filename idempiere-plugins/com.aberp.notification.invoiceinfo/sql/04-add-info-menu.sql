@@ -1,5 +1,10 @@
 -- Menu + tree node so Notification SR Invoice Send Info opens directly (Action=I).
 -- Needed for smoke testing; Create From uses Logilite form which is missing on some hosts.
+--
+-- Portability (HCO / multi-client):
+--   * Resolve Info Window by UU only — never change existing client UUs.
+--   * If a menu already exists by name with a different UU, keep that UU (do not overwrite).
+--   * Parent folder resolved by name "Ability ERP" (summary), not hardcoded AD_Menu_ID.
 
 SET search_path TO adempiere;
 
@@ -10,14 +15,14 @@ DECLARE
   v_iw NUMERIC;
   v_seq INTEGER;
   v_tree NUMERIC;
-  v_parent NUMERIC := 1000175;
+  v_parent NUMERIC;
 BEGIN
   SELECT ad_infowindow_id INTO v_iw
   FROM ad_infowindow
   WHERE ad_infowindow_uu = '8fb1cd46-ed81-4cb9-8b83-7662caed9e62';
 
   IF v_iw IS NULL THEN
-    RAISE EXCEPTION 'Info Window not found';
+    RAISE EXCEPTION 'Info Window not found (UU 8fb1cd46-ed81-4cb9-8b83-7662caed9e62)';
   END IF;
 
   SELECT ad_menu_id INTO v_menu FROM ad_menu WHERE ad_menu_uu = v_uu;
@@ -46,11 +51,11 @@ BEGIN
       'U', v_uu, 'Y'
     );
   ELSE
+    -- Do NOT overwrite ad_menu_uu if the row was found by name with a different UU.
     UPDATE ad_menu SET
       name = 'Notification SR Invoice Send Info',
       action = 'I',
       ad_infowindow_id = v_iw,
-      ad_menu_uu = v_uu,
       isactive = 'Y',
       updated = NOW(),
       updatedby = 100
@@ -58,7 +63,14 @@ BEGIN
   END IF;
 
   SELECT ad_tree_id INTO v_tree FROM ad_tree WHERE treetype = 'MM' AND ad_client_id = 0 ORDER BY ad_tree_id LIMIT 1;
-  SELECT parent_id INTO v_parent FROM ad_treenodemm WHERE node_id = 1000229 AND ad_tree_id = v_tree;
+
+  SELECT m.ad_menu_id INTO v_parent
+  FROM ad_menu m
+  JOIN ad_treenodemm t ON t.node_id = m.ad_menu_id AND t.ad_tree_id = v_tree
+  WHERE m.name = 'Ability ERP' AND m.issummary = 'Y' AND m.isactive = 'Y'
+  ORDER BY m.ad_menu_id
+  LIMIT 1;
+
   IF v_parent IS NULL THEN
     v_parent := 0;
   END IF;
@@ -66,6 +78,10 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM ad_treenodemm WHERE ad_tree_id = v_tree AND node_id = v_menu) THEN
     INSERT INTO ad_treenodemm (ad_tree_id, node_id, ad_client_id, ad_org_id, isactive, created, createdby, updated, updatedby, parent_id, seqno)
     VALUES (v_tree, v_menu, 0, 0, 'Y', NOW(), 100, NOW(), 100, v_parent, 999);
+  ELSE
+    UPDATE ad_treenodemm
+    SET parent_id = v_parent, updated = NOW(), updatedby = 100
+    WHERE ad_tree_id = v_tree AND node_id = v_menu;
   END IF;
 
   RAISE NOTICE 'Menu AD_Menu_ID=% InfoWindow=% tree=% parent=%', v_menu, v_iw, v_tree, v_parent;

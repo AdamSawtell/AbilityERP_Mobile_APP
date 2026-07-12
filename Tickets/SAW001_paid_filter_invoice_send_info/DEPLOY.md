@@ -27,17 +27,22 @@ Target Info Window UU: `8fb1cd46-ed81-4cb9-8b83-7662caed9e62` (must exist — pr
 
 1. `sql/00-preflight-uuids.sql`  
 2. `sql/01-add-paid-criteria.sql`  
-3. `sql/04-add-info-menu.sql`  
-4. `sql/02-verify.sql`  
-5. `sql/03-functional-check.sql`  
+3. `sql/04-add-info-menu.sql` (parent folder by name **Ability ERP**; never overwrites an existing menu UU)  
+4. `sql/05-grant-admin-infowindow-access.sql` (roles **Admin** + **AbilityERP Admin** by name)  
+5. `sql/02-verify.sql`  
+6. `sql/03-functional-check.sql`  
 
 Rollback: `sql/99-rollback.sql`
 
 ## AbilityERP Admin access
 
-- No new process/window. Info Window must already be accessible to Admin (pre-existing).  
-- Menu entry is added; if Admin cannot see the menu after logout/in, grant Info Window / menu tree access for AbilityERP Admin (resolve role by **name**).  
-- Smoke **as Admin**.
+- `05-grant-admin-infowindow-access.sql` grants Info Window access to roles named **Admin** and **AbilityERP Admin**.  
+- Menu entry is added under **Ability ERP** when that summary folder exists.  
+- Smoke as the client’s operational Admin role (on HCO: SuperUser → **Admin**).
+
+## HCO Future Deployments variables
+
+See `NOTES.md` → **HCO Future Deployments variables** (local IDs, role/menu parent lessons). Do not change HCO `*_UU` values.
 
 ## Restart / cache
 
