@@ -41,7 +41,8 @@ for sql in \
   27-chat-assigned-refresh.sql \
   28-live-header-refresh.sql \
   29-close-zombie-chats.sql \
-  30-send-chat-layout.sql
+  30-send-chat-layout.sql \
+  31-inbox-default-query.sql
 do
   if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
     echo "Applying $sql"

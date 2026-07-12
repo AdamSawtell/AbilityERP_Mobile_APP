@@ -72,8 +72,8 @@ SET seqno = CASE c.columnname
     END,
     xposition = CASE c.columnname
       WHEN 'DateLastAction' THEN 4
-      WHEN 'AbERP_SendRosteringReply' THEN 1
-      WHEN 'AbERP_CloseRosteringChat' THEN 2
+      WHEN 'AbERP_SendRosteringReply' THEN 2
+      WHEN 'AbERP_CloseRosteringChat' THEN 3
       ELSE 1
     END,
     isdisplayed = 'Y',
