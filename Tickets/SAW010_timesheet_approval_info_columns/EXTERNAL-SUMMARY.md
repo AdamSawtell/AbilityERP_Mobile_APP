@@ -5,6 +5,21 @@
 **Internal ID:** SAW010_timesheet_approval_info_columns  
 **Source request:** #901558
 
+## Windows / processes / objects affected
+
+| Type | Name | Change |
+|------|------|--------|
+| **Info Window** | Timesheet Approval | Updated — column layout / Break Start & End |
+| **Info columns (grid)** | Shift Cost, Name, Employee (Y/N), Activity, Business Partner | Hidden from result grid (filters may remain) |
+| **Info column (grid)** | Employee (User) / Agency Staff | Retained as the staff column |
+| **Info columns (grid)** | Break Start, Break End | **Added** after Shift Type |
+| **Process** | AbERP Set Timesheet Approved Status | Unchanged bind — still launched from Info (needs process JAR on host) |
+| **Window / Menu** | *(none new)* | Existing Timesheet Approval Info entry |
+
+**Admin access:** AbilityERP Admin can open the Info Window; approve process requires Admin (or granted role) process access **and** the timesheet-approval plugin JAR.
+
+---
+
 ## What’s been done
 
 The **Timesheet Approval** Info Window result grid has been cleaned up: unused columns removed, staff shown once under Employee (User)/Agency Staff, and **Break Start** / **Break End** added after Shift Type.
@@ -21,7 +36,6 @@ The **Timesheet Approval** Info Window result grid has been cleaned up: unused c
 
 - Users who approve or review timesheets via this Info Window
 - Clearer grid; break times visible without opening every record
-- **AbilityERP Admin** can open the Info Window and run the approval action (subject to the note below)
 
 ## How to test
 

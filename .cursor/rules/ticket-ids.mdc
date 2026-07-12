@@ -43,7 +43,7 @@ Examples:
 6. **Registry**: add/update the row in `docs/TICKETS.md` (include **Kind** + Home link)
 7. **Tickets folder** (idempiere/both only): create `Tickets/SAW###_<slug>/` with `README.md`, **`EXTERNAL-SUMMARY.md`**, **`DEPLOY.md`**, `NOTES.md`, `CHECKLIST.md` in the same session
 8. **Deploy handoff (vital):** `DEPLOY.md` + the GitHub issue body must be enough for a **new agent** to install on another build from this repository alone (plugin path, JAR yes/no, ordered SQL or `deploy.sh`, restart/cache, smoke, blockers, packs, **AbilityERP Admin access grants**). See `Tickets/README.md` and `docs/DEV-REQUIREMENTS.md`.
-9. **External ticket handoff (vital):** `EXTERNAL-SUMMARY.md` is plain-language copy/paste for the **customer/external ticket** (what’s done, changed, impact, how to test, Admin can use it). Not an agent runbook.
+9. **External ticket handoff (vital):** `EXTERNAL-SUMMARY.md` is plain-language copy/paste for the **customer/external ticket** (what’s done, changed, impact, how to test, Admin can use it). It must include a standalone **Windows / processes / objects affected** table. Not an agent runbook.
 
 ## Starting new work
 

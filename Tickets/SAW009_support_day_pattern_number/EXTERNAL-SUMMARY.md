@@ -4,6 +4,22 @@
 **Area:** iDempiere — Service Booking Line support days  
 **Internal ID:** SAW009_support_day_pattern_number
 
+## Windows / processes / objects affected
+
+| Type | Name | Change |
+|------|------|--------|
+| **Window** | Service Booking | Unchanged shell — line fields updated |
+| **Tab** | Service Booking Line | Updated — Support Start Day / Support End Day fields |
+| **Fields** | Support Start Day, Support End Day | **New/updated** — 14 Day Roster Period list (numbered days) |
+| **Table** | `C_OrderLine` | Columns `AbERP_Support_Start_Day` / `AbERP_Support_End_Day` |
+| **Window / Tab** | Booking Generator → Service Pattern Line | Unchanged — source of numbered day list |
+| **Process** | *(none new)* | Sync via DB trigger when Service Pattern is linked |
+| **Menu** | *(none new)* | — |
+
+**Admin access:** AbilityERP Admin can open Service Booking and edit Support Start/End Day on lines.
+
+---
+
 ## What’s been done
 
 **Support Start Day** and **Support End Day** on Service Booking Lines now show the same numbered pattern-day labels used on Booking Generator Service Pattern Lines (for example `02 - Monday`, `09 - Monday`), so a 14-day roster can tell different Mondays apart.
@@ -19,7 +35,6 @@
 
 - Users editing Service Booking Lines and anyone reading support days for rostering/billing context
 - No change to pricing, quantities, or recurrence engines beyond displaying/copying day values
-- **AbilityERP Admin** can see and edit the fields on Service Booking Line
 
 ## How to test
 

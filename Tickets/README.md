@@ -29,8 +29,9 @@ Tickets/SAW###_<slug>/
 
 Plain-language update for the **external ticket** (not for agents). Must be ready to copy/paste and cover:
 
+- **Windows / processes / objects affected** — standalone table near the top (windows, tabs, Info Windows, processes, buttons, menus, forms)  
 - What’s been done  
-- What changed (windows / fields / behaviour)  
+- What changed (behaviour)  
 - Impact / who is affected  
 - How to test (business smoke)  
 - Access note: **AbilityERP Admin** can see/use all new windows, tabs, Info Windows, and processes  

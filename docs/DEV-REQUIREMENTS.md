@@ -81,7 +81,7 @@ AD-only SQL (no JAR change) does **not** require restart; still requires logout/
 
 | File | Audience | Purpose |
 |------|----------|---------|
-| `Tickets/SAW###_…/EXTERNAL-SUMMARY.md` | Customer / external ticket | Copy/paste: done, changed, impact, test, Admin access |
+| `Tickets/SAW###_…/EXTERNAL-SUMMARY.md` | Customer / external ticket | Copy/paste: **Windows/processes affected** table, done, changed, impact, test, Admin access |
 | `Tickets/SAW###_…/DEPLOY.md` | Agents / installers | Install on another build |
 | `docs/TICKETS.md` | Everyone | Registry index |
 

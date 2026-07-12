@@ -4,6 +4,21 @@
 **Area:** iDempiere — Shift (Rostered) → Response Log  
 **Internal ID:** SAW011_accept_shift_request
 
+## Windows / processes / objects affected
+
+| Type | Name | Change |
+|------|------|--------|
+| **Window** | Shift (Rostered) | Unchanged shell — Response Log gains Accept action |
+| **Tab** | Response Log | Updated — Accept Shift Request button / toolbar |
+| **Tab** | Employee | Updated by process — worker assigned on accept |
+| **Process** | Accept Shift Request (`SHIFT_ACCEPT_REQUEST` / `AcceptShiftRequest`) | **New** |
+| **Button / column** | Accept Shift Request (`AbERP_AcceptShiftRequest`) | **New** on Response Log |
+| **Menu** | *(none new)* | Uses existing Shift (Rostered) menu |
+
+**Admin access:** AbilityERP Admin (and Rostering Officer) have process access so Accept is visible and runnable.
+
+---
+
 ## What’s been done
 
 Rostering officers can **Accept Shift Request** from a worker’s **Yes – Request Shift** response on the Response Log. That assigns the worker onto the shift **Employee** tab, marks the response reviewed, and publishes the shift.
@@ -20,7 +35,6 @@ Rostering officers can **Accept Shift Request** from a worker’s **Yes – Requ
 
 - Rostering officers allocating requested shifts without manual re-keying of the employee
 - Workers still request via the mobile/app response path; acceptance is WebUI
-- **AbilityERP Admin** and Rostering Officer receive process access so the button is visible and runnable
 
 ## How to test
 

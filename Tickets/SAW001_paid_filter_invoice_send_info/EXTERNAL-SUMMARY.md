@@ -4,6 +4,20 @@
 **Area:** iDempiere — Notification / Invoice Info  
 **Internal ID:** SAW001_paid_filter_invoice_send_info
 
+## Windows / processes / objects affected
+
+| Type | Name | Change |
+|------|------|--------|
+| **Info Window** | Notification SR Invoice Send Info | Updated — Paid search criteria + Paid result column |
+| **Menu** | Notification SR Invoice Send Info (Action = Info) | Added/updated — direct open for testing |
+| **Process** | *(none new)* | — |
+| **Window / Tab** | *(none)* | — |
+| **Form** | *(none)* | Create From still uses existing Logilite form if present |
+
+**Admin access:** AbilityERP Admin can open the Info Window (and menu) and use the Paid filter.
+
+---
+
 ## What’s been done
 
 A **Paid** search option has been added to the **Notification SR Invoice Send Info** window so staff can filter invoices by payment status when selecting invoices for notification runs.
@@ -19,7 +33,6 @@ A **Paid** search option has been added to the **Notification SR Invoice Send In
 
 - Rostering / finance / notification users who use **Notification SR Invoice Send Info** or Create From on notification runs
 - Does **not** change notification sending logic itself — only which invoices appear in the search results
-- **AbilityERP Admin** can access the Info Window and use the new filter (Admin role access included)
 
 ## How to test
 

@@ -4,6 +4,22 @@
 **Area:** iDempiere — Activity tabs on booking / agreement windows  
 **Internal ID:** SAW007_activity_tab_integration
 
+## Windows / processes / objects affected
+
+| Type | Name | Change |
+|------|------|--------|
+| **Window** | Booking Generator | Updated — **Activity** tab registered |
+| **Window** | Service Booking | Updated — **Activity** tab registered |
+| **Window** | Service Agreement (Project) | Updated — **Activity** tab registered |
+| **Tab** | Activity (`C_ContactActivity`) | **New** on the windows above (clone of Enquiry Activity pattern) |
+| **Table / columns** | Contact Activity link columns | Added/updated as required for parent link |
+| **Process** | *(none new)* | — |
+| **Menu** | *(none new)* | Uses existing parent window menus |
+
+**Admin access:** AbilityERP Admin can open the parent windows and use the Activity tabs.
+
+---
+
 ## What’s been done
 
 **Activity** tabs have been registered on key operational windows so users can log contact activities in context (aligned with Enquiry Activity patterns). User/contact field behaviour is corrected so activities are not forced to the logged-in user where Business Partner + contact should apply.
@@ -19,7 +35,6 @@
 
 - Staff who log activities from those windows
 - Improves consistency of activity capture across booking and agreement work
-- **AbilityERP Admin** can open the windows/tabs and create activities
 
 ## How to test
 
