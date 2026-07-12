@@ -6,8 +6,15 @@ WHERE tablename IN ('AD_PInstance','AD_Session','AD_Issue');
 UPDATE ad_tab SET maxqueryrecords = 0, orderbyclause = NULL, updated = now(), updatedby = 100
 WHERE ad_tab_uu IN (
   '58bba03d-cb5c-4230-aeb2-1a435ae41b93',
-  '939cc571-7724-4631-977a-ec54f21ea0b3'
+  '939cc571-7724-4631-977a-ec54f21ea0b3',
+  '3a8be5bf-fd95-460a-8c4d-2996f46b767e',
+  '3e2298f0-8cfe-4520-8518-5bd176c8ec7f',
+  '0fa84b5c-6d82-4915-8907-81b52d93bf0e'
 );
+
+UPDATE ad_tab SET whereclause = NULL, updated = now(), updatedby = 100
+WHERE ad_tab_uu = '58bba03d-cb5c-4230-aeb2-1a435ae41b93';
+
 
 UPDATE ad_field SET isselectioncolumn = 'N', updated = now(), updatedby = 100
 WHERE ad_field_uu IN (

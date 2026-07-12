@@ -47,16 +47,14 @@ On **HCO Test** (`32.236.127.117`):
 
 | Test | Result |
 |------|--------|
-| Open **Process Audit** | Find (Lookup Record) appears with Created / Process / User / Result / Processing — **pass** |
-| Open **Session Audit** | Find appears with Created / Remote Addr / Login date / Processed — **pass** |
-| Session Audit query with date criteria | Window loads with **1/200** records; system message if more than 200 match (expected cap) — **pass** |
-| Cache Reset | Available / used in session — **pass** |
+| Open **Process Audit** / **Session Audit** | Find (Lookup Record) appears — **pass** |
+| Session Audit after Find | Loads with record cap (e.g. 1/200) — **pass** |
+| **Next/Previous between records** | **Initially not tested** — user reported still slow. Root cause: child tabs (Change Audit / Parameter / Log) had unlimited MaxQueryRecords, and Process Audit still counted/loaded Document Validation flood. **Mitigations applied:** child tabs capped at 200; Process Audit default WhereClause excludes Document Validation processes; ChangeLog session index building. |
 
-### Not yet benchmarked
+### Not yet proven
 
-- No stopwatch before/after for “Find last 7 days on Process Audit” after all indexes + purge complete.
-- Table sizes on HCO at last check were still ~**28 GB** `AD_PInstance`, ~**14 GB** ChangeLog, ~**12 GB** Issue — purge has not reduced them yet.
-- When communicating to stakeholders: call this a **usability restoration** now; call **storage / steady-state speed** complete only after indexes + purge finish on that host.
+- Timed next/prev after ChangeLog index completes and Cache Reset.
+- Table size reduction (purge still pending; ~28 GB AD_PInstance remains).
 
 ## Impact
 
