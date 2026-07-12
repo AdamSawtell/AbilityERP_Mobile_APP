@@ -50,8 +50,20 @@ Select clauses: `t.AbERP_Break_Start`, `t.AbERP_Break_End`. No new DB columns.
 ## Assumptions / issues
 
 - Staging DB had only one live timesheet before seed; used `04-seed-test-rows.sql` for no-break + agency-style coverage.
-- Process class `com.aberp.timesheetapproval.processes.setstatus` is **not installed** on current staging (`ClassNotFoundException` in WebUI / server log). AD InfoProcess bind to `AbERP_TimesheetAndExpenses_ID` is intact; dialog opens and accepts Status. Historical AD_PInstance rows from Jan 2024 show the process worked when the class was present. Restoring that JAR is out of scope for SAW010 column cleanup.
 - Approved/unapproved UI statuses for this process on staging are `10_Pending` / `20_Complete` (val rule 1000052), not a free-text "Approved" name.
+
+## Client-build follow-up: timesheet approval process JAR
+
+**Review when testing on the client build** (not blocked for SAW010 column pack).
+
+| | |
+|--|--|
+| **Symptom (staging)** | WebUI: `Failed to create new process instance for com.aberp.timesheetapproval.processes.setstatus` |
+| **Root cause** | `ClassNotFoundException` — OSGi class / JAR not present on this staging host |
+| **AD still OK** | InfoProcess binds to hidden `AbERP_TimesheetAndExpenses_ID`; dialog opens; Status para works |
+| **History** | AD_PInstance rows from Jan 2024 show the process succeeded when the class was deployed |
+| **Client check** | Confirm `com.aberp.timesheetapproval` (or equivalent) is installed/started; run **AbERP Set Timesheet Approved Status** end-to-end on Timesheet Approval |
+| **SAW010 pack** | Does **not** include this JAR — AD/SQL only |
 
 ## WebUI smoke (2026-07-12 staging)
 
