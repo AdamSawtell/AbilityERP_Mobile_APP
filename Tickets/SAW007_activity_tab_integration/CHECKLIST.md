@@ -1,5 +1,8 @@
 # SAW007 checklist
 
-- [x] Work registered / done in registry
-- [ ] Re-apply checklist if shipping to another client build
-- [ ] Staging + thin prod packs named SAW007
+- [x] Portable deploy path is default in `deploy.sh`
+- [x] DEPLOY.md agent-complete
+- [x] EXTERNAL-SUMMARY with objects table
+- [x] Client/prod Downloads packs (portable SQL)
+- [ ] Re-verify on target client after install
+- [ ] Smoke Activity tabs as AbilityERP Admin

@@ -50,3 +50,5 @@ Enough for a new agent to install on another build. Must also grant **AbilityERP
 Same slug everywhere: Agents chat, branch, Downloads packs, this folder.
 
 See `.cursor/rules/ticket-ids.mdc`, `client-update-staging-loop.mdc`, and `docs/DEV-REQUIREMENTS.md`.
+
+**Final agent readiness matrix:** [`AGENT-READY.md`](AGENT-READY.md).

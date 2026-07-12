@@ -1,5 +1,7 @@
 #!/bin/bash
 # Deploy Contact Activity tabs plugin to iDempiere.
+# OTHER BUILDS: portable registration (name/UU). Do NOT use seed window IDs in sql/02–03.
+# Optional: ABERP_ACTIVITY_SEED_SQL=1 to force legacy seed-ID path (reference tenant only).
 set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
@@ -24,10 +26,17 @@ sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
 echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
 echo "Applying AD registration SQL"
-for sql in 01-add-link-columns.sql 02-add-activity-tabs.sql 03-update-activity-type-windows.sql; do
-  sudo cp "$PLUGIN_DIR/sql/$sql" "/tmp/$sql"
-  sudo -u postgres psql -d idempiere -f "/tmp/$sql"
-done
+if [ "${ABERP_ACTIVITY_SEED_SQL:-0}" = "1" ]; then
+  echo "WARNING: seed-ID SQL path (window IDs hardcoded) — reference tenant only"
+  for sql in sql/01-add-link-columns.sql sql/02-add-activity-tabs.sql sql/03-update-activity-type-windows.sql; do
+    sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/$sql"
+  done
+else
+  # Portable other-build path
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/01-add-link-columns.sql"
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/register-contactactivity-tabs.sql"
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/fix-activity-user-contact.sql"
+fi
 
 echo "Restarting iDempiere via systemd"
 sudo systemctl restart idempiere
@@ -56,4 +65,4 @@ if [ -d "$CHUBOE_UTILS" ]; then
   fi
 fi
 
-echo "Deploy complete — log out/in on WebUI to refresh AD cache, then open Activity tabs on target windows"
+echo "Deploy complete — log out/in on WebUI. Ticket: Tickets/SAW007_activity_tab_integration/DEPLOY.md"

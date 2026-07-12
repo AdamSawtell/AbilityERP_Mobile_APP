@@ -1,57 +1,67 @@
-# SAW011 — Deploy to another build
+# SAW011 — Deploy to another build (agent)
 
-**Ticket:** SAW011_accept_shift_request · **Kind:** idempiere · **JAR:** Yes
+**Ticket / slug:** `SAW011_accept_shift_request`  
+**Kind:** idempiere · **JAR:** Yes · **Status:** done (seed-ready; check Published ID on other builds)
+
+## Required host access
+
+- SSH · `psql` · WebUI Admin · restart / OSGi  
+- Prerequisite: **Shift (Rostered)** + **Response Log** tab + `AbERP_RosteredResponseLog`
 
 ## Agent one-liner
 
-bash
+```bash
 cd idempiere-plugins/com.aberp.rosteredshift.process
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# installs accept-request bundle + sql/install-accept-shift-request.sql + restarts idempiere
-# then logout/in. Do NOT wipe OSGi cache (breaks other AbERP plugins).
+# installs acceptrequest JAR + sql/install-accept-shift-request.sql + restart
+# logout/in. Do NOT wipe OSGi cache.
+```
 
+## Package / bundle
 
-Manual SQL-only (still needs JAR for the process class):
+| | |
+|--|--|
+| Path | `idempiere-plugins/com.aberp.rosteredshift.process/` |
+| Process class | `com.aberp.rosteredshift.process.AcceptShiftRequest` |
+| **Bundle symbolic name** | `com.aberp.rosteredshift.acceptrequest` |
+| Version | `7.1.0.202607092140` (confirm MANIFEST) |
+| **Primary AD script** | `sql/install-accept-shift-request.sql` (includes button, display logic, **role-name** process access) |
 
-bash
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f sql/install-accept-shift-request.sql
-sudo systemctl restart idempiere
+## Do NOT use on other builds (hardcoded role IDs)
 
+- `sql/grant-process-access-roles.sql`  
+- `sql/register-accept-shift-request.sql`  
 
-## Package
+Use **only** `install-accept-shift-request.sql` (name-based Admin / Rostering Officer grants).  
+`update-accept-button-displaylogic.sql` is for fixes if displaylogic drifts — already embedded in install for fresh installs.
 
-idempiere-plugins/com.aberp.rosteredshift.process/
+Optional diagnose: `sql/diagnose-accept-shift-install.sql`
 
-- Process class: com.aberp.rosteredshift.process.AcceptShiftRequest  
-- Bundle symbolic name may be com.aberp.rosteredshift.acceptrequest (see package README / MANIFEST)  
-- Primary AD script: sql/install-accept-shift-request.sql
+## AbilityERP Admin access
 
-## Restart / cache
+Install SQL grants process access to **AbilityERP Admin** and **Rostering Officer** by **name**. Verify after deploy. Smoke **as Admin**.
 
-- **Yes** restart idempiere  
-- **Yes** logout/in  
-- **Do not** clear full OSGi cache as a “fix”
+## Portability risks (P0 before foreign go-live)
+
+Java hardcodes Published `R_Status_ID = 1000040`. On target:
+
+```sql
+SET search_path TO adempiere, public;
+SELECT r_status_id, name, value FROM r_status WHERE name ILIKE '%publish%' OR value ILIKE '%PUB%';
+```
+
+If not `1000040`, patch `AcceptShiftRequest.java` (or config) before go-live.
 
 ## WebUI smoke
 
-1. **Shift (Rostered)** with pending **REQ** on **Response Log**.  
-2. Select row → **Accept Shift Request**.  
-3. **Employee** tab has the worker; response IsReviewed = Y; shift **Published**; button hidden when already staffed / declined / reviewed.
-
-## Blockers / notes
-
-- Java currently uses Published R_Status_ID = 1000040 — **confirm by name/UU on the target** before go-live; patch if IDs differ.  
-- Needs AbERP_RosteredResponseLog + Response Log tab.  
-- Grant process access to AbilityERP Admin / Rostering Officer (install SQL should do this; verify).  
-- No Downloads pack yet — create AbilityERP-*-SAW011_accept_shift_request-* when shipping.
-
-
-## AbilityERP Admin access (mandatory)
-
-Install SQL / deploy must grant **AbilityERP Admin** access to every new or newly exposed **window**, **process**, **Info Window**, and **form** (and process access for toolbar buttons). See docs/DEV-REQUIREMENTS.md. After grant: Role Access Update or logout/in. Smoke as Admin.
+Shift with pending **REQ** → Accept Shift Request → Employee assigned · IsReviewed · Published · button hidden when staffed/declined/reviewed.
 
 ## Packs
 
-- None yet; apply from repo until thin prod pack exists.
+- Staging: `Downloads\AbilityERP-ClientUpdate-SAW011_accept_shift_request-20260712\`
+- Prod: `Downloads\AbilityERP-ProdUpdate-SAW011_accept_shift_request-20260712\`
+
+## External ticket text
+
+`Tickets/SAW011_accept_shift_request/EXTERNAL-SUMMARY.md`

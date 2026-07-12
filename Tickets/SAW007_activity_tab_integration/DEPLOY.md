@@ -1,67 +1,56 @@
-# SAW007 — Deploy to another build
+# SAW007 — Deploy to another build (agent)
 
-**Ticket:** SAW007_activity_tab_integration · **Kind:** idempiere · **JAR:** marker-only (still install via deploy)
+**Ticket / slug:** `SAW007_activity_tab_integration`  
+**Kind:** idempiere · **JAR:** marker (`com.aberp.contactactivity.tabs`) · **Status:** done
 
-## Agent one-liner (other builds — portable)
+## Required host access
 
-bash
+- SSH · `psql` · WebUI Admin · restart if installing JAR  
+- Prerequisite: Contact Activity / Enquiry Activity patterns exist on the client
+
+## Agent one-liner (OTHER BUILDS — default)
+
+```bash
 cd idempiere-plugins/com.aberp.contactactivity.tabs
-# Prefer UU/name scripts — do NOT rely on seed window IDs in sql/02 alone:
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f register-contactactivity-tabs.sql \
-  -f fix-activity-user-contact.sql
-# Optional: -f hide-activity-user-contact.sql
-# Install/start marker bundle if required by host runbook, then Cache Reset / logout-in
+chmod +x build.sh deploy.sh
+./deploy.sh
+# Default = portable: sql/01 + register-contactactivity-tabs.sql + fix-activity-user-contact.sql
+# then restart + logout/in
+```
 
+**Do not** set `ABERP_ACTIVITY_SEED_SQL=1` on another client — that path hardcodes window IDs (`1000193` / `1000077` / `1000118`).
 
-Seed-oriented path (may hardcode window IDs — verify first):
+## Package / bundle
 
-bash
-chmod +x build.sh deploy.sh && ./deploy.sh   # sql/01 → 02 → 03 + restart
+| | |
+|--|--|
+| Path | `idempiere-plugins/com.aberp.contactactivity.tabs/` |
+| Symbolic name | `com.aberp.contactactivity.tabs` |
+| Version | `7.1.0.202607092300` |
 
+## Ordered SQL (portable — what `deploy.sh` runs by default)
 
-## Package
+1. `sql/01-add-link-columns.sql`  
+2. `register-contactactivity-tabs.sql` (repo package root)  
+3. `fix-activity-user-contact.sql`  
 
-idempiere-plugins/com.aberp.contactactivity.tabs/
+Optional: `hide-activity-user-contact.sql`
 
-Also see INSTALL-CONTACT-ACTIVITY-TABS.md if present in package.
+**Seed-only (reference tenant):** `sql/02-add-activity-tabs.sql` + `sql/03-update-activity-type-windows.sql` via `ABERP_ACTIVITY_SEED_SQL=1`.
 
-## Ordered SQL
+## AbilityERP Admin access
 
-**Portable (preferred on other builds):**
-
-1. register-contactactivity-tabs.sql  
-2. fix-activity-user-contact.sql  
-3. Optional hide-activity-user-contact.sql
-
-**Seed deploy.sh path:**
-
-1. sql/01-add-link-columns.sql  
-2. sql/02-add-activity-tabs.sql (hardcodes window IDs — portability risk)  
-3. sql/03-update-activity-type-windows.sql
-
-## Restart / cache
-
-- Restart if installing the marker JAR via deploy.sh  
-- Always Cache Reset / logout-in after AD SQL
+Tabs are added to **existing** windows — Admin needs access to those parent windows (Booking Generator / Service Booking / Service Agreement). No new process. If tabs missing for Admin after logout/in, grant window access by role **name**. Smoke **as Admin**.
 
 ## WebUI smoke
 
-1. Open Booking Generator / Service Booking / Service Agreement (as installed) → **Activity** tab → New.  
-2. Activity types available; user/contact behaviour matches fix-activity-user-contact.sql (BP + user BP, not forced login user).  
-3. Role “Included Activities” filter if used on that build.
-
-## Blockers / notes
-
-- Numbered sql/02/03 hardcode window IDs — **fail or wrong windows** on clients with different IDs. Use register-contactactivity-tabs.sql.  
-- Needs Enquiry Activity (or equivalent) as clone template; C_ContactActivity present.  
-- No Downloads pack yet.
-
-
-## AbilityERP Admin access (mandatory)
-
-Install SQL / deploy must grant **AbilityERP Admin** access to every new or newly exposed **window**, **process**, **Info Window**, and **form** (and process access for toolbar buttons). See docs/DEV-REQUIREMENTS.md. After grant: Role Access Update or logout/in. Smoke as Admin.
+Each target window → **Activity** → New → save; confirm user/contact behaviour after fix script.
 
 ## Packs
 
-- Create AbilityERP-*-SAW007_activity_tab_integration-* when shipping; document portable SQL order in HOW-TO.
+- Staging: `Downloads\AbilityERP-ClientUpdate-SAW007_activity_tab_integration-20260712\`
+- Prod: `Downloads\AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712\` (portable SQL only)
+
+## External ticket text
+
+`Tickets/SAW007_activity_tab_integration/EXTERNAL-SUMMARY.md`

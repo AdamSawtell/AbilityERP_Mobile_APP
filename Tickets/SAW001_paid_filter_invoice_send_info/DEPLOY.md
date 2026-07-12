@@ -1,54 +1,64 @@
-# SAW001 — Deploy to another build
+# SAW001 — Deploy to another build (agent)
 
-**Ticket:** SAW001_paid_filter_invoice_send_info · **Kind:** idempiere · **JAR:** No (AD SQL only)
+**Ticket / slug:** `SAW001_paid_filter_invoice_send_info`  
+**Kind:** idempiere · **JAR:** No · **Status:** done
+
+## Required host access
+
+- SSH to iDempiere host  
+- `psql` as postgres (or equivalent) on DB `idempiere` / schema `adempiere`  
+- WebUI AbilityERP Admin (Cache Reset / logout-in)
 
 ## Agent one-liner
 
-bash
+```bash
 cd idempiere-plugins/com.aberp.notification.invoiceinfo
 chmod +x deploy.sh && sudo ./deploy.sh
-# then Cache Reset (or logout/in). No iDempiere restart.
-
+# Cache Reset or logout/in. No iDempiere restart.
+```
 
 ## Package
 
-idempiere-plugins/com.aberp.notification.invoiceinfo/
+`idempiere-plugins/com.aberp.notification.invoiceinfo/`
 
-## Ordered SQL (if not using deploy.sh)
+Target Info Window UU: `8fb1cd46-ed81-4cb9-8b83-7662caed9e62` (must exist — preflight fails closed).
 
-1. sql/00-preflight-uuids.sql — fails if Info Window UU missing  
-2. sql/01-add-paid-criteria.sql  
-3. sql/04-add-info-menu.sql  
-4. sql/02-verify.sql  
-5. sql/03-functional-check.sql  
+## Ordered SQL (`deploy.sh`)
 
-Rollback: sql/99-rollback.sql
+1. `sql/00-preflight-uuids.sql`  
+2. `sql/01-add-paid-criteria.sql`  
+3. `sql/04-add-info-menu.sql`  
+4. `sql/02-verify.sql`  
+5. `sql/03-functional-check.sql`  
 
-Target Info Window UU: 8fb1cd46-ed81-4cb9-8b83-7662caed9e62
+Rollback: `sql/99-rollback.sql`
+
+## AbilityERP Admin access
+
+- No new process/window. Info Window must already be accessible to Admin (pre-existing).  
+- Menu entry is added; if Admin cannot see the menu after logout/in, grant Info Window / menu tree access for AbilityERP Admin (resolve role by **name**).  
+- Smoke **as Admin**.
 
 ## Restart / cache
 
-- **No** systemctl restart idempiere
-- **Yes** Cache Reset or logout/in
+- **No** restart · **Yes** Cache Reset / logout-in
 
 ## WebUI smoke
 
-1. Open **Notification SR Invoice Send Info** (menu; or Create From if Logilite form is present).
-2. Confirm **Paid** criteria: blank / Yes / No.
-3. With valid dates + doc status: Yes → paid only; No → unpaid only; blank → both.
-4. Selected rows still usable with AbERP Notification Run when that flow exists.
+1. Open **Notification SR Invoice Send Info**.  
+2. Paid = Yes / No / blank with valid dates.  
+3. Confirm grid Paid column; selection still usable for notification run if present.
 
-## Blockers / notes
+## Portability risks
 
-- Create From may fail without com.logilite.crm.notification.webui.WCreateNotificationLines — open Info Window from menu instead (pre-existing).
-- Thin prod Downloads pack may be missing; staging pack name pattern: AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*.
-
-
-## AbilityERP Admin access (mandatory)
-
-Install SQL / deploy must grant **AbilityERP Admin** access to every new or newly exposed **window**, **process**, **Info Window**, and **form** (and process access for toolbar buttons). See docs/DEV-REQUIREMENTS.md. After grant: Role Access Update or logout/in. Smoke as Admin.
+- Menu SQL may use tree parent hints — verify menu placement on target.  
+- Create From needs Logilite form JAR (pre-existing); use menu if missing.
 
 ## Packs
 
-- Staging (if present): Downloads\AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*
-- Prod: create AbilityERP-ProdUpdate-SAW001_… before client go-live (least files: apply + rollback + HOW-TO)
+- Staging: `Downloads\AbilityERP-ClientUpdate-SAW001_paid_filter_invoice_send_info-*`
+- Thin prod: `Downloads\AbilityERP-ProdUpdate-SAW001_paid_filter_invoice_send_info-20260712\`
+
+## External ticket text
+
+`Tickets/SAW001_paid_filter_invoice_send_info/EXTERNAL-SUMMARY.md`

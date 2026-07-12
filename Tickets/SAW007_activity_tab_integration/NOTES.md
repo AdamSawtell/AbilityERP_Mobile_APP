@@ -1,3 +1,5 @@
 # SAW007 notes
 
-- Prefer UUID-safe AD SQL; never hardcode `AD_*_ID` across clients.
+- `deploy.sh` default is **portable** (`register-contactactivity-tabs.sql` + `fix-activity-user-contact.sql`).
+- Seed path only with `ABERP_ACTIVITY_SEED_SQL=1` (hardcoded window IDs — reference tenant only).
+- No INSTALL-CONTACT-ACTIVITY-TABS.md — use this ticket `DEPLOY.md`.

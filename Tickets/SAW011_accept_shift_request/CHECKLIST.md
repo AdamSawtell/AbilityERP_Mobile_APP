@@ -1,8 +1,7 @@
 # SAW011 checklist
 
-- [x] Process + button on Response Log
-- [x] Assigns worker on Employee tab from REQ
-- [x] Ticket home + GitHub issue
-- [ ] Staging re-verify on target client dump (if shipping)
-- [ ] Thin prod pack (JAR + UUID-safe SQL) when deploying to another build
-- [ ] Confirm Published status lookup is portable (not hardcoded ID-only)
+- [x] DEPLOY.md agent-complete (bundle name, do-not scripts, Published ID check)
+- [x] EXTERNAL-SUMMARY with objects table
+- [x] Downloads Client + Prod packs
+- [ ] Confirm Published `R_Status_ID` on target before go-live
+- [ ] Staging/client WebUI smoke as Admin
