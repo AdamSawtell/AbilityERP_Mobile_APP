@@ -28,7 +28,7 @@ Examples:
 2. **Branch** (when not committing straight to main): `SAW001_paid_filter_invoice_send_info`
 3. **Commits**: prefix subject with `SAW001:` (e.g. `SAW001: add Paid InfoColumn criteria`)
 4. **Downloads packs**: `AbilityERP-ClientUpdate-SAW001_paid_filter_…-YYYYMMDD` and `AbilityERP-ProdUpdate-SAW001_…-YYYYMMDD`
-5. **Chat rename**: start with the ticket id when work begins
+5. **Chat / Agents sidebar**: rename immediately to `SAW###_<short_snake_function>` (e.g. `SAW003_staff_rostering_info`). Do not leave titles like “Ticket ID SAW-xxx rule”.
 6. **Registry**: add/update the row in `docs/TICKETS.md` in the same session
 
 ## Starting new work
