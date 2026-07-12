@@ -78,7 +78,23 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	@Override
 	protected void renderParameterPane(org.zkoss.zul.North north) {
 		super.renderParameterPane(north);
+		// Criteria stay editable even when AD_InfoColumn.IsReadOnly=Y (needed so the
+		// result grid does not paint dropdown editors on the selected row).
+		ensureCriteriaEditorsWritable();
 		ensureContextBanner(north);
+	}
+
+	/** Keep north criteria editors writable after grid columns are marked read-only. */
+	private void ensureCriteriaEditorsWritable() {
+		if (editors == null) {
+			return;
+		}
+		for (WEditor editor : editors) {
+			if (editor == null) {
+				continue;
+			}
+			editor.setReadWrite(true);
+		}
 	}
 
 	@Override
