@@ -4,6 +4,19 @@ Standalone mobile-first PWA for AbilityERP support workers. **New codebase** —
 
 **Not a fork of AbilityVua.** Reusable across dev/test and client production installs.
 
+## Work tracking (SAW### tickets)
+
+Every workstream gets a ticket ID: `SAW###_<short_snake_function>` (example: `SAW001_paid_filter_invoice_send_info`).
+
+| Where | Link |
+|-------|------|
+| **Registry** | [`docs/TICKETS.md`](docs/TICKETS.md) |
+| **GitHub Issues** | [Issues labeled `ticket`](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues?q=label%3Aticket) |
+| **Open / in progress** | [Issues with `in-progress`](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues?q=label%3Ain-progress+is%3Aopen) |
+| **Rules** | [`.cursor/rules/ticket-ids.mdc`](.cursor/rules/ticket-ids.mdc) |
+
+Commits and Downloads packs should include the `SAW###` id. Next free ID is listed at the bottom of `docs/TICKETS.md`.
+
 ## Repository structure
 
 ```
@@ -11,7 +24,8 @@ Standalone mobile-first PWA for AbilityERP support workers. **New codebase** —
 ├── api/          Express API (EC2, port 3001)
 ├── scripts/      EC2 install & update scripts
 ├── deploy/       Per-environment .env templates
-├── docs/         Worker guide, dev requirements, push notifications
+├── docs/         Worker guide, tickets (TICKETS.md), push notifications
+├── .cursor/rules/ Project agent rules (tickets, client update loop)
 └── ARCHITECTURE.md
 ```
 
