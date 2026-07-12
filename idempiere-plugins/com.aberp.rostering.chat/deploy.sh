@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607111700"
+VERSION="7.1.0.202607121200"
 SYMBOLIC="com.aberp.rostering.chat"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -42,7 +42,8 @@ for sql in \
   28-live-header-refresh.sql \
   29-close-zombie-chats.sql \
   30-send-chat-layout.sql \
-  31-inbox-default-query.sql
+  31-inbox-default-query.sql \
+  32-shared-grid-view.sql
 do
   if [ -f "$PLUGIN_DIR/sql/$sql" ]; then
     echo "Applying $sql"

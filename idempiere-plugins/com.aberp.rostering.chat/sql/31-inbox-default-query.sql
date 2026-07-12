@@ -3,10 +3,11 @@ SET search_path TO adempiere, public;
 -- =============================================================================
 -- Rostering Chat inbox:
 --   1) Send Chat / Close Chat start at form column 2
---   2) Default open = Chat Assigned = Response required (AD_UserQuery IsDefault)
---      Awaiting worker / Closed are NOT in the default list — use Lookup / saved
---      queries (iDempiere best practice: tab WhereClause stays type-only so Find
---      can still reach every Rostering Chat row)
+--   2) Shared AD_UserQuery rows (Response required default label + Lookup options)
+--      Menu open passes a non-null MQuery, so IsDefault alone does not filter.
+--      RosteringChatTabPanel applies Response required on first activate;
+--      32-shared-grid-view.sql sets shared SeqNoGrid columns.
+--      Tab WhereClause stays type-only so Lookup can reach Awaiting worker / Closed.
 -- =============================================================================
 
 -- 1) Buttons start at column 2
