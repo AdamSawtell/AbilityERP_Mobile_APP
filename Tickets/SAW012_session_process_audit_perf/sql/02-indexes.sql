@@ -10,6 +10,11 @@ SET statement_timeout = 0;
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ad_pinstance_created_ix
   ON adempiere.ad_pinstance (created DESC);
 
+-- Faster alternative on huge sites (immutable date literal — refresh cutoff yearly):
+-- CREATE INDEX CONCURRENTLY IF NOT EXISTS ad_pinstance_created_90d_ix
+--   ON adempiere.ad_pinstance (created DESC) WHERE created >= DATE '2026-04-13';
+
+
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ad_session_created_ix
   ON adempiere.ad_session (created DESC);
 
