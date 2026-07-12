@@ -48,6 +48,7 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 
 | Ticket | Notes |
 |--------|--------|
+| [SAW007](../SAW007_activity_tab_integration/NOTES.md#hco-future-deployments-variables) | Activity tabs on BG / Service Booking / Service Agreement — HCO install 2026-07-12 |
 | [SAW010](../SAW010_timesheet_approval_info_columns/NOTES.md#hco-future-deployments-variables) | Timesheet Approval Info columns — HCO install 2026-07-12 |
 | [SAW009](../SAW009_support_day_pattern_number/NOTES.md#hco-future-deployments-variables) | Support Start/End Day pattern numbers — HCO install 2026-07-12 |
 | [SAW001](../SAW001_paid_filter_invoice_send_info/NOTES.md#hco-future-deployments-variables) | Paid filter Info Window — first HCO install 2026-07-12 |

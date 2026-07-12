@@ -4,6 +4,33 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 ---
 
+## 2026-07-12 — SAW007 Activity tab integration
+
+**Result:** Pass (SQL + WebUI smoke Booking Generator → Activity). No HCO `*_UU` overwritten.
+
+### What worked
+
+- Portable path: `sql/01-add-link-columns.sql` → `register-contactactivity-tabs.sql` → `fix-activity-user-contact.sql`.
+- Windows resolved by name (HCO IDs differ from seed). Tabs: BG `1000358`, SB `1000359`, SA `1000360` (19 fields each).
+- WebUI (Admin, after logout/in): Activity New shows **Business Partner** inherited (`Winston Churchill`), **User** empty (not hardcoded SuperUser), **User/Contact** hidden.
+- Marker JAR not required for AD tabs on HCO.
+
+### Learnings → process fixes
+
+| Learning | Action taken |
+|----------|----------------|
+| PG rejects `UPDATE … FROM t JOIN … ON … = target.col` when JOIN references update target | Rewrote `fix-activity-user-contact.sql` UPDATEs with `EXISTS` / no target-alias JOIN |
+| `nextid(AD_Field)` lagged after register’s `MAX+1` field clones → duplicate key on User field insert | User-field insert uses `MAX+1` + sequence bump; register now bumps `AD_Field` sequence after clone |
+| Existing element `AbERP_BookingGenerator_ID` already on HCO with different UU | Insert element/column only when missing — never overwrite UU |
+| Field display changes need logout/in (Cache Reset alone may not refresh tab form) | Documented in HCO NOTES / smoke |
+
+### Ticket artefacts
+
+- `Tickets/SAW007_activity_tab_integration/NOTES.md` → HCO Future Deployments variables  
+- Process SQL: `idempiere-plugins/com.aberp.contactactivity.tabs/` (`01`, `register-…`, `fix-activity-user-contact.sql`)
+
+---
+
 ## 2026-07-12 — SAW010 Timesheet Approval Info columns
 
 **Result:** Pass (SQL + WebUI column smoke). Existing InfoColumn UUs unchanged (matched pack).

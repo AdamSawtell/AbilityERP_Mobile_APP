@@ -134,7 +134,11 @@ BEGIN
           src.isquickentry, src.isupdateable, src.isalwaysupdateable, src.mandatorylogic, src.readonlylogic,
           src.istoolbarbutton, src.isadvancedfield, src.isdefaultfocus, src.vformat,
           src.placeholder, src.isquickform, src.isselectioncolumn, src.isdisablezoomacross,
-          ('ca' || lpad(to_hex(new_field_id), 6, '0') || '-4001-8001-' || lpad(to_hex(cfg.ad_tab_id), 12, '0'))
+          (
+            substring(md5('aberp-ca-' || new_field_id::text || '-' || cfg.ad_tab_id::text || '-' || link_col::text), 1, 8) || '-' ||
+            substring(md5('aberp-ca-' || new_field_id::text || '-' || cfg.ad_tab_id::text || '-' || link_col::text), 9, 4) || '-4001-8001-' ||
+            substring(md5('aberp-ca-' || new_field_id::text || '-' || cfg.ad_tab_id::text || '-' || link_col::text), 13, 12)
+          )
         );
         new_field_id := new_field_id + 1;
       END LOOP;

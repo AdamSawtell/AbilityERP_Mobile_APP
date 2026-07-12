@@ -4,5 +4,6 @@
 - [x] DEPLOY.md agent-complete
 - [x] EXTERNAL-SUMMARY with objects table
 - [x] Client/prod Downloads packs (portable SQL)
-- [ ] Re-verify on target client after install
-- [ ] Smoke Activity tabs as AbilityERP Admin
+- [x] Re-verify on HCO after install (2026-07-12)
+- [x] Smoke Activity tab as **Admin** (Booking Generator New: BP inherit, User empty, User/Contact hidden)
+- [x] DB verify Service Booking + Service Agreement Activity tabs present
