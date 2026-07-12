@@ -2,7 +2,18 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
-## 2026-07-12 — SAW003 non-negative (round 3 — onUserQuery)
+## 2026-07-12 — SAW003 Shift Search: real cause of "non-negative only"
+
+**Browser:** Shift `#1102425` Staff Search showed popup **non-negative only**.
+
+**Log (not Intbox alone):**
+`StaffRosteringInfoWindow.readLine` → `PSQLException: column ca.c_bpartner_staff_id does not exist`
+
+HCO `AbERP_CredentialAssignment` has **`aberp_user_contact_id` only** (no `c_bpartner_staff_id`). Needs-match SQL from Shift CRD requirements blew up; Info surfaced ZK **non-negative only**.
+
+**Fix:** Java uses BP-staff column only if present; else User Contact only. Redeployed JAR + hard restart. New log has **0** `c_bpartner_staff_id` errors.
+
+---
 
 **Result:** Menu Info ReQuery All/Any = **210 rows, no popup** after JAR with `onUserQuery`/`validateParameters` sanitize + SQL `23`.
 

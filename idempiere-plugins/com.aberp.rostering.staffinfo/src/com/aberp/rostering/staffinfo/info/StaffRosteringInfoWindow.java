@@ -732,9 +732,16 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					.append("AND NOT EXISTS (")
 					.append("SELECT 1 FROM AbERP_CredentialAssignment ca ")
 					.append("WHERE ca.IsActive = 'Y' ")
-					.append("AND ca.AbERP_Credentials_ID = rv.AbERP_Credentials_ID ")
-					.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
-					.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ");
+					.append("AND ca.AbERP_Credentials_ID = rv.AbERP_Credentials_ID ");
+			// HCO CredentialAssignment has AbERP_User_Contact_ID only — referencing
+			// missing C_BPartner_Staff_ID aborts the query and surfaces as ZK
+			// "non-negative only" when opened from Shift with CRD needs.
+			if (hasCredentialAssignmentBpStaffColumn()) {
+				sql.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
+						.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ");
+			} else {
+				sql.append("AND ca.AbERP_User_Contact_ID = au.AD_User_ID ");
+			}
 			if (shiftStartSql != null && shiftEndSql != null) {
 				// Valid for the whole shift window (not CURRENT_DATE):
 				// started on/before shift start; expires on/after shift end (or never).
@@ -774,6 +781,21 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		return sql.length() > 0 ? sql.toString() : null;
+	}
+
+	/** Cached: AbilityERP seed may have BP staff link; HCO CredentialAssignment does not. */
+	private static Boolean credentialAssignmentHasBpStaffCol;
+
+	private static boolean hasCredentialAssignmentBpStaffColumn() {
+		if (credentialAssignmentHasBpStaffCol == null) {
+			int n = DB.getSQLValue(null,
+					"SELECT COUNT(*) FROM information_schema.columns "
+							+ "WHERE table_schema = 'adempiere' "
+							+ "AND table_name = 'aberp_credentialassignment' "
+							+ "AND column_name = 'c_bpartner_staff_id'");
+			credentialAssignmentHasBpStaffCol = Boolean.valueOf(n > 0);
+		}
+		return credentialAssignmentHasBpStaffCol.booleanValue();
 	}
 
 	private NeedsSummary summarizeRelatedNeeds(Integer shiftId) {
