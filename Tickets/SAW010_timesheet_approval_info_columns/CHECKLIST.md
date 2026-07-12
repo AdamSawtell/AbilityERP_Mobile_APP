@@ -10,7 +10,7 @@
 - [x] Cache Reset
 - [x] WebUI smoke: columns, filters, breaks, approval process dialog
 - [x] Staging + prod Downloads packs
-- [ ] Commit + push
+- [x] Commit + push
 
 ## Acceptance
 
