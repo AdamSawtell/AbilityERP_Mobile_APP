@@ -30,9 +30,10 @@ On **HCO Test** (`32.236.127.117`):
 
 1. **Usability fix (live):** Both audit windows open to a **Lookup / Find** screen instead of trying to load the whole table (Process Audit had ~71 million rows / ~28 GB).
 2. **Search fields enabled:** Created, Process, User, Result, Processing (Process Audit); Created, Remote Addr, Processed, Login date (Session Audit).
-3. **Result cap:** Max 200 rows per query (newest first).
-4. **Retention:** Daily HouseKeeping configured for **90 days**.
-5. **Prod pack prepared:** same steps recorded for later Prod install.
+3. **Result cap:** Max 200 rows per query on parent **and child** tabs (Change Audit / Parameter / Log) — needed so Next/Previous does not reload unlimited children.
+4. **Process Audit default filter:** hides Document Validation process flood (`ChuBoe_Validate_Document` / `AbERP_Validate_Document`); those rows stay in DB for retention purge.
+5. **Retention:** Daily HouseKeeping configured for **90 days**.
+6. **Prod pack prepared:** same steps recorded for later Prod install.
 
 ## What changed (behaviour)
 
