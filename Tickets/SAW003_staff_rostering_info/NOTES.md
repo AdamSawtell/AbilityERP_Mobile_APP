@@ -1,9 +1,16 @@
 # SAW003 notes
 
 - Deployment finished on staging; ticket marked **done** and agent-ready.
-- Bundle: `com.aberp.rostering.staffinfo` ? version **`1.1.0.2026071219`** (`build.sh` / `deploy.sh` / MANIFEST / Downloads packs).
+- Bundle: `com.aberp.rostering.staffinfo` ? version **`1.1.0.2026071220`** (`build.sh` / `deploy.sh` / MANIFEST / Downloads packs).
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not the same as SAW011 (Accept Shift Request) or SAW004 (Rostering Chat).
+
+## Why this work existed
+
+1. **Original problem:** Shift ? Employee staff search was slow/heavy (fat FROM joins) and hard to filter leave / overlap / credential needs.
+2. **Rewrite (SAW003):** Lean User+BP query, Java EXISTS filters, Related Info, clearer UX.
+3. **HCO follow-ups:** ZK **non-negative only** popup (Multi Select `-1` + missing `c_bpartner_staff_id` on CredentialAssignment) ? fixed in SQL `21`?`23` + Java sanitize / schema guard.
+4. **Perf (2026-07-12 evening):** ReQuery felt very slow on HCO (~100k shifts). Root causes: needs-match SQL evaluated heavy `AbERP_Related_Rostering_Needs_V` per staff row; leave used `UPPER()` (blocked indexes); Gender/Position correlated subselects; Lookup by **Roster Period** loads ~2k shifts (use Document No for one shift). Fix: `24-perf-staff-info.sql` + JAR prefetches credential IDs.
 
 ## Late UX (keep in packs)
 
@@ -14,9 +21,12 @@
 | `20` | Hide BP Name, Status, Business Partner, Agency Staff from **grid**; Agency Staff stays criteria |
 | `21` | Deactivate Multi Select leftovers (Support Receiver Needs) that cause ZK **non-negative only** |
 | `22` | Gender/Position as String names; deactivate leftover Search cols; Java strips Intbox `no negative` |
+| `23` | Force no ID/Search/MultiSelect query criteria leftovers |
+| `24` | Perf: cred/leave indexes; Gender/Position via joins; Java prefetches credential IDs |
 
 `20` must run **after** `03`/`05`/`09` on every full redeploy or those scripts re-show columns.
-`21`/`22` must run **after** `08` (Related Info) so Multi Select / Search leftovers stay off.
+`21`/`22`/`23` must run **after** `08` (Related Info) so Multi Select / Search leftovers stay off.
+`24` is safe after `22` (replaces Gender/Position selectclauses with join columns).
 
 **Empty results ? non-negative popup.** No staff matching needs ? `0 Rows found` (tick **Show Unmatched Staff**). Popup is ZK `-1` Intbox validation.
 

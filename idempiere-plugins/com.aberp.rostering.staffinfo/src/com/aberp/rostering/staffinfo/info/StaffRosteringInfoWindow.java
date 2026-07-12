@@ -668,10 +668,12 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		String endSql = DB.TO_DATE(range[1]);
 
 		StringBuilder sql = new StringBuilder();
+		// Status values on HCO/AbilityERP are uppercase AP/DC/RV — avoid UPPER()
+		// so the leave date/user indexes can be used.
 		sql.append("NOT EXISTS (")
 				.append("SELECT 1 FROM AbERP_Unavailability_Leave ul ")
 				.append("WHERE ul.AbERP_User_Contact_ID = au.AD_User_ID AND ul.IsActive = 'Y' ")
-				.append("AND UPPER(COALESCE(ul.AbERP_ApproverStatus,'')) = 'AP' ")
+				.append("AND ul.AbERP_ApproverStatus = 'AP' ")
 				.append("AND ul.StartDate <= ").append(endSql).append(' ')
 				.append("AND ul.EndDate >= ").append(startSql)
 				.append(')');
@@ -723,16 +725,22 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		StringBuilder sql = new StringBuilder();
 
-		if (needs.crdCount > 0) {
-			sql.append("NOT EXISTS (")
-					.append("SELECT 1 FROM AbERP_Related_Rostering_Needs_V rv ")
-					.append("WHERE rv.AbERP_Rostered_Shift_ID = ").append(id).append(' ')
-					.append("AND rv.IsActive = 'Y' AND rv.AbERP_NeedType = 'CRD' ")
-					.append("AND COALESCE(rv.AbERP_Credentials_ID,0) > 0 ")
-					.append("AND NOT EXISTS (")
-					.append("SELECT 1 FROM AbERP_CredentialAssignment ca ")
+		if (needs.crdCount > 0 && !needs.credentialIds.isEmpty()) {
+			// Prefetch credential IDs in Java so we do NOT evaluate
+			// AbERP_Related_Rostering_Needs_V per staff row (that view seq-scans
+			// needs rules and dominated ReQuery time on HCO).
+			StringBuilder inList = new StringBuilder();
+			for (int i = 0; i < needs.credentialIds.size(); i++) {
+				if (i > 0) {
+					inList.append(',');
+				}
+				inList.append(needs.credentialIds.get(i).intValue());
+			}
+			sql.append('(')
+					.append("SELECT COUNT(DISTINCT ca.AbERP_Credentials_ID) ")
+					.append("FROM AbERP_CredentialAssignment ca ")
 					.append("WHERE ca.IsActive = 'Y' ")
-					.append("AND ca.AbERP_Credentials_ID = rv.AbERP_Credentials_ID ");
+					.append("AND ca.AbERP_Credentials_ID IN (").append(inList).append(") ");
 			// HCO CredentialAssignment has AbERP_User_Contact_ID only — referencing
 			// missing C_BPartner_Staff_ID aborts the query and surfaces as ZK
 			// "non-negative only" when opened from Shift with CRD needs.
@@ -752,7 +760,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= CURRENT_DATE) ")
 						.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)");
 			}
-			sql.append("))");
+			sql.append(") = ").append(needs.credentialIds.size());
 		}
 
 		if (needs.gdrCount > 0) {
@@ -805,24 +813,36 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		int id = shiftId.intValue();
 		List<String> required = new ArrayList<>();
 
-		String credNames = DB.getSQLValueString(null,
-				"SELECT string_agg(x.name, ', ' ORDER BY x.name) FROM ("
-						+ "SELECT DISTINCT c.Name AS name FROM AbERP_Related_Rostering_Needs_V rv "
-						+ "INNER JOIN AbERP_Credentials c ON (c.AbERP_Credentials_ID = rv.AbERP_Credentials_ID) "
-						+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
-						+ "AND rv.AbERP_NeedType='CRD' AND COALESCE(rv.AbERP_Credentials_ID,0)>0"
-						+ ") x",
-				id);
-		int crd = 0;
-		if (!Util.isEmpty(credNames, true)) {
-			for (String part : credNames.split(",")) {
-				String name = part.trim();
-				if (!name.isEmpty()) {
-					required.add(name);
-					crd++;
+		List<Integer> credentialIds = new ArrayList<>();
+		java.sql.PreparedStatement pstmtCred = null;
+		java.sql.ResultSet rsCred = null;
+		try {
+			pstmtCred = DB.prepareStatement(
+					"SELECT DISTINCT rv.AbERP_Credentials_ID, c.Name "
+							+ "FROM AbERP_Related_Rostering_Needs_V rv "
+							+ "INNER JOIN AbERP_Credentials c ON (c.AbERP_Credentials_ID = rv.AbERP_Credentials_ID) "
+							+ "WHERE rv.AbERP_Rostered_Shift_ID=? AND rv.IsActive='Y' "
+							+ "AND rv.AbERP_NeedType='CRD' AND COALESCE(rv.AbERP_Credentials_ID,0)>0 "
+							+ "ORDER BY c.Name",
+					null);
+			pstmtCred.setInt(1, id);
+			rsCred = pstmtCred.executeQuery();
+			while (rsCred.next()) {
+				int credId = rsCred.getInt(1);
+				if (credId > 0) {
+					credentialIds.add(Integer.valueOf(credId));
+				}
+				String name = rsCred.getString(2);
+				if (!Util.isEmpty(name, true)) {
+					required.add(name.trim());
 				}
 			}
+		} catch (Exception e) {
+			log.log(java.util.logging.Level.WARNING, "needs credential prefetch", e);
+		} finally {
+			DB.close(rsCred, pstmtCred);
 		}
+		int crd = credentialIds.size();
 
 		String genderNames = DB.getSQLValueString(null,
 				"SELECT string_agg(x.name, ', ' ORDER BY x.name) FROM ("
@@ -862,7 +882,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			}
 		}
 
-		return new NeedsSummary(crd, gdr, emp, required);
+		return new NeedsSummary(crd, gdr, emp, required, credentialIds);
 	}
 
 	/**
@@ -921,17 +941,27 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		Integer shiftId = resolveCurrentShiftId();
 		if (shiftId != null && shiftId.intValue() > 0) {
-			Timestamp startDate = DB.getSQLValueTS(null,
-					"SELECT StartDate FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			Timestamp endDate = DB.getSQLValueTS(null,
-					"SELECT EndDate FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			Timestamp startTime = DB.getSQLValueTS(null,
-					"SELECT StartTime FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			Timestamp endTime = DB.getSQLValueTS(null,
-					"SELECT EndTime FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?", shiftId);
-			ShiftTimes fromDb = new ShiftTimes(startDate, endDate, startTime, endTime);
-			if (fromDb.hasDateOrTime()) {
-				return fromDb;
+			java.sql.PreparedStatement pstmt = null;
+			java.sql.ResultSet rs = null;
+			try {
+				pstmt = DB.prepareStatement(
+						"SELECT StartDate, EndDate, StartTime, EndTime "
+								+ "FROM AbERP_Rostered_Shift WHERE AbERP_Rostered_Shift_ID=?",
+						null);
+				pstmt.setInt(1, shiftId.intValue());
+				rs = pstmt.executeQuery();
+				if (rs.next()) {
+					ShiftTimes fromDb = new ShiftTimes(
+							rs.getTimestamp(1), rs.getTimestamp(2),
+							rs.getTimestamp(3), rs.getTimestamp(4));
+					if (fromDb.hasDateOrTime()) {
+						return fromDb;
+					}
+				}
+			} catch (Exception e) {
+				log.log(java.util.logging.Level.WARNING, "shift times", e);
+			} finally {
+				DB.close(rs, pstmt);
 			}
 		}
 
@@ -1042,17 +1072,21 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	private static final class NeedsSummary {
-		static final NeedsSummary EMPTY = new NeedsSummary(0, 0, 0, new ArrayList<String>());
+		static final NeedsSummary EMPTY = new NeedsSummary(0, 0, 0, new ArrayList<String>(),
+				new ArrayList<Integer>());
 		final int crdCount;
 		final int gdrCount;
 		final int empCount;
 		final List<String> requiredLabels;
+		final List<Integer> credentialIds;
 
-		NeedsSummary(int crdCount, int gdrCount, int empCount, List<String> requiredLabels) {
+		NeedsSummary(int crdCount, int gdrCount, int empCount, List<String> requiredLabels,
+				List<Integer> credentialIds) {
 			this.crdCount = crdCount;
 			this.gdrCount = gdrCount;
 			this.empCount = empCount;
 			this.requiredLabels = requiredLabels != null ? requiredLabels : new ArrayList<String>();
+			this.credentialIds = credentialIds != null ? credentialIds : new ArrayList<Integer>();
 		}
 
 		boolean hasAny() {

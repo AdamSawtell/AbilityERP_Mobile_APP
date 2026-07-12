@@ -45,7 +45,7 @@ Applies SQL via `deploy.sh` (`01`→`20`→`04`), installs OSGi jar, restarts iD
 
 Then **Cache Reset** (or log out/in). **Do not** wipe the full OSGi configuration cache.
 
-Current bundle version: **`1.1.0.2026071219`**.
+Current bundle version: **`1.1.0.2026071220`**.
 
 Agent handoff: repo `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and this package’s `DEPLOY.md`.
 

@@ -32,3 +32,15 @@ CREATE INDEX IF NOT EXISTS ad_user_value_upper_idx
 
 CREATE INDEX IF NOT EXISTS c_bpartner_name_upper_idx
   ON c_bpartner (upper(name::text));
+
+-- Credential match by required credential + staff (needs-match ReQuery)
+CREATE INDEX IF NOT EXISTS aberp_credassign_cred_user_active
+  ON aberp_credentialassignment (aberp_credentials_id, aberp_user_contact_id)
+  WHERE isactive = 'Y'
+    AND COALESCE(aberp_user_contact_id, 0) > 0
+    AND COALESCE(aberp_credentials_id, 0) > 0;
+
+-- Approved leave overlap lookup (Java uses ApproverStatus = 'AP', no UPPER())
+CREATE INDEX IF NOT EXISTS aberp_unavail_leave_user_status_dates
+  ON aberp_unavailability_leave (aberp_user_contact_id, startdate, enddate)
+  WHERE isactive = 'Y' AND aberp_approverstatus = 'AP';
