@@ -2,6 +2,21 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW017 Booking Generator bulk (Phase 0 discovery)
+
+**Scope:** Discovery only on HCO Test (same host as SAW010). No AD/JAR install. No `*_UU` changes.
+
+**Findings:**
+1. **Generate Bookings** AD present (UU `6482f6b8-…`, class `com.aberp.servicebooking.generator.process.GenerateBookings`) but **JAR absent** from plugins/customization-jar (also absent on AbilityERP seed). Same for `GenerateTimesheets` / `GenerateShifts` bytecode.
+2. Ops **STANDARDS** user query on BG = Description STANDARD* (~270 active). Blocks = Activity (Day Program=DO, etc.) + Description tokens; monthly DO/SIL queries are on **Service Booking** (`C_Order`), not BG.
+3. BG already has `InvoiceRule`, `AbERP_IsProgramOfSupports`, `IsTemplate`, `C_Activity_ID`, `AbERP_Ready_Claim_Rule`, Skip Dates — enough for v1 filters without a new column.
+4. `ad_pinstance` lookups by process easily **time out** on HCO (huge table) — avoid naive joins; aligns with SAW012.
+5. HCO Test `bundles.info` only lists recent AbERP plugins; many files under `customization-jar/` are not registered/active.
+
+**Next:** Obtain generator JAR from Flamingo/Logilite → install on HCO Test → single-record smoke → then build bulk wrapper.
+
+**Ticket:** [`Tickets/SAW017_booking_generator_bulk/hco/DISCOVERY.md`](../SAW017_booking_generator_bulk/hco/DISCOVERY.md)
+
 ## 2026-07-13 — SAW016 Leave Planning window
 
 **Install:** AD + PG functions/trigger (no JAR) on HCO Test. Window UU `16a01602-…`, tables `AbERP_Leave_Planning` + `_Line`.

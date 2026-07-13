@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (design / discovery) |
+| **Status** | in-progress (HCO Phase 0 done — **blocked on missing Generate Bookings JAR**) |
 | **Kind** | idempiere |
 | **GitHub** | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) |
 | **Slug** | `SAW017_booking_generator_bulk` |

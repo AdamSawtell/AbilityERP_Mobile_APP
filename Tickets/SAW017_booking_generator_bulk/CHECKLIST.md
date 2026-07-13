@@ -2,13 +2,14 @@
 
 ## Design / discovery
 
-- [ ] Host discovery: all `Generate*` processes + paras (Bookings, Timesheets, Invoice, Roster)
-- [ ] Locate Generate Bookings JAR; confirm callable API vs must wrap/duplicate
-- [ ] Confirm Standards filter with ops (query SQL vs new BG column)
-- [ ] Confirm block dimension (Activity / service line / other)
-- [ ] Confirm Invoice Rule default behaviour
-- [ ] Confirm waiting-on-plan / exit-date / Day Options field sources
-- [ ] Design sign-off (Amber / Jason + AbERP)
+- [x] Host discovery (HCO Test): all `Generate*` processes + paras (Bookings, Timesheets, Shifts) — see `hco/`
+- [x] Locate Generate Bookings JAR — **MISSING on HCO Test + seed** (AD only). Blocker: obtain from Flamingo/Logilite
+- [x] Standards filter — ops query **STANDARDS** = Description STANDARD* (~270); DocType Standard preferred
+- [x] Block dimension — `C_Activity_ID` + Description tokens (DO/SIL/IRR/STR); SB month queries on `C_Order`
+- [x] Invoice Rule — BG has `InvoiceRule` I/D; Ready to Claim `AbERP_Ready_Claim_Rule` (ATV/MT)
+- [x] Exit date — `c_bpartner.aberp_date_support_ceased`; Day Options = `*Do Not Use**` activities; waiting-on-plan = no BG column (Description/guidance)
+- [ ] Design sign-off (Amber / Jason + AbERP) after JAR availability confirmed
+- [ ] Install Generate Bookings JAR on HCO Test and smoke single-record generate
 
 ## Build
 

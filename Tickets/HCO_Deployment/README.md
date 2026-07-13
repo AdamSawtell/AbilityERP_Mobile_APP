@@ -55,5 +55,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW001](../SAW001_paid_filter_invoice_send_info/NOTES.md#hco-future-deployments-variables) | Paid filter Info Window — first HCO install 2026-07-12 |
 | [SAW014](../SAW014_support_location_contact_grid/NOTES.md#hco-future-deployments-variables) | Support Location Email/Phone grid ColumnSQL — HCO install 2026-07-13 |
 | [SAW015](../SAW015_skip_dates_copy_from/NOTES.md#hco-future-deployments-variables) | Skip Dates Copy Dates From — HCO install 2026-07-13 |
+| [SAW017](../SAW017_booking_generator_bulk/NOTES.md#hco-future-deployments-variables) | Booking Generator bulk — HCO Phase 0 discovery 2026-07-13 (JAR blocker) |
 
 Append new rows as tickets are installed.

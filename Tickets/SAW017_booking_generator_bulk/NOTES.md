@@ -130,14 +130,16 @@ Follow client-update staging loop on reachable non-prod → WebUI smoke with ops
 
 ---
 
-## Design decisions still open
+## Design decisions (updated after HCO Phase 0)
 
-1. Exact Standards filter (query SQL vs new BG column).
-2. Block dimension: Activity, service line, location, or custom list?
-3. Can Flamingo expose Generate Bookings as a callable API, or must we duplicate logic?
-4. Invoice Rule: always force Immediate vs copy from BG?
-5. Description month/year: leave manual vs optional post-process?
-6. Vendor estimate / deploy cycle (Logilite capacity).
+1. **Standards filter:** use ops query parity — `IsActive=Y` AND `Description ILIKE 'STANDARD%'` (user query STANDARDS). Prefer also DocType **Service Booking - Standard**; exclude POS + Template + `*Do Not Use**` activities.
+2. **Block dimension:** `C_Activity_ID` (Day Program = DO, etc.) + Description tokens (`STANDARD DO%`, `STANDARD SIL%`, `STANDARD IRR%`, `STANDARD STR%`).
+3. **Callable API:** AD class is `com.aberp.servicebooking.generator.process.GenerateBookings` — **JAR missing on HCO Test and seed**. Must obtain from Flamingo/Logilite before bulk can delegate; do not reimplement blindly.
+4. **Invoice Rule:** force/preserve `I` (Immediate) on generated SB; BG already stores InvoiceRule (331 Immediate / 222 After Delivery).
+5. Description month/year: remain manual (out of scope).
+6. Vendor: need generator JAR + estimate for bulk wrapper.
+
+Full evidence: [`hco/DISCOVERY.md`](hco/DISCOVERY.md).
 
 ---
 
@@ -150,4 +152,17 @@ Follow client-update staging loop on reachable non-prod → WebUI smoke with ops
 
 ## HCO Future Deployments variables
 
-_(Fill after first HCO install — never change existing HCO `*_UU`.)_
+Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` values changed** (discovery only).
+
+| Object | HCO value | Notes |
+|--------|-----------|--------|
+| Host | `32.236.127.117` | Same as SAW010 |
+| Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` | |
+| Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Classname present; **JAR absent** |
+| Process Generate Timesheets | UU `93b885fb-bbd7-4b09-a377-a8a2de026a8c` | JAR absent |
+| Process Generate Rostered Shifts | UU `ce1c9b7f-ac93-49ec-bbaf-05a8661ae306` | JAR absent |
+| User query STANDARDS | `ad_userquery_id` 1000359 (local) | `Description IN STANDARD` → ~270 `STANDARD%` |
+| Activity Day Program (DO) | local ID `1000004` · value `DP` | Resolve by **name** elsewhere |
+| Activity Programmed Supports | `1000002` · `PRG` | |
+| Activity Short Term Accommodation | `1000014` · `STA` | STR block |
+| BG active / STANDARD% | 553 / 270 | POS flag 28; NBO DocType 265 |

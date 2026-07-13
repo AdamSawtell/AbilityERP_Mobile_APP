@@ -1,13 +1,13 @@
 # SAW017 — Deploy to another build (agent)
 
 **Ticket / slug:** `SAW017_booking_generator_bulk`  
-**Kind:** idempiere · **JAR:** Expected yes · **Status:** Design / discovery — **not install-ready yet**
+**Kind:** idempiere · **JAR:** Expected yes · **Status:** HCO Phase 0 complete — **not install-ready** (generator JAR missing)
 
 Point agents here (not chat history). Repo home: `Tickets/SAW017_booking_generator_bulk/`.
 
 ## Current state
 
-No plugin SQL or JAR in repo yet. Complete **Phase 0 host discovery** in [`NOTES.md`](NOTES.md) before implementing. Do not invent Generate Bookings logic from scratch if the existing single-record process JAR can be invoked.
+HCO Phase 0 discovery finished ([`hco/DISCOVERY.md`](hco/DISCOVERY.md)). AD for **Generate Bookings** exists (`com.aberp.servicebooking.generator.process.GenerateBookings`) but the OSGi JAR is **not on HCO Test or AbilityERP seed**. Bulk plugin cannot be smoke-tested until Flamingo/Logilite supplies that JAR (and ideally `GenerateTimesheets` / `GenerateShifts`). Do not invent Generate Bookings logic from scratch if the JAR can be obtained.
 
 ## Required host access (when implementing)
 
