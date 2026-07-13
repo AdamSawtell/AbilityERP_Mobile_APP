@@ -1,4 +1,4 @@
-# SAW003 ? Staff Rostering Info Window
+# SAW003 — Staff Rostering Info Window
 
 | | |
 |--|--|
@@ -6,19 +6,19 @@
 | **Kind** | idempiere |
 | **GitHub** | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) |
 | **Slug** | `SAW003_staff_rostering_info` |
-| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071220.jar` |
+| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071227.jar` |
 
 ## Deploy (other builds)
 
-**? [`DEPLOY.md`](DEPLOY.md)** ? agent one-liner, SQL order (`20` last), packs, smoke, pitfalls.
+**→ [`DEPLOY.md`](DEPLOY.md)** — agent one-liner, SQL `01→24→04`, packs, smoke, pitfalls.
 
 ## External ticket (copy/paste)
 
-**? [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** ? paste into the customer/external ticket (not for agents).
+**→ [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** — paste into the customer/external ticket (not for agents).
 
 ## Goal
 
-Rewrite **Employee (User) / Agency Staff Rostering Info** used on **Shift (Rostered) ? Employee**: lean query, leave/overlap + needs-match in Java, UX wildcards, Related Info, org/BP callouts, decluttered result grid.
+Rewrite **Employee (User) / Agency Staff Rostering Info** used on **Shift (Rostered) → Employee**: lean query, leave/overlap + needs-match in Java, UX wildcards, Related Info, org/BP callouts, decluttered result grid, **Show Unmatched** credential multi-select (AND).
 
 ## Source of truth
 

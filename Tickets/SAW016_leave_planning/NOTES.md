@@ -42,3 +42,10 @@
 | Table UU | `16a01601-c0d4-4f01-8e15-000000000001` |
 | Line table UU | `16a0160b-c0d4-4f01-8e15-000000000001` |
 | Process UU | `16a01608-c0d4-4f01-8e15-000000000001` |
+| JAR | `com.aberp.leave.planning_1.0.0.2026071327.jar` |
+| Require-Bundle | must include **`zcommon`** (AMedia / Export CSV) |
+
+## 2026-07-13 — Media ClassNotFound
+
+Opening Info Windows on HCO threw `org/zkoss/util/media/Media` attributed to `com.aberp.leave.planning` (Export CSV uses `AMedia`). Fix: add `zcommon;bundle-version="8.6.0"` to MANIFEST, rebuild **1327**, hard restart (HCO listens on **8083** behind nginx `:80`). Confirmed Export CSV no longer raises Media CNFE; Staff Rostering Info (SAW003) opens again.
+

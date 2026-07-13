@@ -2,12 +2,12 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (HCO Test installed + WebUI smoke) |
+| **Status** | in-progress (Info Window + JAR on HCO; agent deploy via `DEPLOY.md`) |
 | **Kind** | idempiere |
 | **GitHub** | [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16) |
 | **Slug** | `SAW016_leave_planning` |
-| **JAR** | No (AD + SQL functions / trigger) |
-| **Environment** | Same as SAW012 — HCO Test `32.236.127.117` |
+| **JAR** | `com.aberp.leave.planning_1.0.0.2026071327.jar` (requires `zcommon`) |
+| **Environment** | HCO Test `32.236.127.117` |
 
 ## Deploy
 

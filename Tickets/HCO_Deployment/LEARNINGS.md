@@ -128,6 +128,27 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-13 — SAW003 unmatched credential AND (JAR 1227)
+
+**Result:** Pass E2E on HCO Test after JAR `1.1.0.2026071227` + leave.planning `zcommon` fix.
+
+### What worked
+
+- Tick **Show Unmatched Staff** → **Require credentials (AND)** Listbox below criteria (253 creds, 720×160).
+- Empty selection ReQuery → 210 rows; Aged Care + Nursing AND → 0 rows; clear → 210; untick hides list.
+- Credential Listbox must stay **enabled** (ZK drops SelectEvent when disabled).
+
+### Learnings
+
+| Learning | Action |
+|----------|--------|
+| HCO was on old JAR (1220) while staging had credential UI | Always check `bundles.info` version on target before “missing UI” bugs |
+| List clipped inside `z-grid-body` | Place credential box **below** parameterGrid (1227) |
+| Opening Staff Info hit Media CNFE from leave.planning | SAW016 MANIFEST needs `zcommon`; hard restart; WebUI on `:8083`/`:80` not `:8080` |
+| `init.d` stop can leave Java running (“already running”) | Kill equinox launcher PID before start if WebUI 503 |
+
+---
+
 ## 2026-07-12 — SAW012 Session/Process Audit performance
 
 **Result:** Pass on AD/UX/HouseKeeping. Indexes + batched purge long-running (expected). WebUI confirmed High Volume Find on Process Audit.
