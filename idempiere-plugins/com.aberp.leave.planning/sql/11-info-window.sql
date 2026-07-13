@@ -183,9 +183,9 @@ BEGIN
     'AbERP_Unavailability_Leave_ID','Leave', 'ul.AbERP_Unavailability_Leave_ID',13,NULL,'N','N','=',
     'N','N','Y','N');
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0008-4f01-8e15-000000000001',80,
-    'Value','Employee Number','u.Value',10,NULL,'N','Y',NULL);
+    'Value','Employee Number','u.Value',10,NULL,'N','N',NULL);
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0009-4f01-8e15-000000000001',90,
-    'Name','Employee Name','u.Name',10,NULL,'N','Y',NULL,'N','N','N','Y');
+    'Name','Employee Name','u.Name',10,NULL,'N','N',NULL,'N','N','N','Y');
   -- Display only in grid (location filter is the multi-select above)
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0010-4f01-8e15-000000000001',100,
     'AbERP_LP_ServiceLocation','Service Location','bpl.Name',10,NULL,'N','Y',NULL);
@@ -199,7 +199,7 @@ BEGIN
     'AbERP_LP_CalendarDays','Calendar Days',
     '((ul.EndDate::date - ul.StartDate::date) + 1)',11,NULL,'N','Y',NULL);
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0015-4f01-8e15-000000000001',150,
-    'AbERP_SubmitterStatus','Submitter Status','ul.AbERP_SubmitterStatus',17,v_ref_submitter,'N','Y','=');
+    'AbERP_SubmitterStatus','Submitter Status','ul.AbERP_SubmitterStatus',17,v_ref_submitter,'N','N','=');
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0016-4f01-8e15-000000000001',160,
     'Note','Note','ul.Note',14,NULL,'N','Y',NULL);
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0017-4f01-8e15-000000000001',170,
