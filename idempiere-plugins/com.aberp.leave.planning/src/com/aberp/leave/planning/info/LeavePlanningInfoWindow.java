@@ -30,6 +30,11 @@ import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Hlayout;
 import org.zkoss.zul.Label;
+import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listcell;
+import org.zkoss.zul.Listhead;
+import org.zkoss.zul.Listheader;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.North;
 import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
@@ -39,6 +44,7 @@ import org.zkoss.zul.Vbox;
  * <ul>
  *   <li>Summary banner with clickable Approver Status filters</li>
  *   <li>Export CSV of the current query (all matching rows)</li>
+ *   <li>Risk cues: Declined/Reviewing first + status cell colour</li>
  *   <li>Criteria stay editable when result columns are AD IsReadOnly=Y</li>
  * </ul>
  */
@@ -101,6 +107,90 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		ensureCriteriaEditorsWritable();
 		refreshSummaryBanner();
 		super.executeQuery();
+	}
+
+	@Override
+	protected void renderItems() {
+		super.renderItems();
+		colourApproverStatusCells();
+	}
+
+	/**
+	 * Soft tint on Approver Status cells after each render/page.
+	 * Declined = rose, Reviewing = amber, Approved = green.
+	 * Resolves column via list header label (no MiniTable / ColumnInfo dependency).
+	 */
+	private void colourApproverStatusCells() {
+		if (contentPanel == null) {
+			return;
+		}
+		Listbox box = contentPanel;
+		int statusCell = findApproverStatusCellIndex(box);
+		if (statusCell < 0) {
+			return;
+		}
+		for (Listitem item : box.getItems()) {
+			if (item == null) {
+				continue;
+			}
+			java.util.List<Component> cells = item.getChildren();
+			if (cells == null || statusCell >= cells.size()) {
+				continue;
+			}
+			Component cellComp = cells.get(statusCell);
+			if (!(cellComp instanceof Listcell)) {
+				continue;
+			}
+			Listcell cell = (Listcell) cellComp;
+			String text = cell.getLabel();
+			if (Util.isEmpty(text, true) && cell.getFirstChild() instanceof Label) {
+				text = ((Label) cell.getFirstChild()).getValue();
+			}
+			String style = statusCellStyle(text);
+			if (style != null) {
+				cell.setStyle(style);
+			}
+		}
+	}
+
+	private static int findApproverStatusCellIndex(Listbox box) {
+		Listhead head = box.getListhead();
+		if (head == null) {
+			return -1;
+		}
+		int idx = 0;
+		for (Component c : head.getChildren()) {
+			String label = null;
+			if (c instanceof Listheader) {
+				label = ((Listheader) c).getLabel();
+			} else if (c instanceof Label) {
+				label = ((Label) c).getValue();
+			} else {
+				label = c.toString();
+			}
+			if (label != null && label.toLowerCase().contains("approver status")) {
+				return idx;
+			}
+			idx++;
+		}
+		return -1;
+	}
+
+	private static String statusCellStyle(String text) {
+		if (Util.isEmpty(text, true)) {
+			return null;
+		}
+		String t = text.trim();
+		if (t.equalsIgnoreCase("Declined") || STATUS_DC.equalsIgnoreCase(t)) {
+			return "background:#FDE8E8;color:#8B1A1A;font-weight:600;";
+		}
+		if (t.equalsIgnoreCase("Reviewing") || STATUS_RV.equalsIgnoreCase(t)) {
+			return "background:#FFF4D6;color:#7A5A00;font-weight:600;";
+		}
+		if (t.equalsIgnoreCase("Approved") || STATUS_AP.equalsIgnoreCase(t)) {
+			return "background:#E6F5EA;color:#1B5E2A;font-weight:600;";
+		}
+		return null;
 	}
 
 	/** Keep north criteria editors writable after grid columns are marked read-only. */
@@ -393,7 +483,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 				+ " AND (?::text IS NULL OR ?::text = '' OR ul.AbERP_ApproverStatus = ?::text)"
 				+ " AND (?::numeric IS NULL OR ul.AbERP_Unavailability_Type_ID = ?::numeric)"
 				+ " AND (?::numeric IS NULL OR ul.AbERP_User_Contact_ID = ?::numeric)"
-				+ " ORDER BY ul.AbERP_ApproverStatus, ul.StartDate, u.Name";
+				+ " ORDER BY CASE ul.AbERP_ApproverStatus WHEN 'DC' THEN 1 WHEN 'RV' THEN 2 WHEN 'AP' THEN 3 ELSE 9 END, ul.StartDate, u.Name";
 
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;

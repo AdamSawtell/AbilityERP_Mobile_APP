@@ -136,7 +136,7 @@ BEGIN
         || ' LEFT JOIN C_BPartner bp ON (bp.C_BPartner_ID=u.C_BPartner_ID)'
         || ' LEFT JOIN AbERP_Unavailability_Type ut ON (ut.AbERP_Unavailability_Type_ID=ul.AbERP_Unavailability_Type_ID)',
       'ul.IsActive=''Y''',
-      'ul.AbERP_ApproverStatus, ul.StartDate, u.Name',
+      'CASE ul.AbERP_ApproverStatus WHEN ''DC'' THEN 1 WHEN ''RV'' THEN 2 WHEN ''AP'' THEN 3 ELSE 9 END, ul.StartDate, u.Name',
       'Y', 'N', 'N', 'N', 500,
       'Y', v_iw_uu
     ) RETURNING ad_infowindow_id INTO v_iw;
@@ -151,7 +151,7 @@ BEGIN
         || ' LEFT JOIN C_BPartner bp ON (bp.C_BPartner_ID=u.C_BPartner_ID)'
         || ' LEFT JOIN AbERP_Unavailability_Type ut ON (ut.AbERP_Unavailability_Type_ID=ul.AbERP_Unavailability_Type_ID)',
       whereclause = 'ul.IsActive=''Y''',
-      orderbyclause = 'ul.AbERP_ApproverStatus, ul.StartDate, u.Name',
+      orderbyclause = 'CASE ul.AbERP_ApproverStatus WHEN ''DC'' THEN 1 WHEN ''RV'' THEN 2 WHEN ''AP'' THEN 3 ELSE 9 END, ul.StartDate, u.Name',
       isvalid = 'Y', maxqueryrecords = 500, isloadpagenum = 'Y',
       entitytype = 'Ab_ERP', updated = NOW(), updatedby = 100,
       ad_infowindow_uu = COALESCE(ad_infowindow_uu, v_iw_uu)

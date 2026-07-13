@@ -2,7 +2,7 @@
 set -euo pipefail
 P=/opt/idempiere-server/AbERP/com.aberp.leave.planning
 IDEMPIERE_HOME=/opt/idempiere-server
-VERSION=1.0.0.2026071323
+VERSION=1.0.0.2026071325
 SYMBOLIC=com.aberp.leave.planning
 JAR_NAME=${SYMBOLIC}_${VERSION}.jar
 
@@ -22,8 +22,17 @@ ZUL=$(ls $IDEMPIERE_HOME/plugins/zul_*.jar | head -1)
 ZK=$(ls $IDEMPIERE_HOME/plugins/zk_*.jar | head -1)
 ZCOMMON=$(ls $IDEMPIERE_HOME/plugins/zcommon_*.jar | head -1)
 ZWEB=$(ls $IDEMPIERE_HOME/plugins/zweb_*.jar 2>/dev/null | head -1 || true)
+# Extra jars sometimes needed for MiniTable / ColumnInfo transitive types
 CP="$BASE:$UTILS:$UIZK:$ZUL:$ZK:$ZCOMMON"
+for j in $IDEMPIERE_HOME/plugins/org.adempiere.base.callout_*.jar \
+         $IDEMPIERE_HOME/plugins/org.compiere.db.postgresql.provider_*.jar \
+         $IDEMPIERE_HOME/plugins/org.apache.ecs_*.jar; do
+  [ -f "$j" ] && CP="$CP:$j"
+done
 if [ -n "${ZWEB:-}" ]; then CP="$CP:$ZWEB"; fi
+echo "Using CP jars: $(echo $CP | tr ':' '\n' | wc -l)"
+# Verify ColumnInfo present
+jar tf "$BASE" | grep -q 'org/compiere/minigrid/ColumnInfo.class' && echo "ColumnInfo OK in base" || echo "ColumnInfo MISSING"
 
 find "$SRC" -name '*.java' > "$BUILD/sources.txt"
 javac -encoding UTF-8 -source 11 -target 11 -classpath "$CP" -d "$CLASSES" @"$BUILD/sources.txt"
