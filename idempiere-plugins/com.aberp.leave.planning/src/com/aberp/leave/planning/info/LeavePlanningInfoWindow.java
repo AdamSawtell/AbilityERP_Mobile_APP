@@ -106,6 +106,60 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		super.onUserQuery();
 	}
 
+	/**
+	 * Service Location criteria lists Support Locations, but staff are not keyed by
+	 * home Partner Location. Clear the AD-generated {@code u.C_BPartner_Location_ID=?}
+	 * clause and replace with EXISTS on rostered shifts at that Support Location BPL.
+	 */
+	@Override
+	protected String getSQLWhere() {
+		WEditor locEditor = findEditor("C_BPartner_Location_ID");
+		Object savedLoc = null;
+		boolean cleared = false;
+		if (locEditor != null) {
+			savedLoc = locEditor.getValue();
+			locEditor.setValue(null);
+			cleared = true;
+		}
+		try {
+			String where = super.getSQLWhere();
+			BigDecimal loc = toId(savedLoc);
+			if (loc == null) {
+				return where;
+			}
+			String exists = sqlExistsRosteredAtSupportLocation(loc.intValue());
+			if (Util.isEmpty(where, true)) {
+				return " AND " + exists;
+			}
+			String trimmed = where.trim();
+			if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
+				return where + " AND " + exists;
+			}
+			return " AND " + trimmed + " AND " + exists;
+		} finally {
+			if (cleared) {
+				locEditor.setValue(savedLoc);
+			}
+		}
+	}
+
+	/** Staff rostered at Support Location (MasterLocation sharing that C_BPartner_Location_ID). */
+	private static String sqlExistsRosteredAtSupportLocation(int bpartnerLocationId) {
+		return "EXISTS (SELECT 1 FROM AbERP_Rostered_ShiftStaff ss"
+				+ " INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive='Y')"
+				+ " INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)"
+				+ " WHERE ss.AbERP_User_Contact_ID=u.AD_User_ID AND ss.IsActive='Y'"
+				+ " AND ml.C_BPartner_Location_ID=" + bpartnerLocationId + ")";
+	}
+
+	private static final String SQL_SUPPORT_LOC_NAMES =
+			"(SELECT string_agg(DISTINCT sl.Name, ', ' ORDER BY sl.Name)"
+					+ " FROM AbERP_Rostered_ShiftStaff ss"
+					+ " INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive='Y')"
+					+ " INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)"
+					+ " INNER JOIN AbERP_Support_Location sl ON (sl.C_BPartner_Location_ID=ml.C_BPartner_Location_ID AND sl.IsActive='Y')"
+					+ " WHERE ss.AbERP_User_Contact_ID=u.AD_User_ID AND ss.IsActive='Y')";
+
 	@Override
 	protected void executeQuery() {
 		ensureCriteriaEditorsWritable();
@@ -645,7 +699,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 				+ " CASE ul.AbERP_ApproverStatus WHEN 'RV' THEN 'Reviewing' WHEN 'AP' THEN 'Approved' WHEN 'DC' THEN 'Declined' ELSE COALESCE(ul.AbERP_ApproverStatus,'') END AS approver_status,"
 				+ " COALESCE(ut.Name,'') AS unavailability_type,"
 				+ " COALESCE(u.Name,'') AS employee,"
-				+ " COALESCE(bpl.Name,'') AS service_location,"
+				+ " COALESCE(" + SQL_SUPPORT_LOC_NAMES + ",'') AS service_location,"
 				+ " COALESCE(sup.Name,'') AS supervisor,"
 				+ " ul.StartDate::date AS leave_start,"
 				+ " ul.EndDate::date AS leave_end,"
@@ -654,14 +708,18 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 				+ " ul.Created AS created"
 				+ " FROM AbERP_Unavailability_Leave ul"
 				+ " INNER JOIN AD_User u ON (u.AD_User_ID=ul.AbERP_User_Contact_ID)"
-				+ " LEFT JOIN C_BPartner_Location bpl ON (bpl.C_BPartner_Location_ID=u.C_BPartner_Location_ID)"
 				+ " LEFT JOIN C_BPartner bp ON (bp.C_BPartner_ID=u.C_BPartner_ID)"
 				+ " LEFT JOIN AD_User sup ON (sup.AD_User_ID=bp.Supervisor_ID)"
 				+ " LEFT JOIN AbERP_Unavailability_Type ut ON (ut.AbERP_Unavailability_Type_ID=ul.AbERP_Unavailability_Type_ID)"
 				+ " WHERE ul.IsActive='Y'"
 				+ " AND ul.EndDate::date >= ?::date"
 				+ " AND ul.StartDate::date <= ?::date"
-				+ " AND (?::numeric IS NULL OR u.C_BPartner_Location_ID = ?::numeric)"
+				+ " AND (?::numeric IS NULL OR EXISTS ("
+				+ "   SELECT 1 FROM AbERP_Rostered_ShiftStaff ss"
+				+ "   INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive='Y')"
+				+ "   INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)"
+				+ "   WHERE ss.AbERP_User_Contact_ID=u.AD_User_ID AND ss.IsActive='Y'"
+				+ "     AND ml.C_BPartner_Location_ID = ?::numeric))"
 				+ " AND (?::text IS NULL OR ?::text = '' OR ul.AbERP_ApproverStatus = ?::text)"
 				+ " AND (?::numeric IS NULL OR ul.AbERP_Unavailability_Type_ID = ?::numeric)"
 				+ " AND (?::numeric IS NULL OR ul.AbERP_User_Contact_ID = ?::numeric)"

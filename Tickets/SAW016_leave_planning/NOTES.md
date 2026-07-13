@@ -11,7 +11,7 @@
 | Leave type | `AbERP_Unavailability_Type_ID` → Annual / Personal / LSL / … |
 | Employee | `AbERP_User_Contact_ID` → AD_User |
 | Supervisor | ColumnSQL via BP.Supervisor_ID |
-| Service location | Employee Partner Location `AD_User.C_BPartner_Location_ID` (single active location per user; 233 distinct on HCO) |
+| Service location | **Mismatch fixed 2026-07-13:** was `AD_User.C_BPartner_Location_ID` (home address). Correct = Support Locations via rostered shifts (`ShiftStaff → Shift → MasterLocation → Support Location`). Lookup lists active Support Locations; filter uses EXISTS on that path. |
 | Submit | Process `SUBMIT_LEAVE` / classname `com.aberp.rostering.processes.submitleave` |
 | Approval | Edit Approver Status (no separate leave approval process/workflow) |
 | Multi-location storage | Chosen Multiple Selection Table on planning header (`C_BPartner_Location_IDs`) |
@@ -42,8 +42,8 @@
 | Table UU | `16a01601-c0d4-4f01-8e15-000000000001` |
 | Line table UU | `16a0160b-c0d4-4f01-8e15-000000000001` |
 | Process UU | `16a01608-c0d4-4f01-8e15-000000000001` |
-| JAR | `com.aberp.leave.planning_1.0.0.2026071327.jar` |
-| Require-Bundle | must include **`zcommon`** (AMedia / Export CSV) |
+| JAR | `com.aberp.leave.planning_1.0.0.2026071329.jar` |
+| Require-Bundle | `zul` + `zk` (Export CSV uses `Filedownload.save(byte[])` — no `zcommon`/`AMedia`) |
 
 ## 2026-07-13 — Media ClassNotFound
 
