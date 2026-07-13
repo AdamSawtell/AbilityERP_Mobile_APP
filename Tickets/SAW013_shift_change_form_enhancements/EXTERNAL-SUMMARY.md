@@ -48,4 +48,5 @@ Status on the Shift Change form now follows the linked Request automatically. St
 
 - After creating a request, refresh or reopen the record if Status / Submitted do not update immediately in the open window.
 - Older forms that already have more than one request are not cleaned up automatically; new duplicates are blocked going forward.
+- Create Request From Template requires an active Request Template row for that Request Type (`IsTemplate=Y`).
 - After install: Cache Reset or log out/in.

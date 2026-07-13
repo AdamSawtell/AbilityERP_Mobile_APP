@@ -14,9 +14,12 @@
 - [x] WebUI: WITHOUT request — Doc `1003729` Submitted unchecked, Status blank, Create visible, Requests 0
 - [x] WebUI save E2E — toggle Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged
 - [x] WebUI: Create popup Request Template matches window Request Type (`1003729`, `1003444`)
+- [x] WebUI full Create → OK E2E (`1003715` → Request `1005891`, type matched)
 - [x] AD: Request Submitted field + Create DisplayLogic
 - [x] AD: `05-match-request-template-type.sql` installed on HCO
 - [x] Trigger: second insert blocked
 - [x] Packs built
+- [x] DEPLOY.md agent-ready (install on another build)
 - [x] EXTERNAL-SUMMARY ready
+- [x] GitHub issue Deploy section matches DEPLOY.md
 - [x] Mark done when issue updated / pushed

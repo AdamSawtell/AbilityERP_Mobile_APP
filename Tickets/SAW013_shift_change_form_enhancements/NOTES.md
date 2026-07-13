@@ -30,7 +30,8 @@
 | WITH request Create hidden | Pass — Submitted checked RO; Create not shown |
 | WITHOUT request Create visible | Pass — Doc `1003729` Submitted unchecked; Status blank; Create shown; Requests 0 |
 | WebUI save (no Status/Submitted corruption) | Pass — toggled Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged; Active restored |
-| Create popup template matches window type | Pass — `1003729` Additional Shift → popup defaults/lists only Additional Shift; `1003444` HCO Unserviced → only HCO Unserviced |
+| Create popup template matches window type | Pass — `1003729` / `1003444` popup lists matching type only |
+| Full Create → OK E2E | Pass — Doc `1003715` Additional Shift → Request `1005891` same type; Submitted Y; Create hidden |
 
 ## HCO Future Deployments variables
 
@@ -47,6 +48,10 @@
 | Element UU (new) | `a0130001-5a01-4e13-a013-000000000001` |
 | Column UU (new) | `a0130002-5a01-4e13-a013-000000000002` |
 | Field UU (new) | `a0130003-5a01-4e13-a013-000000000003` |
+| Val rule UU (new — template of window type) | `a0130004-5a01-4e13-a013-000000000004` |
 | Create process Value | `CreateRequestFromTemplate` |
 | Create process UU | `3a8e1690-80f7-41b5-9ed9-96f5f3796823` |
+| Process para RequestTemplate_ID UU | `13425072-7cf3-4cf0-8ff4-d3c1f00ef393` |
+| Shared val rule (do not change) | `503d0fb8-d780-4a81-b2d3-081f2f3a25f5` (`R_Request Template`) |
 | Triggers | `aberp_shiftchange_sync_from_request_trg`, `aberp_shiftchange_prevent_dup_request_trg` |
+| Full Create E2E | Pass — Doc `1003715` → Request `1005891` Additional Shift (matched) |
