@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="com.aberp.leave.planning.info.factory">
+   <implementation class="com.aberp.leave.planning.factory.LeavePlanningInfoFactory"/>
+   <property name="service.ranking" type="Integer" value="200"/>
+   <service>
+      <provide interface="org.adempiere.webui.factory.IInfoFactory"/>
+   </service>
+</scr:component>
