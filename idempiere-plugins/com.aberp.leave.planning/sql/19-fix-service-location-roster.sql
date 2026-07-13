@@ -10,7 +10,7 @@ DO $$
 DECLARE
   v_iw INTEGER;
   v_display TEXT :=
-    '(SELECT string_agg(DISTINCT sl.Name, '', '' ORDER BY sl.Name)'
+    '(SELECT string_agg(DISTINCT sl.Name, '' | '' ORDER BY sl.Name)'
     || ' FROM AbERP_Rostered_ShiftStaff ss'
     || ' INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive=''Y'')'
     || ' INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)'

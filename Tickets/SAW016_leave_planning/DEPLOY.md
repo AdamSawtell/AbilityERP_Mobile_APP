@@ -13,13 +13,18 @@
 
 ```bash
 cd idempiere-plugins/com.aberp.leave.planning
-chmod +x build.sh deploy.sh
-./deploy.sh
-# builds JAR 1.0.0.2026071327 → SQL 14 + 15 → restart → wait WebUI 200
+# On HCO: upload sources, then:
+bash rebuild-hco.sh
+# Apply incremental SQL if not already present (UUID-safe):
+#   18-support-location-valrule.sql
+#   19-fix-service-location-roster.sql
+#   20-fix-service-location-parser.sql
+#   21-primary-service-location.sql
+#   22-primary-location-function.sql   # REQUIRED — AccessSqlParser-safe display
 # Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
-**OSGi requirement (P0):** `META-INF/MANIFEST.MF` must include **`zcommon`** on `Require-Bundle` (Export CSV / `AMedia`). Without it, WebUI can throw `ClassNotFoundException: org.zkoss.util.media.Media` and block other Info Windows on the same host.
+**Export CSV:** uses `Filedownload.save(byte[])` — do **not** require `zcommon` / `AMedia`.
 
 ## Package / bundle
 
@@ -27,10 +32,11 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.leave.planning/` |
 | Symbolic name | `com.aberp.leave.planning` |
-| Version | **`1.0.0.2026071327`** |
+| Version | **`1.0.0.2026071332`** |
 | Info Window UU | `16a016iw-c0d4-4f01-8e15-000000000001` |
 | UI class | `com.aberp.leave.planning.info.LeavePlanningInfoWindow` |
-| Deploy SQL (JAR path) | `sql/14-info-readonly.sql`, `sql/15-info-summary-functions.sql` |
+| Deploy SQL (core) | `sql/14`…`15` + `18`…`22` (22 = primary Support Location function) |
+| Display selectclause | `aberp_lp_primary_support_location(u.AD_User_ID)` |
 
 ## First-time AD install (new build without Leave Planning)
 

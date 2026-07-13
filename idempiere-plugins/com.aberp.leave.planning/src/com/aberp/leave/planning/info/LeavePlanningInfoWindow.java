@@ -152,13 +152,9 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 				+ " AND ml.C_BPartner_Location_ID=" + bpartnerLocationId + ")";
 	}
 
+	/** Matches AD selectclause — scalar fn avoids AccessSqlParser nested-SELECT breakage. */
 	private static final String SQL_SUPPORT_LOC_NAMES =
-			"(SELECT string_agg(DISTINCT sl.Name, ', ' ORDER BY sl.Name)"
-					+ " FROM AbERP_Rostered_ShiftStaff ss"
-					+ " INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive='Y')"
-					+ " INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)"
-					+ " INNER JOIN AbERP_Support_Location sl ON (sl.C_BPartner_Location_ID=ml.C_BPartner_Location_ID AND sl.IsActive='Y')"
-					+ " WHERE ss.AbERP_User_Contact_ID=u.AD_User_ID AND ss.IsActive='Y')";
+			"aberp_lp_primary_support_location(u.AD_User_ID)";
 
 	@Override
 	protected void executeQuery() {

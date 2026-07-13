@@ -42,10 +42,15 @@
 | Table UU | `16a01601-c0d4-4f01-8e15-000000000001` |
 | Line table UU | `16a0160b-c0d4-4f01-8e15-000000000001` |
 | Process UU | `16a01608-c0d4-4f01-8e15-000000000001` |
-| JAR | `com.aberp.leave.planning_1.0.0.2026071329.jar` |
+| JAR | `com.aberp.leave.planning_1.0.0.2026071332.jar` |
 | Require-Bundle | `zul` + `zk` (Export CSV uses `Filedownload.save(byte[])` — no `zcommon`/`AMedia`) |
+| Service Location display | `aberp_lp_primary_support_location(u.AD_User_ID)` |
 
 ## 2026-07-13 — Media ClassNotFound
 
-Opening Info Windows on HCO threw `org/zkoss/util/media/Media` attributed to `com.aberp.leave.planning` (Export CSV uses `AMedia`). Fix: add `zcommon;bundle-version="8.6.0"` to MANIFEST, rebuild **1327**, hard restart (HCO listens on **8083** behind nginx `:80`). Confirmed Export CSV no longer raises Media CNFE; Staff Rostering Info (SAW003) opens again.
+Opening Info Windows on HCO threw `org/zkoss/util/media/Media` attributed to `com.aberp.leave.planning` (Export CSV uses `AMedia`). Fix: use `Filedownload.save(byte[])` — no `zcommon`/`AMedia`. Confirmed Export CSV no longer raises Media CNFE.
+
+## 2026-07-13 — Search IllegalArgumentException (AccessSqlParser)
+
+Nested `SELECT` in InfoColumn `selectclause` for Service Location broke `AccessSqlParser.getSelectStatements` (even without `string_agg` commas). Fix: `sql/22-primary-location-function.sql` → function `aberp_lp_primary_support_location(numeric)`; selectclause = `aberp_lp_primary_support_location(u.AD_User_ID)`. Restart / Cache Reset after AD change.
 
