@@ -1,6 +1,12 @@
-# Generator stack for SAW017 (HCO Test)
+# JARs for SAW017
 
-## Install order (OSGi)
+## Always (Bulk plugin)
+
+- `com.aberp.bookinggenerator.bulk_7.1.0.202607132235.jar`
+
+## Generator stack (only if Generate Bookings not ACTIVE)
+
+Install order (OSGi):
 
 1. `com.aberp.rosteredshift.model_7.1.11.202509171959.jar`
 2. `com.aberp.process.GenerateShifts_1.1.7.202508141623.jar`

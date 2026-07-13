@@ -26,6 +26,8 @@ echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES
 echo "Applying AD registration SQL"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/00-preflight.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/01-install-bulk-generate.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/02-fix-docaction-list.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/03-fix-yesno-display.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/04-verify.sql"
 
 echo "Restarting iDempiere"

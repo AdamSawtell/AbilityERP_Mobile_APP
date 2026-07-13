@@ -1,6 +1,6 @@
 # SAW017 — External summary (customer / ticket paste)
 
-**Status:** Delivered and smoke-tested on HCO Test (2026-07-13). Client update packs pending.
+**Status:** Delivered and smoke-tested on HCO Test (2026-07-13). Client / production update packs available (2026-07-14).
 
 ## Windows / processes / objects affected
 

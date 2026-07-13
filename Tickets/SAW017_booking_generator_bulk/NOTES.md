@@ -174,7 +174,12 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 
 ### Install order (future client / HCO)
 
-1. Install generator stack JARs (patched generator + deps) via OSGi console / `plugins` + `bundles.info`
+Follow **[`DEPLOY.md`](DEPLOY.md)** (authoritative). Packs:
+
+- `Downloads\AbilityERP-ClientUpdate-SAW017_booking_generator_bulk-20260714\`
+- `Downloads\AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260714\`
+
+1. Install generator stack JARs (patched generator + deps) via OSGi console / `plugins` + `bundles.info` **only if** Generate Bookings not already ACTIVE
 2. Install `com.aberp.bookinggenerator.bulk` JAR
 3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `03-fix-yesno-display.sql` → `04-verify.sql`
 4. Cache Reset
