@@ -2,7 +2,7 @@
 set -euo pipefail
 P=/opt/idempiere-server/AbERP/com.aberp.leave.planning
 IDEMPIERE_HOME=/opt/idempiere-server
-VERSION=1.0.0.2026071325
+VERSION=1.0.0.2026071327
 SYMBOLIC=com.aberp.leave.planning
 JAR_NAME=${SYMBOLIC}_${VERSION}.jar
 
@@ -22,7 +22,7 @@ ZUL=$(ls $IDEMPIERE_HOME/plugins/zul_*.jar | head -1)
 ZK=$(ls $IDEMPIERE_HOME/plugins/zk_*.jar | head -1)
 ZCOMMON=$(ls $IDEMPIERE_HOME/plugins/zcommon_*.jar | head -1)
 ZWEB=$(ls $IDEMPIERE_HOME/plugins/zweb_*.jar 2>/dev/null | head -1 || true)
-# Extra jars sometimes needed for MiniTable / ColumnInfo transitive types
+# zcommon still on CP for compile (Filedownload types); runtime uses zul only
 CP="$BASE:$UTILS:$UIZK:$ZUL:$ZK:$ZCOMMON"
 for j in $IDEMPIERE_HOME/plugins/org.adempiere.base.callout_*.jar \
          $IDEMPIERE_HOME/plugins/org.compiere.db.postgresql.provider_*.jar \

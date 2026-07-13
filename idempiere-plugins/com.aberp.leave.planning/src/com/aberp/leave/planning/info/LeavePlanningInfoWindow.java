@@ -22,7 +22,6 @@ import org.compiere.model.MInfoWindow;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
-import org.zkoss.util.media.AMedia;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.A;
@@ -533,8 +532,8 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 
 			SimpleDateFormat fileDf = new SimpleDateFormat("yyyyMMdd");
 			String name = "LeavePlanning_" + fileDf.format(start) + "_" + fileDf.format(end) + ".csv";
-			AMedia media = new AMedia(name, "csv", "text/csv", bos.toByteArray());
-			Filedownload.save(media);
+			// byte[] overload avoids OSGi ClassNotFound on org.zkoss.util.media.Media/AMedia
+			Filedownload.save(bos.toByteArray(), "text/csv;charset=UTF-8", name);
 			setStatusLine("Exported " + rows + " leave row(s) to " + name, false);
 		} catch (Exception ex) {
 			setStatusLine("Export CSV failed: " + ex.getMessage(), true);

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Leave Planning Info
 Bundle-SymbolicName: com.aberp.leave.planning
-Bundle-Version: 1.0.0.2026071325
+Bundle-Version: 1.0.0.2026071327
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.leave.planning
 Bundle-RequiredExecutionEnvironment: JavaSE-11
