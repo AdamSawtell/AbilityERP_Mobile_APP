@@ -29,6 +29,7 @@
 
 - 2026-07-13 (record window): Jan 2027 + All Locations → 23 leave rows; summaries worked.
 - 2026-07-13 (Info Window): installed UU `16a016iw-…`; Service Locations ref-value fix applied (`12-fix-info-locations.sql`). WebUI re-smoke pending Cache Reset / login.
+- 2026-07-13 (banner + readonly): JAR `1.0.0.2026071322` + `14`/`15` SQL. Jan 2027 Search → banner Approved 21 / Declined 2 / Total 23; grid editors = 0 on selected row.
 
 ## HCO Future Deployments variables
 
