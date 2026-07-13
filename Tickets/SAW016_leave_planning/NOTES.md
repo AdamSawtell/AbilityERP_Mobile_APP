@@ -17,18 +17,18 @@
 | Multi-location storage | Chosen Multiple Selection Table on planning header (`C_BPartner_Location_IDs`) |
 | Reporting | Grid export + report process `AbERP_LeavePlanning_Report` |
 
-## Design decisions
+## Design decisions (revised after UX review)
 
-1. Header table + bridge line table (trigger refresh) so child tab has a real parent link.
-2. Summaries via DB functions (AccessSqlParser rejects nested FROM in ColumnSQL).
-3. Menu at tree parent `-1` like other Unavailability menus (under Rostering alone was hard to find).
-4. Edit/action leave via Zoom to Unavailability & Leave (preserves Submit Leave + status rules).
+1. **Primary UX = Info Window** (not a saved planning document). Static criteria → Search → results. Menu action `I`.
+2. Record window (`16a01602-…`) soft-retired — was wrong pattern (1-of-N / New / Save).
+3. **Service Location:** Info Multi Select (`200138` + All/Any) is a cramped weird editor and can emit `-1` when empty. Switched to **optional Table Direct** — blank = all locations. Multi-location = Search per site or use the Report (custom taller multi later via JAR if planners need it).
+4. Summaries: query-scoped totals (Approver Status / Status+Type). Related Info is row-linked, so prefer a **Java InfoWindow banner** (Staff Rostering style) after Search — not header ColumnSQL on a planning record.
+5. Edit/action leave via Zoom — reuse Submit Leave + Approver Status.
 
-## HCO smoke (2026-07-13)
+## HCO smoke
 
-- Window opens; summaries show Approved/Declined counts for Jan 2027.
-- Leave Records: 23 overlapping rows; Service Location / Calendar Days / Approver Status visible.
-- Export toolbar present on window.
+- 2026-07-13 (record window): Jan 2027 + All Locations → 23 leave rows; summaries worked.
+- 2026-07-13 (Info Window): installed UU `16a016iw-…`; Service Locations ref-value fix applied (`12-fix-info-locations.sql`). WebUI re-smoke pending Cache Reset / login.
 
 ## HCO Future Deployments variables
 
@@ -36,7 +36,8 @@
 |------|--------|
 | Host | `32.236.127.117` |
 | WebUI | `http://32.236.127.117/webui/` |
-| Window UU | `16a01602-c0d4-4f01-8e15-000000000001` |
+| Info Window UU | `16a016iw-c0d4-4f01-8e15-000000000001` |
+| Window UU (retired) | `16a01602-c0d4-4f01-8e15-000000000001` |
 | Table UU | `16a01601-c0d4-4f01-8e15-000000000001` |
 | Line table UU | `16a0160b-c0d4-4f01-8e15-000000000001` |
 | Process UU | `16a01608-c0d4-4f01-8e15-000000000001` |
