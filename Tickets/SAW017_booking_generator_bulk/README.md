@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (HCO Phase 0 done — **blocked on missing Generate Bookings JAR**) |
+| **Status** | in-progress (additive bulk plugin scaffolded; Flamingo generator deps still needed for live generate) |
 | **Kind** | idempiere |
 | **GitHub** | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) |
 | **Slug** | `SAW017_booking_generator_bulk` |
@@ -22,9 +22,9 @@ Bulk or block-based generation of **Service Bookings** (`C_Order`) from **Bookin
 
 ## Source of truth (planned)
 
-- Plugin (planned): `idempiere-plugins/com.aberp.bookinggenerator.bulk/` (name TBD after design)
-- Existing single-record Generate Bookings: proprietary Logilite JAR on iDempiere host (not in this repo) — bulk should **delegate** to it where possible
-- AD / filters: UU-safe SQL under ticket `sql/` and plugin `sql/`
+- Plugin: `idempiere-plugins/com.aberp.bookinggenerator.bulk/`
+- Class: `com.aberp.bookinggenerator.bulk.BulkGenerateBookings`
+- Prerequisite JAR (vendor): `Tickets/SAW017_booking_generator_bulk/jar/com.aberp.servicebooking.generator_7.1.12.*.jar` (+ OSGi deps)
 
 ## Dependencies (app)
 

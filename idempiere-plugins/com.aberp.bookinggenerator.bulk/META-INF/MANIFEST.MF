@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Booking Generator Bulk Generate
+Bundle-SymbolicName: com.aberp.bookinggenerator.bulk
+Bundle-Version: 7.1.0.202607132235
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.bookinggenerator.bulk
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
+Service-Component: bulk-generate-bookings-process.xml

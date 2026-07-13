@@ -1,51 +1,45 @@
 # SAW017 — Deploy to another build (agent)
 
 **Ticket / slug:** `SAW017_booking_generator_bulk`  
-**Kind:** idempiere · **JAR:** Expected yes · **Status:** HCO Phase 0 complete — **not install-ready** (generator JAR missing)
+**Kind:** idempiere · **JAR:** Yes (AbERP bulk) · **Status:** Bulk plugin scaffolded — generation needs Flamingo generator stack
 
-Point agents here (not chat history). Repo home: `Tickets/SAW017_booking_generator_bulk/`.
+## Safe / additive rules
 
-## Current state
+1. Install **only** `com.aberp.bookinggenerator.bulk` to add the new process/button/menu.  
+2. Do **not** change the existing **Generate Bookings** column/process.  
+3. Do **not** install `com.aberp.servicebooking.generator` until its Require-Bundle deps are also present (`GenerateShifts`, `rosteredshift.model`, `serviceopportunity.model`, `generic.utilities.time`). Installing a non-resolving Flamingo jar can leave OSGi noise.
 
-HCO Phase 0 discovery finished ([`hco/DISCOVERY.md`](hco/DISCOVERY.md)). AD for **Generate Bookings** exists (`com.aberp.servicebooking.generator.process.GenerateBookings`) but the OSGi JAR is **not on HCO Test or AbilityERP seed**. Bulk plugin cannot be smoke-tested until Flamingo/Logilite supplies that JAR (and ideally `GenerateTimesheets` / `GenerateShifts`). Do not invent Generate Bookings logic from scratch if the JAR can be obtained.
+## Bulk plugin (this repo)
 
-## Required host access (when implementing)
+| | |
+|--|--|
+| Path | `idempiere-plugins/com.aberp.bookinggenerator.bulk/` |
+| Class | `com.aberp.bookinggenerator.bulk.BulkGenerateBookings` |
+| Version | `7.1.0.202607132235` |
+| Process UU | `17a01701-b017-4017-8017-000000000001` |
 
-- SSH to iDempiere host  
-- `psql` on DB `idempiere` (schema `adempiere`)  
-- WebUI Admin login  
-- OSGi console for JAR install  
-- Never hardcode `AD_*_ID`; never overwrite existing client `*_UU`
-
-## Prerequisites (expected — confirm on target)
-
-| Object | Resolve by |
-|--------|------------|
-| Window **Booking Generator** | Name or UU `de336034-bd4e-4445-b018-9c762c98d847` (seed hint only) |
-| Table **AbERP_BookingGenerator** | `tablename` |
-| Existing **Generate Bookings** process | Name / classname from discovery |
-| Service Booking = `C_Order` with `AbERP_BookingGenerator_ID` | Column name |
-
-## Agent one-liner
-
-```text
-TBD — after plugin path + ordered SQL exist under idempiere-plugins/com.aberp.bookinggenerator.bulk/
+```bash
+cd idempiere-plugins/com.aberp.bookinggenerator.bulk
+chmod +x build.sh deploy.sh
+./deploy.sh
+# Cache Reset / logout-in
 ```
 
-## AbilityERP Admin access
+Grants **Admin** + **AbilityERP Admin** by role name.
 
-Any new process / Info Window / button **must** grant **AbilityERP Admin** and operational **Admin** by role **name** (see `docs/DEV-REQUIREMENTS.md`).
+## Flamingo generator (runtime dependency)
 
-## Smoke (target when delivered)
+| | |
+|--|--|
+| Pack copy | `Tickets/SAW017_booking_generator_bulk/jar/com.aberp.servicebooking.generator_7.1.12.202602251048.jar` |
+| Process UU | `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` |
+| Class | `com.aberp.servicebooking.generator.process.GenerateBookings` |
 
-1. Cache Reset / logout-in.  
-2. Run bulk/block generate for one Activity block with run-level dates.  
-3. Confirm only Standards created; POS/Quotes/templates skipped.  
-4. Confirm Invoice Rule Immediate (or configured rule) on new SBs.  
-5. Confirm Irregular / STR excluded unless opted in.  
-6. Confirm per-BG date override still works for one mid-month case.  
-7. Confirm exit-date skip for a known exited client.
+See `jar/README.md` for sibling JARs still needed on HCO Test.
 
-## Packs
+## Smoke
 
-TBD after staging green.
+1. Menu or Booking Generator toolbar **Bulk Generate Bookings** visible for Admin.  
+2. Existing **Generate Bookings** button unchanged.  
+3. With generator stack installed: run one Activity (e.g. Day Program) for a short period → Standards SBs only; Invoice Rule Immediate.  
+4. Without generator: process returns a clear error (does not crash the server).
