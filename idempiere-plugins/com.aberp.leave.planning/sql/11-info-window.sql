@@ -205,7 +205,7 @@ BEGIN
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0017-4f01-8e15-000000000001',170,
     'Created','Created','ul.Created',16,NULL,'N','Y',NULL);
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0018-4f01-8e15-000000000001',180,
-    'Updated','Updated','ul.Updated',16,NULL,'N','Y',NULL);
+    'Updated','Updated','ul.Updated',16,NULL,'N','N',NULL);
 
   -- Info Window access (same roles as before)
   INSERT INTO ad_infowindow_access (
