@@ -2,6 +2,19 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW018 HCO Release Packins
+
+**Install:** 2Packs `hco_credentials` / `hco_employee` / `hco_client` / `hco_supportlocation` + SQL view `hco_cred_missing_staff_v` on HCO Test. All four named zips **Completed successfully**. Support Location UU unchanged.
+
+**Learnings:**
+1. Folder PackIn filenames must be `yyyymmddHHMM_SYSTEM_*.zip` — System client **Value** is `SYSTEM` (case-sensitive).
+2. Create the DB view **before** the credentials packin.
+3. Clear stuck `ad_package_imp` (`Installing` / `processed=N`) before PackIn.
+4. Legacy OSGi bundle `com.aberp.employee.infopanel` (Incremental2PackActivator) blocked PackInFolder with *Failed to save InfoWindow Employee (User) / Agency Staff Rostering Info* (7.1.3+). Mark those versions completed and uninstall the bundle; prefer SAW003 `com.aberp.rostering.staffinfo`.
+5. PackInFolderApplication exits after apply — confirm `systemctl is-active idempiere`.
+
+**Smoke:** package_imp `1001055`–`1001058` success; view + AD_Table UU `598a7584-…`; element `hco_primarydept`; window UU `6ef3c558-…` unchanged.
+
 ## 2026-07-13 — SAW017 Booking Generator bulk (Phase 0 discovery)
 
 **Scope:** Discovery only on HCO Test (same host as SAW010). No AD/JAR install. No `*_UU` changes.

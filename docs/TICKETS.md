@@ -38,10 +38,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW015 | `skip_dates_copy_from` | idempiere | Skip Dates: Copy Dates From existing record (AbERP_Dates) | in-progress | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) | [`Tickets/SAW015_…`](../Tickets/SAW015_skip_dates_copy_from/) |
 | SAW016 | `leave_planning` | idempiere | Leave Planning window for workforce planners | in-progress | [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16) | [`Tickets/SAW016_…`](../Tickets/SAW016_leave_planning/) |
 | SAW017 | `booking_generator_bulk` | idempiere | Booking Generator → Service Bookings bulk/block generation | in-progress | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) | [`Tickets/SAW017_…`](../Tickets/SAW017_booking_generator_bulk/) |
+| SAW018 | `hco_release_packins` | idempiere | HCO release 2Packs (credentials/employee/client/support location) + missing-staff view | in-progress | [#18](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/18) | [`Tickets/SAW018_…`](../Tickets/SAW018_hco_release_packins/) |
 
 ## Next ID
 
-**SAW018**
+**SAW019**
 
 ## Naming reminder
 
