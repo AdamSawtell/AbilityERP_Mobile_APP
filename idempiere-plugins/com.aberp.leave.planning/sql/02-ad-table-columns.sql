@@ -126,10 +126,10 @@ BEGIN
     ) VALUES (
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Val_Rule' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
-      'AbERP Leave Planning Employee Locations',
-      'Partner locations currently assigned to active users',
+      'AbERP Leave Planning Support Locations',
+      'Active Support Locations only (same filter as Support Location window)',
       'S',
-      'C_BPartner_Location.C_BPartner_Location_ID IN (SELECT C_BPartner_Location_ID FROM AD_User WHERE IsActive=''Y'' AND C_BPartner_Location_ID IS NOT NULL)',
+      'C_BPartner_Location.C_BPartner_Location_ID IN (SELECT C_BPartner_Location_ID FROM AbERP_Support_Location WHERE IsActive=''Y'' AND C_BPartner_Location_ID IS NOT NULL)',
       'Ab_ERP',
       '16a01606-c0d4-4f01-8e15-000000000001'
     ) RETURNING ad_val_rule_id INTO v_val_loc;

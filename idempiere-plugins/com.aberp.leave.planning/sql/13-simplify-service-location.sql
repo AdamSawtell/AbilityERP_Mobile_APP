@@ -25,8 +25,8 @@ BEGIN
 
   UPDATE ad_infocolumn SET
     name = 'Service Location',
-    description = 'Optional. Leave blank for all locations (role/org security still applies).',
-    help = 'Pick one Partner Location to narrow results, or leave blank for all.',
+    description = 'Optional. Active Support Locations only; leave blank for all.',
+    help = 'Lookup lists active Support Locations (Support Location window filter). Blank = all locations.',
     ad_reference_id = 19, -- Table Direct
     ad_reference_value_id = NULL,
     ad_val_rule_id = v_val_loc,

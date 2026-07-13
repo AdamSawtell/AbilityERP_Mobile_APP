@@ -15,14 +15,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.adempiere.webui.component.Button;
+import org.adempiere.webui.component.ZkCssHelper;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.info.InfoWindow;
 import org.compiere.model.GridField;
 import org.compiere.model.MInfoWindow;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
+import org.compiere.util.KeyNamePair;
 import org.compiere.util.Util;
+import org.compiere.util.ValueNamePair;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.A;
 import org.zkoss.zul.Div;
@@ -64,6 +68,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	private A linkDeclined;
 	private A linkAll;
 	private Button exportButton;
+	private boolean colourListenersAttached;
 
 	public LeavePlanningInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -111,15 +116,69 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	@Override
 	protected void renderItems() {
 		super.renderItems();
+		ensureColourListeners();
 		colourApproverStatusCells();
+		// Renderer finishes after renderItems — re-apply on next AU round-trip
+		Events.echoEvent("onLeavePlanningColour", this, null);
+	}
+
+	private void ensureColourListeners() {
+		if (colourListenersAttached || contentPanel == null) {
+			return;
+		}
+		colourListenersAttached = true;
+		addEventListener("onLeavePlanningColour", event -> colourApproverStatusCells());
+		contentPanel.addEventListener("onPaging", event -> {
+			colourApproverStatusCells();
+			Events.echoEvent("onLeavePlanningColour", this, null);
+		});
 	}
 
 	/**
-	 * Soft tint on Approver Status cells after each render/page.
-	 * Declined = rose, Reviewing = amber, Approved = green.
-	 * Resolves column via list header label (no MiniTable / ColumnInfo dependency).
+	 * Soft tint on Approver Status: Declined rose, Reviewing amber, Approved green.
+	 * Applies via client JS (survives WListItemRenderer) and mirrors on ZK components.
 	 */
 	private void colourApproverStatusCells() {
+		colourApproverStatusCellsJs();
+		colourApproverStatusCellsZk();
+	}
+
+	private void colourApproverStatusCellsJs() {
+		String js = "setTimeout(function(){(function(){"
+				+ "var root=jq('.z-window:visible').filter(function(){"
+				+ "  return (jq(this).text()||'').indexOf('Leave Planning summary')>=0;"
+				+ "}).last();"
+				+ "if(!root.length){ root=jq(document); }"
+				+ "var heads=root.find('.z-listheader');"
+				+ "var col=-1;"
+				+ "heads.each(function(i){"
+				+ "  var t=(jq(this).text()||'').toLowerCase().replace(/\\s+/g,' ').trim();"
+				+ "  if(t.indexOf('approver status')>=0 || t==='approver'){ col=i; }"
+				+ "});"
+				+ "if(col<0){ return; }"
+				+ "root.find('.z-listbox-body tr.z-listitem').each(function(){"
+				+ "  var cells=jq(this).children('td.z-listcell,td');"
+				+ "  if(col>=cells.length){ return; }"
+				+ "  var cell=cells.eq(col);"
+				+ "  var t=(cell.text()||'').replace(/\\s+/g,' ').trim();"
+				+ "  var bg=null, fg=null;"
+				+ "  if(/^Declined$/i.test(t)||t==='DC'){ bg='#FDE8E8'; fg='#8B1A1A'; }"
+				+ "  else if(/^Reviewing$/i.test(t)||t==='RV'){ bg='#FFF4D6'; fg='#7A5A00'; }"
+				+ "  else if(/^Approved$/i.test(t)||t==='AP'){ bg='#E6F5EA'; fg='#1B5E2A'; }"
+				+ "  if(!bg){ return; }"
+				+ "  jq(this).css('background-color', bg);"
+				+ "  cell.css({'background-color':bg,'color':fg,'font-weight':'600'});"
+				+ "  cell.find('*').css({'background-color':bg,'color':fg});"
+				+ "});"
+				+ "})();}, 50);";
+		try {
+			org.zkoss.zk.ui.util.Clients.evalJavaScript(js);
+		} catch (Exception ignore) {
+			// ZK colour path still attempted below
+		}
+	}
+
+	private void colourApproverStatusCellsZk() {
 		if (contentPanel == null) {
 			return;
 		}
@@ -128,28 +187,108 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		if (statusCell < 0) {
 			return;
 		}
-		for (Listitem item : box.getItems()) {
+		int modelCol = statusCell;
+		try {
+			java.lang.reflect.Method m = box.getClass().getMethod("convertColumnIndexToModel", int.class);
+			Object converted = m.invoke(box, statusCell);
+			if (converted instanceof Integer) {
+				modelCol = ((Integer) converted).intValue();
+			}
+		} catch (Exception ignore) {
+			modelCol = statusCell;
+		}
+		java.util.List<Listitem> items = box.getItems();
+		if (items == null || items.isEmpty()) {
+			return;
+		}
+		int row = 0;
+		for (Listitem item : items) {
 			if (item == null) {
+				row++;
 				continue;
 			}
-			java.util.List<Component> cells = item.getChildren();
-			if (cells == null || statusCell >= cells.size()) {
-				continue;
+			String text = readStatusText(box, item, statusCell, modelCol, row);
+			String cellStyle = statusCellStyle(text);
+			String rowStyle = statusRowStyle(text);
+			if (cellStyle != null || rowStyle != null) {
+				if (rowStyle != null) {
+					appendStyle(item, rowStyle);
+				}
+				Listcell cell = listcellAt(item, statusCell);
+				if (cell != null && cellStyle != null) {
+					appendStyle(cell, cellStyle);
+					for (Component child : cell.getChildren()) {
+						if (child instanceof HtmlBasedComponent) {
+							appendStyle((HtmlBasedComponent) child, cellStyle);
+						}
+					}
+				}
 			}
-			Component cellComp = cells.get(statusCell);
-			if (!(cellComp instanceof Listcell)) {
-				continue;
-			}
-			Listcell cell = (Listcell) cellComp;
-			String text = cell.getLabel();
-			if (Util.isEmpty(text, true) && cell.getFirstChild() instanceof Label) {
-				text = ((Label) cell.getFirstChild()).getValue();
-			}
-			String style = statusCellStyle(text);
-			if (style != null) {
-				cell.setStyle(style);
+			row++;
+		}
+	}
+
+	private static void appendStyle(HtmlBasedComponent comp, String style) {
+		if (comp == null || Util.isEmpty(style, true)) {
+			return;
+		}
+		ZkCssHelper.appendStyle(comp, style);
+	}
+
+	private static Listcell listcellAt(Listitem item, int index) {
+		java.util.List<Component> cells = item.getChildren();
+		if (cells == null || index < 0 || index >= cells.size()) {
+			return null;
+		}
+		Component cellComp = cells.get(index);
+		return cellComp instanceof Listcell ? (Listcell) cellComp : null;
+	}
+
+	private static String readStatusText(Listbox box, Listitem item, int statusCell, int modelCol, int row) {
+		Listcell cell = listcellAt(item, statusCell);
+		String text = null;
+		if (cell != null) {
+			text = cell.getLabel();
+			if (Util.isEmpty(text, true)) {
+				for (Component child : cell.getChildren()) {
+					if (child instanceof Label) {
+						text = ((Label) child).getValue();
+						break;
+					}
+					if (child instanceof org.zkoss.zul.impl.XulElement) {
+						String t = ((org.zkoss.zul.impl.XulElement) child).getTooltiptext();
+						if (!Util.isEmpty(t, true)) {
+							text = t;
+							break;
+						}
+					}
+				}
 			}
 		}
+		if (Util.isEmpty(text, true)) {
+			try {
+				java.lang.reflect.Method m = box.getClass().getMethod("getValueAt", int.class, int.class);
+				Object v = m.invoke(box, row, modelCol);
+				text = valueToStatusText(v);
+			} catch (Exception ignore) {
+				// keep null
+			}
+		}
+		return text;
+	}
+
+	private static String valueToStatusText(Object v) {
+		if (v == null) {
+			return null;
+		}
+		if (v instanceof ValueNamePair) {
+			ValueNamePair p = (ValueNamePair) v;
+			return Util.isEmpty(p.getName(), true) ? p.getValue() : p.getName();
+		}
+		if (v instanceof KeyNamePair) {
+			return ((KeyNamePair) v).getName();
+		}
+		return String.valueOf(v);
 	}
 
 	private static int findApproverStatusCellIndex(Listbox box) {
@@ -159,35 +298,79 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		}
 		int idx = 0;
 		for (Component c : head.getChildren()) {
-			String label = null;
-			if (c instanceof Listheader) {
-				label = ((Listheader) c).getLabel();
-			} else if (c instanceof Label) {
-				label = ((Label) c).getValue();
-			} else {
-				label = c.toString();
-			}
-			if (label != null && label.toLowerCase().contains("approver status")) {
-				return idx;
+			String label = headerLabel(c);
+			if (label != null) {
+				String lower = label.toLowerCase();
+				if (lower.contains("approver status") || lower.equals("approver")
+						|| lower.contains("approverstatus")) {
+					return idx;
+				}
 			}
 			idx++;
 		}
 		return -1;
 	}
 
+	private static String headerLabel(Component c) {
+		if (c instanceof Listheader) {
+			Listheader h = (Listheader) c;
+			if (!Util.isEmpty(h.getLabel(), true)) {
+				return h.getLabel();
+			}
+			for (Component child : h.getChildren()) {
+				if (child instanceof Label && !Util.isEmpty(((Label) child).getValue(), true)) {
+					return ((Label) child).getValue();
+				}
+			}
+			return h.getTooltiptext();
+		}
+		if (c instanceof Label) {
+			return ((Label) c).getValue();
+		}
+		return c != null ? c.toString() : null;
+	}
+
 	private static String statusCellStyle(String text) {
+		String tone = statusTone(text);
+		if ("DC".equals(tone)) {
+			return "background-color:#FDE8E8 !important;color:#8B1A1A !important;font-weight:600;";
+		}
+		if ("RV".equals(tone)) {
+			return "background-color:#FFF4D6 !important;color:#7A5A00 !important;font-weight:600;";
+		}
+		if ("AP".equals(tone)) {
+			return "background-color:#E6F5EA !important;color:#1B5E2A !important;font-weight:600;";
+		}
+		return null;
+	}
+
+	private static String statusRowStyle(String text) {
+		String tone = statusTone(text);
+		if ("DC".equals(tone)) {
+			return "background-color:#FDE8E8 !important;";
+		}
+		if ("RV".equals(tone)) {
+			return "background-color:#FFF4D6 !important;";
+		}
+		if ("AP".equals(tone)) {
+			return "background-color:#E6F5EA !important;";
+		}
+		return null;
+	}
+
+	private static String statusTone(String text) {
 		if (Util.isEmpty(text, true)) {
 			return null;
 		}
 		String t = text.trim();
 		if (t.equalsIgnoreCase("Declined") || STATUS_DC.equalsIgnoreCase(t)) {
-			return "background:#FDE8E8;color:#8B1A1A;font-weight:600;";
+			return "DC";
 		}
 		if (t.equalsIgnoreCase("Reviewing") || STATUS_RV.equalsIgnoreCase(t)) {
-			return "background:#FFF4D6;color:#7A5A00;font-weight:600;";
+			return "RV";
 		}
 		if (t.equalsIgnoreCase("Approved") || STATUS_AP.equalsIgnoreCase(t)) {
-			return "background:#E6F5EA;color:#1B5E2A;font-weight:600;";
+			return "AP";
 		}
 		return null;
 	}
