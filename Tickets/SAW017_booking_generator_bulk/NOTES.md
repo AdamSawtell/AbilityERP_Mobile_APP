@@ -157,18 +157,33 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 | Object | HCO value | Notes |
 |--------|-----------|--------|
 | Host | `32.236.127.117` | Same as SAW010 |
-| Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` | |
-| Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Patched JAR installed |
-| Process Bulk Generate Bookings | UU `17a01701-b017-4017-8017-000000000001` · value `AbERP_BG_BulkGenerateBookings` | |
-| DocAction list | `BookingGen_DocList` UU `285220bc-9749-4c4b-978d-4674fad038cd` | **Not** core `_Document Action` (135) |
-| Activity Short Term Accommodation | name resolve · local ID `1000014` | STR smoke |
-| Smoke single SB | `53320` / BG `1000910` | InvoiceRule `I`, DR |
-| Smoke bulk SB | `53323` / BG `1000841` | Bulk `ok=3` STR candidates |
+| SSH | `ubuntu@32.236.127.117` · key `%USERPROFILE%\.ssh\HCObusiness.pem` | |
+| WebUI | `http://32.236.127.117/webui/` · SuperUser / `HCOflamingo` · role **Admin** | |
+| DB | `idempiere` / `adempiere` / `flamingo` | |
+| Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` (local) | Resolve by UU |
+| Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Patched JAR `*-no-opp-dep.jar` |
+| Process Bulk Generate Bookings | UU `17a01701-b017-4017-8017-000000000001` · value `AbERP_BG_BulkGenerateBookings` · local process ID `1000073` | |
+| DocAction list | `BookingGen_DocList` UU `285220bc-9749-4c4b-978d-4674fad038cd` | **Required** — not core `_Document Action` (135) |
+| Activity Short Term Accommodation | resolve by **name** · local ID `1000014` | STR smoke block |
+| Activity Day Program | resolve by **name** · local ID `1000004` | DO |
+| Bulk JAR | `com.aberp.bookinggenerator.bulk_7.1.0.202607132235.jar` | |
+| Generator JAR | `com.aberp.servicebooking.generator_7.1.12.202602251048-no-opp-dep.jar` | |
+| E2E single SB | `53324` / BG `1000910` (`2001124`) | Sep 2026 · InvoiceRule `I` · DR |
+| E2E bulk SBs | `53325` (BG `1000393`), `53326` (BG `1000509`) | Bulk `ok=3` STR · InvoiceRule `I` |
+| E2E evidence | [`hco/E2E-SMOKE-20260713.md`](hco/E2E-SMOKE-20260713.md) | |
+
+### Install order (future client / HCO)
+
+1. Install generator stack JARs (patched generator + deps) via OSGi console / `plugins` + `bundles.info`
+2. Install `com.aberp.bookinggenerator.bulk` JAR
+3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `04-verify.sql`
+4. Cache Reset
+5. Smoke per `hco/E2E-SMOKE-20260713.md` (use a clean future period)
 
 ---
 
-## HCO smoke 2026-07-13
+## HCO smoke 2026-07-13 (E2E PASS)
 
-- Single **Generate Bookings** on BG Search Key `2001124` (Aug 1–7) → SB `53320`, InvoiceRule Immediate, Draft.
-- **Bulk Generate Bookings** STR Activity + Include STR + Aug 1–7 → process summary `created/ok=3, skipped=0, failed=0`; dates applied on three STANDARD STR BGs; at least SB `53323` created with InvoiceRule `I`.
-- Fix applied live: DocAction reference → `BookingGen_DocList`; YesNo paras non-mandatory (defaults apply).
+- Single **Generate Bookings** on BG `2001124` (Sep 1–7) → SB **`53324`**, InvoiceRule Immediate, Draft.
+- **Bulk Generate Bookings** STR Activity + Include STR + Sep 1–7 → `created/ok=3, failed=0`; SBs **`53325`**, **`53326`** InvoiceRule `I`.
+- DocAction = `BookingGen_DocList`; temporary smoke AD defaults **reverted** after test.

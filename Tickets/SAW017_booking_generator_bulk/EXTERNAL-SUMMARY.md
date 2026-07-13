@@ -1,44 +1,43 @@
 # SAW017 — External summary (customer / ticket paste)
 
-**Status:** Scope accepted for development planning. Not yet delivered in WebUI.
+**Status:** Delivered and smoke-tested on HCO Test (2026-07-13). Client update packs pending.
 
-## Windows / processes / objects affected (planned)
+## Windows / processes / objects affected
 
-| Object | Type | Planned change |
-|--------|------|----------------|
-| Booking Generator | Window | Bulk / block generation entry (process and/or Info Window selection) |
-| Booking Generator record | Table | Likely type/category or “include in bulk generation” attribute so POS / Quotes can be excluded |
-| Generate Bookings (existing) | Process | Remains for single-record use; bulk run will reuse this behaviour where possible |
-| New bulk generate process | Process | Period once per run; block and/or tick selection; Standards-only defaults |
-| Service Booking | Window / orders | Created in bulk from selected generators; Invoice Rule behaviour defined (e.g. Immediate) |
+| Object | Type | Change |
+|--------|------|--------|
+| Booking Generator | Window | New **Bulk Generate Bookings** button (existing **Generate Bookings** unchanged) |
+| Bulk Generate Bookings | Process | New — period, optional Activity block, Include Irregular / STR, Invoice Rule, DocAction |
+| Generate Bookings | Process | Unchanged single-record path; bulk delegates to it |
+| Service Booking | Orders | Created from selected STANDARD Booking Generators; Invoice Rule can be forced (default Immediate) |
+| Menu | Menu | Bulk Generate Bookings (Admin / AbilityERP Admin) |
 
 ## What’s done
 
-Requirements captured. Existing AbilityERP generators (timesheet / invoice / roster style and current single-record Generate Bookings) reviewed for patterns. Development approach drafted: discover host Generate* JARs, add BG filter attribute if needed, implement bulk/block process that delegates to existing generation logic, with run-level dates and exclusion rules.
-
-## What will change (behaviour when delivered)
-
-Staff will generate Service Bookings for a month (or period) in blocks (e.g. SIL / DO / IHS) and/or by ticking Booking Generator lines, without setting dates on every line. Irregular Hours and Short Term Respite stay out of the default bulk run. Only Standards (not Quotes, Programs of Support, templates) are included. Invoice Rule on generated bookings will follow the agreed rule (e.g. remain Immediate). Waiting-on-plan, Day Options/Tri-States, and client-exit cases can be skipped or excluded per process rules/guidance.
+- Additive bulk/block Service Booking generation from Booking Generator Standards.
+- Run-level Date From / Date To applied to each selected BG, then Generate Bookings runs per row.
+- Defaults exclude Irregular Hrs and Short Term Respite/STA unless opted in; excludes templates, Programs of Support, Non Binding Offer doctypes, and `*Do Not Use*` activities.
+- Invoice Rule Immediate can be forced on newly created bookings.
+- HCO Test end-to-end: single generate SB `53324`; bulk STR `ok=3` with SBs `53325` / `53326` (Invoice Rule Immediate).
 
 ## Impact
 
-Removes the ~206-line manual Generate Bookings loop (hours to days of admin time). Keeps flexibility for mid-month plan changes via dates on the Booking Generator record.
+Operators can generate a block (e.g. Short Term Accommodation or Day Program) for a period in one run instead of opening each Booking Generator line.
 
-## How to test (when delivered)
+## How to test
 
-1. Log in as Admin / AbilityERP Admin.  
-2. Run bulk generate for one block with a single period.  
-3. Confirm expected Standards Service Bookings only.  
-4. Confirm Invoice Rule.  
-5. Confirm Irregular / STR not generated unless selected.  
-6. Spot-check a mid-month date override and an exited client skip.
+1. Log in as **Admin** or **AbilityERP Admin**. Cache Reset after install.  
+2. Open a STANDARD Booking Generator → **Generate Bookings** (Draft) for a short future period → confirm Service Booking + Invoice Rule Immediate.  
+3. Menu or button **Bulk Generate Bookings**: set Date From/To, optional Activity, Include STR only if needed → OK.  
+4. Confirm process log counts and new Service Bookings for that period.  
+5. Confirm Irregular / STR stay out when Include flags are No.
 
 ## Access
 
-**AbilityERP Admin** will receive access to any new process / Info Window / button.
+**Admin** and **AbilityERP Admin** are granted process / window access in the install SQL.
 
 ## Caveats / out of scope
 
 - Invoice Partner resetting on Booking Generator copy — separate issue.  
-- Description month/year on Service Booking may remain a manual admin step unless added later.  
-- Vendor estimate and deploy cycle for Flamingo Logic / Logilite work to be confirmed.
+- Description month/year on Service Booking may remain a manual step.  
+- Generate Bookings may report success with no new order if the period already has matching bookings/patterns.

@@ -48,9 +48,12 @@ Grants **Admin** + **AbilityERP Admin** by role name.
 
 See `jar/README.md` for sibling JARs.
 
-## Smoke (HCO Test 2026-07-13)
+## Smoke (HCO Test E2E 2026-07-13 — PASS)
+
+Full evidence: [`hco/E2E-SMOKE-20260713.md`](hco/E2E-SMOKE-20260713.md)
 
 1. Menu or Booking Generator toolbar **Bulk Generate Bookings** visible for Admin.  
-2. Existing **Generate Bookings** unchanged — BG `2001124` → SB `53320`, InvoiceRule `I`, DocStatus `DR`.  
-3. Bulk: Short Term Accommodation + Include STR=Y + 1–7 Aug 2026 → `created/ok=3, failed=0`; SB `53323` InvoiceRule `I` (Generate Bookings may return OK with no new order when patterns already covered).  
-4. DocAction para list must be `BookingGen_DocList` (not `_Document Action`).
+2. Existing **Generate Bookings** unchanged — BG `2001124` → SB **`53324`**, InvoiceRule `I`, DocStatus `DR` (Sep 1–7).  
+3. Bulk: Short Term Accommodation + Include STR=Y + Sep 1–7 → `created/ok=3, failed=0`; SBs **`53325`**, **`53326`** InvoiceRule `I`.  
+4. DocAction para list must be `BookingGen_DocList` (not `_Document Action`).  
+5. After smoke: confirm DateFrom/DateTo/Activity/IncludeSTR defaults are production-safe (empty / N) — do not leave temporary smoke defaults.

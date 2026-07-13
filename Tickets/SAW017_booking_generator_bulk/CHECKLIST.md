@@ -2,10 +2,9 @@
 
 ## Design / discovery
 
-- [x] Host discovery (HCO Test): all `Generate*` processes + paras — see `hco/`
-- [x] Locate Generate Bookings JAR — patched `7.1.12` (no serviceopportunity Require-Bundle)
+- [x] Host discovery (HCO Test) — see `hco/DISCOVERY.md`
+- [x] Generate Bookings JAR — patched `7.1.12` (no serviceopportunity Require-Bundle)
 - [x] Standards / block / Invoice Rule / exit-date filters documented
-- [ ] Design sign-off (Amber / Jason + AbERP) optional after HCO smoke
 
 ## Build
 
@@ -17,18 +16,21 @@
 - [x] Irregular / STR opt-in
 - [x] Process log (ok / skipped / failed)
 - [x] Invoice Rule force on created SBs
-- [x] DocAction list = `BookingGen_DocList` (not core `_Document Action`) — `sql/02-fix-docaction-list.sql`
+- [x] DocAction list = `BookingGen_DocList` — `sql/02-fix-docaction-list.sql`
 
-## Staging loop (HCO Test)
+## Staging loop (HCO Test) — E2E 2026-07-13 **PASS**
+
+Evidence: [`hco/E2E-SMOKE-20260713.md`](hco/E2E-SMOKE-20260713.md)
 
 - [x] Preflight + install generator stack + bulk JAR/SQL
-- [x] WebUI smoke — single Generate Bookings (BG `2001124` → SB `53320`, InvoiceRule `I`, DR)
-- [x] WebUI smoke — Bulk STR block (Activity Short Term Accommodation, Include STR=Y, 1–7 Aug 2026) → `ok=3`, SB `53323` InvoiceRule `I`
-- [ ] Packs (ClientUpdate + ProdUpdate)
+- [x] Cache Reset
+- [x] Single Generate Bookings — BG `2001124` → SB `53324` InvoiceRule `I` DR (Sep 1–7)
+- [x] Bulk STR block — `ok=3` → SBs `53325`, `53326` InvoiceRule `I`
+- [x] Revert any temporary smoke AD defaults (DateFrom/DateTo/Activity/IncludeSTR)
 
 ## Packs / handoff
 
-- [ ] Update DEPLOY.md with ordered SQL including `02-fix-docaction-list.sql`
-- [ ] Update EXTERNAL-SUMMARY.md for delivery
+- [x] DEPLOY.md ordered SQL + smoke notes
+- [ ] EXTERNAL-SUMMARY.md final polish for customer
 - [ ] ClientUpdate pack + thin ProdUpdate pack
-- [ ] GitHub issue → done when accepted
+- [ ] GitHub issue → done when packs accepted

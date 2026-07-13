@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (additive bulk plugin scaffolded; Flamingo generator deps still needed for live generate) |
+| **Status** | in-progress (HCO Test E2E **PASS**; packs next) |
 | **Kind** | idempiere |
 | **GitHub** | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) |
 | **Slug** | `SAW017_booking_generator_bulk` |
@@ -10,38 +10,27 @@
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — TBD after host discovery of existing Generate* JARs and design sign-off. Expect new process JAR + AD SQL + Admin grants.
+**→ [`DEPLOY.md`](DEPLOY.md)** — ordered SQL + JARs + smoke.  
+**→ [`hco/E2E-SMOKE-20260713.md`](hco/E2E-SMOKE-20260713.md)** — HCO Test pass evidence.
 
 ## External ticket (copy/paste)
 
-**→ [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)** — draft scope summary for customer ticket (update when delivered).
+**→ [`EXTERNAL-SUMMARY.md`](EXTERNAL-SUMMARY.md)**
 
 ## Goal
 
-Bulk or block-based generation of **Service Bookings** (`C_Order`) from **Booking Generator** (`AbERP_BookingGenerator`) records — aligned with invoice / roster / timesheet bulk generation — so ops do not manually run Generate Bookings ~206 times per month.
+Bulk or block-based generation of **Service Bookings** (`C_Order`) from **Booking Generator** records — aligned with invoice / roster / timesheet bulk generation.
 
-## Source of truth (planned)
+## Source of truth
 
 - Plugin: `idempiere-plugins/com.aberp.bookinggenerator.bulk/`
 - Class: `com.aberp.bookinggenerator.bulk.BulkGenerateBookings`
-- Prerequisite JAR (vendor): `Tickets/SAW017_booking_generator_bulk/jar/com.aberp.servicebooking.generator_7.1.12.*.jar` (+ OSGi deps)
+- Prerequisite: patched `Tickets/SAW017_booking_generator_bulk/jar/com.aberp.servicebooking.generator_*_no-opp-dep.jar` (+ deps)
 
 ## Dependencies (app)
 
 None.
 
-## Out of scope (document only)
-
-- Invoice Partner resetting to client name on BG copy
-- Mandatory Description month/year automation (may remain admin step)
-
 ## Packs
 
-Not yet. After staging green: `AbilityERP-ClientUpdate-SAW017_…` + thin `AbilityERP-ProdUpdate-SAW017_…`.
-
-## Related
-
-- [`NOTES.md`](NOTES.md) — generator review + recommended approach
-- SAW009 — Support days after Generate Bookings stamps pattern FK
-- SAW015 — Skip Dates / exclusion calendars; in-repo `SvrProcess` pattern
-- SAW010 — Timesheet Approval Info multi-select process pattern
+Not yet. Next: `AbilityERP-ClientUpdate-SAW017_…` + thin `AbilityERP-ProdUpdate-SAW017_…`.

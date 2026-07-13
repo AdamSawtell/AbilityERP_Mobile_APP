@@ -2,6 +2,25 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW017 full E2E browser smoke PASS
+
+**Smoke:** Single + Bulk on HCO Test after leave.planning restart restored WebUI.
+
+**Evidence:** [`Tickets/SAW017_booking_generator_bulk/hco/E2E-SMOKE-20260713.md`](../SAW017_booking_generator_bulk/hco/E2E-SMOKE-20260713.md)
+
+**Results:**
+- Single: SB `53324` (BG `2001124`) InvoiceRule `I` DR Sep period
+- Bulk STR: `ok=3` → SBs `53325`, `53326` InvoiceRule `I`
+- Temporary smoke AD date/activity defaults **reverted** after run
+
+**Learnings:**
+1. If WebUI 503 / proxy to :8080 refused, another ticket’s `rebuild-hco.sh` may have stopped Equinox — wait for its start loop or `sudo /etc/init.d/idempiere start` then poll `:8080/webui/` for 200.
+2. Reliable bulk param binding in automation: set AD defaults for the smoke period → Cache Reset → open process from menu → OK → **revert defaults**.
+3. Prefer a clean **future** month for E2E so new document numbers are unambiguous.
+4. DocAction / `BookingGen_DocList` + `02-fix-docaction-list.sql` remain mandatory for future installs.
+
+**No `*_UU` changes.**
+
 ## 2026-07-13 — SAW017 Bulk Generate Bookings smoke
 
 **Install/smoke:** Generator stack + `com.aberp.bookinggenerator.bulk` already on HCO Test. WebUI smoke + AD fix.
