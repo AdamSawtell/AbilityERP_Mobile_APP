@@ -26,8 +26,12 @@ echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES
 echo "Applying AD registration SQL"
 sudo cp "$PLUGIN_DIR/sql/00-preflight.sql" /tmp/saw015-00-preflight.sql
 sudo cp "$PLUGIN_DIR/sql/01-install-copy-dates-from.sql" /tmp/saw015-01-install.sql
+sudo cp "$PLUGIN_DIR/sql/02-button-window-style.sql" /tmp/saw015-02-button.sql
+sudo cp "$PLUGIN_DIR/sql/04-verify.sql" /tmp/saw015-04-verify.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f /tmp/saw015-00-preflight.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f /tmp/saw015-01-install.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f /tmp/saw015-02-button.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f /tmp/saw015-04-verify.sql
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache)"
 # Force stop first — 'restart' can no-op with stale 'already running' when Java is down

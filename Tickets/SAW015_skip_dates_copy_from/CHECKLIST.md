@@ -37,4 +37,6 @@
 - [x] Thin prod pack `AbilityERP-ProdUpdate-SAW015_…-20260713`
 - [x] Deployed to HCO Test for customer UAT
 - [x] Update EXTERNAL-SUMMARY / DEPLOY / NOTES
+- [x] GitHub issue #15 Deploy section complete (agent can install from issue + DEPLOY.md)
+- [x] `Tickets/AGENT-READY.md` lists SAW015 Yes (JAR+SQL)
 - [ ] GitHub → done when customer UAT accepted

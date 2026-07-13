@@ -2,15 +2,17 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (HCO Test installed + WebUI smoke pass; UAT ready) |
+| **Status** | in-progress (HCO Test installed + WebUI smoke pass; **agent deploy-ready**; UAT pending) |
 | **Kind** | idempiere |
-| **GitHub** | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) |
+| **GitHub** | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) — issue body has full Deploy section |
 | **Slug** | `SAW015_skip_dates_copy_from` |
 | **HCO host** | `32.236.127.117` (same as SAW012) |
 
-## Deploy (other builds)
+## Deploy (other builds) — start here
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — JAR + SQL; Admin process access; stop/start iDempiere; Cache Reset.
+**→ [`DEPLOY.md`](DEPLOY.md)** — complete agent install runbook (JAR + ordered SQL + Admin grants + smoke + packs).
+
+GitHub issue **Deploy** section mirrors that runbook.
 
 ## External ticket (copy/paste)
 
