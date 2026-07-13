@@ -152,17 +152,23 @@ Full evidence: [`hco/DISCOVERY.md`](hco/DISCOVERY.md).
 
 ## HCO Future Deployments variables
 
-Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` values changed** (discovery only).
+Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` values changed**.
 
 | Object | HCO value | Notes |
 |--------|-----------|--------|
 | Host | `32.236.127.117` | Same as SAW010 |
 | Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` | |
-| Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Classname present; **JAR absent** |
-| Process Generate Timesheets | UU `93b885fb-bbd7-4b09-a377-a8a2de026a8c` | JAR absent |
-| Process Generate Rostered Shifts | UU `ce1c9b7f-ac93-49ec-bbaf-05a8661ae306` | JAR absent |
-| User query STANDARDS | `ad_userquery_id` 1000359 (local) | `Description IN STANDARD` → ~270 `STANDARD%` |
-| Activity Day Program (DO) | local ID `1000004` · value `DP` | Resolve by **name** elsewhere |
-| Activity Programmed Supports | `1000002` · `PRG` | |
-| Activity Short Term Accommodation | `1000014` · `STA` | STR block |
-| BG active / STANDARD% | 553 / 270 | POS flag 28; NBO DocType 265 |
+| Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Patched JAR installed |
+| Process Bulk Generate Bookings | UU `17a01701-b017-4017-8017-000000000001` · value `AbERP_BG_BulkGenerateBookings` | |
+| DocAction list | `BookingGen_DocList` UU `285220bc-9749-4c4b-978d-4674fad038cd` | **Not** core `_Document Action` (135) |
+| Activity Short Term Accommodation | name resolve · local ID `1000014` | STR smoke |
+| Smoke single SB | `53320` / BG `1000910` | InvoiceRule `I`, DR |
+| Smoke bulk SB | `53323` / BG `1000841` | Bulk `ok=3` STR candidates |
+
+---
+
+## HCO smoke 2026-07-13
+
+- Single **Generate Bookings** on BG Search Key `2001124` (Aug 1–7) → SB `53320`, InvoiceRule Immediate, Draft.
+- **Bulk Generate Bookings** STR Activity + Include STR + Aug 1–7 → process summary `created/ok=3, skipped=0, failed=0`; dates applied on three STANDARD STR BGs; at least SB `53323` created with InvoiceRule `I`.
+- Fix applied live: DocAction reference → `BookingGen_DocList`; YesNo paras non-mandatory (defaults apply).

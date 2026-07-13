@@ -2,6 +2,18 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW017 Bulk Generate Bookings smoke
+
+**Install/smoke:** Generator stack + `com.aberp.bookinggenerator.bulk` already on HCO Test. WebUI smoke + AD fix.
+
+**Learnings:**
+1. Bulk **DocAction** must use list **`BookingGen_DocList`** (UU `285220bc-…`, same as Generate Bookings). Core `_Document Action` (135) has no `DR` → mandatory DocAction never binds / defaults fail.
+2. Ship `sql/02-fix-docaction-list.sql` after install; Cache Reset before re-test.
+3. `ad_pinstance` queries by process value still time out on HCO — filter by `ad_process_id` + `created` window.
+4. Bulk can report `ok=N` when Generate Bookings returns success even if no new `C_Order` row (patterns already satisfied); still updates BG Start/End dates.
+
+**Smoke:** Single SB `53320` (BG `2001124`); Bulk STR `ok=3`, SB `53323` InvoiceRule `I`. No `*_UU` changes.
+
 ## 2026-07-13 — SAW018 HCO Release Packins
 
 **Install:** 2Packs `hco_credentials` / `hco_employee` / `hco_client` / `hco_supportlocation` + SQL view `hco_cred_missing_staff_v` on HCO Test. All four named zips **Completed successfully**. Support Location UU unchanged.

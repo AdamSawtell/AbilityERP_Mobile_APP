@@ -109,8 +109,14 @@ BEGIN
   SELECT ad_reference_id INTO v_ref_invoice FROM ad_reference WHERE name = 'C_Order InvoiceRule' LIMIT 1;
   IF v_ref_invoice IS NULL THEN v_ref_invoice := 150; END IF;
 
-  SELECT ad_reference_id INTO v_ref_docaction FROM ad_reference WHERE name = '_Document Action' LIMIT 1;
-  IF v_ref_docaction IS NULL THEN v_ref_docaction := 135; END IF;
+  -- Same list as Generate Bookings (includes DR/Drafted). Core _Document Action (135) does not.
+  SELECT ad_reference_id INTO v_ref_docaction FROM ad_reference
+  WHERE ad_reference_uu = '285220bc-9749-4c4b-978d-4674fad038cd'
+     OR name = 'BookingGen_DocList'
+  LIMIT 1;
+  IF v_ref_docaction IS NULL THEN
+    RAISE EXCEPTION 'BookingGen_DocList reference missing (required for DocAction DR default)';
+  END IF;
 
   SELECT ad_reference_id INTO v_ref_activity FROM ad_reference WHERE name = 'C_Activity' LIMIT 1;
 
@@ -170,7 +176,7 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Process_Para' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Include Irregular Hrs', 'Include Description STANDARD IRR* (default No)', v_process_id, 40, v_ref_yesno,
-      'AbERP_IncludeIrregular', 'N', 1, 'Y', 'N', 'Ab_ERP',
+      'AbERP_IncludeIrregular', 'N', 1, 'N', 'N', 'Ab_ERP',
       'N', '17a01705-b017-4017-8017-000000000005'
     );
   END IF;
@@ -185,7 +191,7 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Process_Para' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Include Short Term Respite', 'Include STR / Short Term Accommodation (default No)', v_process_id, 50, v_ref_yesno,
-      'AbERP_IncludeSTR', 'N', 1, 'Y', 'N', 'Ab_ERP',
+      'AbERP_IncludeSTR', 'N', 1, 'N', 'N', 'Ab_ERP',
       'N', '17a01706-b017-4017-8017-000000000006'
     );
   END IF;
@@ -215,7 +221,7 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Process_Para' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Force Invoice Rule', 'Set Invoice Rule on generated Service Bookings', v_process_id, 70, v_ref_yesno,
-      'AbERP_ForceInvoiceRule', 'N', 1, 'Y', 'N', 'Ab_ERP',
+      'AbERP_ForceInvoiceRule', 'N', 1, 'N', 'N', 'Ab_ERP',
       'Y', '17a01708-b017-4017-8017-000000000008'
     );
   END IF;
@@ -233,6 +239,15 @@ BEGIN
       'DocAction', 'Y', 2, 'Y', 'N', 'Ab_ERP',
       'DR', '17a01709-b017-4017-8017-000000000009'
     );
+  ELSE
+    UPDATE ad_process_para SET
+      ad_reference_id = 17,
+      ad_reference_value_id = v_ref_docaction,
+      defaultvalue = 'DR',
+      ismandatory = 'Y',
+      updated = NOW(),
+      updatedby = 100
+    WHERE ad_process_para_uu = '17a01709-b017-4017-8017-000000000009';
   END IF;
 END $$;
 
