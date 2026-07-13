@@ -16,7 +16,8 @@ From `idempiere-plugins/com.aberp.bookinggenerator.bulk/sql/`:
 1. `00-preflight.sql`
 2. `01-install-bulk-generate.sql`
 3. `02-fix-docaction-list.sql` — **required** if DocAction was installed against core `_Document Action` (135). Must use `BookingGen_DocList` so default `DR` / Drafted works.
-4. `04-verify.sql`
+4. `03-fix-yesno-display.sql` — Yes/No paras use display type **20** (not list 319 as primary ref).
+5. `04-verify.sql`
 
 Then Cache Reset.
 

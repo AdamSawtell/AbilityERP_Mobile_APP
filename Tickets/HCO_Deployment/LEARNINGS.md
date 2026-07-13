@@ -15,6 +15,12 @@ Append new entries at the **top** after each HCO install or failed attempt. Keep
 
 **No `*_UU` changes.**
 
+## 2026-07-14 — SAW017 Yes/No paras → display type 20
+
+**Fix:** Include Irregular / Include STR / Force Invoice Rule used `ad_reference_id=319` (_YesNo list id). That rendered raw **Y/N textboxes**. Peers use **Yes-No (20)**. Applied `sql/03-fix-yesno-display.sql` on HCO Test. Cache Reset before re-open Bulk dialog.
+
+**No `*_UU` changes.**
+
 ## 2026-07-13 — SAW017 full E2E browser smoke PASS
 
 **Smoke:** Single + Bulk on HCO Test after leave.planning restart restored WebUI.

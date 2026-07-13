@@ -176,7 +176,7 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 
 1. Install generator stack JARs (patched generator + deps) via OSGi console / `plugins` + `bundles.info`
 2. Install `com.aberp.bookinggenerator.bulk` JAR
-3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `04-verify.sql`
+3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `03-fix-yesno-display.sql` → `04-verify.sql`
 4. Cache Reset
 5. Smoke per `hco/E2E-SMOKE-20260713.md` (use a clean future period)
 

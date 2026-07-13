@@ -103,8 +103,10 @@ BEGIN
     RAISE EXCEPTION 'Bulk Generate Bookings process missing';
   END IF;
 
-  SELECT ad_reference_id INTO v_ref_yesno FROM ad_reference WHERE name = '_YesNo' LIMIT 1;
-  IF v_ref_yesno IS NULL THEN v_ref_yesno := 319; END IF;
+  -- Display type Yes-No (20) — renders Yes/No control. Do NOT use list id 319 as ad_reference_id
+  -- (that shows raw Y/N textboxes). Peer processes use reference 20 on process paras.
+  SELECT ad_reference_id INTO v_ref_yesno FROM ad_reference WHERE name = 'Yes-No' LIMIT 1;
+  IF v_ref_yesno IS NULL THEN v_ref_yesno := 20; END IF;
 
   SELECT ad_reference_id INTO v_ref_invoice FROM ad_reference WHERE name = 'C_Order InvoiceRule' LIMIT 1;
   IF v_ref_invoice IS NULL THEN v_ref_invoice := 150; END IF;
@@ -179,6 +181,14 @@ BEGIN
       'AbERP_IncludeIrregular', 'N', 1, 'N', 'N', 'Ab_ERP',
       'N', '17a01705-b017-4017-8017-000000000005'
     );
+  ELSE
+    UPDATE ad_process_para SET
+      ad_reference_id = v_ref_yesno,
+      ad_reference_value_id = NULL,
+      ismandatory = 'N',
+      defaultvalue = 'N',
+      updated = NOW(), updatedby = 100
+    WHERE ad_process_para_uu = '17a01705-b017-4017-8017-000000000005';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM ad_process_para WHERE ad_process_para_uu = '17a01706-b017-4017-8017-000000000006') THEN
@@ -194,6 +204,14 @@ BEGIN
       'AbERP_IncludeSTR', 'N', 1, 'N', 'N', 'Ab_ERP',
       'N', '17a01706-b017-4017-8017-000000000006'
     );
+  ELSE
+    UPDATE ad_process_para SET
+      ad_reference_id = v_ref_yesno,
+      ad_reference_value_id = NULL,
+      ismandatory = 'N',
+      defaultvalue = 'N',
+      updated = NOW(), updatedby = 100
+    WHERE ad_process_para_uu = '17a01706-b017-4017-8017-000000000006';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM ad_process_para WHERE ad_process_para_uu = '17a01707-b017-4017-8017-000000000007') THEN
@@ -224,6 +242,14 @@ BEGIN
       'AbERP_ForceInvoiceRule', 'N', 1, 'N', 'N', 'Ab_ERP',
       'Y', '17a01708-b017-4017-8017-000000000008'
     );
+  ELSE
+    UPDATE ad_process_para SET
+      ad_reference_id = v_ref_yesno,
+      ad_reference_value_id = NULL,
+      ismandatory = 'N',
+      defaultvalue = 'Y',
+      updated = NOW(), updatedby = 100
+    WHERE ad_process_para_uu = '17a01708-b017-4017-8017-000000000008';
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM ad_process_para WHERE ad_process_para_uu = '17a01709-b017-4017-8017-000000000009') THEN
