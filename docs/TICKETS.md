@@ -37,10 +37,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW014 | `support_location_contact_grid` | idempiere | Support Location Email/Phone grid: replace @SQL= with subquery ColumnSQL | done | [#14](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/14) | [`Tickets/SAW014_…`](../Tickets/SAW014_support_location_contact_grid/) |
 | SAW015 | `skip_dates_copy_from` | idempiere | Skip Dates: Copy Dates From existing record (AbERP_Dates) | in-progress | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) | [`Tickets/SAW015_…`](../Tickets/SAW015_skip_dates_copy_from/) |
 | SAW016 | `leave_planning` | idempiere | Leave Planning window for workforce planners | in-progress | [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16) | [`Tickets/SAW016_…`](../Tickets/SAW016_leave_planning/) |
+| SAW017 | `booking_generator_bulk` | idempiere | Booking Generator → Service Bookings bulk/block generation | in-progress | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) | [`Tickets/SAW017_…`](../Tickets/SAW017_booking_generator_bulk/) |
 
 ## Next ID
 
-**SAW017**
+**SAW018**
 
 ## Naming reminder
 

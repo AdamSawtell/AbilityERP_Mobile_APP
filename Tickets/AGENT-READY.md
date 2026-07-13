@@ -19,7 +19,7 @@ Point agents at **`Tickets/SAW###_<slug>/DEPLOY.md`** (not chat history).
 | SAW013 | `shift_change_form_enhancements` | Yes (SQL) | No JAR; ordered `00→01→02→03→05→04`; Cache Reset; Logilite CreateRequestFromTemplate is prerequisite; packs `*20260713*` |
 | SAW014 | `support_location_contact_grid` | Yes (SQL) | AD ColumnSQL only; Cache Reset; no JAR/restart; packs `*20260713*` |
 | SAW015 | `skip_dates_copy_from` | Yes (JAR+SQL) | `deploy.sh` or pack HOW-TO; stop/start; Cache Reset; Admin process access |
+| SAW016 | `leave_planning` | Yes (JAR) | Info Window + `zcommon` required; `./deploy.sh` → 1327; AD SQL for greenfield |
 
 Each installable folder has: `README`, `DEPLOY`, `EXTERNAL-SUMMARY`, `NOTES`, `CHECKLIST`.
 
-| SAW016 | `leave_planning` | Yes (JAR) | Info Window + `zcommon` required; `./deploy.sh` → 1327; AD SQL for greenfield |
