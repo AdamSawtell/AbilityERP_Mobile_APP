@@ -6,6 +6,7 @@
 - [x] Install SQL (table, AD, functions, line bridge, menu, report)
 - [x] Review: SQL verify + WebUI smoke (window, summary, Leave Records tab)
 - [x] Packs written to Downloads
+- [x] 2026-07-13 Search fix: `22-primary-location-function.sql` + JAR `1332`; browser smoke Jul 2026 = 46 rows, Support Locations, Declined filter, colours
 - [ ] Mark done when packs ready + EXTERNAL-SUMMARY accepted
 
 ## Acceptance mapping

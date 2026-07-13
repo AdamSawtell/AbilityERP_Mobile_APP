@@ -2,6 +2,19 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW016 Leave Planning Search fix (AccessSqlParser)
+
+**Fix:** Nested Service Location `SELECT` in InfoColumn `selectclause` broke `AccessSqlParser.getSelectStatements` (IllegalArgument popup on Search). Replaced with scalar fn `aberp_lp_primary_support_location(u.AD_User_ID)` (`sql/22-primary-location-function.sql`) + JAR `1.0.0.2026071332`.
+
+**Browser smoke (Admin):** Jul 2026 → **46** rows, no IllegalArgument; Support Locations in grid (Murray / Spinebill / Centennial / Gawler…); Declined banner filter → 1 row; status cell colours (rose/green); SQL EXISTS filter for `1/6 Murray` → **9** rows.
+
+**Learnings:**
+1. Avoid nested `SELECT` / commas in InfoWindow `selectclause` — wrap in a PG function.
+2. After AD InfoColumn change: hard restart (or Cache Reset); open window alone is not enough if MInfoColumn is cached.
+3. `systemctl restart` alone can leave HTTP 000 — use `restart-webui.sh` / force-kill equinox + init.d.
+
+**No `*_UU` changes.**
+
 ## 2026-07-13 — SAW017 full E2E browser smoke PASS
 
 **Smoke:** Single + Bulk on HCO Test after leave.planning restart restored WebUI.
