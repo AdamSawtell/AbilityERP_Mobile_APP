@@ -23,7 +23,7 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | `1.1.0.2026071222` (rebuild on host via `build.sh`) |
+| Version | `1.1.0.2026071223` (rebuild on host via `build.sh`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` (**must already exist**) |
 
 ## Ordered SQL (`deploy.sh`)

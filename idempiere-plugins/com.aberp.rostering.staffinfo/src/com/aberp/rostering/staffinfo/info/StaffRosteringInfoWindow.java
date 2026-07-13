@@ -103,6 +103,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/** Echoed after layout so late-created Intboxes (Search embeds, Related) are cleaned. */
 	public void onSanitizeIdEditors() {
 		sanitizeIdEditors();
+		syncCredentialFilterVisibility();
 	}
 
 	/**
@@ -144,6 +145,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	protected void executeQuery() {
 		autoWrapLikeCriteria();
 		sanitizeIdEditors();
+		syncCredentialFilterVisibility();
 		if (contextBanner != null) {
 			contextBanner.setValue(buildContextBannerText());
 		}
@@ -590,9 +592,14 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		boolean unmatched = isShowUnmatchedSelected();
 		if (credentialFilterBox != null) {
 			credentialFilterBox.setVisible(unmatched);
+			// ZK can leave display:none after early sync before the tick is applied.
+			credentialFilterBox.setStyle(unmatched
+					? "padding-top:6px;"
+					: "padding-top:6px;display:none;");
 		}
 		if (credentialFilterList != null) {
 			credentialFilterList.setDisabled(!unmatched);
+			credentialFilterList.setVisible(unmatched);
 			if (!unmatched) {
 				credentialFilterList.clearSelection();
 			}
