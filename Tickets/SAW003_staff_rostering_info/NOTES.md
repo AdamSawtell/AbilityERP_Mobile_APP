@@ -1,7 +1,7 @@
 # SAW003 notes
 
 - Deployment finished on staging; ticket marked **done** and agent-ready.
-- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071222`** (`build.sh` / `deploy.sh` / MANIFEST / Downloads packs).
+- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071223`** (`build.sh` / `deploy.sh` / MANIFEST / Downloads packs).
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not the same as SAW011 (Accept Shift Request) or SAW004 (Rostering Chat).
 
