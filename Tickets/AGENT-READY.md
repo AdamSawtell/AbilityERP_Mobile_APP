@@ -21,3 +21,5 @@ Point agents at **`Tickets/SAW###_<slug>/DEPLOY.md`** (not chat history).
 | SAW015 | `skip_dates_copy_from` | Yes (JAR+SQL) | `deploy.sh` or pack HOW-TO; stop/start; Cache Reset; Admin process access |
 
 Each installable folder has: `README`, `DEPLOY`, `EXTERNAL-SUMMARY`, `NOTES`, `CHECKLIST`.
+
+| SAW016 | `leave_planning` | Yes (JAR) | Info Window + `zcommon` required; `./deploy.sh` → 1327; AD SQL for greenfield |
