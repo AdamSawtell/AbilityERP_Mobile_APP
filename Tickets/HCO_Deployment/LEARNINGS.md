@@ -317,6 +317,40 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-13 — SAW015 Skip Dates Copy Dates From
+
+**Result:** Pass
+
+### What worked
+- New OSGi bundle `com.aberp.skipdates.copyfrom` + AD process/button on Skip Dates header.
+- WebUI smoke: copied 12 dates from Public Holidays 2025+2026 into SAW015 UAT Copy Test; source unchanged; independent IDs; review warning in help + result.
+- Window button style `B` (labeled) more visible than toolbar-only `Y` for this custom table.
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| HCO `*_UU` columns are `varchar` — do not compare to PostgreSQL `uuid` type | Preflight/install use `TEXT` UU vars |
+| `nextid(..., 'N')` cannot be used as scalar (OUT param); use `nextidfunc` | Install SQL uses `nextidfunc` |
+| `systemctl restart idempiere` can report success while Java is down (“already running”) | `deploy.sh` now **stop then start** |
+| SAW012 purge DELETE sessions can saturate `max_connections` and block smoke | Terminate waiting DELETE backends if needed; document in ticket NOTES |
+
+### HCO local IDs (hints only — do not use in portable SQL)
+
+| Object | HCO ID | UU |
+|--------|--------|-----|
+| Window Skip Dates | 1000162 | `b3037901-e883-42f2-8e6d-c8e759ca91cd` |
+| Process Copy Dates From | 1000071 | `15a01501-c0d4-4f01-8e15-000000000001` |
+| Column AbERP_CopyDatesFrom | 1007363 | `15a01503-c0d4-4f01-8e15-000000000003` |
+| Field Copy Dates From | 1009357 | `15a01504-c0d4-4f01-8e15-000000000004` |
+
+### Ticket artefacts
+
+- `Tickets/SAW015_skip_dates_copy_from/`
+- `idempiere-plugins/com.aberp.skipdates.copyfrom/`
+- Downloads packs `*SAW015_skip_dates_copy_from-20260713*`
+
+---
+
 <!-- Template for next entry:
 
 ## YYYY-MM-DD — SAW### short title

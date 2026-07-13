@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Skip Dates Copy Dates From
+Bundle-SymbolicName: com.aberp.skipdates.copyfrom
+Bundle-Version: 7.1.0.202607131830
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.skipdates.copyfrom
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
+Service-Component: skipdates-copyfrom-process.xml

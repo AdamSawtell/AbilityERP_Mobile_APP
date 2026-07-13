@@ -1,45 +1,52 @@
 # SAW015 — Notes
 
-## Requirements snapshot
+## Pattern
 
-- Window: `AbERP_Skip_Dates` · Dates tab: `AbERP_Dates`
-- Process: **Copy Dates From** — pick existing Skip Dates header → copy all date lines to current header
-- Pattern reference: Service Booking copy-lines (`copyfromprocess` / Copy From)
-- Warning (suggested):
+Service Booking **Copy Lines** = `C_Order.CopyFrom` button → `org.compiere.process.CopyFromOrder` with Search parameter for source order.  
+SAW015 mirrors that: header button → `CopyDatesFrom` with Search parameter `AbERP_Skip_Dates_ID`.
 
-  > The copied records contain specific dates. Please review all copied dates and update the year or individual dates where required before using this Skip Dates record.
+## HCO discovery (2026-07-13)
 
-- Report number of rows successfully copied; source unchanged; new IDs on target lines
+| Object | UU |
+|--------|-----|
+| Skip Dates window | `b3037901-e883-42f2-8e6d-c8e759ca91cd` |
+| Header tab | `4224ab0d-fa68-44ac-9371-eb5fd100c3b3` |
+| Dates tab | `d07ecead-7f5f-43e3-beef-57a4068cebcb` |
+| Table AbERP_Skip_Dates | `88130ae9-2aac-4c86-9c98-f94b272af212` |
+| Table AbERP_Dates | `bac8f234-c300-45f5-b8bb-5f7c7a0a2152` |
+| Process (AbERP-owned) | `15a01501-c0d4-4f01-8e15-000000000001` |
 
-## Discovery (TODO)
+Dates columns copied: StartDate, EndDate, Description, IsActive (+ client/org from target).
 
-| Item | Notes |
-|------|--------|
-| Service Booking Copy From process | Classname, params, how source doc is selected, messages |
-| Skip Dates window / tab / table UUs | Resolve by name/`tablename`; never hardcode IDs across clients |
-| `AbERP_Dates` columns to copy | Date + any descriptive fields; exclude PK / parent FK (set to target) / audit |
-| Button placement | Header toolbar vs button field (prefer same pattern as Service Booking) |
+## Design decisions
 
-## Design decisions (pending discovery)
+- New OSGi bundle `com.aberp.skipdates.copyfrom` (do not reuse other AbERP symbolic names).
+- Window button `IsToolbarButton = B` for visible labeled button (Service Booking uses toolbar `Y`; AbERP Accept Shift uses `B`).
+- `showhelp = Y` + Help text = date-review warning; success message repeats warning + count.
+- Val rule excludes current Skip Dates from source picker.
+- `nextidfunc` for AD IDs (HCO `nextid` is OUT-param only).
 
-- Prefer Java `SvrProcess` in a **new** OSGi bundle (do not reuse an existing AbERP bundle symbolic name) if Service Booking uses Java copy-from.
-- Fixed `AD_Process_UU` / element UUs for AbERP-owned objects; upsert by UU.
-- Process parameter: TableDir / Search on Skip Dates table, excluding current record if practical.
-- `showhelp` / confirm dialog for the date-review warning; `@Success@` / process log for copy count.
+## HCO smoke (2026-07-13)
+
+- Bundle ACTIVE `com.aberp.skipdates.copyfrom_7.1.0.202607131830`.
+- Target **SAW015 UAT Copy Test** (id 1000014): 0 → **12** lines from **Public Holidays 2025+2026**.
+- Source still 12; overlapping date IDs = 0.
+- Message: `Copied 12 date record(s) from "Public Holidays 2025+2026". The copied records contain specific dates...`
+
+## Ops note
+
+SAW012 purge DELETE sessions had saturated `max_connections` during install; waiting DELETE backends were terminated to free slots for smoke. Re-run SAW012 purge off-peak if still needed.
 
 ## HCO Future Deployments variables
 
 | Item | Value |
 |------|--------|
-| Host | `32.236.127.117` (when installing on HCO) |
+| Host | `32.236.127.117` |
 | WebUI | `http://32.236.127.117/webui/` |
 | SSH | `ubuntu@32.236.127.117` · key `%USERPROFILE%\.ssh\HCObusiness.pem` |
 | DB | `idempiere` / `adempiere` / `flamingo` |
-| Skip Dates window UU | TBD |
-| Skip Dates table UU | TBD |
-| Dates table UU | TBD |
-| Copy Dates From process UU | TBD (AbERP-owned) |
-
-## Smoke / blockers
-
-_(none yet — scaffold only)_
+| Skip Dates window UU | `b3037901-e883-42f2-8e6d-c8e759ca91cd` |
+| Process UU | `15a01501-c0d4-4f01-8e15-000000000001` |
+| Column UU | `15a01503-c0d4-4f01-8e15-000000000003` |
+| Field UU | `15a01504-c0d4-4f01-8e15-000000000004` |
+| JAR | `com.aberp.skipdates.copyfrom_7.1.0.202607131830.jar` |

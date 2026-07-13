@@ -8,33 +8,33 @@
 
 ## Discovery
 
-- [ ] Service Booking copy-lines process (class, AD, UX)
-- [ ] Skip Dates / Dates table schema + window/tab UUs
-- [ ] Decide JAR vs SQL-only
+- [x] Service Booking copy-lines (`CopyFrom` / `CopyFromOrder`)
+- [x] Skip Dates / Dates schema + UUs on HCO
+- [x] JAR + SvrProcess chosen
 
 ## Implementation
 
-- [ ] Process + parameter (source Skip Dates)
-- [ ] Copy logic (new IDs, target FK, source read-only)
-- [ ] Date-review warning / confirmation
-- [ ] Copy-count success message
-- [ ] Button / toolbar on Skip Dates header
-- [ ] AbilityERP Admin + Admin process access (by role name)
-- [ ] Preflight / install / verify / rollback SQL
-- [ ] Fixed UUs for new AbERP objects
+- [x] Process + parameter (source Skip Dates)
+- [x] Copy logic (new IDs, target FK, source read-only)
+- [x] Date-review warning / confirmation
+- [x] Copy-count success message
+- [x] Button on Skip Dates header (`B`)
+- [x] AbilityERP Admin + Admin process access
+- [x] Preflight / install / verify / rollback SQL
+- [x] Fixed UUs for new AbERP objects
 
-## Staging loop
+## Staging loop (HCO Test)
 
-- [ ] Preflight
-- [ ] Install
-- [ ] Cache Reset / restart if JAR
-- [ ] WebUI smoke (copy, warning, count, source unchanged, edit target)
-- [ ] Fix until green
+- [x] Preflight
+- [x] Install JAR + SQL
+- [x] Stop/start iDempiere; bundle ACTIVE
+- [x] Cache Reset / re-login
+- [x] WebUI smoke (copy 12, warning, source unchanged, independent IDs)
 
 ## Packs / UAT
 
-- [ ] Staging pack `AbilityERP-ClientUpdate-SAW015_…`
-- [ ] Thin prod pack `AbilityERP-ProdUpdate-SAW015_…`
-- [ ] Deploy to test for customer UAT
-- [ ] Update EXTERNAL-SUMMARY / DEPLOY / NOTES
-- [ ] GitHub → done when UAT accepted
+- [x] Staging pack `AbilityERP-ClientUpdate-SAW015_…-20260713`
+- [x] Thin prod pack `AbilityERP-ProdUpdate-SAW015_…-20260713`
+- [x] Deployed to HCO Test for customer UAT
+- [x] Update EXTERNAL-SUMMARY / DEPLOY / NOTES
+- [ ] GitHub → done when customer UAT accepted
