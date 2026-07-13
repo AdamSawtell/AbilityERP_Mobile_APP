@@ -56,6 +56,11 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/** Visible only when Show Unmatched is ticked. */
 	private Div credentialFilterBox;
 	private Listbox credentialFilterList;
+	/**
+	 * Server-side cache — Listbox selection AU is unreliable when the list was ever disabled.
+	 * Lazily created: InfoWindow super() renders before subclass field initializers run.
+	 */
+	private List<Integer> selectedCredentialFilterIds;
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -542,8 +547,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		credentialFilterList.setCheckmark(true);
 		credentialFilterList.setWidth("100%");
 		credentialFilterList.setHeight("120px");
-		credentialFilterList.setDisabled(true);
+		// Never disable: ZK ignores SelectEvent on disabled Listbox, so AND filter never applied.
 		credentialFilterList.addEventListener(Events.ON_SELECT, event -> {
+			refreshSelectedCredentialFilterIds();
 			if (contextBanner != null) {
 				contextBanner.setValue(buildContextBannerText());
 			}
@@ -588,6 +594,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 	}
 
+	private List<Integer> credentialIdCache() {
+		if (selectedCredentialFilterIds == null) {
+			selectedCredentialFilterIds = new ArrayList<>();
+		}
+		return selectedCredentialFilterIds;
+	}
+
 	private void syncCredentialFilterVisibility() {
 		boolean unmatched = isShowUnmatchedSelected();
 		if (credentialFilterBox != null) {
@@ -598,23 +611,24 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					: "padding-top:6px;display:none;");
 		}
 		if (credentialFilterList != null) {
-			credentialFilterList.setDisabled(!unmatched);
 			credentialFilterList.setVisible(unmatched);
 			if (!unmatched) {
 				credentialFilterList.clearSelection();
+				credentialIdCache().clear();
 			}
 		}
 	}
 
-	private List<Integer> getSelectedCredentialFilterIds() {
-		List<Integer> ids = new ArrayList<>();
-		if (credentialFilterList == null || !isShowUnmatchedSelected()) {
-			return ids;
+	private void refreshSelectedCredentialFilterIds() {
+		List<Integer> cache = credentialIdCache();
+		cache.clear();
+		if (credentialFilterList == null) {
+			return;
 		}
 		@SuppressWarnings("unchecked")
 		Set<Listitem> selected = credentialFilterList.getSelectedItems();
 		if (selected == null || selected.isEmpty()) {
-			return ids;
+			return;
 		}
 		for (Listitem item : selected) {
 			Object value = item.getValue();
@@ -622,11 +636,23 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			if (value instanceof Number) {
 				id = ((Number) value).intValue();
 			}
-			if (id > 0 && !ids.contains(Integer.valueOf(id))) {
-				ids.add(Integer.valueOf(id));
+			if (id > 0 && !cache.contains(Integer.valueOf(id))) {
+				cache.add(Integer.valueOf(id));
 			}
 		}
-		return ids;
+	}
+
+	private List<Integer> getSelectedCredentialFilterIds() {
+		if (!isShowUnmatchedSelected()) {
+			return new ArrayList<>();
+		}
+		List<Integer> cache = credentialIdCache();
+		// Prefer cache filled by ON_SELECT; fall back to live list selection.
+		if (!cache.isEmpty()) {
+			return new ArrayList<>(cache);
+		}
+		refreshSelectedCredentialFilterIds();
+		return new ArrayList<>(credentialIdCache());
 	}
 
 	/**
@@ -698,10 +724,12 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 						manualCreds.size()));
 				return sb.toString();
 			}
-			return "No shift in context. Open from Shift → Employee to apply leave/overlap and "
-					+ "required-credential filters.\n"
-					+ "Required: (none)\n"
-					+ "Filters: Reminder: Check employee alerts before assigning.";
+			StringBuilder sb = new StringBuilder();
+			sb.append("No shift in context. Open from Shift → Employee to apply leave/overlap")
+					.append(" filters.\n");
+			sb.append("Required: (none)\n");
+			sb.append(buildFiltersLine(showUnavailable, showUnmatched, false, manualCreds.size()));
+			return sb.toString();
 		}
 
 		StringBuilder sb = new StringBuilder();

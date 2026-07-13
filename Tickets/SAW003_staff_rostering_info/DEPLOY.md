@@ -23,7 +23,7 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | `1.1.0.2026071223` (rebuild on host via `build.sh`) |
+| Version | `1.1.0.2026071225` (rebuild on host via `build.sh`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` (**must already exist**) |
 
 ## Ordered SQL (`deploy.sh`)
@@ -40,7 +40,7 @@ Info Window is pre-existing — Admin must already have (or be granted) access t
 
 ## Portability risks
 
-- Prefer host `build.sh` so JAR version matches MANIFEST (or ship `release/*_1.1.0.2026071223.jar`).
+- Prefer host `build.sh` so JAR version matches MANIFEST (or ship `release/*_1.1.0.2026071225.jar`).
 - `sql/06-fix-shift-org.sql` only moves org=`*` data for the **AbilityERP** seed client; on HCO it skips data move and still sets AlwaysUpdateable on the Employee Search column.
 - `sql/08-enable-related-info.sql` resolves Related Info / parent columns by **owned UU only** (never activate every `ColumnName=C_BPartner_ID` — that reactivates Multi Select “Support Receiver Needs” → ZK **non-negative only**).
 - `sql/21-fix-nonnegative-multiselect.sql` deactivates Multi Select leftovers; keeps Agency Staff as filter-only criteria.
