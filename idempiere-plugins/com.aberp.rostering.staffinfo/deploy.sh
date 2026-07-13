@@ -4,14 +4,14 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.1.0.2026071220"
+VERSION="1.1.0.2026071222"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
 BUNDLES_INFO="${IDEMPIERE_HOME}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
 
-# Normalize CRLF if edited on Windows
-sed -i 's/\r$//' "$PLUGIN_DIR/build.sh" "$PLUGIN_DIR/deploy.sh" 2>/dev/null || true
+# Normalize CRLF if edited on Windows (do not use sed s/\r$/ — GNU sed may eat trailing r)
+perl -pi -e 's/\r\n/\n/g' "$PLUGIN_DIR/build.sh" "$PLUGIN_DIR/deploy.sh" 2>/dev/null || true
 
 if [ ! -f "$BUILT_JAR" ] || find "$PLUGIN_DIR/src" -name '*.java' -newer "$BUILT_JAR" 2>/dev/null | grep -q .; then
   echo "Building plugin..."

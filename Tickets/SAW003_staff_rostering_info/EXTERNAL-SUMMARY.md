@@ -11,7 +11,7 @@
 | **Info Window** | Employee (User) / Agency Staff Rostering Info | Updated — rewrite, criteria, needs-match, UX, lean grid |
 | **Window** | Shift (Rostered) | Unchanged structure — uses updated Info from Employee tab search |
 | **Tab** | Employee (on Shift Rostered) | Uses the updated Info Window / callouts |
-| **OSGi plugin** | `com.aberp.rostering.staffinfo` `1.1.0.2026071219` | Java Info + callout (restart required) |
+| **OSGi plugin** | `com.aberp.rostering.staffinfo` `1.1.0.2026071222` | Java Info + callout (restart required) |
 | **Process** | *(none new)* | — |
 | **Menu** | *(none new)* | — |
 | **Related Info** | Roster period shifts / Leave / Alerts / Credentials | Enabled on this Info Window |
@@ -31,7 +31,7 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 - Criteria kept lean: Staff Name, Employee, Agency Staff (Agency Staff is filter-only, not a grid column)
 - When opened from a shift: hide approved leave overlapping the shift window and overlapping roster by default
 - **Show Unavailable Staff** tick (under Employee) to include leave/overlap people
-- **Show Unmatched Staff** tick (under Staff Name) for Related Rostering Needs matching (credentials / gender / restricted employee)
+- **Show Unmatched Staff** tick (under Staff Name) for Related Rostering Needs matching (credentials / gender / restricted employee); when ticked, a **credential multi-select (AND)** appears and shift needs are ignored
 - Banner: shift context, required needs summary, filter status
 - Related Info: roster period shifts, leave, unavailability, alerts, credentials
 - Contact pick fills Business Partner (callout + save trigger); org sync helpers

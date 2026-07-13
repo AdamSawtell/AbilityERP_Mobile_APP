@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 
 import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Label;
@@ -24,6 +25,8 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Intbox;
+import org.zkoss.zul.Listbox;
+import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.Space;
 import org.zkoss.zul.Vbox;
@@ -37,6 +40,8 @@ import org.zkoss.zul.Vbox;
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
  *       with Show Unmatched Staff to include non-matches;
  *       credentials must be active and valid for the shift Start/End dates</li>
+ *   <li>When Show Unmatched is ticked, optional multi-select credentials (AND) —
+ *       shift needs are ignored; selected credentials filter the unmatched pool</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
@@ -48,6 +53,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private Label contextBanner;
 	private Checkbox showUnmatchedCheckbox;
 	private Checkbox showUnavailableCheckbox;
+	/** Visible only when Show Unmatched is ticked. */
+	private Div credentialFilterBox;
+	private Listbox credentialFilterList;
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID) {
@@ -166,7 +174,14 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 			boolean showUnmatched = isShowUnmatchedSelected() || isYes(savedShowUnmatched);
 			if (!showUnmatched) {
+				// Matched mode: full Related Rostering Needs (CRD + GDR + EMP).
 				appendClause(extra, buildNeedsMatchSql());
+			} else {
+				// Unmatched mode: ignore shift needs. Optional AND credential multi-select.
+				List<Integer> selectedCreds = getSelectedCredentialFilterIds();
+				if (!selectedCreds.isEmpty()) {
+					appendClause(extra, buildCredentialAndSql(selectedCreds));
+				}
 			}
 
 			if (extra.length() == 0) {
@@ -499,14 +514,112 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			showUnmatchedCheckbox.setTooltiptext(
 					"When unticked (default), only staff matching Related Rostering Needs are listed. "
 							+ "Credentials must be active and valid for the shift Start/End. "
-							+ "Tick to include staff who do not meet those needs.");
+							+ "Tick to ignore those needs and optionally require selected credentials (AND).");
 			showUnmatchedCheckbox.setChecked(false);
 			showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
+				syncCredentialFilterVisibility();
 				if (contextBanner != null) {
 					contextBanner.setValue(buildContextBannerText());
 				}
 			});
 		}
+		ensureCredentialFilter();
+	}
+
+	/**
+	 * Multi-select credentials (AND). Shown only when Show Unmatched is ticked.
+	 * Options = all active AbERP_Credentials (shift-required ones are among them).
+	 * Uses zul Listbox (not Chosenbox) so the OSGi bundle stays on Require-Bundle zul/zk.
+	 */
+	private void ensureCredentialFilter() {
+		if (credentialFilterList != null) {
+			return;
+		}
+		credentialFilterList = new Listbox();
+		credentialFilterList.setMultiple(true);
+		credentialFilterList.setCheckmark(true);
+		credentialFilterList.setWidth("100%");
+		credentialFilterList.setHeight("120px");
+		credentialFilterList.setDisabled(true);
+		credentialFilterList.addEventListener(Events.ON_SELECT, event -> {
+			if (contextBanner != null) {
+				contextBanner.setValue(buildContextBannerText());
+			}
+		});
+		loadCredentialFilterOptions();
+
+		Label credLabel = new Label("Require credentials (AND)");
+		credLabel.setStyle("display:block;font-size:11px;color:#555;margin-bottom:2px;");
+
+		credentialFilterBox = new Div();
+		credentialFilterBox.setStyle("padding-top:6px;");
+		credentialFilterBox.setVisible(false);
+		credentialFilterBox.appendChild(credLabel);
+		credentialFilterBox.appendChild(credentialFilterList);
+	}
+
+	private void loadCredentialFilterOptions() {
+		credentialFilterList.getItems().clear();
+		java.sql.PreparedStatement pstmt = null;
+		java.sql.ResultSet rs = null;
+		try {
+			pstmt = DB.prepareStatement(
+					"SELECT AbERP_Credentials_ID, Name FROM AbERP_Credentials "
+							+ "WHERE IsActive='Y' AND COALESCE(AbERP_Credentials_ID,0)>0 "
+							+ "ORDER BY Name",
+					null);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				if (id <= 0 || Util.isEmpty(name, true)) {
+					continue;
+				}
+				Listitem item = new Listitem(name.trim());
+				item.setValue(Integer.valueOf(id));
+				credentialFilterList.appendChild(item);
+			}
+		} catch (Exception e) {
+			log.log(java.util.logging.Level.WARNING, "credential filter options", e);
+		} finally {
+			DB.close(rs, pstmt);
+		}
+	}
+
+	private void syncCredentialFilterVisibility() {
+		boolean unmatched = isShowUnmatchedSelected();
+		if (credentialFilterBox != null) {
+			credentialFilterBox.setVisible(unmatched);
+		}
+		if (credentialFilterList != null) {
+			credentialFilterList.setDisabled(!unmatched);
+			if (!unmatched) {
+				credentialFilterList.clearSelection();
+			}
+		}
+	}
+
+	private List<Integer> getSelectedCredentialFilterIds() {
+		List<Integer> ids = new ArrayList<>();
+		if (credentialFilterList == null || !isShowUnmatchedSelected()) {
+			return ids;
+		}
+		@SuppressWarnings("unchecked")
+		Set<Listitem> selected = credentialFilterList.getSelectedItems();
+		if (selected == null || selected.isEmpty()) {
+			return ids;
+		}
+		for (Listitem item : selected) {
+			Object value = item.getValue();
+			int id = 0;
+			if (value instanceof Number) {
+				id = ((Number) value).intValue();
+			}
+			if (id > 0 && !ids.contains(Integer.valueOf(id))) {
+				ids.add(Integer.valueOf(id));
+			}
+		}
+		return ids;
 	}
 
 	/**
@@ -526,13 +639,24 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		Row flagRow = new Row();
 		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
 		flagRow.appendChild(new Space()); // under Staff Name label
-		flagRow.appendChild(wrapCheckbox(showUnmatchedCheckbox));
+		flagRow.appendChild(wrapUnmatchedControls());
 		flagRow.appendChild(new Space()); // under Employee label
 		flagRow.appendChild(wrapCheckbox(showUnavailableCheckbox));
 		flagRow.appendChild(new Space()); // under Agency label
 		flagRow.appendChild(new Space()); // under Agency editor
 		flagRow.appendChild(new Space()); // under All/Any
 		parameterGrid.getRows().appendChild(flagRow);
+		syncCredentialFilterVisibility();
+	}
+
+	private Div wrapUnmatchedControls() {
+		Div wrap = new Div();
+		wrap.setStyle("padding-top:2px;");
+		wrap.appendChild(showUnmatchedCheckbox);
+		if (credentialFilterBox != null) {
+			wrap.appendChild(credentialFilterBox);
+		}
+		return wrap;
 	}
 
 	private static Div wrapCheckbox(Checkbox checkbox) {
@@ -555,6 +679,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
 		boolean showUnavailable = isShowUnavailableSelected();
 		boolean showUnmatched = isShowUnmatchedSelected();
+		List<Integer> manualCreds = getSelectedCredentialFilterIds();
 
 		if (range == null || range[0] == null || range[1] == null) {
 			if (shiftId != null && shiftId.intValue() > 0) {
@@ -562,7 +687,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? shiftId : docNo);
 				sb.append(" | (no Start/End times in context)\n");
 				sb.append("Required: ").append(needs.requiredLine()).append('\n');
-				sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials()));
+				sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials(),
+						manualCreds.size()));
 				return sb.toString();
 			}
 			return "No shift in context. Open from Shift → Employee to apply leave/overlap and "
@@ -575,12 +701,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? "?" : docNo);
 		sb.append(" | ").append(formatBannerRange(range[0], range[1])).append('\n');
 		sb.append("Required: ").append(needs.requiredLine()).append('\n');
-		sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials()));
+		sb.append(buildFiltersLine(showUnavailable, showUnmatched, needs.hasCredentials(),
+				manualCreds.size()));
 		return sb.toString();
 	}
 
 	private static String buildFiltersLine(boolean showUnavailable, boolean showUnmatched,
-			boolean hasCredentials) {
+			boolean hasCredentials, int manualCredentialCount) {
 		StringBuilder sb = new StringBuilder("Filters: ");
 		if (showUnavailable) {
 			sb.append("Including unavailable staff and overlapping shifts");
@@ -589,10 +716,18 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					.append(" (tick \"Show Unavailable Staff\" to include)");
 		}
 		sb.append("; ");
-		if (!hasCredentials) {
+		if (showUnmatched) {
+			sb.append("shift needs ignored");
+			if (manualCredentialCount > 0) {
+				sb.append("; requiring ").append(manualCredentialCount)
+						.append(" selected credential")
+						.append(manualCredentialCount == 1 ? "" : "s")
+						.append(" (AND)");
+			} else {
+				sb.append("; no manual credential filter");
+			}
+		} else if (!hasCredentials) {
 			sb.append("no required credentials on this shift");
-		} else if (showUnmatched) {
-			sb.append("including staff without valid required credentials");
 		} else {
 			sb.append("showing only staff with valid required credentials")
 					.append(" (tick \"Show Unmatched Staff\" to include)");
@@ -727,40 +862,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		if (needs.crdCount > 0 && !needs.credentialIds.isEmpty()) {
 			// Prefetch credential IDs in Java so we do NOT evaluate
-			// AbERP_Related_Rostering_Needs_V per staff row (that view seq-scans
-			// needs rules and dominated ReQuery time on HCO).
-			StringBuilder inList = new StringBuilder();
-			for (int i = 0; i < needs.credentialIds.size(); i++) {
-				if (i > 0) {
-					inList.append(',');
-				}
-				inList.append(needs.credentialIds.get(i).intValue());
-			}
-			sql.append('(')
-					.append("SELECT COUNT(DISTINCT ca.AbERP_Credentials_ID) ")
-					.append("FROM AbERP_CredentialAssignment ca ")
-					.append("WHERE ca.IsActive = 'Y' ")
-					.append("AND ca.AbERP_Credentials_ID IN (").append(inList).append(") ");
-			// HCO CredentialAssignment has AbERP_User_Contact_ID only — referencing
-			// missing C_BPartner_Staff_ID aborts the query and surfaces as ZK
-			// "non-negative only" when opened from Shift with CRD needs.
-			if (hasCredentialAssignmentBpStaffColumn()) {
-				sql.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
-						.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ");
-			} else {
-				sql.append("AND ca.AbERP_User_Contact_ID = au.AD_User_ID ");
-			}
-			if (shiftStartSql != null && shiftEndSql != null) {
-				// Valid for the whole shift window (not CURRENT_DATE):
-				// started on/before shift start; expires on/after shift end (or never).
-				sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= ").append(shiftStartSql).append(") ")
-						.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= ")
-						.append(shiftEndSql).append(')');
-			} else {
-				sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= CURRENT_DATE) ")
-						.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)");
-			}
-			sql.append(") = ").append(needs.credentialIds.size());
+			// AbERP_Related_Rostering_Needs_V per staff row.
+			appendClause(sql, buildCredentialAndSql(needs.credentialIds, shiftStartSql, shiftEndSql));
 		}
 
 		if (needs.gdrCount > 0) {
@@ -789,6 +892,76 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 
 		return sql.length() > 0 ? sql.toString() : null;
+	}
+
+	/**
+	 * AND-match selected credentials via assignment COUNT(DISTINCT)=N.
+	 * Uses shift Start/End when available, else CURRENT_DATE validity.
+	 */
+	private String buildCredentialAndSql(List<Integer> credentialIds) {
+		if (credentialIds == null || credentialIds.isEmpty()) {
+			return null;
+		}
+		Timestamp[] range = resolveShiftDateRange();
+		String shiftStartSql = null;
+		String shiftEndSql = null;
+		if (range != null && range[0] != null && range[1] != null) {
+			shiftStartSql = DB.TO_DATE(range[0]);
+			shiftEndSql = DB.TO_DATE(range[1]);
+		}
+		return buildCredentialAndSql(credentialIds, shiftStartSql, shiftEndSql);
+	}
+
+	/**
+	 * Staff must hold every credential in {@code credentialIds} (AND), with
+	 * active assignment covering the shift window (or today when no shift dates).
+	 */
+	private String buildCredentialAndSql(List<Integer> credentialIds, String shiftStartSql,
+			String shiftEndSql) {
+		if (credentialIds == null || credentialIds.isEmpty()) {
+			return null;
+		}
+		StringBuilder inList = new StringBuilder();
+		int count = 0;
+		for (Integer credentialId : credentialIds) {
+			if (credentialId == null || credentialId.intValue() <= 0) {
+				continue;
+			}
+			if (count > 0) {
+				inList.append(',');
+			}
+			inList.append(credentialId.intValue());
+			count++;
+		}
+		if (count == 0) {
+			return null;
+		}
+
+		StringBuilder sql = new StringBuilder();
+		sql.append('(')
+				.append("SELECT COUNT(DISTINCT ca.AbERP_Credentials_ID) ")
+				.append("FROM AbERP_CredentialAssignment ca ")
+				.append("WHERE ca.IsActive = 'Y' ")
+				.append("AND ca.AbERP_Credentials_ID IN (").append(inList).append(") ");
+		// HCO CredentialAssignment has AbERP_User_Contact_ID only — referencing
+		// missing C_BPartner_Staff_ID aborts the query and surfaces as ZK
+		// "non-negative only" when opened from Shift with CRD needs.
+		if (hasCredentialAssignmentBpStaffColumn()) {
+			sql.append("AND (ca.AbERP_User_Contact_ID = au.AD_User_ID ")
+					.append("OR ca.C_BPartner_Staff_ID = bp.C_BPartner_ID) ");
+		} else {
+			sql.append("AND ca.AbERP_User_Contact_ID = au.AD_User_ID ");
+		}
+		if (shiftStartSql != null && shiftEndSql != null) {
+			sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= ").append(shiftStartSql).append(") ")
+					.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= ")
+					.append(shiftEndSql).append(')');
+		} else {
+			sql.append("AND (ca.StartDate IS NULL OR ca.StartDate <= CURRENT_DATE) ")
+					.append("AND (ca.AbERP_ExpiryDate IS NULL OR ca.AbERP_ExpiryDate >= CURRENT_DATE)");
+		}
+		sql.append(") = ").append(count);
+		return sql.toString();
 	}
 
 	/** Cached: AbilityERP seed may have BP staff link; HCO CredentialAssignment does not. */
