@@ -2,6 +2,18 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW016 Leave Planning window
+
+**Install:** AD + PG functions/trigger (no JAR) on HCO Test. Window UU `16a01602-…`, tables `AbERP_Leave_Planning` + `_Line`.
+
+**Learnings:**
+1. Nested `FROM` inside ColumnSQL → `AccessSqlParser: More than one FROM clause` / `Table not open`. Use DB functions for summaries.
+2. Child tab on unrelated leave table with only WhereClause and no link column did not appear in WebUI. Bridge line table + `AD_Column_ID` parent link + TabLevel 1 works.
+3. Unavailability menus sit at tree parent `-1`; burying Leave Planning under Rostering made search miss it — use root parent like peers.
+4. Bump `AD_*` sequences (`GREATEST(currentnext, MAX(id)+1)`) before inserts — `nextid` was colliding on HCO.
+
+**Smoke:** Jan 2027 + All Locations → Summary Approved:21 / Declined:2; Leave Records 23 rows; Zoom leave available. Cache Reset required after AD.
+
 ## 2026-07-13 — SAW013 Create Request popup: filter template by window Request Type
 
 **Process:** `CreateRequestFromTemplate` (Logilite) para `RequestTemplate_ID`.
