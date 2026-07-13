@@ -2,6 +2,18 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-13 — SAW013 Create Request popup: filter template by window Request Type
+
+**Process:** `CreateRequestFromTemplate` (Logilite) para `RequestTemplate_ID`.
+
+**Issue:** Val rule `R_Request Template` listed all `IsTemplate=Y` rows → staff could pick a template whose type ≠ form `R_RequestType_ID`.
+
+**Fix:** New AbERP val rule UU `a0130004-5a01-4e13-a013-000000000004` (do **not** change shared rule — also used by `X_RequestDocActionMapping` / `X_RequestStatusRoleMapping`). Point process para + default SQL at `@R_RequestType_ID@`. SQL: `05-match-request-template-type.sql`.
+
+**Smoke:** Doc `1003729` Additional Shift → popup defaults/lists only Additional Shift; Doc `1003444` HCO Unserviced → only HCO Unserviced. Cache Reset required.
+
+---
+
 ## 2026-07-13 — SAW013 HCO Forms: virtual ColumnSQL times out on large grids
 
 **Window:** HCO Forms and Approvals (`AbERP_ShiftChange`, ~3.8k rows).

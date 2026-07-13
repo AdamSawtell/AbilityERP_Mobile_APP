@@ -188,7 +188,7 @@ BEGIN
   END IF;
 
   UPDATE ad_field f
-  SET displaylogic = '@AbERP_RequestSubmitted@=N',
+  SET displaylogic = '@AbERP_RequestSubmitted@=''N''',
       updated = NOW(), updatedby = 100
   WHERE f.ad_tab_id = v_tab
     AND f.ad_column_id = (

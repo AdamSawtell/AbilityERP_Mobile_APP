@@ -8,6 +8,7 @@ SAW013 — HCO Forms and Approvals (`AbERP_ShiftChange`) enhancements.
 2. **Request Submitted** — physical Yes/No `AbERP_RequestSubmitted` on the main tab (synced by same trigger + one-time backfill).
 3. **Create button** — DisplayLogic `@AbERP_RequestSubmitted@=N` hides **Create Request From Template** once submitted.
 4. **Dup block** — BEFORE INSERT trigger rejects a second active `R_Request` for the same Shift Change.
+5. **Template match** — Create Request popup lists/defaults only the Request Template whose type matches the window `R_RequestType_ID`.
 
 ## Link model
 
@@ -23,6 +24,7 @@ psql -d idempiere -v ON_ERROR_STOP=1 \
   -f sql/01-virtual-status-and-submitted.sql \
   -f sql/02-prevent-dup-trigger.sql \
   -f sql/03-fix-columnsql-no-orderby.sql \
+  -f sql/05-match-request-template-type.sql \
   -f sql/04-verify.sql
 ```
 

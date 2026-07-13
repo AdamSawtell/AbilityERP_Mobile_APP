@@ -13,7 +13,9 @@
 - [x] WebUI: WITH request — Submitted checked, Create button hidden
 - [x] WebUI: WITHOUT request — Doc `1003729` Submitted unchecked, Status blank, Create visible, Requests 0
 - [x] WebUI save E2E — toggle Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged
+- [x] WebUI: Create popup Request Template matches window Request Type (`1003729`, `1003444`)
 - [x] AD: Request Submitted field + Create DisplayLogic
+- [x] AD: `05-match-request-template-type.sql` installed on HCO
 - [x] Trigger: second insert blocked
 - [x] Packs built
 - [x] EXTERNAL-SUMMARY ready

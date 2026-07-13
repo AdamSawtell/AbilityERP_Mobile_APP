@@ -16,6 +16,7 @@ psql -d idempiere -v ON_ERROR_STOP=1 \
   -f sql/01-virtual-status-and-submitted.sql \
   -f sql/02-prevent-dup-trigger.sql \
   -f sql/03-fix-columnsql-no-orderby.sql \
+  -f sql/05-match-request-template-type.sql \
   -f sql/04-verify.sql
 # Cache Reset or logout/in
 ```
@@ -38,7 +39,8 @@ No new window/process. Existing **HCO Forms and Approvals** + **Create Request F
 2. Open **HCO Forms and Approvals** — grid loads without “Timeout loading row 1”.
 3. Record with Requests: **Status** matches Requests tab; **Request Submitted** = Yes; **Create Request From Template** hidden.
 4. Record without request: Submitted = No; Create visible; after create + refresh, Submitted = Yes / Create gone.
-5. Forced second insert blocked by trigger (clear exception).
+5. **Create Request From Template** popup: **Request Template** defaults to (and lists only) the template matching the window **Request Type** (e.g. Additional Shift → only Additional Shift template).
+6. Forced second insert blocked by trigger (clear exception).
 
 ## Safety
 

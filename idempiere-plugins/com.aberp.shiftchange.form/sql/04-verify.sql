@@ -38,3 +38,11 @@ JOIN LATERAL (
   ORDER BY r.r_request_id DESC LIMIT 1
 ) r ON TRUE
 WHERE sc.r_status_id IS DISTINCT FROM r.r_status_id;
+
+\echo === CreateRequestFromTemplate matches window Request Type ===
+SELECT pp.columnname, vr.name AS valrule, vr.code, left(pp.defaultvalue,120) AS defaultvalue
+FROM ad_process_para pp
+JOIN ad_process p ON p.ad_process_id = pp.ad_process_id
+LEFT JOIN ad_val_rule vr ON vr.ad_val_rule_id = pp.ad_val_rule_id
+WHERE p.value = 'CreateRequestFromTemplate'
+  AND pp.columnname = 'RequestTemplate_ID';

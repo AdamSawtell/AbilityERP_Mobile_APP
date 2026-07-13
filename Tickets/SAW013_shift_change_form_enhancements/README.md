@@ -22,6 +22,7 @@ On **HCO Forms and Approvals** (`AbERP_ShiftChange`):
 
 1. Status always mirrors the linked `R_Request` (no manual updates).
 2. Staff can see whether a request was already submitted; Create Request cannot create duplicates.
+3. Create Request popup **Request Template** matches the form’s **Request Type**.
 
 ## Source of truth
 

@@ -9,6 +9,7 @@
 | Duplicate prevention | DisplayLogic hide Create + BEFORE INSERT trigger | Option B + hard block |
 | JAR | None | Logilite process kept |
 | Historical duplicates | Leave in place | Cleanup separate |
+| Template popup match | New AbERP val rule on process para only | Shared `R_Request Template` rule also used by mapping tables — do not change it |
 
 ## HCO discovery (2026-07-13)
 
@@ -29,6 +30,7 @@
 | WITH request Create hidden | Pass — Submitted checked RO; Create not shown |
 | WITHOUT request Create visible | Pass — Doc `1003729` Submitted unchecked; Status blank; Create shown; Requests 0 |
 | WebUI save (no Status/Submitted corruption) | Pass — toggled Active on `1003753`, Record saved; DB `updated` advanced; Status/Submitted unchanged; Active restored |
+| Create popup template matches window type | Pass — `1003729` Additional Shift → popup defaults/lists only Additional Shift; `1003444` HCO Unserviced → only HCO Unserviced |
 
 ## HCO Future Deployments variables
 
