@@ -7,9 +7,11 @@
 | **GitHub** | [#14](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/14) |
 | **Slug** | `SAW014_support_location_contact_grid` |
 
-## Deploy (other builds)
+## Deploy (other builds) — start here
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — SQL-only; Cache Reset; no JAR.
+**→ [`DEPLOY.md`](DEPLOY.md)** — SQL-only; Cache Reset; no JAR / no restart.
+
+Agent one-liner is in `DEPLOY.md`. Repo path: `Tickets/SAW014_support_location_contact_grid/sql/`.
 
 ## External ticket (copy/paste)
 
@@ -29,7 +31,7 @@ Replace `@SQL=` with correlated subquery `ColumnSQL` reading live from `C_BPartn
 
 ## Source of truth
 
-- `Tickets/SAW014_support_location_contact_grid/sql/`
+- `Tickets/SAW014_support_location_contact_grid/sql/` (`00-preflight` → `01-fix-contact-columnsql` → `04-verify`; `99-rollback`)
 
 ## Dependencies (app)
 
@@ -37,5 +39,5 @@ None.
 
 ## Packs
 
-- `AbilityERP-ClientUpdate-SAW014_support_location_contact_grid-<YYYYMMDD>`
-- Thin prod: `AbilityERP-ProdUpdate-SAW014_support_location_contact_grid-<YYYYMMDD>`
+- Staging: `AbilityERP-ClientUpdate-SAW014_support_location_contact_grid-20260713`
+- Thin prod: `AbilityERP-ProdUpdate-SAW014_support_location_contact_grid-20260713`

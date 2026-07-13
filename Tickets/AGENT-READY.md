@@ -15,5 +15,8 @@ Point agents at **`Tickets/SAW###_<slug>/DEPLOY.md`** (not chat history).
 | SAW009 | `support_day_pattern_number` | Yes | Prefer `sql/run-install.sh` or packs |
 | SAW010 | `timesheet_approval_info_columns` | Yes (columns) | Approve process JAR separate |
 | SAW011 | `accept_shift_request` | Yes with caveat | Confirm Published `R_Status_ID`; packs created; use install SQL only |
+| SAW012 | `session_process_audit_perf` | Partial | Large-table indexes/purge — follow DEPLOY + maintenance window |
+| SAW013 | `shift_change_form_enhancements` | Yes | See ticket DEPLOY |
+| SAW014 | `support_location_contact_grid` | Yes (SQL) | AD ColumnSQL only; Cache Reset; no JAR/restart; packs `*20260713*` |
 
 Each installable folder has: `README`, `DEPLOY`, `EXTERNAL-SUMMARY`, `NOTES`, `CHECKLIST`.
