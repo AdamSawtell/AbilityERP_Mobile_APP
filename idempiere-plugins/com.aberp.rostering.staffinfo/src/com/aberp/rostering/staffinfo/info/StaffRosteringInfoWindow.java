@@ -23,6 +23,7 @@ import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Listbox;
@@ -546,7 +547,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		credentialFilterList.setMultiple(true);
 		credentialFilterList.setCheckmark(true);
 		credentialFilterList.setWidth("100%");
-		credentialFilterList.setHeight("120px");
+		credentialFilterList.setHeight("160px");
+		credentialFilterList.setStyle("max-width:720px;");
 		// Never disable: ZK ignores SelectEvent on disabled Listbox, so AND filter never applied.
 		credentialFilterList.addEventListener(Events.ON_SELECT, event -> {
 			refreshSelectedCredentialFilterIds();
@@ -560,7 +562,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		credLabel.setStyle("display:block;font-size:11px;color:#555;margin-bottom:2px;");
 
 		credentialFilterBox = new Div();
-		credentialFilterBox.setStyle("padding-top:6px;");
+		credentialFilterBox.setStyle("padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;");
 		credentialFilterBox.setVisible(false);
 		credentialFilterBox.appendChild(credLabel);
 		credentialFilterBox.appendChild(credentialFilterList);
@@ -607,8 +609,11 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			credentialFilterBox.setVisible(unmatched);
 			// ZK can leave display:none after early sync before the tick is applied.
 			credentialFilterBox.setStyle(unmatched
-					? "padding-top:6px;"
-					: "padding-top:6px;display:none;");
+					? "padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;"
+					: "padding:8px 8px 6px 8px;display:none;");
+			if (unmatched) {
+				Clients.scrollIntoView(credentialFilterBox);
+			}
 		}
 		if (credentialFilterList != null) {
 			credentialFilterList.setVisible(unmatched);
@@ -658,6 +663,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/**
 	 * Sit filter ticks under criteria columns:
 	 * Show Unmatched under Staff Name, Show Unavailable under Employee.
+	 * Credential multi-select sits <em>below</em> the criteria grid (not inside a
+	 * row) so z-grid-body overflow cannot hide it when the tick expands the UI.
 	 */
 	private void placeFilterCheckboxes() {
 		ensureFilterCheckboxes();
@@ -672,24 +679,26 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		Row flagRow = new Row();
 		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
 		flagRow.appendChild(new Space()); // under Staff Name label
-		flagRow.appendChild(wrapUnmatchedControls());
+		flagRow.appendChild(wrapCheckbox(showUnmatchedCheckbox));
 		flagRow.appendChild(new Space()); // under Employee label
 		flagRow.appendChild(wrapCheckbox(showUnavailableCheckbox));
 		flagRow.appendChild(new Space()); // under Agency label
 		flagRow.appendChild(new Space()); // under Agency editor
 		flagRow.appendChild(new Space()); // under All/Any
 		parameterGrid.getRows().appendChild(flagRow);
-		syncCredentialFilterVisibility();
-	}
 
-	private Div wrapUnmatchedControls() {
-		Div wrap = new Div();
-		wrap.setStyle("padding-top:2px;");
-		wrap.appendChild(showUnmatchedCheckbox);
-		if (credentialFilterBox != null) {
-			wrap.appendChild(credentialFilterBox);
+		if (credentialFilterBox != null && credentialFilterBox.getParent() == null) {
+			Component parent = parameterGrid.getParent();
+			if (parent != null) {
+				Component next = parameterGrid.getNextSibling();
+				if (next != null) {
+					parent.insertBefore(credentialFilterBox, next);
+				} else {
+					parent.appendChild(credentialFilterBox);
+				}
+			}
 		}
-		return wrap;
+		syncCredentialFilterVisibility();
 	}
 
 	private static Div wrapCheckbox(Checkbox checkbox) {
