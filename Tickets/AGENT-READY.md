@@ -13,7 +13,7 @@ Point agents at **`Tickets/SAW###_<slug>/DEPLOY.md`** (not chat history).
 | SAW007 | `activity_tab_integration` | Yes (portable default) | `deploy.sh` now portable; never seed SQL on other builds |
 | SAW008 | meta | N/A | |
 | SAW009 | `support_day_pattern_number` | Yes | `deploy.sh` / `DEPLOY.md`; never overwrite existing column/field UUs |
-| SAW010 | `timesheet_approval_info_columns` | Yes (columns) | Approve process JAR separate |
+| SAW010 | `timesheet_approval_info_columns` | Yes | DEPLOY.md + issue #10; SQL packs; approve process JAR is separate host dependency |
 | SAW011 | `accept_shift_request` | Yes with caveat | Confirm Published `R_Status_ID`; packs created; use install SQL only |
 | SAW012 | `session_process_audit_perf` | Partial | Large-table indexes/purge — follow DEPLOY + maintenance window |
 | SAW013 | `shift_change_form_enhancements` | Yes (SQL) | No JAR; ordered `00→01→02→03→05→04`; Cache Reset; Logilite CreateRequestFromTemplate is prerequisite; packs `*20260713*` |
