@@ -1,8 +1,16 @@
 -- =============================================================================
--- SAW016 — Leave Planning Info summary helpers (criteria-driven, not planning header)
--- Used by LeavePlanningInfoWindow banner after Search.
+-- SAW016 — Leave Planning Info summary helpers (criteria-driven)
+-- IMPORTANT: only ONE overload per name (timestamp). Date overloads make
+-- JDBC Timestamp calls ambiguous → "summary unavailable".
 -- =============================================================================
 SET search_path TO adempiere;
+
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_status(date, date, numeric, text, numeric, numeric);
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_type(date, date, numeric, text, numeric, numeric);
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_status(timestamp, timestamp, numeric, text, numeric, numeric);
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_type(timestamp, timestamp, numeric, text, numeric, numeric);
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_status(timestamp without time zone, timestamp without time zone, numeric, text, numeric, numeric);
+DROP FUNCTION IF EXISTS aberp_lp_info_summary_by_type(timestamp without time zone, timestamp without time zone, numeric, text, numeric, numeric);
 
 CREATE OR REPLACE FUNCTION aberp_lp_info_summary_by_status(
   p_start timestamp,
@@ -90,3 +98,10 @@ AS $$
     GROUP BY ul.aberp_approverstatus, ut.name
   ) x;
 $$;
+
+-- Smoke (must be unambiguous)
+SELECT aberp_lp_info_summary_by_status('2027-01-01'::timestamp, '2027-01-31'::timestamp, NULL, NULL, NULL, NULL);
+SELECT COUNT(*) AS overload_count
+FROM pg_proc p
+JOIN pg_namespace n ON n.oid = p.pronamespace
+WHERE n.nspname = 'adempiere' AND p.proname = 'aberp_lp_info_summary_by_status';
