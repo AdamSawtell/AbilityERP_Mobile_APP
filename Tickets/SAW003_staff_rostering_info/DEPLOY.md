@@ -2,7 +2,8 @@
 
 **Ticket / slug:** `SAW003_staff_rostering_info`  
 **Kind:** idempiere · **JAR:** Yes · **Status:** done  
-**GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)
+**GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)  
+**Current bundle:** **`1.1.0.2026071237`**
 
 ## Required host access
 
@@ -10,7 +11,7 @@
 - Java 11 + `$IDEMPIERE_HOME` (default `/opt/idempiere-server`) to **build** JAR on the host  
 - Prerequisite: Info Window UU `2b4ab146-0809-47c6-96f3-8b841d60a6bf` **must already exist**
 
-## Agent one-liner
+## Agent one-liner (full install)
 
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
@@ -20,7 +21,33 @@ chmod +x build.sh deploy.sh
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
-**JAR-only update** (SQL already applied on target): build with `./build.sh`, copy JAR to `plugins/` + `customization-jar/`, rewrite `bundles.info` line for `com.aberp.rostering.staffinfo`, restart, logout/in.
+## JAR-only update (UX refresh — typical later deploy)
+
+Use when SQL `01`–`24`→`04` is **already** on the target (HCO Test / staging already are):
+
+```bash
+cd idempiere-plugins/com.aberp.rostering.staffinfo
+chmod +x build.sh
+# Confirm VERSION=1.1.0.2026071237 in build.sh + META-INF/MANIFEST.MF
+./build.sh
+JAR=com.aberp.rostering.staffinfo_1.1.0.2026071237.jar
+IDEMPIERE_HOME=${IDEMPIERE_HOME:-/opt/idempiere-server}
+sudo rm -f $IDEMPIERE_HOME/plugins/com.aberp.rostering.staffinfo_*.jar
+sudo rm -f $IDEMPIERE_HOME/customization-jar/com.aberp.rostering.staffinfo_*.jar
+sudo cp build/dist/$JAR $IDEMPIERE_HOME/plugins/$JAR
+sudo cp build/dist/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
+sudo chown idempiere:idempiere $IDEMPIERE_HOME/plugins/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
+B=$IDEMPIERE_HOME/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
+sudo sed -i '/^com.aberp.rostering.staffinfo,/d' "$B"
+echo "com.aberp.rostering.staffinfo,1.1.0.2026071237,plugins/$JAR,4,true" | sudo tee -a "$B" >/dev/null
+# Restart (HCO: if stop leaves Java running, kill equinox launcher then start)
+sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 3; sudo /etc/init.d/idempiere start
+# Wait WebUI 200 — HCO check http://127.0.0.1/webui/ (not :8080)
+# Logout/in or Cache Reset
+```
+
+Prebuilt JAR may exist on staging after a build:  
+`/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071237.jar` — scp + same install steps above.
 
 ## Package / bundle
 
@@ -28,14 +55,14 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | **`1.1.0.2026071233`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
+| Version | **`1.1.0.2026071237`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` |
 
-Prefer host `./build.sh` so the JAR matches MANIFEST. Ship only a known-good binary if you cannot build (`release/` may lag — verify size **≥ ~40 KB**; ~29 KB with the same version string is a **stale** banner-only build).
+Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~40 KB** (≈57 KB for `1237`). ~29 KB with a version stamp is a **stale** banner-only build.
 
-## Ordered SQL (`deploy.sh`)
+## Ordered SQL (`deploy.sh`) — greenfield / full reinstall only
 
 `01-indexes` → `02-rewrite-infowindow` → `03-rewrite-infocolumns` → `05-hotfix-browser-smoke` → `06-fix-shift-org` → `07-eligibility-criteria` → `08-enable-related-info` → `09-find-fill-ux` → `10-java-ux-org` → `11-drop-redundant-criteria` → `12-needs-match-criteria` → `14-fix-show-unmatched-selectclause` → `15-fix-onapprovedleave-criteria` → `16-fix-nonnegative-id-criteria` → `17-fix-hidden-multiselect-criteria` → `18-fix-result-grid-readonly` → `19-rename-staff-name` → `20-hide-clutter-columns` → `21-fix-nonnegative-multiselect` → `22-harden-nonnegative-editors` → `23-force-no-id-criteria` → **`24-perf-staff-info`** → `04-verify`
 
@@ -62,7 +89,7 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 - `sql/21-fix-nonnegative-multiselect.sql` deactivates Multi Select leftovers; keeps Agency Staff as filter-only criteria.  
 - Credential filter UI uses **zul Listbox** (multi + checkmark). Do **not** switch to Chosenbox unless the OSGi bundle exports it.  
 - Never `setDisabled(true)` on the credential Listbox — ZK drops `SelectEvent` and AND filter never applies.  
-- Credential box is a sibling **below** `parameterGrid` (not inside a grid row) so `z-grid-body` overflow cannot clip it.
+- Credential box is a sibling **below** `parameterGrid` (not inside a grid row). Show Unmatched expands the North pane via client JS so the two-column picker is not clipped by `z-north` / Vbox `-chdex`.
 
 ## WebUI smoke
 
@@ -74,12 +101,14 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 4. Lean grid (no BP Name / Status / Business Partner / Agency Staff columns).  
 5. Related Info tabs; contact pick fills BP.
 
-**Show Unmatched + credential AND (JAR 1237):**
+**Show Unmatched + credential AND (JAR `1237`):**
 
 1. Unticked → Related Needs apply; credential picker hidden.  
-2. Ticked → needs ignored; **Must have all of these credentials** appears below criteria with **Find** and **Selected (N)** summary.  
-3. Use Find to narrow; select 2+ → summary lists names; ReQuery = AND. Empty selection → full unmatched pool.  
-4. **Clear** resets selection; untick hides the picker.
+2. Ticked → needs ignored; **two columns** under criteria (aligned with Staff Name / Employee):  
+   - **Left:** **Must have all of these credentials** · Find · Selected (N) / Clear  
+   - **Right:** **Select (AND)** checklist  
+3. Find narrows the list; select 2+ → summary lists names; ReQuery = AND. Empty selection → full unmatched pool.  
+4. **Clear** resets selection; untick hides the picker. Criteria North pane should expand (~280px) so the checklist is visible.
 
 Standalone menu **Employee (User) Staff Rostering Info Search** is fine for unmatched/AND smoke (“No shift in context” banner is expected).
 
@@ -91,8 +120,8 @@ If opening Staff Info throws `org/zkoss/util/media/Media` / `ClassNotFoundExcept
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071237` | Find + Selected summary UX |
-| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071237` | Deployed 2026-07-14 |
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071237` | SSH key `AbilityERP_Development_Keypair_Shared.pem` |
+| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071237` | SSH `ubuntu@13.210.248.141` · `HCObusiness.pem` (old IP `32.236.127.117` retired) |
 
 HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Deployments variables**.
 
@@ -101,7 +130,11 @@ HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Dep
 - `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`  
 - `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`  
 
-Refresh packs when JAR or SQL order changes; include **`1229`** JAR (≥ ~40 KB) and SQL through **`24`**. Prefer host `./deploy.sh` over stale packs.
+Refresh packs when shipping a client zip: JAR **`1237`** (≥ ~40 KB) + SQL through **`24`**. Prefer host `./deploy.sh` / JAR-only steps over stale packs.
+
+## Agent prompt (copy)
+
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only update to `1.1.0.2026071237` if SQL is already applied. Run WebUI smoke: Show Unmatched → two-column Find + Select (AND); report pass/fail.
 
 ## External ticket text
 
