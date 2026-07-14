@@ -139,10 +139,15 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	 * home Partner Location. Rewrite AD's {@code u.C_BPartner_Location_ID=?} to an
 	 * EXISTS on rostered shifts - keep the same {@code ?} so setParameters still
 	 * matches (inlining the ID caused PSQLException index out of range).
+	 * <p>
+	 * Also force Planning Start/End overlap to use AND. Info "Match Any" emits
+	 * {@code (EndDate >= ? OR StartDate <= ?)} which returns nearly all leave
+	 * (1228) and trips MaxQueryRecords(500) even when the banner correctly
+	 * shows ~46 overlapping rows for the period.
 	 */
 	@Override
 	protected String getSQLWhere() {
-		String where = super.getSQLWhere();
+		String where = forcePlanningDateAnd(super.getSQLWhere());
 		WEditor locEditor = findEditor("C_BPartner_Location_ID");
 		BigDecimal loc = locEditor != null ? toId(locEditor.getValue()) : null;
 		if (loc == null) {
@@ -165,6 +170,23 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 			return where + " AND " + exists;
 		}
 		return " AND " + trimmed + " AND " + exists;
+	}
+
+	/**
+	 * Planning Start maps to {@code ul.EndDate >= ?}; Planning End to
+	 * {@code ul.StartDate <= ?}. Overlap requires AND, never OR.
+	 */
+	private static String forcePlanningDateAnd(String where) {
+		if (Util.isEmpty(where, true)) {
+			return where;
+		}
+		String fixed = where.replaceAll(
+				"(?i)\\(\\s*ul\\.EndDate\\s*>=\\s*\\?\\s+OR\\s+ul\\.StartDate\\s*<=\\s*\\?\\s*\\)",
+				"( ul.EndDate >= ? AND ul.StartDate <= ? )");
+		fixed = fixed.replaceAll(
+				"(?i)\\(\\s*ul\\.StartDate\\s*<=\\s*\\?\\s+OR\\s+ul\\.EndDate\\s*>=\\s*\\?\\s*\\)",
+				"( ul.EndDate >= ? AND ul.StartDate <= ? )");
+		return fixed;
 	}
 
 	/** Roster EXISTS using {@code ?} - must stay in sync with Support Location editor binding. */

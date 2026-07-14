@@ -66,7 +66,8 @@ for f in \
   22-primary-location-function.sql \
   23-rename-support-location.sql \
   24-support-location-search-nonneg.sql \
-  25-restore-criteria-dropdowns.sql
+  25-restore-criteria-dropdowns.sql \
+  26-fix-type-lookup-maxquery.sql
 do
   apply "$f"
 done

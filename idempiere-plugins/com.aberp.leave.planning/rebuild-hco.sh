@@ -2,7 +2,7 @@
 set -euo pipefail
 P=/opt/idempiere-server/AbERP/com.aberp.leave.planning
 IDEMPIERE_HOME=/opt/idempiere-server
-VERSION=1.0.0.2026071403
+VERSION=1.0.0.2026071404
 SYMBOLIC=com.aberp.leave.planning
 JAR_NAME=${SYMBOLIC}_${VERSION}.jar
 
