@@ -27,7 +27,8 @@
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
 2. **Service columns not updateable** (`LastResult` etc.) → `ColumnReadonly` on process. Columns are now updateable; UI fields stay read-only.
-3. Smoke org `*` / `ad_org_id=0` repaired to AbilityERP; `AD_Org_ID` default `@#AD_Org_ID@`.
+3. **New record would not save** → login Org `*` left Organization blank (mandatory). Fixed in `sql/12-fix-org-default-docno.sql`: Org defaults to first real client org; table AccessLevel Client-only (`2`); `IsActive` default `Y`.
+4. After fix: **New** shows Organization=AbilityERP and Capture Status=Pending automatically. Log out/in or Cache Reset before retesting.
 
 ## Smoke log (2026-07-14 / 3.107.53.69)
 

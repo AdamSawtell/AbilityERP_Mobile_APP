@@ -42,7 +42,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 9. `sql/09-batch-menu.sql`
 10. `sql/10-enable-attachment.sql`
 11. `sql/11-fix-pk-field.sql`
-12. `sql/08-verify.sql`
+12. `sql/12-fix-org-default-docno.sql`
+13. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 

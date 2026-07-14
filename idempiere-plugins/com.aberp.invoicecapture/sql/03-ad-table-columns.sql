@@ -157,7 +157,7 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Table' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Invoice Capture', 'Vendor invoice PDF capture and processing',
-      'AbERP_InvoiceCapture', 'N', '3', 'Ab_ERP',
+      'AbERP_InvoiceCapture', 'N', '2', 'Ab_ERP',
       'N', 'Y', 'N', 'N',
       'Y', 'L', v_cap_uu, 'Y'
     ) RETURNING ad_table_id INTO v_cap_id;
@@ -166,6 +166,7 @@ BEGIN
       name = 'Invoice Capture',
       tablename = 'AbERP_InvoiceCapture',
       entitytype = 'Ab_ERP',
+      accesslevel = '2',
       ad_table_uu = COALESCE(ad_table_uu, v_cap_uu),
       updated = NOW()
     WHERE ad_table_id = v_cap_id;
@@ -173,8 +174,9 @@ BEGIN
 
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0001-4f01-8e15-000000000001','AbERP_InvoiceCapture_ID','Invoice Capture',13,NULL,'Y','N',0,22,'Y','N','N');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22);
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','Y',20,22,'N','N','N','N','@#AD_Org_ID@');
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0004-4f01-8e15-000000000001','IsActive','Active',20,NULL,'Y','Y',30,1);
+  -- Default real org (login Org=* leaves a blank mandatory Organization and blocks Save)
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','Y',20,22,'N','N','N','N','@SQL=SELECT MIN(AD_Org_ID) FROM AD_Org WHERE AD_Client_ID=@#AD_Client_ID@ AND IsSummary=''N'' AND IsActive=''Y'' AND AD_Org_ID<>0');
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0004-4f01-8e15-000000000001','IsActive','Active',20,NULL,'Y','Y',30,1,'N','N','N','N','Y');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0005-4f01-8e15-000000000001','Created','Created',16,NULL,'Y','N',40,7);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0006-4f01-8e15-000000000001','CreatedBy','Created By',18,110,'Y','N',50,22);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0007-4f01-8e15-000000000001','Updated','Updated',16,NULL,'Y','N',60,7);
