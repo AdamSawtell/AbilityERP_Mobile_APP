@@ -4,9 +4,10 @@ Living home for installing AbilityERP tickets onto the **HCO** customer build. A
 
 | | |
 |--|--|
-| **Host** | `32.236.127.117` (hostname `Test`) |
-| **WebUI** | `http://32.236.127.117/webui/` — title like `AvERP HCO Test001 …` |
-| **SSH** | `ubuntu@32.236.127.117` — key `C:\Users\sawte\.ssh\HCObusiness.pem` (copy of `d:\HCObusiness.pem`; OpenSSH needs user-only ACL). Prefer `ssh` stdin upload over multi-file `scp` if SCP hangs; kill stale local `ssh.exe`/`scp.exe` if connects stall. |
+| **Host (HCO20260714 dry run)** | `54.253.165.194` (hostname `ip-172-31-3-32`) — release ticket [`SAW020`](../SAW020_hco20260714_release/) |
+| **Host (prior Test)** | `13.210.248.141` (hostname `Test`) — previous IPs `32.236.127.117` retired; most tickets already installed here 2026-07-12/13 |
+| **WebUI** | `http://54.253.165.194/webui/` (dry run) · `http://13.210.248.141/webui/` (prior Test) |
+| **SSH** | `ubuntu@<host>` — key `C:\Users\sawte\Documents\SSH Keys\HCObusiness.pem` (also `C:\Users\sawte\.ssh\HCObusiness.pem`; OpenSSH needs user-only ACL). Prefer `ssh` stdin upload over multi-file `scp` if SCP hangs; kill stale local `ssh.exe`/`scp.exe` if connects stall. |
 | **WebUI login** | `SuperUser` / `HCOflamingo` |
 | **Typical role** | **Admin** (HCO SuperUser role dialog — not always AbilityERP Admin) |
 | **DB** | `idempiere` · user `adempiere` · password `flamingo` · schema `adempiere` |
@@ -58,5 +59,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW017](../SAW017_booking_generator_bulk/NOTES.md#hco-future-deployments-variables) | Booking Generator bulk — HCO Phase 0 discovery 2026-07-13 (JAR blocker) |
 | [SAW018](../SAW018_hco_release_packins/NOTES.md#hco-future-deployments-variables) | HCO release packins (credentials/employee/client/support location) — HCO install 2026-07-13 |
 | [SAW016](../SAW016_leave_planning/DEPLOY.md) | Leave Planning Info — redeploy via `redeploy-hco.sh` / JAR `1402` (Support Location Search + parser-safe display) |
+| [SAW020](../SAW020_hco20260714_release/README.md) | **HCO20260714** release dry run on `54.253.165.194` — Production runbook |
 
 Append new rows as tickets are installed.

@@ -2,6 +2,21 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-14 — HCO20260714 dry run on `54.253.165.194` (SAW020)
+
+**Release:** Full ordered install SAW018 → SAW001 → SAW003 → SAW007 → SAW009 → SAW010 → SAW013 → SAW015 → SAW014 → SAW017 on new Test host `54.253.165.194` (not the prior `13.210.248.141` host which already had most tickets).
+
+**Results:** All packins/SQL/JARs applied; post markers green; Admin login OK; Support Location grid Email/Phone WebUI PASS. Report: `Tickets/SAW020_hco20260714_release/report/DEPLOYMENT-REPORT.md`.
+
+**Learnings:**
+1. **PackInFolder must run with main iDempiere fully stopped** (stop service + kill leftover `org.eclipse.equinox.launcher`). If Java is still warm, `Incremental2PackActivator` can throw `ClassCastException GenericPO→X_AD_Package_Imp` and the zip is skipped with no `ad_package_imp` row — seen specifically on `hco_client`.
+2. Apply SAW018 zips **one at a time**; confirm each `Completed successfully` before the next.
+3. Prefer known-good JARs for SAW003 (`1.1.0.2026071237` ≥ ~57KB) — Downloads Prod pack may still carry older `1223` builds.
+4. SSH key path `Documents\SSH Keys\HCObusiness.pem` works; `~\.ssh\HCObusiness.pem` is a reliable copy. Avoid PowerShell-mangled remote SQL — pipe bash scripts via stdin.
+5. Prior Test host `13.210.248.141` and this dry-run host are **different instances** (different instance IDs).
+
+**No `*_UU` changes.** Support Location UU stayed `6ef3c558-…`.
+
 ## 2026-07-13 — SAW016 Leave Planning Search fix (AccessSqlParser)
 
 **Fix:** Nested Service Location `SELECT` in InfoColumn `selectclause` broke `AccessSqlParser.getSelectStatements` (IllegalArgument popup on Search). Replaced with scalar fn `aberp_lp_primary_support_location(u.AD_User_ID)` (`sql/22-primary-location-function.sql`) + JAR `1.0.0.2026071332`.

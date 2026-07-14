@@ -40,7 +40,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW017 | `booking_generator_bulk` | idempiere | Booking Generator → Service Bookings bulk/block generation | in-progress (HCO E2E PASS; packs ready) | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) | [`Tickets/SAW017_…`](../Tickets/SAW017_booking_generator_bulk/) |
 | SAW018 | `hco_release_packins` | idempiere | HCO release 2Packs (credentials/employee/client/support location) + missing-staff view | in-progress | [#18](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/18) | [`Tickets/SAW018_…`](../Tickets/SAW018_hco_release_packins/) |
 | SAW019 | `invoice_capture` | idempiere | Invoice Capture window: same-box OCR + Process Selected Invoice + optional nightly batch | in-progress | [#19](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/19) | [`Tickets/SAW019_…`](../Tickets/SAW019_invoice_capture/) |
-| SAW020 | `hco20260714_release` | idempiere | HCO20260714 Test release dry run → Production Deployment Runbook | in-progress | [#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20) | [`Tickets/SAW020_…`](../Tickets/SAW020_hco20260714_release/) |
+| SAW020 | `hco20260714_release` | idempiere | HCO20260714 Test release dry run → Production Deployment Runbook | done | [#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20) | [`Tickets/SAW020_…`](../Tickets/SAW020_hco20260714_release/) |
 | SAW021 | `unavailability_planning` | idempiere | Unavailability Planning Info (SAW016 framework on AbERP_OngoingUnavailability) | in-progress | [#21](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/21) | [`Tickets/SAW021_…`](../Tickets/SAW021_unavailability_planning/) |
 
 ## Next ID
