@@ -40,7 +40,8 @@ DECLARE
   v_proc_uu CONSTANT TEXT := '19a01910-c0d4-4f01-8e15-000000000001';
   v_para_uu CONSTANT TEXT := '19a01911-c0d4-4f01-8e15-000000000001';
   v_col_uu  CONSTANT TEXT := '19a019c0-0024-4f01-8e15-000000000001';
-  v_field_uu CONSTANT TEXT := '19a019f0-0017-4f01-8e15-000000000001';
+  -- 0017 is Client field UU (13-fix-client-field); Upload button uses 0019
+  v_field_uu CONSTANT TEXT := '19a019f0-0019-4f01-8e15-000000000001';
   v_proc_id INTEGER;
   v_para_id INTEGER;
   v_table_id INTEGER;
@@ -182,10 +183,11 @@ BEGIN
     WHERE ad_column_id = v_col_id;
   END IF;
 
-  SELECT ad_field_id INTO v_field_id FROM ad_field WHERE ad_field_uu = v_field_uu;
+  SELECT ad_field_id INTO v_field_id FROM ad_field
+  WHERE ad_tab_id = v_tab_id AND ad_column_id = v_col_id;
   IF v_field_id IS NULL THEN
     SELECT ad_field_id INTO v_field_id FROM ad_field
-    WHERE ad_tab_id = v_tab_id AND ad_column_id = v_col_id;
+    WHERE ad_field_uu = v_field_uu AND ad_tab_id = v_tab_id;
   END IF;
 
   IF v_field_id IS NULL THEN
