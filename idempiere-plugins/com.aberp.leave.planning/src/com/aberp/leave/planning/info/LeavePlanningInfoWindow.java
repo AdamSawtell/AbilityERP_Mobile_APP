@@ -135,35 +135,36 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * Planning dates + Support Location:
-	 * <ul>
-	 * <li>Info "Match Any" ORs Planning Start/End → wrong row counts.</li>
-	 * <li>Virtual Planning Start/End criteria often bind poorly vs banner editors.</li>
-	 * </ul>
-	 * Clear Planning date editors for AD SQL generation and parameter binding, then
-	 * append overlap predicates from the saved editor values as DATE literals
-	 * (no {@code ?}). Support Location still uses EXISTS with {@code ?}.
+	 * Planning dates are applied as DATE literals taken from the criteria editors.
+	 * AD Match-Any (OR) and virtual column binding are unreliable — banner already
+	 * proves the editors hold values while the grid SQL was ignoring them.
 	 */
 	@Override
 	protected String getSQLWhere() {
-		return withPlanningDatesCleared((start, end) -> {
+		Timestamp start = readPlanningDate("AbERP_PlanningStart");
+		Timestamp end = readPlanningDate("AbERP_PlanningEnd");
+		final Timestamp[] snap = new Timestamp[] { start, end };
+		return withPlanningDatesCleared(snap, (s, e) -> {
 			String where = super.getSQLWhere();
 			where = stripPlanningDatePredicates(where);
 			where = rewriteSupportLocationExists(where);
-			if (start != null) {
-				where = appendAnd(where, "ul.EndDate::date >= DATE '" + toSqlDate(start) + "'");
+			if (s != null) {
+				where = appendAnd(where, "ul.EndDate::date >= DATE '" + toSqlDate(s) + "'");
 			}
-			if (end != null) {
-				where = appendAnd(where, "ul.StartDate::date <= DATE '" + toSqlDate(end) + "'");
+			if (e != null) {
+				where = appendAnd(where, "ul.StartDate::date <= DATE '" + toSqlDate(e) + "'");
 			}
+			log.warning("LeavePlanning getSQLWhere start=" + s + " end=" + e + " where=" + where);
 			return where;
 		});
 	}
 
 	@Override
-	protected void setParameters(java.sql.PreparedStatement pstmt, boolean forCount) throws java.sql.SQLException {
+	protected void setParameters(PreparedStatement pstmt, boolean forCount) throws java.sql.SQLException {
 		final java.sql.SQLException[] held = new java.sql.SQLException[1];
-		withPlanningDatesCleared((start, end) -> {
+		Timestamp start = readPlanningDate("AbERP_PlanningStart");
+		Timestamp end = readPlanningDate("AbERP_PlanningEnd");
+		withPlanningDatesCleared(new Timestamp[] { start, end }, (s, e) -> {
 			try {
 				super.setParameters(pstmt, forCount);
 			} catch (java.sql.SQLException ex) {
@@ -181,41 +182,115 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		T apply(Timestamp start, Timestamp end);
 	}
 
-	/** Clear Planning Start/End so AD does not emit/bind them; work with snapshots. */
-	private <T> T withPlanningDatesCleared(PlanningDateWork<T> work) {
-		WEditor startEd = findEditor("AbERP_PlanningStart");
-		WEditor endEd = findEditor("AbERP_PlanningEnd");
+	/**
+	 * Clear Planning Start/End so AD does not emit/bind orphan {@code ?} after we
+	 * strip those predicates. Snapshots are passed in (already read).
+	 */
+	private <T> T withPlanningDatesCleared(Timestamp[] snap, PlanningDateWork<T> work) {
+		WEditor startEd = findPlanningEditor("AbERP_PlanningStart");
+		WEditor endEd = findPlanningEditor("AbERP_PlanningEnd");
 		Object savedStart = startEd != null ? startEd.getValue() : null;
 		Object savedEnd = endEd != null ? endEd.getValue() : null;
-		Timestamp start = toTimestamp(savedStart);
-		Timestamp end = toTimestamp(savedEnd);
+		Object savedGfStart = gridFieldValue(startEd);
+		Object savedGfEnd = gridFieldValue(endEd);
 		try {
 			setEditorValueQuiet(startEd, null);
 			setEditorValueQuiet(endEd, null);
-			return work.apply(start, end);
+			return work.apply(snap[0], snap[1]);
 		} finally {
-			setEditorValueQuiet(startEd, savedStart);
-			setEditorValueQuiet(endEd, savedEnd);
+			setEditorValueQuiet(startEd, savedStart != null ? savedStart : savedGfStart);
+			setEditorValueQuiet(endEd, savedEnd != null ? savedEnd : savedGfEnd);
 		}
 	}
 
-	private static void setEditorValueQuiet(WEditor editor, Object value) {
+	private static Object gridFieldValue(WEditor editor) {
+		try {
+			return editor != null && editor.getGridField() != null ? editor.getGridField().getValue() : null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private void setEditorValueQuiet(WEditor editor, Object value) {
 		if (editor == null) {
 			return;
 		}
-		editor.setValue(value);
+		try {
+			editor.setValue(value);
+		} catch (Exception ignore) {
+		}
 		try {
 			if (editor.getGridField() != null) {
 				editor.getGridField().setValue(value, false);
 			}
 		} catch (Exception ignore) {
-			// best-effort — editor value is what setParameters reads
 		}
 	}
 
+	/** Prefer editorMap, then editors list; value from editor, GridField, or Datebox text. */
+	private WEditor findPlanningEditor(String columnName) {
+		if (editorMap != null) {
+			WEditor mapped = editorMap.get(columnName);
+			if (mapped != null) {
+				return mapped;
+			}
+		}
+		return findEditor(columnName);
+	}
+
+	private Timestamp readPlanningDate(String columnName) {
+		WEditor ed = findPlanningEditor(columnName);
+		if (ed == null) {
+			log.warning("LeavePlanning missing editor " + columnName);
+			return null;
+		}
+		Timestamp ts = toTimestamp(ed.getValue());
+		if (ts == null) {
+			ts = toTimestamp(gridFieldValue(ed));
+		}
+		if (ts == null) {
+			try {
+				String disp = ed.getDisplay();
+				ts = parseDisplayDate(disp);
+			} catch (Exception ignore) {
+			}
+		}
+		if (ts == null) {
+			try {
+				Component c = ed.getComponent();
+				if (c instanceof org.zkoss.zul.Datebox) {
+					java.util.Date d = ((org.zkoss.zul.Datebox) c).getValue();
+					ts = toTimestamp(d);
+				}
+			} catch (Exception ignore) {
+			}
+		}
+		return ts;
+	}
+
+	private static Timestamp parseDisplayDate(String display) {
+		if (Util.isEmpty(display, true)) {
+			return null;
+		}
+		String s = display.trim();
+		String[] patterns = { "dd/MM/yyyy", "dd/MM/yy", "yyyy-MM-dd", "MM/dd/yyyy" };
+		for (String ptn : patterns) {
+			try {
+				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat(ptn);
+				df.setLenient(false);
+				return new Timestamp(df.parse(s).getTime());
+			} catch (Exception ignore) {
+			}
+		}
+		return null;
+	}
+
 	private String rewriteSupportLocationExists(String where) {
-		WEditor locEditor = findEditor("C_BPartner_Location_ID");
+		WEditor locEditor = findPlanningEditor("C_BPartner_Location_ID");
 		BigDecimal loc = locEditor != null ? toId(locEditor.getValue()) : null;
+		if (loc == null && locEditor != null) {
+			loc = toId(gridFieldValue(locEditor));
+		}
 		if (loc == null) {
 			return where;
 		}
@@ -263,7 +338,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	}
 
 	private static String toSqlDate(Timestamp ts) {
-		return new java.text.SimpleDateFormat("yyyy-MM-dd").format(new Date(ts.getTime()));
+		return new SimpleDateFormat("yyyy-MM-dd").format(new Date(ts.getTime()));
 	}
 
 	/** Roster EXISTS using {@code ?} - must stay in sync with Support Location editor binding. */
