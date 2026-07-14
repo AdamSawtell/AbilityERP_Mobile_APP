@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607141930"
+VERSION="7.1.0.202607142000"
 SYMBOLIC="com.aberp.invoicecapture"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -33,7 +33,7 @@ echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES
 echo "Applying AD SQL"
 for f in 00-preflight.sql 01-create-tables.sql 02-status-reference.sql 03-ad-table-columns.sql \
          04-window-tabs-fields.sql 05-processes-button.sql 06-menu-access.sql 07-scheduler.sql \
-         09-batch-menu.sql 10-enable-attachment.sql 08-verify.sql; do
+         09-batch-menu.sql 10-enable-attachment.sql 11-fix-pk-field.sql 08-verify.sql; do
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/saw019-$f"
   echo "  -> $f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/saw019-$f"

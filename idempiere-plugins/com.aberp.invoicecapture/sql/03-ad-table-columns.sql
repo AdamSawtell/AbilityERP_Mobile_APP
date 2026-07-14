@@ -173,7 +173,7 @@ BEGIN
 
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0001-4f01-8e15-000000000001','AbERP_InvoiceCapture_ID','Invoice Capture',13,NULL,'Y','N',0,22,'Y','N','N');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22);
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','N',20,22);
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','Y',20,22,'N','N','N','N','@#AD_Org_ID@');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0004-4f01-8e15-000000000001','IsActive','Active',20,NULL,'Y','Y',30,1);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0005-4f01-8e15-000000000001','Created','Created',16,NULL,'Y','N',40,7);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0006-4f01-8e15-000000000001','CreatedBy','Created By',18,110,'Y','N',50,22);
@@ -189,10 +189,11 @@ BEGIN
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0016-4f01-8e15-000000000001','InvoiceDate','Invoice Date',15,NULL,'N','Y',150,7);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0017-4f01-8e15-000000000001','GrandTotal','Grand Total',12,NULL,'N','Y',160,22);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0018-4f01-8e15-000000000001','C_BPartner_ID','Business Partner',30,v_bp_ref,'N','Y',170,22, 'N','N','N','Y');
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0019-4f01-8e15-000000000001','C_Invoice_ID','Vendor Invoice',30,v_inv_ref,'N','N',180,22, 'N','N','N','Y');
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0020-4f01-8e15-000000000001','ExtractedText','Extracted Text',14,NULL,'N','N',190,4000);
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0021-4f01-8e15-000000000001','LastResult','Last Result',10,NULL,'N','N',200,255);
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0022-4f01-8e15-000000000001','Processed','Processed',20,NULL,'N','N',210,1, 'N','N','N','N','N');
+  -- Writable by service (UI fields stay read-only via AD_Field.IsReadOnly)
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0019-4f01-8e15-000000000001','C_Invoice_ID','Vendor Invoice',30,v_inv_ref,'N','Y',180,22, 'N','N','N','Y');
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0020-4f01-8e15-000000000001','ExtractedText','Extracted Text',14,NULL,'N','Y',190,4000);
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0021-4f01-8e15-000000000001','LastResult','Last Result',10,NULL,'N','Y',200,255);
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0022-4f01-8e15-000000000001','Processed','Processed',20,NULL,'N','Y',210,1, 'N','N','N','N','N');
   -- Button (process linked in 05)
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0023-4f01-8e15-000000000001','AbERP_ProcessSelected','Process Selected Invoice',28,NULL,'N','Y',220,1, 'N','N','N','N',NULL,'B');
 

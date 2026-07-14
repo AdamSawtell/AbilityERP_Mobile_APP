@@ -41,7 +41,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 8. `sql/07-scheduler.sql`
 9. `sql/09-batch-menu.sql`
 10. `sql/10-enable-attachment.sql`
-11. `sql/08-verify.sql`
+11. `sql/11-fix-pk-field.sql`
+12. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 

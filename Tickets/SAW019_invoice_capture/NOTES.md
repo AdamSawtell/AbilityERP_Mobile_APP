@@ -23,6 +23,12 @@
 - Added **Upload Invoice PDF** button/process (file picker → AD_Attachment).
 - Flow: Save capture row → Upload Invoice PDF (or paperclip) → Process Selected Invoice.
 
+## Browser bugs found / fixed (2026-07-14)
+
+1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
+2. **Service columns not updateable** (`LastResult` etc.) → `ColumnReadonly` on process. Columns are now updateable; UI fields stay read-only.
+3. Smoke org `*` / `ad_org_id=0` repaired to AbilityERP; `AD_Org_ID` default `@#AD_Org_ID@`.
+
 ## Smoke log (2026-07-14 / 3.107.53.69)
 
 | Check | Result |
@@ -33,7 +39,9 @@
 | OSGi bundle | `com.aberp.invoicecapture` **ACTIVE** |
 | WebUI login | SuperUser / AbilityERP Admin PASS |
 | Menu search | Invoice Capture + Process Invoice Capture Batch visible |
-| End-to-end process run | **Pending** — host AD_Scheduler appears idle (Housekeeping last 2026-07-08); ZK menu open flaky in automation. Seed row `SMOKE-001` (id 1000000) + `/tmp/saw019-smoke/sample-invoice.pdf` ready for manual **Process Selected Invoice** |
+| Attachment toolbar | PASS (enabled after PK field fix) |
+| End-to-end process | **PASS** — Draft Vendor Invoice `C_Invoice_ID=1000013` (status DR); capture `SMOKE-001` → status OK |
+| Invoice No parse | Fixed regex (`inv` matched inside `INVOICE` → `OICE`); redeployed JAR `7.1.0.202607142000` |
 | Dev instance type | **t2.medium** (user target described as t2.xlarge) |
 
 WebUI password used for smoke: SuperUser / flamingo (DB password pattern on this host).

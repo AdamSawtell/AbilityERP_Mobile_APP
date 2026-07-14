@@ -47,8 +47,9 @@ public class InvoiceCaptureService {
 
 	private static final CLogger log = CLogger.getCLogger(InvoiceCaptureService.class);
 
+	// Require word boundary — bare "inv" must not match inside "INVOICE" (was capturing "OICE")
 	private static final Pattern INV_NO = Pattern.compile(
-			"(?i)(?:invoice\\s*(?:no\\.?|number|#)|inv\\s*#?)\\s*[:#]?\\s*([A-Z0-9][A-Z0-9\\-/]{2,})");
+			"(?i)\\binvoice\\s*(?:no\\.?|number|#)\\s*[:#]?\\s*([A-Z0-9][A-Z0-9\\-/]{2,})");
 	private static final Pattern ABN = Pattern.compile("(?i)\\bABN\\s*[:#]?\\s*([0-9][0-9\\s]{8,14}\\d)");
 	private static final Pattern TOTAL = Pattern.compile(
 			"(?i)(?:amount\\s*due|balance\\s*due|total\\s*(?:due|amount)?|grand\\s*total|invoice\\s*total)\\s*[:]?\\s*\\$?\\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\\.[0-9]{2})|[0-9]+\\.[0-9]{2})");
