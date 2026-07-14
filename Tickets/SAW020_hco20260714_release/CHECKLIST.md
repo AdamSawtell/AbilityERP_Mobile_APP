@@ -11,8 +11,8 @@
 - [x] LEARNINGS.md appended
 - [x] HCO_Deployment README host row updated for this release host
 - [x] Mark Ready for next HCO Production deployment
-- [ ] Commit + push
-- [ ] GitHub issue → `done`
+- [x] Commit + push (`63ac84f`)
+- [x] GitHub issue → `done` ([#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20))
 
 ## Per-ticket deploy (Test dry run)
 
