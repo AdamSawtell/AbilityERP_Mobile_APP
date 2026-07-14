@@ -16,6 +16,8 @@ import org.compiere.model.MAttachment;
 import org.compiere.model.MAttachmentEntry;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MOrder;
+import org.compiere.model.MOrderLine;
 import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.process.SvrProcess;
@@ -50,6 +52,8 @@ public class InvoiceCaptureService {
 	// Require word boundary — bare "inv" must not match inside "INVOICE" (was capturing "OICE")
 	private static final Pattern INV_NO = Pattern.compile(
 			"(?i)\\binvoice\\s*(?:no\\.?|number|#)\\s*[:#]?\\s*([A-Z0-9][A-Z0-9\\-/]{2,})");
+	private static final Pattern PO_NO = Pattern.compile(
+			"(?i)\\b(?:purchase\\s*order|\\bP\\.?O\\.?\\s*(?:no\\.?|number|#)?)\\s*[:#]?\\s*([A-Z0-9][A-Z0-9\\-/]{1,})");
 	private static final Pattern ABN = Pattern.compile("(?i)\\bABN\\s*[:#]?\\s*([0-9][0-9\\s]{8,14}\\d)");
 	/** Prefer amount on the same line as a total label; allow junk glyphs between label and digits. */
 	private static final Pattern TOTAL = Pattern.compile(
@@ -177,6 +181,14 @@ public class InvoiceCaptureService {
 						ST_VENDOR_NOT_MATCHED);
 			}
 			capture.set_ValueOfColumn("C_BPartner_ID", Integer.valueOf(bpartnerId));
+
+			int orderId = intVal(capture.get_Value("C_Order_ID"));
+			if (orderId <= 0) {
+				orderId = matchPurchaseOrder(capture.getAD_Client_ID(), bpartnerId, fields);
+			}
+			if (orderId > 0) {
+				capture.set_ValueOfColumn("C_Order_ID", Integer.valueOf(orderId));
+			}
 			capture.saveEx();
 
 			int dupInvoiceId = findDuplicateInvoice(capture.getAD_Client_ID(), bpartnerId, fields.invoiceNo,
@@ -191,27 +203,33 @@ public class InvoiceCaptureService {
 						ST_POSSIBLE_DUPLICATE);
 			}
 
-			int chargeId = resolveChargeId(capture.getAD_Client_ID());
-			if (chargeId <= 0) {
-				return fail(capture, InvoiceCaptureResult.Code.VALIDATION_FAILED, ST_VALIDATION_FAILED,
-						"Validation failed: no Charge available for Draft invoice line "
-								+ "(create a Charge named 'Invoice Capture' or any active Charge)",
-						trigger, 0);
-			}
-
 			int docTypeId = resolveApDocTypeId(capture.getAD_Client_ID());
 			if (docTypeId <= 0) {
 				return fail(capture, InvoiceCaptureResult.Code.VALIDATION_FAILED, ST_VALIDATION_FAILED,
 						"Validation failed: AP Invoice document type not found", trigger, 0);
 			}
 
-			MInvoice invoice = createDraftVendorInvoice(capture, bpartnerId, docTypeId, chargeId, fields, pdf);
+			int chargeId = 0;
+			if (orderId <= 0) {
+				chargeId = resolveChargeId(capture.getAD_Client_ID());
+				if (chargeId <= 0) {
+					return fail(capture, InvoiceCaptureResult.Code.VALIDATION_FAILED, ST_VALIDATION_FAILED,
+							"Validation failed: no Charge available for Draft invoice line "
+									+ "(create a Charge named 'Invoice Capture' or any active Charge)",
+							trigger, 0);
+				}
+			}
+
+			MInvoice invoice = createDraftVendorInvoice(capture, bpartnerId, docTypeId, chargeId, orderId, fields,
+					pdf);
 			int invoiceId = invoice.getC_Invoice_ID();
 
 			capture.set_ValueOfColumn("C_Invoice_ID", Integer.valueOf(invoiceId));
 			capture.set_ValueOfColumn("CaptureStatus", ST_SUCCESS);
 			String msg = "Draft Vendor Invoice created (C_Invoice_ID=" + invoiceId
-					+ ", DocNo/PORef=" + fields.invoiceNo + "). Left in Draft for review.";
+					+ ", DocNo/PORef=" + fields.invoiceNo
+					+ (orderId > 0 ? ", PO=" + poDocumentNo(orderId) : "")
+					+ "). Left in Draft for review.";
 			finish(capture, msg, trigger, InvoiceCaptureResult.Code.DRAFT_CREATED, invoiceId);
 			return new InvoiceCaptureResult(InvoiceCaptureResult.Code.DRAFT_CREATED, msg, invoiceId, ST_SUCCESS);
 
@@ -287,6 +305,10 @@ public class InvoiceCaptureService {
 			f.abn = m.group(1).replaceAll("\\s+", "");
 		}
 		f.grandTotal = parseGrandTotal(text);
+		m = PO_NO.matcher(text);
+		if (m.find()) {
+			f.poDocNo = m.group(1).trim();
+		}
 		m = DATE.matcher(text);
 		if (m.find()) {
 			f.invoiceDate = parseDate(m.group(1));
@@ -375,6 +397,9 @@ public class InvoiceCaptureService {
 		if (empty(target.vendorHint) && !empty(from.vendorHint)) {
 			target.vendorHint = from.vendorHint;
 		}
+		if (empty(target.poDocNo) && !empty(from.poDocNo)) {
+			target.poDocNo = from.poDocNo;
+		}
 	}
 
 	private static boolean hasPositiveAmount(BigDecimal v) {
@@ -462,6 +487,51 @@ public class InvoiceCaptureService {
 		return id == null ? 0 : id.intValue();
 	}
 
+	/**
+	 * Resolve Purchase Order: prefer OCR PO document no; else unique open PO for vendor
+	 * when amounts match (within $1).
+	 */
+	private int matchPurchaseOrder(int clientId, int bpartnerId, ParsedFields fields) {
+		if (!empty(fields.poDocNo)) {
+			Integer id = DB.getSQLValue(trxName,
+					"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND IsSOTrx='N' AND IsActive='Y' "
+							+ "AND DocStatus IN ('CO','CL') AND DocumentNo=? "
+							+ "AND (C_BPartner_ID=? OR ?=0) "
+							+ "ORDER BY CASE WHEN C_BPartner_ID=? THEN 0 ELSE 1 END, C_Order_ID DESC "
+							+ "FETCH FIRST 1 ROW ONLY",
+					clientId, fields.poDocNo, bpartnerId, bpartnerId, bpartnerId);
+			if (id != null && id > 0) {
+				return id.intValue();
+			}
+		}
+		if (bpartnerId > 0 && hasPositiveAmount(fields.grandTotal)) {
+			Integer id = DB.getSQLValue(trxName,
+					"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND C_BPartner_ID=? AND IsSOTrx='N' "
+							+ "AND IsActive='Y' AND DocStatus='CO' "
+							+ "AND ABS(GrandTotal - ?) <= 1 "
+							+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
+							+ "AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0)) "
+							+ "ORDER BY DateOrdered DESC, C_Order_ID DESC",
+					clientId, bpartnerId, fields.grandTotal);
+			// Only auto-pick when exactly one amount match
+			int count = DB.getSQLValue(trxName,
+					"SELECT COUNT(*) FROM C_Order WHERE AD_Client_ID=? AND C_BPartner_ID=? AND IsSOTrx='N' "
+							+ "AND IsActive='Y' AND DocStatus='CO' AND ABS(GrandTotal - ?) <= 1 "
+							+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
+							+ "AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))",
+					clientId, bpartnerId, fields.grandTotal);
+			if (count == 1 && id != null && id > 0) {
+				return id.intValue();
+			}
+		}
+		return 0;
+	}
+
+	private String poDocumentNo(int orderId) {
+		String doc = DB.getSQLValueString(trxName, "SELECT DocumentNo FROM C_Order WHERE C_Order_ID=?", orderId);
+		return doc == null ? String.valueOf(orderId) : doc;
+	}
+
 	private int resolveApDocTypeId(int clientId) {
 		Integer id = DB.getSQLValue(trxName,
 				"SELECT C_DocType_ID FROM C_DocType WHERE AD_Client_ID=? AND DocBaseType='API' AND IsActive='Y' "
@@ -485,7 +555,7 @@ public class InvoiceCaptureService {
 		return id == null ? 0 : id.intValue();
 	}
 
-	private MInvoice createDraftVendorInvoice(PO capture, int bpartnerId, int docTypeId, int chargeId,
+	private MInvoice createDraftVendorInvoice(PO capture, int bpartnerId, int docTypeId, int chargeId, int orderId,
 			ParsedFields fields, ResolvedPdf pdf) throws Exception {
 		MInvoice inv = new MInvoice(ctx, 0, trxName);
 		inv.setAD_Org_ID(capture.getAD_Org_ID());
@@ -496,7 +566,8 @@ public class InvoiceCaptureService {
 		inv.setDateInvoiced(fields.invoiceDate);
 		inv.setDateAcct(fields.invoiceDate);
 		inv.setPOReference(truncate(fields.invoiceNo, 60));
-		inv.setDescription(truncate("Invoice Capture #" + capture.get_ID()
+		String poBit = orderId > 0 ? " PO " + poDocumentNo(orderId) : "";
+		inv.setDescription(truncate("Invoice Capture #" + capture.get_ID() + poBit
 				+ (empty(fields.vendorHint) ? "" : " — " + fields.vendorHint), 255));
 		inv.setDocStatus(MInvoice.DOCSTATUS_Drafted);
 		inv.setDocAction(MInvoice.DOCACTION_Complete);
@@ -511,14 +582,30 @@ public class InvoiceCaptureService {
 		if (currencyId > 0) {
 			inv.setC_Currency_ID(currencyId);
 		}
+		if (orderId > 0) {
+			MOrder order = new MOrder(ctx, orderId, trxName);
+			if (order.getC_BPartner_Location_ID() > 0) {
+				inv.setC_BPartner_Location_ID(order.getC_BPartner_Location_ID());
+			}
+			if (order.getC_Currency_ID() > 0) {
+				inv.setC_Currency_ID(order.getC_Currency_ID());
+			}
+			inv.set_ValueOfColumn("C_Order_ID", Integer.valueOf(orderId));
+		}
 		inv.saveEx();
 
-		MInvoiceLine line = new MInvoiceLine(inv);
-		line.setC_Charge_ID(chargeId);
-		line.setQty(Env.ONE);
-		line.setPrice(fields.grandTotal);
-		line.setDescription(truncate("Captured total from PDF (" + fields.invoiceNo + ")", 255));
-		line.saveEx();
+		boolean createdFromPo = false;
+		if (orderId > 0) {
+			createdFromPo = addInvoiceLinesFromOrder(inv, orderId);
+		}
+		if (!createdFromPo) {
+			MInvoiceLine line = new MInvoiceLine(inv);
+			line.setC_Charge_ID(chargeId > 0 ? chargeId : resolveChargeId(capture.getAD_Client_ID()));
+			line.setQty(Env.ONE);
+			line.setPrice(fields.grandTotal);
+			line.setDescription(truncate("Captured total from PDF (" + fields.invoiceNo + ")", 255));
+			line.saveEx();
+		}
 
 		byte[] bytes = Files.readAllBytes(pdf.file.toPath());
 		MAttachment att = inv.createAttachment();
@@ -526,6 +613,39 @@ public class InvoiceCaptureService {
 		att.saveEx();
 
 		return inv;
+	}
+
+	/** Copy open PO lines onto the draft invoice; returns true if at least one line was created. */
+	private boolean addInvoiceLinesFromOrder(MInvoice inv, int orderId) {
+		MOrder order = new MOrder(ctx, orderId, trxName);
+		MOrderLine[] lines = order.getLines(true, null);
+		boolean any = false;
+		for (MOrderLine ol : lines) {
+			if (ol == null || !ol.isActive()) {
+				continue;
+			}
+			BigDecimal open = ol.getQtyOrdered().subtract(ol.getQtyInvoiced());
+			if (open.signum() <= 0) {
+				continue;
+			}
+			MInvoiceLine il = new MInvoiceLine(inv);
+			if (ol.getM_Product_ID() > 0) {
+				il.setM_Product_ID(ol.getM_Product_ID());
+			} else if (ol.getC_Charge_ID() > 0) {
+				il.setC_Charge_ID(ol.getC_Charge_ID());
+			} else {
+				continue;
+			}
+			il.setQty(open);
+			il.setPrice(ol.getPriceActual());
+			il.setC_OrderLine_ID(ol.getC_OrderLine_ID());
+			if (!empty(ol.getDescription())) {
+				il.setDescription(truncate(ol.getDescription(), 255));
+			}
+			il.saveEx();
+			any = true;
+		}
+		return any;
 	}
 
 	private InvoiceCaptureResult fail(PO capture, InvoiceCaptureResult.Code code, String status, String msg,
@@ -647,6 +767,7 @@ public class InvoiceCaptureService {
 
 	private static class ParsedFields {
 		String invoiceNo;
+		String poDocNo;
 		String abn;
 		BigDecimal grandTotal;
 		Timestamp invoiceDate;

@@ -23,6 +23,14 @@
 - Added **Upload Invoice PDF** button/process (file picker → AD_Attachment).
 - Flow: Save capture row → Upload Invoice PDF (or paperclip) → Process Selected Invoice.
 
+## Purchase Order link (2026-07-14)
+
+- Capture field **Purchase Order** (`C_Order_ID`) — Search, filtered to completed/closed POs for the vendor.
+- Process extracts `Purchase Order:` / `PO` from PDF; matches `C_Order.DocumentNo`.
+- If matched (or user picks PO): Draft AP invoice lines copy **open qty** from PO lines (`C_OrderLine_ID` set); invoice also stores `C_Order_ID`.
+- If no PO: existing single Charge-line draft path.
+- Test PDFs in Downloads: `SAW019_PO_Safety_Gear_Pro_800013.pdf`, `SAW019_PO_Adelaide_Property_Managers_800014.pdf`, `SAW019_PO_TechWorks_Australia_800017.pdf`.
+
 ## Browser bugs found / fixed (2026-07-14)
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).

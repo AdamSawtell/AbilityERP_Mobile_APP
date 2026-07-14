@@ -184,6 +184,7 @@ BEGIN
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0004-4f01-8e15-000000000001','CaptureStatus','Capture Status',40,'Y','N', 'Y',40,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0005-4f01-8e15-000000000001','FilePath','File Path',50,'Y','N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0006-4f01-8e15-000000000001','C_BPartner_ID','Business Partner',60,'Y','N', 'N',60,'Y');
+  PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0018-4f01-8e15-000000000001','C_Order_ID','Purchase Order',65,'Y','N', 'N',65,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0007-4f01-8e15-000000000001','VendorInvoiceNo','Vendor Invoice No',70,'Y','N', 'Y',70,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0008-4f01-8e15-000000000001','TaxID','Tax ID',80,'Y','N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0009-4f01-8e15-000000000001','InvoiceDate','Invoice Date',90,'Y','N', 'Y');

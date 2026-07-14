@@ -192,6 +192,8 @@ BEGIN
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0016-4f01-8e15-000000000001','InvoiceDate','Invoice Date',15,NULL,'N','Y',150,7);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0017-4f01-8e15-000000000001','GrandTotal','Grand Total',12,NULL,'N','Y',160,22);
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0018-4f01-8e15-000000000001','C_BPartner_ID','Business Partner',30,v_bp_ref,'N','Y',170,22, 'N','N','N','Y');
+  -- Purchase Order link (Search + val rule applied in 14-add-po-link.sql for existing DBs)
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0025-4f01-8e15-000000000001','C_Order_ID','Purchase Order',30,NULL,'N','Y',175,22, 'N','N','N','Y');
   -- Writable by service (UI fields stay read-only via AD_Field.IsReadOnly)
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0019-4f01-8e15-000000000001','C_Invoice_ID','Vendor Invoice',30,v_inv_ref,'N','Y',180,22, 'N','N','N','Y');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0020-4f01-8e15-000000000001','ExtractedText','Extracted Text',14,NULL,'N','Y',190,4000);

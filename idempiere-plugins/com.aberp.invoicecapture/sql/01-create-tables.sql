@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS aberp_invoicecapture (
   invoicedate                 timestamp,
   grandtotal                  numeric,
   c_bpartner_id               numeric(10),
+  c_order_id                  numeric(10),
   c_invoice_id                numeric(10),
   extractedtext               character varying(4000),
   lastresult                  character varying(255),
