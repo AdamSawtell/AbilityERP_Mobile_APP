@@ -131,7 +131,36 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	public boolean validateParameters() {
 		sanitizeIdEditors();
 		hideAllAnyCheckboxes();
+		coercePlanningDatesFromUi();
+		Timestamp start = readPlanningDate("AbERP_PlanningStart");
+		Timestamp end = readPlanningDate("AbERP_PlanningEnd");
+		if (start == null || end == null) {
+			setStatusLine("Planning Start and Planning End are required", true);
+			return false;
+		}
 		return super.validateParameters();
+	}
+
+	/**
+	 * Datebox often holds display text while WEditor/GridField value is still null or a
+	 * raw String — which fails InfoWindow date validation and made grid ignore dates.
+	 * Coerce visible text into Timestamp on every editor instance before Search.
+	 */
+	private void coercePlanningDatesFromUi() {
+		for (String col : new String[] { "AbERP_PlanningStart", "AbERP_PlanningEnd" }) {
+			Timestamp ts = readPlanningDate(col);
+			if (ts == null) {
+				continue;
+			}
+			for (WEditor ed : allEditorsFor(col)) {
+				Object cur = ed.getValue();
+				if (!(cur instanceof Timestamp) && !(cur instanceof Date)) {
+					setEditorValueQuiet(ed, ts);
+				} else if (cur instanceof Date && !(cur instanceof Timestamp)) {
+					setEditorValueQuiet(ed, new Timestamp(((Date) cur).getTime()));
+				}
+			}
+		}
 	}
 
 	/**
@@ -148,10 +177,11 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 			String where = super.getSQLWhere();
 			where = stripPlanningDatePredicates(where);
 			where = rewriteSupportLocationExists(where);
-			if (s != null) {
+			if (s == null || e == null) {
+				log.warning("LeavePlanning getSQLWhere missing dates start=" + s + " end=" + e + " — blocking unfiltered grid");
+				where = appendAnd(where, "1=0");
+			} else {
 				where = appendAnd(where, "ul.EndDate::date >= DATE '" + toSqlDate(s) + "'");
-			}
-			if (e != null) {
 				where = appendAnd(where, "ul.StartDate::date <= DATE '" + toSqlDate(e) + "'");
 			}
 			log.warning("LeavePlanning getSQLWhere start=" + s + " end=" + e + " where=" + where);
@@ -185,22 +215,65 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	/**
 	 * Clear Planning Start/End so AD does not emit/bind orphan {@code ?} after we
 	 * strip those predicates. Snapshots are passed in (already read).
+	 * Clears every editor instance for the column (editors list + editorMap), because
+	 * banner uses findEditor while AD can bind a different map entry.
 	 */
 	private <T> T withPlanningDatesCleared(Timestamp[] snap, PlanningDateWork<T> work) {
-		WEditor startEd = findPlanningEditor("AbERP_PlanningStart");
-		WEditor endEd = findPlanningEditor("AbERP_PlanningEnd");
-		Object savedStart = startEd != null ? startEd.getValue() : null;
-		Object savedEnd = endEd != null ? endEd.getValue() : null;
-		Object savedGfStart = gridFieldValue(startEd);
-		Object savedGfEnd = gridFieldValue(endEd);
+		java.util.List<WEditor> startEds = allEditorsFor("AbERP_PlanningStart");
+		java.util.List<WEditor> endEds = allEditorsFor("AbERP_PlanningEnd");
+		java.util.List<Object[]> saved = new java.util.ArrayList<>();
+		for (WEditor ed : startEds) {
+			saved.add(new Object[] { ed, ed.getValue(), gridFieldValue(ed) });
+		}
+		for (WEditor ed : endEds) {
+			saved.add(new Object[] { ed, ed.getValue(), gridFieldValue(ed) });
+		}
 		try {
-			setEditorValueQuiet(startEd, null);
-			setEditorValueQuiet(endEd, null);
+			for (WEditor ed : startEds) {
+				setEditorValueQuiet(ed, null);
+			}
+			for (WEditor ed : endEds) {
+				setEditorValueQuiet(ed, null);
+			}
 			return work.apply(snap[0], snap[1]);
 		} finally {
-			setEditorValueQuiet(startEd, savedStart != null ? savedStart : savedGfStart);
-			setEditorValueQuiet(endEd, savedEnd != null ? savedEnd : savedGfEnd);
+			for (Object[] row : saved) {
+				WEditor ed = (WEditor) row[0];
+				Object v = row[1] != null ? row[1] : row[2];
+				setEditorValueQuiet(ed, v);
+			}
 		}
+	}
+
+	/** All editor instances for a column (deduped), covering editors list and editorMap. */
+	private java.util.List<WEditor> allEditorsFor(String columnName) {
+		java.util.LinkedHashSet<WEditor> set = new java.util.LinkedHashSet<>();
+		WEditor fromList = findEditor(columnName);
+		if (fromList != null) {
+			set.add(fromList);
+		}
+		if (editorMap != null) {
+			WEditor mapped = editorMap.get(columnName);
+			if (mapped != null) {
+				set.add(mapped);
+			}
+			for (Map.Entry<String, WEditor> e : editorMap.entrySet()) {
+				if (e.getKey() != null && e.getKey().equalsIgnoreCase(columnName) && e.getValue() != null) {
+					set.add(e.getValue());
+				}
+			}
+		}
+		if (editors != null) {
+			for (WEditor editor : editors) {
+				if (editor == null || editor.getGridField() == null) {
+					continue;
+				}
+				if (columnName.equalsIgnoreCase(editor.getGridField().getColumnName())) {
+					set.add(editor);
+				}
+			}
+		}
+		return new java.util.ArrayList<>(set);
 	}
 
 	private static Object gridFieldValue(WEditor editor) {
@@ -227,45 +300,61 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		}
 	}
 
-	/** Prefer editorMap, then editors list; value from editor, GridField, or Datebox text. */
+	/**
+	 * Prefer the same editor as the banner ({@link #findEditor} / editors list).
+	 * editorMap alone can point at a stale/empty instance while the visible Datebox
+	 * still holds Planning Start/End — that mismatch caused banner=46 vs grid=1228.
+	 */
 	private WEditor findPlanningEditor(String columnName) {
+		WEditor fromList = findEditor(columnName);
+		if (fromList != null) {
+			return fromList;
+		}
 		if (editorMap != null) {
 			WEditor mapped = editorMap.get(columnName);
 			if (mapped != null) {
 				return mapped;
 			}
 		}
-		return findEditor(columnName);
+		return null;
 	}
 
 	private Timestamp readPlanningDate(String columnName) {
-		WEditor ed = findPlanningEditor(columnName);
-		if (ed == null) {
-			log.warning("LeavePlanning missing editor " + columnName);
-			return null;
+		// Same path as banner/export (editorValue -> findEditor).
+		Timestamp ts = toTimestamp(editorValue(columnName));
+		if (ts != null) {
+			return ts;
 		}
-		Timestamp ts = toTimestamp(ed.getValue());
-		if (ts == null) {
-			ts = toTimestamp(gridFieldValue(ed));
-		}
-		if (ts == null) {
-			try {
-				String disp = ed.getDisplay();
-				ts = parseDisplayDate(disp);
-			} catch (Exception ignore) {
+		for (WEditor ed : allEditorsFor(columnName)) {
+			ts = toTimestamp(ed.getValue());
+			if (ts == null) {
+				ts = toTimestamp(gridFieldValue(ed));
 			}
-		}
-		if (ts == null) {
-			try {
-				Component c = ed.getComponent();
-				if (c instanceof org.zkoss.zul.Datebox) {
-					java.util.Date d = ((org.zkoss.zul.Datebox) c).getValue();
-					ts = toTimestamp(d);
+			if (ts == null) {
+				try {
+					ts = parseDisplayDate(ed.getDisplay());
+				} catch (Exception ignore) {
 				}
-			} catch (Exception ignore) {
+			}
+			if (ts == null) {
+				try {
+					Component c = ed.getComponent();
+					if (c instanceof org.zkoss.zul.Datebox) {
+						org.zkoss.zul.Datebox db = (org.zkoss.zul.Datebox) c;
+						ts = toTimestamp(db.getValue());
+						if (ts == null) {
+							ts = parseDisplayDate(db.getText());
+						}
+					}
+				} catch (Exception ignore) {
+				}
+			}
+			if (ts != null) {
+				return ts;
 			}
 		}
-		return ts;
+		log.warning("LeavePlanning missing date value for " + columnName);
+		return null;
 	}
 
 	private static Timestamp parseDisplayDate(String display) {
@@ -358,6 +447,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	protected void executeQuery() {
 		ensureCriteriaEditorsWritable();
 		sanitizeIdEditors();
+		coercePlanningDatesFromUi();
 		refreshSummaryBanner();
 		super.executeQuery();
 	}
@@ -999,8 +1089,8 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		if (summaryBanner == null) {
 			return;
 		}
-		Timestamp start = toTimestamp(editorValue("AbERP_PlanningStart"));
-		Timestamp end = toTimestamp(editorValue("AbERP_PlanningEnd"));
+		Timestamp start = readPlanningDate("AbERP_PlanningStart");
+		Timestamp end = readPlanningDate("AbERP_PlanningEnd");
 		if (start == null || end == null) {
 			periodLabel.setValue("Leave Planning summary ΓÇö set Planning Start and Planning End, then Search.");
 			setStatusCounts(null);
@@ -1123,8 +1213,8 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	}
 
 	private void exportCsv() {
-		Timestamp start = toTimestamp(editorValue("AbERP_PlanningStart"));
-		Timestamp end = toTimestamp(editorValue("AbERP_PlanningEnd"));
+		Timestamp start = readPlanningDate("AbERP_PlanningStart");
+		Timestamp end = readPlanningDate("AbERP_PlanningEnd");
 		if (start == null || end == null) {
 			setStatusLine("Set Planning Start and Planning End before Export CSV", true);
 			return;

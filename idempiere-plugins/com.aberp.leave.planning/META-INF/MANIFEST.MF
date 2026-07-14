@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Leave Planning Info
 Bundle-SymbolicName: com.aberp.leave.planning
-Bundle-Version: 1.0.0.2026071406
-Bundle-Vendor: ABERP
+Bundle-Version: 1.0.0.2026071408
+Bundle-Vendor: AbERP
 Automatic-Module-Name: com.aberp.leave.planning
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0",org.adempiere.ui.zk;bundle-version="7.1.0",zul;bundle-version="8.6.0",zk;bundle-version="8.6.0"
@@ -11,4 +11,3 @@ Service-Component: leaveplanning-info.xml
 AbERP-Package-Type: java-sql-ad
 AbERP-InfoWindow-UU: 16a016iw-c0d4-4f01-8e15-000000000001
 AbERP-Install: sql/25-restore-criteria-dropdowns.sql,sql/26-fix-type-lookup-maxquery.sql
-
