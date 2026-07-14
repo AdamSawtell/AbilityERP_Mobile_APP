@@ -6,5 +6,5 @@
 - [x] OCR tools installed on host
 - [x] Deploy JAR + SQL on `3.107.53.69`
 - [ ] WebUI smoke: Process Selected Invoice (seed ready; scheduler idle — manual click)
-- [ ] Commit + push
-- [ ] Client / prod Downloads packs (after E2E process green)
+- [x] Commit + push (`bb41f33`)
+- [x] Client / prod Downloads packs created (E2E process click still pending on host)
