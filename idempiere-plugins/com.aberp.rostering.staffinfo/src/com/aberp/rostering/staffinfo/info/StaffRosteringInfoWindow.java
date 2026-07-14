@@ -25,6 +25,7 @@ import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.InputEvent;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.A;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Intbox;
@@ -554,8 +555,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		credentialFilterList.setMultiple(true);
 		credentialFilterList.setCheckmark(true);
 		credentialFilterList.setWidth("100%");
-		credentialFilterList.setHeight("160px");
-		credentialFilterList.setStyle("max-width:720px;");
+		credentialFilterList.setHeight("140px");
+		credentialFilterList.setStyle("max-width:100%;box-sizing:border-box;");
 		// Never disable: ZK ignores SelectEvent on disabled Listbox, so AND filter never applied.
 		credentialFilterList.addEventListener(Events.ON_SELECT, event -> {
 			refreshSelectedCredentialFilterIds();
@@ -576,31 +577,56 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		credentialFilterSearch = new Textbox();
 		credentialFilterSearch.setPlaceholder("Find credential…");
 		credentialFilterSearch.setWidth("100%");
-		credentialFilterSearch.setStyle("max-width:720px;margin-bottom:4px;");
-		credentialFilterSearch.setTooltiptext("Type to filter the list. Selected credentials stay applied even if hidden by Find.");
+		credentialFilterSearch.setStyle("box-sizing:border-box;margin-bottom:4px;");
+		credentialFilterSearch.setTooltiptext(
+				"Type to filter the list. Selected credentials stay applied even if hidden by Find.");
 		credentialFilterSearch.addEventListener(Events.ON_CHANGING, this::onCredentialFilterSearch);
 		credentialFilterSearch.addEventListener(Events.ON_CHANGE, this::onCredentialFilterSearch);
 
 		credentialSelectionSummary = new Label("Selected (0): none — full unmatched pool");
-		credentialSelectionSummary.setStyle("font-size:11px;color:#333;");
+		credentialSelectionSummary.setStyle("display:block;font-size:11px;color:#333;margin-top:4px;line-height:1.3;");
 
 		credentialClearLink = new A("Clear");
 		credentialClearLink.setTooltiptext("Clear all selected credentials");
-		credentialClearLink.setStyle("font-size:11px;margin-left:10px;");
+		credentialClearLink.setStyle("font-size:11px;margin-left:8px;");
 		credentialClearLink.addEventListener(Events.ON_CLICK, event -> clearCredentialFilterSelection());
 
 		Div summaryRow = new Div();
-		summaryRow.setStyle("margin:4px 0 6px 0;max-width:720px;");
+		summaryRow.setStyle("margin-top:2px;");
 		summaryRow.appendChild(credentialSelectionSummary);
 		summaryRow.appendChild(credentialClearLink);
 
+		Label listLabel = new Label("Select (AND)");
+		listLabel.setStyle("display:block;font-size:11px;color:#555;margin-bottom:4px;font-weight:bold;");
+
+		// Two columns lined up under Staff Name (left) and Employee (right).
+		Div leftCol = new Div();
+		leftCol.setSclass("aberp-cred-col-left");
+		leftCol.setStyle(
+				"display:inline-block;vertical-align:top;width:48%;max-width:48%;"
+						+ "padding-right:12px;box-sizing:border-box;");
+		leftCol.appendChild(credLabel);
+		leftCol.appendChild(credentialFilterSearch);
+		leftCol.appendChild(summaryRow);
+
+		Div rightCol = new Div();
+		rightCol.setSclass("aberp-cred-col-right");
+		rightCol.setStyle(
+				"display:inline-block;vertical-align:top;width:48%;max-width:48%;"
+						+ "box-sizing:border-box;");
+		rightCol.appendChild(listLabel);
+		rightCol.appendChild(credentialFilterList);
+
+		Div columns = new Div();
+		columns.setStyle("width:100%;white-space:normal;");
+		columns.appendChild(leftCol);
+		columns.appendChild(rightCol);
+
 		credentialFilterBox = new Div();
-		credentialFilterBox.setStyle("padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;");
+		credentialFilterBox.setStyle(
+				"padding:6px 8px 8px 8px;border-top:1px solid #ddd;background:#fafafa;");
 		credentialFilterBox.setVisible(false);
-		credentialFilterBox.appendChild(credLabel);
-		credentialFilterBox.appendChild(credentialFilterSearch);
-		credentialFilterBox.appendChild(summaryRow);
-		credentialFilterBox.appendChild(credentialFilterList);
+		credentialFilterBox.appendChild(columns);
 		updateCredentialSelectionSummary();
 	}
 
@@ -728,13 +754,29 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		boolean unmatched = isShowUnmatchedSelected();
 		if (credentialFilterBox != null) {
 			credentialFilterBox.setVisible(unmatched);
-			// ZK can leave display:none after early sync before the tick is applied.
 			credentialFilterBox.setStyle(unmatched
-					? "padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;"
-					: "padding:8px 8px 6px 8px;display:none;");
-			// Do not scrollIntoView — it jumps the criteria pane out of sight.
-			// Do not setVisible on the Listbox separately — a stuck display:none on the
-			// child while the box is shown leaves an invisible checklist.
+					? "padding:6px 8px 8px 8px;border-top:1px solid #ddd;background:#fafafa;"
+					: "padding:6px 8px 8px 8px;");
+			// Vbox parents wrap Divs in a TR (-chdex). setVisible(false) leaves that TR as
+			// display:none; force both leaf + wrapper visible when unmatched is on.
+			if (unmatched) {
+				String uuid = credentialFilterBox.getUuid();
+				// Delay past ZK AU: Vbox wraps children in TR (-chdex) that stays
+				// display:none after an earlier setVisible(false). Expand north so
+				// the two-column credential picker is not clipped.
+				Clients.evalJavaScript(
+						"setTimeout(function(){try{"
+								+ "var id='" + uuid + "';"
+								+ "var n=jq('#'+id)[0];if(n){n.style.display='block';n.style.visibility='visible';}"
+								+ "var tr=jq('#'+id+'-chdex')[0];"
+								+ "if(tr){tr.style.display='table-row';tr.style.visibility='visible';}"
+								+ "var north=jq('.z-north').get(0), nb=jq('.z-north-body').get(0);"
+								+ "if(nb){nb.style.overflow='auto';nb.style.height='auto';nb.style.maxHeight='340px';}"
+								+ "if(north){north.style.height='280px';north.style.minHeight='260px';"
+								+ "try{var nw=zk.Widget.$(north);if(nw&&nw.setHeight){nw.setHeight('280px');}}catch(e2){}"
+								+ "}"
+								+ "}catch(e){}},80);");
+			}
 		}
 		if (!unmatched) {
 			if (credentialFilterList != null) {
@@ -814,6 +856,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		flagRow.appendChild(new Space()); // under All/Any
 		parameterGrid.getRows().appendChild(flagRow);
 
+		// Below criteria grid (avoids z-grid-body clipping the list). Two columns:
+		// left ≈ Staff Name, right ≈ Employee.
 		if (credentialFilterBox != null && credentialFilterBox.getParent() == null) {
 			Component parent = parameterGrid.getParent();
 			if (parent != null) {

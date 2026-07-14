@@ -16,7 +16,7 @@
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# build JAR 1.1.0.2026071229 → SQL 01→24→04 → restart → wait WebUI 200
+# build JAR 1.1.0.2026071237 → SQL 01→24→04 → restart → wait WebUI 200
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
@@ -28,7 +28,7 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | **`1.1.0.2026071229`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
+| Version | **`1.1.0.2026071233`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` |
@@ -74,7 +74,7 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 4. Lean grid (no BP Name / Status / Business Partner / Agency Staff columns).  
 5. Related Info tabs; contact pick fills BP.
 
-**Show Unmatched + credential AND (JAR 1229):**
+**Show Unmatched + credential AND (JAR 1237):**
 
 1. Unticked → Related Needs apply; credential picker hidden.  
 2. Ticked → needs ignored; **Must have all of these credentials** appears below criteria with **Find** and **Selected (N)** summary.  
@@ -91,8 +91,8 @@ If opening Staff Info throws `org/zkoss/util/media/Media` / `ClassNotFoundExcept
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071229` | Find + Selected summary UX |
-| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071229` | Deployed 2026-07-14 |
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071237` | Find + Selected summary UX |
+| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071237` | Deployed 2026-07-14 |
 
 HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Deployments variables**.
 
