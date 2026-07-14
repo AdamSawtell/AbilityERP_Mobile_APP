@@ -5,6 +5,7 @@ import org.compiere.process.ProcessCall;
 
 import com.aberp.invoicecapture.process.ProcessInvoiceCaptureBatch;
 import com.aberp.invoicecapture.process.ProcessSelectedInvoice;
+import com.aberp.invoicecapture.process.UploadInvoicePdf;
 
 public class InvoiceCaptureProcessFactory implements IProcessFactory {
 	@Override
@@ -14,6 +15,9 @@ public class InvoiceCaptureProcessFactory implements IProcessFactory {
 		}
 		if (ProcessInvoiceCaptureBatch.class.getName().equals(className)) {
 			return new ProcessInvoiceCaptureBatch();
+		}
+		if (UploadInvoicePdf.class.getName().equals(className)) {
+			return new UploadInvoicePdf();
 		}
 		return null;
 	}

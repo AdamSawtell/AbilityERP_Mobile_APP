@@ -462,6 +462,36 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-14 — SAW016 Leave Planning redeploy handoff
+
+**Result:** Partial — host rebuild requested before Support Location Search E2E reopen. Deploy artefacts updated for a clean agent reinstall.
+
+### What worked
+- Parser-safe display via `aberp_lp_primary_support_location` (SQL **22**).
+- Support Location Search non-neg harden (SQL **24** + JAR **1402**).
+- Agent path: `Tickets/SAW016_leave_planning/DEPLOY.md` + `redeploy-hco.sh`.
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| `systemctl restart` often leaves HTTP 000 | Document force-kill equinox + `/etc/init.d/idempiere start`; poll `:8080/webui` |
+| Table Direct Intbox `-1` → non-neg popup | Criteria → Search(30); do not rely on server sanitize alone |
+| Nested SELECT in InfoColumn selectclause breaks AccessSqlParser | Always function-wrap display SQL (**22**) |
+| Duplicate `24-*.sql` confuses agents | Keep only `24-support-location-search-nonneg.sql` |
+
+### HCO local IDs (hints only)
+| Object | HCO ID | UU |
+|--------|--------|-----|
+| Leave Planning Info | (lookup) | `16a016iw-c0d4-4f01-8e15-000000000001` |
+| Support Location val rule | (lookup) | `16a01606-c0d4-4f01-8e15-000000000001` |
+
+### Ticket artefacts
+- `Tickets/SAW016_leave_planning/DEPLOY.md`
+- `idempiere-plugins/com.aberp.leave.planning/redeploy-hco.sh`
+- JAR `com.aberp.leave.planning_1.0.0.2026071402`
+
+---
+
 <!-- Template for next entry:
 
 ## YYYY-MM-DD — SAW### short title

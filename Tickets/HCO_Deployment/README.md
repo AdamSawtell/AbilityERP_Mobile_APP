@@ -57,5 +57,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW015](../SAW015_skip_dates_copy_from/NOTES.md#hco-future-deployments-variables) | Skip Dates Copy Dates From — HCO install 2026-07-13 |
 | [SAW017](../SAW017_booking_generator_bulk/NOTES.md#hco-future-deployments-variables) | Booking Generator bulk — HCO Phase 0 discovery 2026-07-13 (JAR blocker) |
 | [SAW018](../SAW018_hco_release_packins/NOTES.md#hco-future-deployments-variables) | HCO release packins (credentials/employee/client/support location) — HCO install 2026-07-13 |
+| [SAW016](../SAW016_leave_planning/DEPLOY.md) | Leave Planning Info — redeploy via `redeploy-hco.sh` / JAR `1402` (Support Location Search + parser-safe display) |
 
 Append new rows as tickets are installed.

@@ -17,6 +17,12 @@
 
 (pending first HCO install)
 
+## Attachment (2026-07-14)
+
+- Standard **Window - Attachment** moved to main toolbar (`isshowmore=N`) — was under More/vertical overflow.
+- Added **Upload Invoice PDF** button/process (file picker → AD_Attachment).
+- Flow: Save capture row → Upload Invoice PDF (or paperclip) → Process Selected Invoice.
+
 ## Smoke log (2026-07-14 / 3.107.53.69)
 
 | Check | Result |

@@ -7,8 +7,10 @@
 | Invoice Capture | Window | Inbox for vendor invoice PDFs |
 | Invoice Capture | Tab | Header: status, PDF path, BP, amounts, Vendor Invoice zoom |
 | Processing Log | Tab | Append-only history of process attempts |
+| Upload Invoice PDF | Process / button | Attach a PDF to the capture row (file picker) |
 | Process Selected Invoice | Process / button | Process the open capture record anytime |
 | Process Invoice Capture Batch | Process + nightly scheduler | Catch-up for eligible pending rows |
+| Attachment (toolbar) | Toolbar | Paperclip on main toolbar for Invoice Capture / other windows |
 | Draft AP Invoice | Document | Created for review (not completed) |
 
 ## What’s done

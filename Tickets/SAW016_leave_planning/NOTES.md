@@ -38,13 +38,20 @@
 | Host | `32.236.127.117` |
 | WebUI | `http://32.236.127.117/webui/` |
 | Info Window UU | `16a016iw-c0d4-4f01-8e15-000000000001` |
+| Val rule UU | `16a01606-c0d4-4f01-8e15-000000000001` |
 | Window UU (retired) | `16a01602-c0d4-4f01-8e15-000000000001` |
 | Table UU | `16a01601-c0d4-4f01-8e15-000000000001` |
 | Line table UU | `16a0160b-c0d4-4f01-8e15-000000000001` |
 | Process UU | `16a01608-c0d4-4f01-8e15-000000000001` |
-| JAR | `com.aberp.leave.planning_1.0.0.2026071332.jar` |
-| Require-Bundle | `zul` + `zk` (Export CSV uses `Filedownload.save(byte[])` — no `zcommon`/`AMedia`) |
-| Service Location display | `aberp_lp_primary_support_location(u.AD_User_ID)` |
+| JAR | `com.aberp.leave.planning_1.0.0.2026071402.jar` |
+| Redeploy | `idempiere-plugins/com.aberp.leave.planning/redeploy-hco.sh` |
+| Require-Bundle | `zul` + `zk` (Export CSV = `Filedownload.save(byte[])` — no `zcommon`/`AMedia`) |
+| Support Location display | `aberp_lp_primary_support_location(u.AD_User_ID)` |
+| Support Location criteria | Search(30) + ref 159 + val rule; filter = roster EXISTS |
+
+## 2026-07-14 — Redeploy handoff
+
+Host rebuild expected. Agents: follow `Tickets/SAW016_leave_planning/DEPLOY.md` + run `redeploy-hco.sh`. Mandatory SQL **22** (parser-safe display) + **24** (Search / non-neg). Hard-restart WebUI if HTTP 000 after `systemctl`.
 
 ## 2026-07-13 — Media ClassNotFound
 
@@ -53,4 +60,9 @@ Opening Info Windows on HCO threw `org/zkoss/util/media/Media` attributed to `co
 ## 2026-07-13 — Search IllegalArgumentException (AccessSqlParser)
 
 Nested `SELECT` in InfoColumn `selectclause` for Service Location broke `AccessSqlParser.getSelectStatements` (even without `string_agg` commas). Fix: `sql/22-primary-location-function.sql` → function `aberp_lp_primary_support_location(numeric)`; selectclause = `aberp_lp_primary_support_location(u.AD_User_ID)`. Restart / Cache Reset after AD change.
+
+## 2026-07-14 — Non-negative Intbox on Support Location
+
+Table Direct criteria left ZK Intbox at `-1` when blank → “Only non-negative number is allowed”. Fix: `sql/24-support-location-search-nonneg.sql` (Search 30) + JAR sanitize / hide All-Any / client constraint strip. Rename labels via `23`.
+
 

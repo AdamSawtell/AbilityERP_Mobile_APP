@@ -21,6 +21,7 @@ import org.adempiere.webui.info.InfoWindow;
 import org.compiere.model.GridField;
 import org.compiere.model.MInfoWindow;
 import org.compiere.util.DB;
+import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 import org.compiere.util.Util;
@@ -28,10 +29,13 @@ import org.compiere.util.ValueNamePair;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.HtmlBasedComponent;
 import org.zkoss.zk.ui.event.Events;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.A;
+import org.zkoss.zul.Checkbox;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.Hlayout;
+import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Label;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listcell;
@@ -97,17 +101,41 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	protected void renderParameterPane(North north) {
 		super.renderParameterPane(north);
 		ensureCriteriaEditorsWritable();
+		// ZK client validates Intbox "no negative" before onUserQuery — clear -1 early.
+		sanitizeIdEditors();
+		hideAllAnyCheckboxes();
 		ensureSummaryBanner(north);
+		Events.echoEvent("onSanitizeIdEditors", this, null);
 	}
 
-	@Override
-	public void onUserQuery() {
-		ensureCriteriaEditorsWritable();
-		super.onUserQuery();
+	/** Echoed after layout so late-created Intboxes are cleaned. */
+	public void onSanitizeIdEditors() {
+		sanitizeIdEditors();
+		hideAllAnyCheckboxes();
+		attachCriteriaChangeListeners();
 	}
 
 	/**
-	 * Service Location criteria lists Support Locations, but staff are not keyed by
+	 * ReQuery path: InfoPanel.onUserQuery → validateParameters → query.
+	 * Must sanitize here — executeQuery is too late (client may already reject -1).
+	 */
+	@Override
+	public void onUserQuery() {
+		ensureCriteriaEditorsWritable();
+		sanitizeIdEditors();
+		hideAllAnyCheckboxes();
+		super.onUserQuery();
+	}
+
+	@Override
+	public boolean validateParameters() {
+		sanitizeIdEditors();
+		hideAllAnyCheckboxes();
+		return super.validateParameters();
+	}
+
+	/**
+	 * Support Location criteria lists Support Locations, but staff are not keyed by
 	 * home Partner Location. Clear the AD-generated {@code u.C_BPartner_Location_ID=?}
 	 * clause and replace with EXISTS on rostered shifts at that Support Location BPL.
 	 */
@@ -139,6 +167,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		} finally {
 			if (cleared) {
 				locEditor.setValue(savedLoc);
+				sanitizeIdEditors();
 			}
 		}
 	}
@@ -159,8 +188,247 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	@Override
 	protected void executeQuery() {
 		ensureCriteriaEditorsWritable();
+		sanitizeIdEditors();
 		refreshSummaryBanner();
 		super.executeQuery();
+	}
+
+	/**
+	 * Table Direct / Search criteria often hold -1 when blank. ZK Intbox "no negative"
+	 * then throws "Only non-negative number is allowed" on ReQuery (Support Location).
+	 * Same harden pattern as Staff Rostering Info — server + client strip.
+	 */
+	private void sanitizeIdEditors() {
+		clearInvalidIdCriteria();
+		neutralizeIdEditorConstraints();
+		stripIntboxConstraints(this);
+		stripClientIntboxConstraints();
+	}
+
+	/** Client validates Intbox constraints before server AU — strip in-browser too. */
+	private void stripClientIntboxConstraints() {
+		String js = "setTimeout(function(){"
+				+ "try{"
+				+ "jq('.z-window:visible .z-intbox, .z-north .z-intbox').each(function(){"
+				+ "  var w=zk.Widget.$(this);"
+				+ "  if(!w) return;"
+				+ "  try{ w.setConstraint(null); }catch(e){}"
+				+ "  try{"
+				+ "    var v=w.getValue();"
+				+ "    if(v!=null && v<=0){ w.setValue(null); }"
+				+ "  }catch(e){}"
+				+ "});"
+				+ "}catch(e){}"
+				+ "}, 30);";
+		try {
+			org.zkoss.zk.ui.util.Clients.evalJavaScript(js);
+		} catch (Exception ignore) {
+		}
+	}
+
+	/** All/Any next to Support Location still injects -1 semantics in some builds — hide it. */
+	private void hideAllAnyCheckboxes() {
+		if (parameterGrid != null) {
+			hideAllAnyUnder(parameterGrid);
+			Component p = parameterGrid.getParent();
+			int depth = 0;
+			while (p != null && depth < 5) {
+				hideAllAnyUnder(p);
+				p = p.getParent();
+				depth++;
+			}
+		}
+		String js = "setTimeout(function(){"
+				+ "jq('.z-window:visible label, .z-window:visible .z-label, .z-north label').each(function(){"
+				+ "  var t=(jq(this).text()||'').replace(/\\s+/g,' ').trim();"
+				+ "  if(t==='All / Any' || t==='All/Any'){"
+				+ "    var row=jq(this).closest('td,tr,div,span');"
+				+ "    row.hide(); jq(this).hide();"
+				+ "    row.find('input[type=checkbox]').prop('checked',false).hide();"
+				+ "  }"
+				+ "});"
+				+ "}, 20);";
+		try {
+			org.zkoss.zk.ui.util.Clients.evalJavaScript(js);
+		} catch (Exception ignore) {
+		}
+	}
+
+	private static void hideAllAnyUnder(Component root) {
+		if (root == null) {
+			return;
+		}
+		if (root instanceof org.zkoss.zul.Checkbox) {
+			org.zkoss.zul.Checkbox cb = (org.zkoss.zul.Checkbox) root;
+			String label = cb.getLabel();
+			if (label != null && label.replace(" ", "").equalsIgnoreCase("All/Any")) {
+				cb.setChecked(false);
+				cb.setVisible(false);
+			}
+		}
+		if (root instanceof Label) {
+			String t = ((Label) root).getValue();
+			if (t != null && t.replace(" ", "").equalsIgnoreCase("All/Any")) {
+				((Label) root).setVisible(false);
+			}
+		}
+		java.util.List<Component> children = root.getChildren();
+		if (children != null) {
+			for (Component child : children) {
+				hideAllAnyUnder(child);
+			}
+		}
+	}
+
+	private boolean criteriaListenersAttached;
+
+	private void attachCriteriaChangeListeners() {
+		if (criteriaListenersAttached || editors == null) {
+			return;
+		}
+		criteriaListenersAttached = true;
+		for (WEditor editor : editors) {
+			if (editor == null || editor.getComponent() == null) {
+				continue;
+			}
+			editor.getComponent().addEventListener(Events.ON_CHANGE, event -> {
+				sanitizeIdEditors();
+				hideAllAnyCheckboxes();
+			});
+			editor.getComponent().addEventListener(Events.ON_BLUR, event -> {
+				sanitizeIdEditors();
+			});
+		}
+	}
+
+	private void clearInvalidIdCriteria() {
+		if (editors == null || editors.isEmpty()) {
+			return;
+		}
+		for (WEditor editor : editors) {
+			if (editor == null || editor.getGridField() == null) {
+				continue;
+			}
+			int displayType = editor.getGridField().getDisplayType();
+			boolean idLike = DisplayType.isID(displayType)
+					|| displayType == DisplayType.Integer
+					|| displayType == DisplayType.Table
+					|| displayType == DisplayType.TableDir
+					|| displayType == DisplayType.Search
+					|| displayType == DisplayType.ChosenMultipleSelectionTable
+					|| displayType == DisplayType.ChosenMultipleSelectionSearch
+					|| displayType == DisplayType.ChosenMultipleSelectionList;
+			if (!idLike) {
+				continue;
+			}
+			Object value = editor.getValue();
+			if (value == null) {
+				continue;
+			}
+			if (value instanceof Object[]) {
+				Object[] arr = (Object[]) value;
+				if (arr.length == 0 || onlyNonPositiveIds(arr)) {
+					editor.setValue(null);
+				}
+				continue;
+			}
+			if (value instanceof java.util.Collection) {
+				java.util.Collection<?> col = (java.util.Collection<?>) value;
+				if (col.isEmpty() || onlyNonPositiveIds(col.toArray())) {
+					editor.setValue(null);
+				}
+				continue;
+			}
+			int id = 0;
+			if (value instanceof Number) {
+				id = ((Number) value).intValue();
+			} else {
+				try {
+					id = Integer.parseInt(value.toString().trim());
+				} catch (Exception ex) {
+					continue;
+				}
+			}
+			if (id <= 0) {
+				editor.setValue(null);
+			}
+		}
+	}
+
+	private void neutralizeIdEditorConstraints() {
+		if (editors != null) {
+			for (WEditor editor : editors) {
+				if (editor == null) {
+					continue;
+				}
+				stripIntboxConstraints(editor.getComponent());
+			}
+		}
+		if (parameterGrid != null) {
+			stripIntboxConstraints(parameterGrid);
+			Component northish = parameterGrid.getParent();
+			int depth = 0;
+			while (northish != null && depth < 6) {
+				stripIntboxConstraints(northish);
+				northish = northish.getParent();
+				depth++;
+			}
+		}
+	}
+
+	private static void stripIntboxConstraints(Component root) {
+		if (root == null) {
+			return;
+		}
+		if (root instanceof Intbox) {
+			Intbox box = (Intbox) root;
+			box.setConstraint((String) null);
+			Integer val = box.getValue();
+			if (val != null && val.intValue() <= 0) {
+				box.setValue(null);
+			}
+		}
+		if (root instanceof org.zkoss.zul.Bandbox) {
+			org.zkoss.zul.Bandbox band = (org.zkoss.zul.Bandbox) root;
+			String raw = band.getValue();
+			if (raw != null) {
+				String t = raw.trim();
+				if (t.isEmpty() || "-1".equals(t) || "0".equals(t)) {
+					band.setValue(null);
+				}
+			}
+		}
+		java.util.List<Component> children = root.getChildren();
+		if (children != null) {
+			for (Component child : children) {
+				stripIntboxConstraints(child);
+			}
+		}
+	}
+
+	private static boolean onlyNonPositiveIds(Object[] values) {
+		if (values == null || values.length == 0) {
+			return true;
+		}
+		for (Object v : values) {
+			if (v == null) {
+				continue;
+			}
+			int id;
+			if (v instanceof Number) {
+				id = ((Number) v).intValue();
+			} else {
+				try {
+					id = Integer.parseInt(v.toString().trim());
+				} catch (Exception ex) {
+					return false;
+				}
+			}
+			if (id > 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -586,7 +854,14 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 
 			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Env.getLanguage(Env.getCtx()).getLocale());
 			String period = df.format(new Date(start.getTime())) + " → " + df.format(new Date(end.getTime()));
-			String locLabel = loc != null ? (" · Location ID " + loc.intValue()) : " · All locations";
+			String locLabel = " · All support locations";
+			if (loc != null) {
+				WEditor locEd = findEditor("C_BPartner_Location_ID");
+				String disp = locEd != null ? toText(locEd.getDisplay()) : null;
+				locLabel = !Util.isEmpty(disp, true)
+						? (" · " + disp)
+						: (" · Support Location #" + loc.intValue());
+			}
 			String filterNote = Util.isEmpty(approver, true) ? "" : (" · filtered: " + statusName(approver));
 
 			periodLabel.setValue("Period " + period + locLabel + filterNote);

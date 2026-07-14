@@ -17,8 +17,8 @@ Agent install runbook for another iDempiere build.
 |--|--|
 | Path | `idempiere-plugins/com.aberp.invoicecapture/` |
 | Symbolic name | `com.aberp.invoicecapture` |
-| Version | `7.1.0.202607141900` |
-| JAR | `com.aberp.invoicecapture_7.1.0.202607141900.jar` |
+| Version | `7.1.0.202607141930` |
+| JAR | `com.aberp.invoicecapture_7.1.0.202607141930.jar` |
 
 On host:
 
@@ -40,7 +40,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 7. `sql/06-menu-access.sql`
 8. `sql/07-scheduler.sql`
 9. `sql/09-batch-menu.sql`
-10. `sql/08-verify.sql`
+10. `sql/10-enable-attachment.sql`
+11. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 
