@@ -176,7 +176,7 @@ BEGIN
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0005-4f01-8e15-000000000001',50,
     'AbERP_Unavailability_Type_ID','Unavailability Type','ul.AbERP_Unavailability_Type_ID',19,NULL,'Y','Y','=');
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0006-4f01-8e15-000000000001',60,
-    'AbERP_User_Contact_ID','Employee', 'ul.AbERP_User_Contact_ID',30,v_ref_user,'Y','Y','=');
+    'AbERP_User_Contact_ID','Employee', 'ul.AbERP_User_Contact_ID',18,110,'Y','Y','=');
 
   -- Result grid
   PERFORM pg_temp.saw016_iw_col(v_iw,'16a016ic-0007-4f01-8e15-000000000001',70,

@@ -32,11 +32,12 @@ bash rebuild-hco.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.leave.planning/` |
 | Symbolic name | `com.aberp.leave.planning` |
-| Version | **`1.0.0.2026071332`** |
+| Version | **`1.0.0.2026071402`** |
 | Info Window UU | `16a016iw-c0d4-4f01-8e15-000000000001` |
 | UI class | `com.aberp.leave.planning.info.LeavePlanningInfoWindow` |
-| Deploy SQL (core) | `sql/14`…`15` + `18`…`22` (22 = primary Support Location function) |
+| Deploy SQL (core) | `sql/14`…`15` + `18`…`25` (**25** = criteria dropdowns, not Search Info) |
 | Display selectclause | `aberp_lp_primary_support_location(u.AD_User_ID)` |
+| HCO Test | `http://13.210.248.141/webui/` · SSH `ubuntu@13.210.248.141` |
 
 ## First-time AD install (new build without Leave Planning)
 
