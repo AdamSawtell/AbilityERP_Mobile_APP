@@ -305,7 +305,8 @@ public class InvoiceCaptureService {
 		Matcher m = TOTAL.matcher(text);
 		if (m.find()) {
 			BigDecimal v = toMoney(m.group(1));
-			if (hasPositiveAmount(v)) {
+			// Ignore broken fractions like ".45" when labels lost leading digits
+			if (hasPositiveAmount(v) && v.compareTo(BigDecimal.ONE) >= 0) {
 				return v;
 			}
 		}
@@ -318,13 +319,39 @@ public class InvoiceCaptureService {
 			Matcher mm = MONEY.matcher(line);
 			while (mm.find()) {
 				BigDecimal v = toMoney(mm.group(1));
-				if (hasPositiveAmount(v)) {
+				if (hasPositiveAmount(v) && v.compareTo(BigDecimal.ONE) >= 0) {
 					last = v;
 				}
 			}
 			if (last != null) {
 				return last;
 			}
+		}
+		// Fallback: line amount + GST (common AU tax invoice layout when total glyphs are broken)
+		BigDecimal lineAmt = null;
+		BigDecimal gst = null;
+		for (String line : text.split("\\R")) {
+			String lower = line.toLowerCase();
+			Matcher mm = MONEY.matcher(line);
+			BigDecimal lastOnLine = null;
+			while (mm.find()) {
+				BigDecimal v = toMoney(mm.group(1));
+				if (hasPositiveAmount(v)) {
+					lastOnLine = v;
+				}
+			}
+			if (lastOnLine == null) {
+				continue;
+			}
+			if (lower.contains("gst")) {
+				gst = lastOnLine;
+			} else if (!lower.contains("qty") && !lower.contains("unit") && !lower.contains("amount due")
+					&& !lower.contains("description") && lineAmt == null) {
+				lineAmt = lastOnLine;
+			}
+		}
+		if (lineAmt != null && gst != null) {
+			return lineAmt.add(gst);
 		}
 		return null;
 	}
