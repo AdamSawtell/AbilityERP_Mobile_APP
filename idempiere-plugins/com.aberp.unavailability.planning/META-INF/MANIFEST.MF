@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbERP Unavailability Planning Info
+Bundle-SymbolicName: com.aberp.unavailability.planning
+Bundle-Version: 1.0.0.2026071402
+Bundle-Vendor: AbERP
+Automatic-Module-Name: com.aberp.unavailability.planning
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0",org.adempiere.ui.zk;bundle-version="7.1.0",zul;bundle-version="8.6.0",zk;bundle-version="8.6.0"
+Service-Component: unavailabilityplanning-info.xml
+AbERP-Package-Type: java-sql-ad
+AbERP-InfoWindow-UU: 21a021iw-c0d4-4f01-8e15-000000000001
+AbERP-Install: sql/00-preflight.sql,sql/01-functions.sql,sql/02-info-window.sql,sql/03-verify.sql

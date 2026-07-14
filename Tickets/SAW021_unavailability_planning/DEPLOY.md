@@ -1,53 +1,56 @@
 # SAW021 — Deploy to another build (agent)
 
 **Ticket / slug:** `SAW021_unavailability_planning`  
-**Kind:** idempiere · **JAR:** Yes (planned) · **Status:** in-progress  
+**Kind:** idempiere · **JAR:** Yes · **Status:** in-progress  
 **GitHub:** [#21](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/21)
 
 ## Required host access
 
 - SSH · `psql` · WebUI Admin · restart / OSGi  
-- Java 11 + `$IDEMPIERE_HOME` to build the Info Window JAR  
+- Java 11 + `$IDEMPIERE_HOME`  
 - Develop host: `ubuntu@13.210.248.141` — key `c:\Users\sawte\Documents\SSH Keys\HCObusiness.pem`
 
-## Agent one-liner (when pack exists)
+## Agent one-liner
 
 ```bash
-cd idempiere-plugins/com.aberp.unavailability.planning
-# upload + rebuild host script (mirror SAW016 redeploy-hco.sh)
+cd /opt/idempiere-server/AbERP/com.aberp.unavailability.planning
+# or upload from repo: idempiere-plugins/com.aberp.unavailability.planning/
 bash rebuild-hco.sh
-# Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
+# If systemd restart is a no-op ("already running"), force-start:
+sudo bash /opt/idempiere-server/AbERP/com.aberp.leave.planning/force-start-webui.sh
+# Cache Reset / logout-in. JAR-only iterate: bash redeploy-jar.sh
 ```
 
-## Package / bundle (planned)
+## Package / bundle
 
 | | |
 |--|--|
 | Path | `idempiere-plugins/com.aberp.unavailability.planning/` |
 | Symbolic name | `com.aberp.unavailability.planning` |
-| Pattern clone | `com.aberp.leave.planning` (SAW016) |
-| Base table | `AbERP_OngoingUnavailability` |
+| Version | **`1.0.0.2026071402`** |
+| Info Window UU | `21a021iw-c0d4-4f01-8e15-000000000001` |
+| Menu UU | `21a02105-c0d4-4f01-8e15-000000000001` |
 | UI class | `com.aberp.unavailability.planning.info.UnavailabilityPlanningInfoWindow` |
-| Develop WebUI | `http://13.210.248.141/webui/` |
+| SQL order | `00-preflight` → `01-functions` → `02-info-window` → `03-verify` |
+| WebUI | `http://13.210.248.141/webui/` · SuperUser / `HCOflamingo` · role **Admin** |
 
 ## AbilityERP Admin access
 
-Grant Info Window **Unavailability Planning** (+ report process if added) by role **name** to AbilityERP Admin, Admin, Rostering, Rostering TL, People and Culture, Manager People and Culture — and mirror window access from **Ongoing Unavailability** / **Unavailability & Leave (all)** where present. Smoke as Admin.
+Info Window granted by role **name** to AbilityERP Admin, Admin, Rostering, Rostering TL, People and Culture, Manager People and Culture — mirrored from Ongoing Unavailability / Unavailability & Leave window access.
 
 ## Portability risks
 
-- Never hardcode `AD_*_ID` — resolve by `*_UU` / name.  
-- Never change existing client `*_UU` on HCO.  
-- Reuse SAW016 Support Location EXISTS pattern (`ShiftStaff → Shift → MasterLocation`).  
-- Nested SELECT in InfoColumn `selectclause` breaks `AccessSqlParser` — use DB functions for display.  
-- Export CSV: `Filedownload.save(byte[])` only (no `zcommon` / `AMedia`).  
-- Ongoing has **no** Unavailability Type — do not copy that criterion from Leave Planning.
+- Never hardcode `AD_*_ID` — UU/name lookups.  
+- Never change existing HCO `*_UU`.  
+- Nested SELECT in InfoColumn selectclause breaks AccessSqlParser — use `aberp_up_*` functions.  
+- Export CSV: `Filedownload.save(byte[])` only (no `zcommon`/`AMedia`).  
+- No Leave Type on Ongoing.  
+- `systemctl restart idempiere` may no-op if PID file stale — use force-start script.
 
-## WebUI smoke (acceptance)
+## WebUI smoke
 
-1. Cache Reset + re-login as Admin.  
+1. Cache Reset / re-login as Admin.  
 2. Menu → **Unavailability Planning**.  
-3. Set Planning Start/End (e.g. 01/01/2027–31/01/2027), Support Location blank (= all), Search.  
-4. Expect ~49 overlapping headers on current HCO develop data; banner totals match grid.  
-5. Zoom a row → Ongoing Unavailability opens; day lines still available on child tab.  
-6. Filter Approver Status / Employee; Export CSV downloads matching rows.
+3. Planning Start/End e.g. 01/01/2027–31/01/2027, ReQuery.  
+4. Expect ~49 headers; banner “Headers / Day lines / With pattern”; Unavailable Pattern column populated.  
+5. Zoom → Ongoing Unavailability. Export CSV.  

@@ -16,13 +16,19 @@
 | Overlap Jan 2027 | 49 active headers |
 | SSH | `ubuntu@13.210.248.141` + `%USERPROFILE%` path via `Documents\SSH Keys\HCObusiness.pem` |
 
-## Design decisions (proposed — confirm before build)
+## Design decisions
 
-1. **Primary UX = Info Window** (menu action `I`), same as SAW016 after UX revision — not a saved planning document.
-2. **Clone JAR** from `com.aberp.leave.planning`: banner, Export CSV, status colours, Support Location EXISTS, Intbox `-1` sanitize, planning-date overlap rewrite.
-3. Drop **Unavailability Type** criteria/columns; keep Planning Start/End, Support Location, Approver Status, Employee (+ grid display columns).
-4. Zoom target = **Ongoing Unavailability** window (not Leave).
-5. Optional v1.1 additions listed under **Proposed extras** — decide which are in-scope for first ship.
+1. **Primary UX = Info Window** (menu action `I`), same as SAW016.
+2. **Clone JAR** from `com.aberp.leave.planning`: banner, Export CSV, status colours, Support Location EXISTS, Intbox sanitize, planning-date overlap rewrite.
+3. No **Unavailability Type** — not on Ongoing. Secondary banner line = day-line totals via `aberp_up_info_summary_day_lines`.
+4. Zoom = **Ongoing Unavailability** window.
+5. **P0 shipped:** `aberp_up_unavailable_pattern()` compact day/time column.
+
+## Smoke (2026-07-14, 13.210.248.141)
+
+- JAR `1.0.0.2026071402` + SQL verify.
+- Admin Search 01/01/2027–31/01/2027 → **49** headers; banner `Headers: 49 | Day lines: 377 | With pattern: 46`; pattern column populated (e.g. `1-5 15:00-07:00; …`).
+- Note: `systemctl restart idempiere` may no-op; use leave.planning `force-start-webui.sh`.
 
 ## Proposed extras (beyond straight Leave clone)
 
@@ -50,5 +56,6 @@ Ship **parity with Leave Planning** + **pattern summary column** (function + Acc
 | WebUI | `http://13.210.248.141/webui/` |
 | Source table UU | `cda3018c-0390-48a5-99f4-fcc06a89f0de` |
 | Zoom window UU | `68bcd45c-eec6-4e45-855c-0d4f0705aeb5` |
-| Info Window UU | _(allocate AbERP-owned UU at pack time)_ |
-| JAR | _(version after first build)_ |
+| Info Window UU | `21a021iw-c0d4-4f01-8e15-000000000001` |
+| Menu UU | `21a02105-c0d4-4f01-8e15-000000000001` |
+| JAR | `com.aberp.unavailability.planning_1.0.0.2026071402.jar` |

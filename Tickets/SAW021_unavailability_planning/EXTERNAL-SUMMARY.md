@@ -15,7 +15,7 @@
 
 ## What’s done
 
-_(Update when build ships.)_ Consolidated **Unavailability Planning** view for workforce planners: choose a date period and optional Support Location, see who has ongoing unavailability overlapping that period, review totals by Approver Status, open the real Ongoing Unavailability record to submit/approve, and export.
+Consolidated **Unavailability Planning** view for workforce planners: choose a date period and optional Support Location, see who has ongoing unavailability overlapping that period (including compact unavailable day/time patterns), review totals by Approver Status and day-line counts, open the real Ongoing Unavailability record to submit/approve, and export.
 
 ## What changed (behaviour)
 
