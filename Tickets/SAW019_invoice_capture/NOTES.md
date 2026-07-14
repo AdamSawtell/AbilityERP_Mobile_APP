@@ -27,8 +27,10 @@
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
 2. **Service columns not updateable** (`LastResult` etc.) → `ColumnReadonly` on process. Columns are now updateable; UI fields stay read-only.
-3. **New record would not save** → login Org `*` left Organization blank (mandatory). Fixed in `sql/12-fix-org-default-docno.sql`: Org defaults to first real client org; table AccessLevel Client-only (`2`); `IsActive` default `Y`.
-4. After fix: **New** shows Organization=AbilityERP and Capture Status=Pending automatically. Log out/in or Cache Reset before retesting.
+3. **New record would not save** (compound):
+   - Login Org `*` left Organization blank → `sql/12-fix-org-default-docno.sql` (Org SQL default + AccessLevel Client-only + DocumentNo sequence).
+   - Missing hidden **Client** field → WebUI `AD_Client_ID=-1` → `AccessTableNoUpdate missing=C` → “Changes ignored”. Fixed in `sql/13-fix-client-field.sql` (+ Client field in `04`). Client column default `@#AD_Client_ID@`.
+4. After fixes: **New** → Org=AbilityERP, Status=Pending → **Save** creates `IC-######`. Cache Reset / re-open window after SQL.
 
 ## Smoke log (2026-07-14 / 3.107.53.69)
 
@@ -43,6 +45,7 @@
 | Attachment toolbar | PASS (enabled after PK field fix) |
 | End-to-end process | **PASS** — Draft Vendor Invoice `C_Invoice_ID=1000013` (status DR); capture `SMOKE-001` → status OK |
 | Invoice No parse | Fixed regex (`inv` matched inside `INVOICE` → `OICE`); redeployed JAR `7.1.0.202607142000` |
+| New record Save | **PASS** — WebUI New→Save → `IC-1000000` (Client+Org=1000002, Pending) after Client field fix |
 | Dev instance type | **t2.medium** (user target described as t2.xlarge) |
 
 WebUI password used for smoke: SuperUser / flamingo (DB password pattern on this host).

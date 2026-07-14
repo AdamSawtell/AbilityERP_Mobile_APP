@@ -1,9 +1,10 @@
 -- =============================================================================
--- SAW019 — Fix new-record save when login Org is *
--- Root cause: AD_Org_ID defaulted to @#AD_Org_ID@ (=0 / blank). Table is
--- Client+Org, so Org * fails mandatory validation → "Changes ignored".
--- Fix: default Org to first real org for the client; Client-level access.
--- Also: DocumentNo_AbERP_InvoiceCapture sequences + IsActive default Y.
+-- SAW019 — Fix new-record save (Org blank + Client=-1)
+-- Root causes / symptoms → "Changes ignored":
+--   1) AD_Org_ID defaulted to @#AD_Org_ID@ (=0 / blank) when login Org is *
+--   2) AD_Client_ID had no default → PO Client=-1 → AccessTableNoUpdate missing=C
+-- Fix: Client default @#AD_Client_ID@; Org SQL default to first real org;
+--      table AccessLevel Client-only; DocumentNo sequences; IsActive default Y.
 -- Fixed UU (System seed sequence row for first client only):
 --   19a0190b-c0d4-4f01-8e15-000000000001
 -- =============================================================================
@@ -15,6 +16,7 @@ WHERE name='AD_Sequence' AND istableid='Y';
 DO $$
 DECLARE
   v_table_id INTEGER;
+  v_log_id INTEGER;
   v_seq_uu CONSTANT TEXT := '19a0190b-c0d4-4f01-8e15-000000000001';
   v_seq_id INTEGER;
   v_client_id INTEGER;
@@ -24,6 +26,7 @@ BEGIN
   IF v_table_id IS NULL THEN
     RAISE EXCEPTION 'SAW019: AbERP_InvoiceCapture table missing';
   END IF;
+  SELECT ad_table_id INTO v_log_id FROM ad_table WHERE tablename = 'AbERP_InvoiceCaptureLog';
 
   -- Client-only access: Org * will not block save; still default a real org for neat data
   UPDATE ad_table SET
@@ -31,6 +34,13 @@ BEGIN
     updated = NOW(),
     updatedby = 100
   WHERE ad_table_id = v_table_id;
+
+  UPDATE ad_column SET
+    defaultvalue = '@#AD_Client_ID@',
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_table_id IN (v_table_id, v_log_id)
+    AND columnname = 'AD_Client_ID';
 
   UPDATE ad_column SET
     isupdateable = 'Y',

@@ -82,13 +82,20 @@ BEGIN
     WHERE ad_field_id = v_field;
   END IF;
 
-  -- Org must be updateable with login default (avoid * / org 0 rows)
+  -- Org must be updateable; prefer first real org when login Org is *
   UPDATE ad_column SET
     isupdateable = 'Y',
-    defaultvalue = '@#AD_Org_ID@',
+    defaultvalue = '@SQL=SELECT MIN(AD_Org_ID) FROM AD_Org WHERE AD_Client_ID=@#AD_Client_ID@ AND IsSummary=''N'' AND IsActive=''Y'' AND AD_Org_ID<>0',
     updated = NOW(),
     updatedby = 100
   WHERE ad_table_id = v_table AND columnname = 'AD_Org_ID';
+
+  -- Client context default (empty → AD_Client_ID=-1 → AccessTableNoUpdate / Changes ignored)
+  UPDATE ad_column SET
+    defaultvalue = '@#AD_Client_ID@',
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_table_id = v_table AND columnname = 'AD_Client_ID';
 
   -- Columns written by InvoiceCaptureService must be updateable (UI can stay read-only)
   UPDATE ad_column SET

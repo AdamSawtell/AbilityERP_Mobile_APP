@@ -175,8 +175,9 @@ BEGIN
     WHERE ad_tab_id = v_tab2_id;
   END IF;
 
-  -- Header fields (PK must exist on tab — even hidden — or Record_ID stays 0)
+  -- Header fields (PK + Client must exist on tab — even hidden — or Record_ID/Client stay 0/-1)
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0000-4f01-8e15-000000000001','AbERP_InvoiceCapture_ID','Invoice Capture',0,'N','Y','N',0,'N');
+  PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0017-4f01-8e15-000000000001','AD_Client_ID','Client',5,'N','Y','N',0,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0001-4f01-8e15-000000000001','AD_Org_ID','Organization',10,'Y','N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0002-4f01-8e15-000000000001','DocumentNo','Document No',20,'Y','N', 'N',20,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0003-4f01-8e15-000000000001','Name','Name',30,'Y','N', 'N',30,'Y');

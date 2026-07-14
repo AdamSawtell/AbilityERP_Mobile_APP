@@ -173,7 +173,8 @@ BEGIN
   END IF;
 
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0001-4f01-8e15-000000000001','AbERP_InvoiceCapture_ID','Invoice Capture',13,NULL,'Y','N',0,22,'Y','N','N');
-  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22);
+  -- Client context default required — empty default leaves AD_Client_ID=-1 → AccessTableNoUpdate
+  PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22,'N','N','N','N','@#AD_Client_ID@');
   -- Default real org (login Org=* leaves a blank mandatory Organization and blocks Save)
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','Y',20,22,'N','N','N','N','@SQL=SELECT MIN(AD_Org_ID) FROM AD_Org WHERE AD_Client_ID=@#AD_Client_ID@ AND IsSummary=''N'' AND IsActive=''Y'' AND AD_Org_ID<>0');
   PERFORM pg_temp.saw019_col(v_cap_id,'19a019c0-0004-4f01-8e15-000000000001','IsActive','Active',20,NULL,'Y','Y',30,1,'N','N','N','N','Y');
@@ -219,7 +220,7 @@ BEGIN
   END IF;
 
   PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0001-4f01-8e15-000000000001','AbERP_InvoiceCaptureLog_ID','Invoice Capture Log',13,NULL,'Y','N',0,22,'Y');
-  PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22);
+  PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0002-4f01-8e15-000000000001','AD_Client_ID','Client',19,NULL,'Y','N',10,22,'N','N','N','N','@#AD_Client_ID@');
   PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0003-4f01-8e15-000000000001','AD_Org_ID','Organization',19,NULL,'Y','N',20,22);
   PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0004-4f01-8e15-000000000001','IsActive','Active',20,NULL,'Y','Y',30,1);
   PERFORM pg_temp.saw019_col(v_log_id,'19a019l0-0005-4f01-8e15-000000000001','Created','Created',16,NULL,'Y','N',40,7);
