@@ -135,19 +135,85 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * Support Location criteria lists Support Locations, but staff are not keyed by
-	 * home Partner Location. Rewrite AD's {@code u.C_BPartner_Location_ID=?} to an
-	 * EXISTS on rostered shifts - keep the same {@code ?} so setParameters still
-	 * matches (inlining the ID caused PSQLException index out of range).
-	 * <p>
-	 * Also force Planning Start/End overlap to use AND. Info "Match Any" emits
-	 * {@code (EndDate >= ? OR StartDate <= ?)} which returns nearly all leave
-	 * (1228) and trips MaxQueryRecords(500) even when the banner correctly
-	 * shows ~46 overlapping rows for the period.
+	 * Planning dates + Support Location:
+	 * <ul>
+	 * <li>Info "Match Any" ORs Planning Start/End → wrong row counts.</li>
+	 * <li>Virtual Planning Start/End criteria often bind poorly vs banner editors.</li>
+	 * </ul>
+	 * Clear Planning date editors for AD SQL generation and parameter binding, then
+	 * append overlap predicates from the saved editor values as DATE literals
+	 * (no {@code ?}). Support Location still uses EXISTS with {@code ?}.
 	 */
 	@Override
 	protected String getSQLWhere() {
-		String where = forcePlanningDateAnd(super.getSQLWhere());
+		return withPlanningDatesCleared((start, end) -> {
+			String where = super.getSQLWhere();
+			where = stripPlanningDatePredicates(where);
+			where = rewriteSupportLocationExists(where);
+			if (start != null) {
+				where = appendAnd(where, "ul.EndDate::date >= DATE '" + toSqlDate(start) + "'");
+			}
+			if (end != null) {
+				where = appendAnd(where, "ul.StartDate::date <= DATE '" + toSqlDate(end) + "'");
+			}
+			return where;
+		});
+	}
+
+	@Override
+	protected void setParameters(java.sql.PreparedStatement pstmt, boolean forCount) throws java.sql.SQLException {
+		final java.sql.SQLException[] held = new java.sql.SQLException[1];
+		withPlanningDatesCleared((start, end) -> {
+			try {
+				super.setParameters(pstmt, forCount);
+			} catch (java.sql.SQLException ex) {
+				held[0] = ex;
+			}
+			return null;
+		});
+		if (held[0] != null) {
+			throw held[0];
+		}
+	}
+
+	@FunctionalInterface
+	private interface PlanningDateWork<T> {
+		T apply(Timestamp start, Timestamp end);
+	}
+
+	/** Clear Planning Start/End so AD does not emit/bind them; work with snapshots. */
+	private <T> T withPlanningDatesCleared(PlanningDateWork<T> work) {
+		WEditor startEd = findEditor("AbERP_PlanningStart");
+		WEditor endEd = findEditor("AbERP_PlanningEnd");
+		Object savedStart = startEd != null ? startEd.getValue() : null;
+		Object savedEnd = endEd != null ? endEd.getValue() : null;
+		Timestamp start = toTimestamp(savedStart);
+		Timestamp end = toTimestamp(savedEnd);
+		try {
+			setEditorValueQuiet(startEd, null);
+			setEditorValueQuiet(endEd, null);
+			return work.apply(start, end);
+		} finally {
+			setEditorValueQuiet(startEd, savedStart);
+			setEditorValueQuiet(endEd, savedEnd);
+		}
+	}
+
+	private static void setEditorValueQuiet(WEditor editor, Object value) {
+		if (editor == null) {
+			return;
+		}
+		editor.setValue(value);
+		try {
+			if (editor.getGridField() != null) {
+				editor.getGridField().setValue(value, false);
+			}
+		} catch (Exception ignore) {
+			// best-effort — editor value is what setParameters reads
+		}
+	}
+
+	private String rewriteSupportLocationExists(String where) {
 		WEditor locEditor = findEditor("C_BPartner_Location_ID");
 		BigDecimal loc = locEditor != null ? toId(locEditor.getValue()) : null;
 		if (loc == null) {
@@ -157,14 +223,12 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		if (Util.isEmpty(where, true)) {
 			return " AND " + exists;
 		}
-		// Replace home-address predicate; preserve placeholder count for binding.
 		String rewritten = where
 				.replaceAll("(?i)\\(\\s*u\\.C_BPartner_Location_ID\\s*=\\s*\\?\\s*\\)", "(" + exists + ")")
 				.replaceAll("(?i)u\\.C_BPartner_Location_ID\\s*=\\s*\\?", exists);
 		if (!rewritten.equals(where)) {
 			return rewritten;
 		}
-		// Editor had a value but AD emitted no clause (edge) - append EXISTS with ?
 		String trimmed = where.trim();
 		if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
 			return where + " AND " + exists;
@@ -172,21 +236,34 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		return " AND " + trimmed + " AND " + exists;
 	}
 
-	/**
-	 * Planning Start maps to {@code ul.EndDate >= ?}; Planning End to
-	 * {@code ul.StartDate <= ?}. Overlap requires AND, never OR.
-	 */
-	private static String forcePlanningDateAnd(String where) {
+	/** Remove AD-generated planning overlap fragments (literals or ?). */
+	private static String stripPlanningDatePredicates(String where) {
 		if (Util.isEmpty(where, true)) {
 			return where;
 		}
-		String fixed = where.replaceAll(
-				"(?i)\\(\\s*ul\\.EndDate\\s*>=\\s*\\?\\s+OR\\s+ul\\.StartDate\\s*<=\\s*\\?\\s*\\)",
-				"( ul.EndDate >= ? AND ul.StartDate <= ? )");
-		fixed = fixed.replaceAll(
-				"(?i)\\(\\s*ul\\.StartDate\\s*<=\\s*\\?\\s+OR\\s+ul\\.EndDate\\s*>=\\s*\\?\\s*\\)",
-				"( ul.EndDate >= ? AND ul.StartDate <= ? )");
-		return fixed;
+		String w = where;
+		w = w.replaceAll("(?i)\\(\\s*ul\\.EndDate(?:::date)?\\s*>=\\s*(?:\\?|DATE\\s+'[^']+')\\s+OR\\s+ul\\.StartDate(?:::date)?\\s*<=\\s*(?:\\?|DATE\\s+'[^']+')\\s*\\)", "");
+		w = w.replaceAll("(?i)\\(\\s*ul\\.StartDate(?:::date)?\\s*<=\\s*(?:\\?|DATE\\s+'[^']+')\\s+OR\\s+ul\\.EndDate(?:::date)?\\s*>=\\s*(?:\\?|DATE\\s+'[^']+')\\s*\\)", "");
+		w = w.replaceAll("(?i)(?:AND\\s+)?ul\\.EndDate(?:::date)?\\s*>=\\s*(?:\\?|DATE\\s+'[^']+')", "");
+		w = w.replaceAll("(?i)(?:AND\\s+)?ul\\.StartDate(?:::date)?\\s*<=\\s*(?:\\?|DATE\\s+'[^']+')", "");
+		w = w.replaceAll("(?i)\\(\\s*\\)", "");
+		w = w.replaceAll("(?i)AND\\s+AND", "AND");
+		return w;
+	}
+
+	private static String appendAnd(String where, String clause) {
+		if (Util.isEmpty(where, true)) {
+			return " AND " + clause;
+		}
+		String trimmed = where.trim();
+		if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
+			return where + " AND " + clause;
+		}
+		return " AND " + trimmed + " AND " + clause;
+	}
+
+	private static String toSqlDate(Timestamp ts) {
+		return new java.text.SimpleDateFormat("yyyy-MM-dd").format(new Date(ts.getTime()));
 	}
 
 	/** Roster EXISTS using {@code ?} - must stay in sync with Support Location editor binding. */
