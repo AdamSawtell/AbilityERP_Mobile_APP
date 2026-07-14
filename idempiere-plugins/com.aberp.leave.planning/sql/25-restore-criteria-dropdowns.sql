@@ -13,6 +13,7 @@ DECLARE
   v_val INTEGER;
   v_ref_user INTEGER := 110; -- AD_User (Table) — stable core
   v_ref_approver INTEGER;
+  v_ref_type INTEGER;
 BEGIN
   SELECT ad_infowindow_id INTO v_iw
   FROM ad_infowindow
@@ -61,16 +62,33 @@ BEGIN
       AND isquerycriteria = 'Y';
   END IF;
 
-  -- Unavailability Type: Table Direct (same as leave record / original 11-info)
-  UPDATE ad_infocolumn SET
-    ad_reference_id = 19,
-    ad_reference_value_id = NULL,
-    ismultiselectcriteria = 'N',
-    defaultvalue = NULL,
-    updated = NOW(), updatedby = 100
-  WHERE ad_infowindow_id = v_iw
-    AND columnname = 'AbERP_Unavailability_Type_ID'
-    AND isquerycriteria = 'Y';
+  -- Unavailability Type: Table ref dropdown (qualified WHERE) — not Search, not bare Table Direct
+  SELECT ad_reference_id INTO v_ref_type
+  FROM ad_reference
+  WHERE name = 'AbERP Leave Planning Unavailability Type'
+  ORDER BY ad_reference_id DESC
+  LIMIT 1;
+  IF v_ref_type IS NOT NULL THEN
+    UPDATE ad_infocolumn SET
+      ad_reference_id = 18,
+      ad_reference_value_id = v_ref_type,
+      ismultiselectcriteria = 'N',
+      defaultvalue = NULL,
+      updated = NOW(), updatedby = 100
+    WHERE ad_infowindow_id = v_iw
+      AND columnname = 'AbERP_Unavailability_Type_ID'
+      AND isquerycriteria = 'Y';
+  ELSE
+    UPDATE ad_infocolumn SET
+      ad_reference_id = 19,
+      ad_reference_value_id = NULL,
+      ismultiselectcriteria = 'N',
+      defaultvalue = NULL,
+      updated = NOW(), updatedby = 100
+    WHERE ad_infowindow_id = v_iw
+      AND columnname = 'AbERP_Unavailability_Type_ID'
+      AND isquerycriteria = 'Y';
+  END IF;
 
   -- Employee: Table dropdown on AD_User — NOT Search Info (1000191)
   UPDATE ad_infocolumn SET

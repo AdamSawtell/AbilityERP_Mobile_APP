@@ -101,7 +101,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	protected void renderParameterPane(North north) {
 		super.renderParameterPane(north);
 		ensureCriteriaEditorsWritable();
-		// ZK client validates Intbox "no negative" before onUserQuery — clear -1 early.
+		// ZK client validates Intbox "no negative" before onUserQuery ΓÇö clear -1 early.
 		sanitizeIdEditors();
 		hideAllAnyCheckboxes();
 		ensureSummaryBanner(north);
@@ -116,8 +116,8 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * ReQuery path: InfoPanel.onUserQuery → validateParameters → query.
-	 * Must sanitize here — executeQuery is too late (client may already reject -1).
+	 * ReQuery path: InfoPanel.onUserQuery ΓåÆ validateParameters ΓåÆ query.
+	 * Must sanitize here ΓÇö executeQuery is too late (client may already reject -1).
 	 */
 	@Override
 	public void onUserQuery() {
@@ -136,52 +136,47 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 
 	/**
 	 * Support Location criteria lists Support Locations, but staff are not keyed by
-	 * home Partner Location. Clear the AD-generated {@code u.C_BPartner_Location_ID=?}
-	 * clause and replace with EXISTS on rostered shifts at that Support Location BPL.
+	 * home Partner Location. Rewrite AD's {@code u.C_BPartner_Location_ID=?} to an
+	 * EXISTS on rostered shifts - keep the same {@code ?} so setParameters still
+	 * matches (inlining the ID caused PSQLException index out of range).
 	 */
 	@Override
 	protected String getSQLWhere() {
+		String where = super.getSQLWhere();
 		WEditor locEditor = findEditor("C_BPartner_Location_ID");
-		Object savedLoc = null;
-		boolean cleared = false;
-		if (locEditor != null) {
-			savedLoc = locEditor.getValue();
-			locEditor.setValue(null);
-			cleared = true;
+		BigDecimal loc = locEditor != null ? toId(locEditor.getValue()) : null;
+		if (loc == null) {
+			return where;
 		}
-		try {
-			String where = super.getSQLWhere();
-			BigDecimal loc = toId(savedLoc);
-			if (loc == null) {
-				return where;
-			}
-			String exists = sqlExistsRosteredAtSupportLocation(loc.intValue());
-			if (Util.isEmpty(where, true)) {
-				return " AND " + exists;
-			}
-			String trimmed = where.trim();
-			if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
-				return where + " AND " + exists;
-			}
-			return " AND " + trimmed + " AND " + exists;
-		} finally {
-			if (cleared) {
-				locEditor.setValue(savedLoc);
-				sanitizeIdEditors();
-			}
+		String exists = sqlExistsRosteredAtSupportLocationParam();
+		if (Util.isEmpty(where, true)) {
+			return " AND " + exists;
 		}
+		// Replace home-address predicate; preserve placeholder count for binding.
+		String rewritten = where
+				.replaceAll("(?i)\\(\\s*u\\.C_BPartner_Location_ID\\s*=\\s*\\?\\s*\\)", "(" + exists + ")")
+				.replaceAll("(?i)u\\.C_BPartner_Location_ID\\s*=\\s*\\?", exists);
+		if (!rewritten.equals(where)) {
+			return rewritten;
+		}
+		// Editor had a value but AD emitted no clause (edge) - append EXISTS with ?
+		String trimmed = where.trim();
+		if (trimmed.regionMatches(true, 0, "AND", 0, 3)) {
+			return where + " AND " + exists;
+		}
+		return " AND " + trimmed + " AND " + exists;
 	}
 
-	/** Staff rostered at Support Location (MasterLocation sharing that C_BPartner_Location_ID). */
-	private static String sqlExistsRosteredAtSupportLocation(int bpartnerLocationId) {
+	/** Roster EXISTS using {@code ?} - must stay in sync with Support Location editor binding. */
+	private static String sqlExistsRosteredAtSupportLocationParam() {
 		return "EXISTS (SELECT 1 FROM AbERP_Rostered_ShiftStaff ss"
 				+ " INNER JOIN AbERP_Rostered_Shift rs ON (rs.AbERP_Rostered_Shift_ID=ss.AbERP_Rostered_Shift_ID AND rs.IsActive='Y')"
 				+ " INNER JOIN AbERP_MasterLocation ml ON (ml.AbERP_MasterLocation_ID=rs.AbERP_MasterLocation_ID)"
 				+ " WHERE ss.AbERP_User_Contact_ID=u.AD_User_ID AND ss.IsActive='Y'"
-				+ " AND ml.C_BPartner_Location_ID=" + bpartnerLocationId + ")";
+				+ " AND ml.C_BPartner_Location_ID=?)";
 	}
 
-	/** Matches AD selectclause — scalar fn avoids AccessSqlParser nested-SELECT breakage. */
+	/** Matches AD selectclause ΓÇö scalar fn avoids AccessSqlParser nested-SELECT breakage. */
 	private static final String SQL_SUPPORT_LOC_NAMES =
 			"aberp_lp_primary_support_location(u.AD_User_ID)";
 
@@ -196,7 +191,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 	/**
 	 * Table Direct / Search criteria often hold -1 when blank. ZK Intbox "no negative"
 	 * then throws "Only non-negative number is allowed" on ReQuery (Support Location).
-	 * Same harden pattern as Staff Rostering Info — server + client strip.
+	 * Same harden pattern as Staff Rostering Info ΓÇö server + client strip.
 	 */
 	private void sanitizeIdEditors() {
 		clearInvalidIdCriteria();
@@ -205,7 +200,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		stripClientIntboxConstraints();
 	}
 
-	/** Client validates Intbox constraints before server AU — strip in-browser too. */
+	/** Client validates Intbox constraints before server AU ΓÇö strip in-browser too. */
 	private void stripClientIntboxConstraints() {
 		String js = "setTimeout(function(){"
 				+ "try{"
@@ -226,7 +221,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		}
 	}
 
-	/** All/Any next to Support Location still injects -1 semantics in some builds — hide it. */
+	/** All/Any next to Support Location still injects -1 semantics in some builds ΓÇö hide it. */
 	private void hideAllAnyCheckboxes() {
 		if (parameterGrid != null) {
 			hideAllAnyUnder(parameterGrid);
@@ -436,7 +431,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		super.renderItems();
 		ensureColourListeners();
 		colourApproverStatusCells();
-		// Renderer finishes after renderItems — re-apply on next AU round-trip
+		// Renderer finishes after renderItems ΓÇö re-apply on next AU round-trip
 		Events.echoEvent("onLeavePlanningColour", this, null);
 	}
 
@@ -719,7 +714,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 						+ "background:#EEF3F8;border:1px solid #C5D0DC;color:#1F2A37;"
 						+ "font-size:12px;line-height:1.45;");
 
-		periodLabel = new Label("Leave Planning summary — set Planning Start and Planning End, then Search.");
+		periodLabel = new Label("Leave Planning summary ΓÇö set Planning Start and Planning End, then Search.");
 		periodLabel.setStyle("display:block;margin-bottom:4px;");
 
 		statusHint = new Label("By status (click to filter): ");
@@ -746,7 +741,7 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		exportButton.addEventListener(Events.ON_CLICK, event -> exportCsv());
 		statusRow.appendChild(exportButton);
 
-		typeLabel = new Label("By status / type: —");
+		typeLabel = new Label("By status / type: ΓÇö");
 		typeLabel.setStyle("display:block;margin-top:4px;white-space:pre-line;");
 
 		summaryBanner.appendChild(periodLabel);
@@ -833,9 +828,9 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 		Timestamp start = toTimestamp(editorValue("AbERP_PlanningStart"));
 		Timestamp end = toTimestamp(editorValue("AbERP_PlanningEnd"));
 		if (start == null || end == null) {
-			periodLabel.setValue("Leave Planning summary — set Planning Start and Planning End, then Search.");
+			periodLabel.setValue("Leave Planning summary ΓÇö set Planning Start and Planning End, then Search.");
 			setStatusCounts(null);
-			typeLabel.setValue("By status / type: —");
+			typeLabel.setValue("By status / type: ΓÇö");
 			return;
 		}
 
@@ -853,24 +848,24 @@ public class LeavePlanningInfoWindow extends InfoWindow {
 					start, end, loc, approver, typeId, userId);
 
 			SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy", Env.getLanguage(Env.getCtx()).getLocale());
-			String period = df.format(new Date(start.getTime())) + " → " + df.format(new Date(end.getTime()));
-			String locLabel = " · All support locations";
+			String period = df.format(new Date(start.getTime())) + " ΓåÆ " + df.format(new Date(end.getTime()));
+			String locLabel = " ┬╖ All support locations";
 			if (loc != null) {
 				WEditor locEd = findEditor("C_BPartner_Location_ID");
 				String disp = locEd != null ? toText(locEd.getDisplay()) : null;
 				locLabel = !Util.isEmpty(disp, true)
-						? (" · " + disp)
-						: (" · Support Location #" + loc.intValue());
+						? (" ┬╖ " + disp)
+						: (" ┬╖ Support Location #" + loc.intValue());
 			}
-			String filterNote = Util.isEmpty(approver, true) ? "" : (" · filtered: " + statusName(approver));
+			String filterNote = Util.isEmpty(approver, true) ? "" : (" ┬╖ filtered: " + statusName(approver));
 
 			periodLabel.setValue("Period " + period + locLabel + filterNote);
 			setStatusCounts(parseStatusCounts(byStatus));
-			typeLabel.setValue("By status / type: " + (Util.isEmpty(byType, true) ? "—" : byType));
+			typeLabel.setValue("By status / type: " + (Util.isEmpty(byType, true) ? "ΓÇö" : byType));
 		} catch (Exception ex) {
 			periodLabel.setValue("Leave Planning summary unavailable: " + ex.getMessage());
 			setStatusCounts(null);
-			typeLabel.setValue("By status / type: —");
+			typeLabel.setValue("By status / type: ΓÇö");
 		}
 	}
 
