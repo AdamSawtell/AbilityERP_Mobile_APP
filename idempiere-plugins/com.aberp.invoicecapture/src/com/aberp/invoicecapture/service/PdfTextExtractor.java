@@ -63,6 +63,17 @@ public class PdfTextExtractor {
 		return new ExtractOutcome("", null, err);
 	}
 
+	/**
+	 * Force Tesseract OCR even when pdftotext returned text. Used when digital text
+	 * is present but totals/amount glyphs were mangled (common with CID fonts).
+	 */
+	public ExtractOutcome extractOcrOnly(File pdfFile) {
+		if (pdfFile == null || !pdfFile.isFile()) {
+			return new ExtractOutcome("", null, "PDF file not found");
+		}
+		return runTesseract(pdfFile);
+	}
+
 	private ExtractOutcome runPdftotext(File pdfFile) {
 		try {
 			ProcessBuilder pb = new ProcessBuilder("pdftotext", "-layout", "-enc", "UTF-8",

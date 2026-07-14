@@ -51,8 +51,11 @@ public class InvoiceCaptureService {
 	private static final Pattern INV_NO = Pattern.compile(
 			"(?i)\\binvoice\\s*(?:no\\.?|number|#)\\s*[:#]?\\s*([A-Z0-9][A-Z0-9\\-/]{2,})");
 	private static final Pattern ABN = Pattern.compile("(?i)\\bABN\\s*[:#]?\\s*([0-9][0-9\\s]{8,14}\\d)");
+	/** Prefer amount on the same line as a total label; allow junk glyphs between label and digits. */
 	private static final Pattern TOTAL = Pattern.compile(
-			"(?i)(?:amount\\s*due|balance\\s*due|total\\s*(?:due|amount)?|grand\\s*total|invoice\\s*total)\\s*[:]?\\s*\\$?\\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\\.[0-9]{2})|[0-9]+\\.[0-9]{2})");
+			"(?i)(?:amount\\s*due|balance\\s*due|total\\s*(?:due|amount)?|grand\\s*total|invoice\\s*total)\\s*[:]?[^0-9\\n]{0,24}([0-9]{1,3}(?:,[0-9]{3})*\\.\\d{2}|[0-9]+\\.\\d{2})");
+	private static final Pattern MONEY = Pattern.compile(
+			"(?<!\\d)(\\d{1,3}(?:,\\d{3})*\\.\\d{2}|\\d+\\.\\d{2})(?!\\d)");
 	private static final Pattern DATE = Pattern.compile(
 			"(?i)(?:invoice\\s*date|date\\s*of\\s*invoice|dated?)\\s*[:]?\\s*(\\d{1,2}[\\-/]\\d{1,2}[\\-/]\\d{2,4}|\\d{4}[\\-/]\\d{1,2}[\\-/]\\d{1,2})");
 
@@ -106,13 +109,32 @@ public class InvoiceCaptureService {
 			pdfFile = pdf.file;
 			tempFile = pdf.temporary;
 
-			PdfTextExtractor.ExtractOutcome extracted = new PdfTextExtractor().extract(pdfFile);
+			PdfTextExtractor extractor = new PdfTextExtractor();
+			PdfTextExtractor.ExtractOutcome extracted = extractor.extract(pdfFile);
 			if (!extracted.hasUsefulText()) {
 				return fail(capture, InvoiceCaptureResult.Code.PDF_UNREADABLE, ST_PDF_UNREADABLE,
 						"PDF unreadable: " + nvl(extracted.error, "no text extracted"), trigger, 0);
 			}
 
 			ParsedFields fields = parseFields(extracted.text);
+			// pdftotext often mangles $ totals (CID fonts) while leaving other text intact — OCR help
+			if (!hasPositiveAmount(fields.grandTotal) && !"tesseract".equals(extracted.method)) {
+				PdfTextExtractor.ExtractOutcome ocr = extractor.extractOcrOnly(pdfFile);
+				if (ocr.hasUsefulText()) {
+					ParsedFields ocrFields = parseFields(ocr.text);
+					mergeParsed(fields, ocrFields);
+					if (hasPositiveAmount(ocrFields.grandTotal) || empty(fields.invoiceNo)) {
+						extracted = new PdfTextExtractor.ExtractOutcome(
+								extracted.text + "\n--- OCR ---\n" + ocr.text, "pdftotext+tesseract", null);
+					}
+				}
+			}
+			// Manual override: user can type Grand Total on the capture row and Process again
+			BigDecimal existingTotal = toMoney(capture.get_Value("GrandTotal"));
+			if (!hasPositiveAmount(fields.grandTotal) && hasPositiveAmount(existingTotal)) {
+				fields.grandTotal = existingTotal;
+			}
+
 			capture.set_ValueOfColumn("ExtractedText", truncate(extracted.text, 4000));
 			if (fields.invoiceNo != null) {
 				capture.set_ValueOfColumn("VendorInvoiceNo", fields.invoiceNo);
@@ -131,7 +153,13 @@ public class InvoiceCaptureService {
 			}
 			capture.saveEx();
 
-			if (empty(fields.invoiceNo) || fields.grandTotal == null || fields.grandTotal.signum() <= 0) {
+			if (empty(fields.invoiceNo) || !hasPositiveAmount(fields.grandTotal)) {
+				if (!empty(fields.invoiceNo) && !hasPositiveAmount(fields.grandTotal)) {
+					String msg = "Requires review: invoice number found (" + fields.invoiceNo
+							+ ") but total amount could not be read from the PDF (method=" + extracted.method
+							+ "). Enter Grand Total and Process again.";
+					return fail(capture, InvoiceCaptureResult.Code.REQUIRES_REVIEW, ST_REQUIRES_REVIEW, msg, trigger, 0);
+				}
 				String msg = "Validation failed: could not extract invoice number and/or total amount from PDF"
 						+ " (method=" + extracted.method + ")";
 				return fail(capture, InvoiceCaptureResult.Code.VALIDATION_FAILED, ST_VALIDATION_FAILED, msg, trigger, 0);
@@ -258,14 +286,7 @@ public class InvoiceCaptureService {
 		if (m.find()) {
 			f.abn = m.group(1).replaceAll("\\s+", "");
 		}
-		m = TOTAL.matcher(text);
-		if (m.find()) {
-			try {
-				f.grandTotal = new BigDecimal(m.group(1).replace(",", ""));
-			} catch (Exception ignore) {
-				// leave null
-			}
-		}
+		f.grandTotal = parseGrandTotal(text);
 		m = DATE.matcher(text);
 		if (m.find()) {
 			f.invoiceDate = parseDate(m.group(1));
@@ -275,6 +296,80 @@ public class InvoiceCaptureService {
 		}
 		f.vendorHint = firstMeaningfulLine(text);
 		return f;
+	}
+
+	private BigDecimal parseGrandTotal(String text) {
+		if (text == null || text.isBlank()) {
+			return null;
+		}
+		Matcher m = TOTAL.matcher(text);
+		if (m.find()) {
+			BigDecimal v = toMoney(m.group(1));
+			if (hasPositiveAmount(v)) {
+				return v;
+			}
+		}
+		// Amount Due line may have glyph junk; take the last money token on that line
+		for (String line : text.split("\\R")) {
+			if (!line.toLowerCase().matches("(?s).*(amount\\s*due|balance\\s*due|grand\\s*total|total\\s*due).*")) {
+				continue;
+			}
+			BigDecimal last = null;
+			Matcher mm = MONEY.matcher(line);
+			while (mm.find()) {
+				BigDecimal v = toMoney(mm.group(1));
+				if (hasPositiveAmount(v)) {
+					last = v;
+				}
+			}
+			if (last != null) {
+				return last;
+			}
+		}
+		return null;
+	}
+
+	private static void mergeParsed(ParsedFields target, ParsedFields from) {
+		if (from == null) {
+			return;
+		}
+		if (empty(target.invoiceNo) && !empty(from.invoiceNo)) {
+			target.invoiceNo = from.invoiceNo;
+		}
+		if (!hasPositiveAmount(target.grandTotal) && hasPositiveAmount(from.grandTotal)) {
+			target.grandTotal = from.grandTotal;
+		}
+		if (empty(target.abn) && !empty(from.abn)) {
+			target.abn = from.abn;
+		}
+		if (target.invoiceDate == null && from.invoiceDate != null) {
+			target.invoiceDate = from.invoiceDate;
+		}
+		if (empty(target.vendorHint) && !empty(from.vendorHint)) {
+			target.vendorHint = from.vendorHint;
+		}
+	}
+
+	private static boolean hasPositiveAmount(BigDecimal v) {
+		return v != null && v.signum() > 0;
+	}
+
+	private static BigDecimal toMoney(Object raw) {
+		if (raw == null) {
+			return null;
+		}
+		if (raw instanceof BigDecimal) {
+			return (BigDecimal) raw;
+		}
+		try {
+			String s = String.valueOf(raw).replace(",", "").trim();
+			if (s.isEmpty()) {
+				return null;
+			}
+			return new BigDecimal(s);
+		} catch (Exception ignore) {
+			return null;
+		}
 	}
 
 	private String firstMeaningfulLine(String text) {
