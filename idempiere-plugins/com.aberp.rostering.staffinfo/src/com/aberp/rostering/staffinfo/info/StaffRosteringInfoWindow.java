@@ -22,14 +22,17 @@ import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
 import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
-import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.zk.ui.event.InputEvent;
+import org.zkoss.zul.A;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
 import org.zkoss.zul.Space;
+import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Vbox;
 
 /**
@@ -42,7 +45,7 @@ import org.zkoss.zul.Vbox;
  *       with Show Unmatched Staff to include non-matches;
  *       credentials must be active and valid for the shift Start/End dates</li>
  *   <li>When Show Unmatched is ticked, optional multi-select credentials (AND) —
- *       shift needs are ignored; selected credentials filter the unmatched pool</li>
+ *       shift needs ignored; Find filters the list; Selected summary shows the set</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
@@ -57,6 +60,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/** Visible only when Show Unmatched is ticked. */
 	private Div credentialFilterBox;
 	private Listbox credentialFilterList;
+	private Textbox credentialFilterSearch;
+	private Label credentialSelectionSummary;
+	private A credentialClearLink;
 	/**
 	 * Server-side cache — Listbox selection AU is unreliable when the list was ever disabled.
 	 * Lazily created: InfoWindow super() renders before subclass field initializers run.
@@ -538,6 +544,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	 * Multi-select credentials (AND). Shown only when Show Unmatched is ticked.
 	 * Options = all active AbERP_Credentials (shift-required ones are among them).
 	 * Uses zul Listbox (not Chosenbox) so the OSGi bundle stays on Require-Bundle zul/zk.
+	 * Presentation: search filter + selected summary strip (AND logic unchanged).
 	 */
 	private void ensureCredentialFilter() {
 		if (credentialFilterList != null) {
@@ -552,20 +559,134 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		// Never disable: ZK ignores SelectEvent on disabled Listbox, so AND filter never applied.
 		credentialFilterList.addEventListener(Events.ON_SELECT, event -> {
 			refreshSelectedCredentialFilterIds();
+			updateCredentialSelectionSummary();
 			if (contextBanner != null) {
 				contextBanner.setValue(buildContextBannerText());
 			}
 		});
 		loadCredentialFilterOptions();
 
-		Label credLabel = new Label("Require credentials (AND)");
-		credLabel.setStyle("display:block;font-size:11px;color:#555;margin-bottom:2px;");
+		Label credLabel = new Label("Must have all of these credentials");
+		credLabel.setTooltiptext(
+				"Staff must hold every selected credential (AND). "
+						+ "Leave empty to show the full unmatched pool. "
+						+ "Use Find to narrow the list.");
+		credLabel.setStyle("display:block;font-size:11px;color:#555;margin-bottom:4px;font-weight:bold;");
+
+		credentialFilterSearch = new Textbox();
+		credentialFilterSearch.setPlaceholder("Find credential…");
+		credentialFilterSearch.setWidth("100%");
+		credentialFilterSearch.setStyle("max-width:720px;margin-bottom:4px;");
+		credentialFilterSearch.setTooltiptext("Type to filter the list. Selected credentials stay applied even if hidden by Find.");
+		credentialFilterSearch.addEventListener(Events.ON_CHANGING, this::onCredentialFilterSearch);
+		credentialFilterSearch.addEventListener(Events.ON_CHANGE, this::onCredentialFilterSearch);
+
+		credentialSelectionSummary = new Label("Selected (0): none — full unmatched pool");
+		credentialSelectionSummary.setStyle("font-size:11px;color:#333;");
+
+		credentialClearLink = new A("Clear");
+		credentialClearLink.setTooltiptext("Clear all selected credentials");
+		credentialClearLink.setStyle("font-size:11px;margin-left:10px;");
+		credentialClearLink.addEventListener(Events.ON_CLICK, event -> clearCredentialFilterSelection());
+
+		Div summaryRow = new Div();
+		summaryRow.setStyle("margin:4px 0 6px 0;max-width:720px;");
+		summaryRow.appendChild(credentialSelectionSummary);
+		summaryRow.appendChild(credentialClearLink);
 
 		credentialFilterBox = new Div();
 		credentialFilterBox.setStyle("padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;");
 		credentialFilterBox.setVisible(false);
 		credentialFilterBox.appendChild(credLabel);
+		credentialFilterBox.appendChild(credentialFilterSearch);
+		credentialFilterBox.appendChild(summaryRow);
 		credentialFilterBox.appendChild(credentialFilterList);
+		updateCredentialSelectionSummary();
+	}
+
+	private void onCredentialFilterSearch(Event event) {
+		String q = null;
+		if (event instanceof InputEvent) {
+			q = ((InputEvent) event).getValue();
+		} else if (credentialFilterSearch != null) {
+			q = credentialFilterSearch.getValue();
+		}
+		applyCredentialListFilter(q);
+	}
+
+	private void applyCredentialListFilter(String query) {
+		if (credentialFilterList == null) {
+			return;
+		}
+		String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+		@SuppressWarnings("unchecked")
+		List<Listitem> items = credentialFilterList.getItems();
+		if (items == null) {
+			return;
+		}
+		for (Listitem item : items) {
+			String label = item.getLabel();
+			if (label == null) {
+				label = "";
+			}
+			boolean match = needle.isEmpty() || label.toLowerCase(Locale.ROOT).contains(needle);
+			item.setVisible(match);
+		}
+	}
+
+	private void clearCredentialFilterSelection() {
+		if (credentialFilterList != null) {
+			credentialFilterList.clearSelection();
+		}
+		credentialIdCache().clear();
+		updateCredentialSelectionSummary();
+		if (contextBanner != null) {
+			contextBanner.setValue(buildContextBannerText());
+		}
+	}
+
+	private void updateCredentialSelectionSummary() {
+		if (credentialSelectionSummary == null) {
+			return;
+		}
+		List<String> names = new ArrayList<>();
+		if (credentialFilterList != null) {
+			@SuppressWarnings("unchecked")
+			Set<Listitem> selected = credentialFilterList.getSelectedItems();
+			if (selected != null) {
+				for (Listitem item : selected) {
+					String label = item.getLabel();
+					if (!Util.isEmpty(label, true) && !names.contains(label.trim())) {
+						names.add(label.trim());
+					}
+				}
+			}
+		}
+		// Prefer live selection labels; if AU lagged, fall back to count from cache.
+		int count = names.isEmpty() ? credentialIdCache().size() : names.size();
+		if (count <= 0) {
+			credentialSelectionSummary.setValue("Selected (0): none — full unmatched pool");
+			if (credentialClearLink != null) {
+				credentialClearLink.setVisible(false);
+			}
+			return;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("Selected (").append(count).append("): ");
+		if (!names.isEmpty()) {
+			for (int i = 0; i < names.size(); i++) {
+				if (i > 0) {
+					sb.append(" · ");
+				}
+				sb.append(names.get(i));
+			}
+		} else {
+			sb.append(count).append(" credential").append(count == 1 ? "" : "s");
+		}
+		credentialSelectionSummary.setValue(sb.toString());
+		if (credentialClearLink != null) {
+			credentialClearLink.setVisible(true);
+		}
 	}
 
 	private void loadCredentialFilterOptions() {
@@ -611,16 +732,22 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			credentialFilterBox.setStyle(unmatched
 					? "padding:8px 8px 6px 8px;border-top:1px solid #ddd;background:#fafafa;"
 					: "padding:8px 8px 6px 8px;display:none;");
-			if (unmatched) {
-				Clients.scrollIntoView(credentialFilterBox);
-			}
+			// Do not scrollIntoView — it jumps the criteria pane out of sight.
+			// Do not setVisible on the Listbox separately — a stuck display:none on the
+			// child while the box is shown leaves an invisible checklist.
 		}
-		if (credentialFilterList != null) {
-			credentialFilterList.setVisible(unmatched);
-			if (!unmatched) {
+		if (!unmatched) {
+			if (credentialFilterList != null) {
 				credentialFilterList.clearSelection();
-				credentialIdCache().clear();
 			}
+			credentialIdCache().clear();
+			if (credentialFilterSearch != null) {
+				credentialFilterSearch.setValue("");
+				applyCredentialListFilter("");
+			}
+			updateCredentialSelectionSummary();
+		} else if (credentialFilterSearch != null) {
+			applyCredentialListFilter(credentialFilterSearch.getValue());
 		}
 	}
 

@@ -16,7 +16,7 @@
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# build JAR 1.1.0.2026071227 → SQL 01→24→04 → restart → wait WebUI 200
+# build JAR 1.1.0.2026071229 → SQL 01→24→04 → restart → wait WebUI 200
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
@@ -28,7 +28,7 @@ chmod +x build.sh deploy.sh
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | **`1.1.0.2026071227`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
+| Version | **`1.1.0.2026071229`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` |
@@ -74,13 +74,12 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 4. Lean grid (no BP Name / Status / Business Partner / Agency Staff columns).  
 5. Related Info tabs; contact pick fills BP.
 
-**Show Unmatched + credential AND (JAR 1227):**
+**Show Unmatched + credential AND (JAR 1229):**
 
-1. Unticked → Related Needs apply; **Require credentials (AND)** hidden.  
-2. Ticked → needs ignored; credential multi-select appears **below** criteria (label **Require credentials (AND)**).  
-3. ReQuery with empty selection → full unmatched pool.  
-4. Select 2+ credentials → only staff with **all** selected (`COUNT(DISTINCT)=N`).  
-5. Clear selection → pool again; untick → list hides.
+1. Unticked → Related Needs apply; credential picker hidden.  
+2. Ticked → needs ignored; **Must have all of these credentials** appears below criteria with **Find** and **Selected (N)** summary.  
+3. Use Find to narrow; select 2+ → summary lists names; ReQuery = AND. Empty selection → full unmatched pool.  
+4. **Clear** resets selection; untick hides the picker.
 
 Standalone menu **Employee (User) Staff Rostering Info Search** is fine for unmatched/AND smoke (“No shift in context” banner is expected).
 
@@ -92,8 +91,8 @@ If opening Staff Info throws `org/zkoss/util/media/Media` / `ClassNotFoundExcept
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071227` | Build/deploy source of truth |
-| HCO Test | `http://32.236.127.117/webui/` | `1.1.0.2026071227` | E2E unmatched+AND pass 2026-07-13 |
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071229` | Find + Selected summary UX |
+| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071229` | Deployed 2026-07-14 |
 
 HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Deployments variables**.
 
@@ -102,7 +101,7 @@ HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Dep
 - `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`  
 - `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`  
 
-Refresh packs when JAR or SQL order changes; include **`1227`** JAR (≥ ~40 KB) and SQL through **`24`**. Prefer host `./deploy.sh` over stale packs.
+Refresh packs when JAR or SQL order changes; include **`1229`** JAR (≥ ~40 KB) and SQL through **`24`**. Prefer host `./deploy.sh` over stale packs.
 
 ## External ticket text
 

@@ -1,10 +1,11 @@
 # SAW003 notes
 
 - Deployment finished on staging + HCO Test; ticket **done** and agent-ready.
-- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071227`** (`build.sh` / `deploy.sh` / MANIFEST).
+- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071229`** (`build.sh` / `deploy.sh` / MANIFEST).
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not the same as SAW011 (Accept Shift Request) or SAW004 (Rostering Chat).
 - GitHub: [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) — Deploy section must match `DEPLOY.md`.
+- **1228 UX:** Find filter + Selected (N) summary / Clear on credential picker (AND logic unchanged).
 
 ## Why this work existed
 
@@ -25,7 +26,7 @@
 | `22` | Gender/Position as String names; deactivate leftover Search cols; Java strips Intbox `no negative` |
 | `23` | Force no ID/Search/MultiSelect query criteria leftovers |
 | `24` | Perf: cred/leave indexes; Gender/Position via joins; Java prefetches credential IDs |
-| Java `1227` | Show Unmatched → credential Listbox below grid (AND); empty = unmatched pool; do not disable Listbox |
+| Java `1229` | Show Unmatched → Find + Selected summary + Listbox below grid (AND unchanged); no scrollIntoView |
 
 `20` must run **after** `03`/`05`/`09` on every full redeploy or those scripts re-show columns.  
 `21`/`22`/`23` must run **after** `08` (Related Info) so Multi Select / Search leftovers stay off.  
@@ -40,13 +41,13 @@ Refresh when the JAR or SQL order changes:
 - `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`
 - `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`
 
-**Pack rule:** JAR must be **≥ ~40 KB** at version **`1227`**. Same version string at ~29 KB is a stale binary (no ticks / no credential list). Prefer host `./deploy.sh` over stale packs.
+**Pack rule:** JAR must be **≥ ~40 KB** at version **`1229`**. Same version string at ~29 KB is a stale binary (no ticks / no credential list). Prefer host `./deploy.sh` over stale packs.
 
 ## HCO Future Deployments variables
 
 | Item | HCO value (2026-07-13) | Notes |
 |------|------------------------|--------|
-| Host | `32.236.127.117` | WebUI `http://32.236.127.117/webui/` (nginx → Jetty **8083**) |
+| Host | `13.210.248.141` | WebUI `http://13.210.248.141/webui/` (was `32.236.127.117`) |
 | SSH | `~/.ssh/HCObusiness.pem` · `ubuntu@32.236.127.117` | |
 | Login | SuperUser / HCOflamingo · client **HCO - Disability and Community Services** · role Admin | |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` | Local `AD_InfoWindow_ID` = **1000034** (≠ seed `1000027`) |
@@ -54,7 +55,7 @@ Refresh when the JAR or SQL order changes:
 | Shift (Rostered) window | UU `7c269a7e-…` local `1000082` | Employee tab `1000149` |
 | Employee Search field | `AbERP_User_Contact_ID` → ref `1000215` | Already points at IW `1000034` |
 | Admin IW access | Admin + AbilityERP Admin + Rostering (+TL) | Already granted |
-| JAR | `…_1.1.0.2026071227.jar` | Unmatched credential multi-select + below-grid layout |
+| JAR | `…_1.1.0.2026071229.jar` | Find + Selected summary; redeploy when HCO SSH available |
 | Org `*` shifts | ~39k of ~106k on HCO | Do **not** bulk-move; smoke on `ad_org_id > 0` |
 | `06-fix-shift-org.sql` | Skips AbilityERP-only data move | Still sets AlwaysUpdateable on contact column |
 
@@ -67,7 +68,7 @@ Refresh when the JAR or SQL order changes:
 | Related Info (7 links) | OK |
 | BP/org triggers + AlwaysUpdateable | OK |
 | Java ticks + needs/leave filters | OK |
-| Unmatched credential AND multi-select | **PASS** E2E (tick → 253 creds → empty ReQuery 210 rows → Aged Care+Nursing AND → 0 → clear → 210 → untick hides) |
+| Unmatched credential AND multi-select | **PASS** E2E on `1227`; **1229** UX (Find + summary) on staging 2026-07-14 — redeploy HCO when SSH up |
 | Non-negative only popup | Fixed via `08`/`21`–`23`; logout/in required after SQL |
 | Collateral | Leave Planning Media CNFE fixed separately (`com.aberp.leave.planning` + `zcommon`, SAW016) |
 
