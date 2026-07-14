@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbERP Invoice Capture
+Bundle-SymbolicName: com.aberp.invoicecapture
+Bundle-Version: 7.1.0.202607141900
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.invoicecapture
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
+Service-Component: invoicecapture-process.xml
