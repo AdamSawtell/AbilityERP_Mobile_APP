@@ -6,11 +6,11 @@
 | **Kind** | idempiere |
 | **GitHub** | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) |
 | **Slug** | `SAW003_staff_rostering_info` |
-| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071511.jar` |
+| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071512.jar` |
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — full `./deploy.sh` or **JAR-only** update to `1511`, SQL order, smoke, pitfalls.
+**→ [`DEPLOY.md`](DEPLOY.md)** — full `./deploy.sh` or **JAR-only** update to `1512`, SQL order, smoke, pitfalls.
 
 ## External ticket (copy/paste)
 

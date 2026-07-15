@@ -41,7 +41,7 @@ import org.zkoss.zul.Vbox;
  * <ul>
  *   <li>Auto-wrap {@code %} on Like criteria</li>
  *   <li>Context banner (Shift / Required / Filters) with credential names</li>
- *   <li>Shift-window leave exclusion (toggle via Show Unavailable Staff)</li>
+ *   <li>Shift-window leave exclusion (Employees Not On Leave, default on)</li>
  *   <li>Overlapping roster exclusion (Employee Not Rostered at this Time, default on)</li>
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
  *       with Show Unmatched Staff to include non-matches;
@@ -58,7 +58,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private final GridField launchField;
 	private Label contextBanner;
 	private Checkbox showUnmatchedCheckbox;
-	private Checkbox showUnavailableCheckbox;
+	/** Default on: exclude staff on approved leave overlapping the shift window. */
+	private Checkbox employeesNotOnLeaveCheckbox;
 	/** Default on: exclude staff already rostered on an overlapping shift. */
 	private Checkbox employeeNotRosteredCheckbox;
 	/** Visible only when Show Unmatched is ticked. */
@@ -217,8 +218,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			// when non-empty — never strip that leading AND.
 			String where = stripShowUnmatchedSql(super.getSQLWhere());
 			StringBuilder extra = new StringBuilder();
-			// Leave and overlapping roster are independent ticks.
-			if (!isShowUnavailableSelected()) {
+			// Leave and overlapping roster are independent ticks (both default on).
+			if (isEmployeesNotOnLeaveSelected()) {
 				appendClause(extra, buildApprovedLeaveExclusionSql());
 			}
 			if (isEmployeeNotRosteredSelected()) {
@@ -548,15 +549,14 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/** Create filter checkboxes once (placement is separate). */
 	private void ensureFilterCheckboxes() {
-		if (showUnavailableCheckbox == null) {
-			showUnavailableCheckbox = new Checkbox();
-			showUnavailableCheckbox.setText("Show Unavailable Staff");
-			showUnavailableCheckbox.setTooltiptext(
-					"When unticked (default), staff on approved leave overlapping this shift "
-							+ "window are hidden. Tick to include them. "
-							+ "Overlapping rostered shifts use \"Employee Not Rostered at this Time\".");
-			showUnavailableCheckbox.setChecked(false);
-			showUnavailableCheckbox.addEventListener(Events.ON_CHECK, event -> {
+		if (employeesNotOnLeaveCheckbox == null) {
+			employeesNotOnLeaveCheckbox = new Checkbox();
+			employeesNotOnLeaveCheckbox.setText("Employees Not On Leave");
+			employeesNotOnLeaveCheckbox.setTooltiptext(
+					"When ticked (default), only staff who are not on approved leave overlapping "
+							+ "this shift window are listed. Untick to include staff on approved leave.");
+			employeesNotOnLeaveCheckbox.setChecked(true);
+			employeesNotOnLeaveCheckbox.addEventListener(Events.ON_CHECK, event -> {
 				if (contextBanner != null) {
 					contextBanner.setValue(buildContextBannerText());
 				}
@@ -943,7 +943,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			return;
 		}
 		if (showUnmatchedCheckbox.getParent() != null
-				|| showUnavailableCheckbox.getParent() != null
+				|| employeesNotOnLeaveCheckbox.getParent() != null
 				|| employeeNotRosteredCheckbox.getParent() != null) {
 			return;
 		}
@@ -951,7 +951,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		Div availabilityFlags = new Div();
 		availabilityFlags.setStyle("display:flex;flex-direction:column;gap:2px;padding-top:2px;");
 		availabilityFlags.appendChild(employeeNotRosteredCheckbox);
-		availabilityFlags.appendChild(showUnavailableCheckbox);
+		availabilityFlags.appendChild(employeesNotOnLeaveCheckbox);
 
 		Row flagRow = new Row();
 		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
@@ -998,7 +998,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 		Timestamp[] range = resolveShiftDisplayRange();
 		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
-		boolean showUnavailable = isShowUnavailableSelected();
+		boolean employeesNotOnLeave = isEmployeesNotOnLeaveSelected();
 		boolean employeeNotRostered = isEmployeeNotRosteredSelected();
 		boolean showUnmatched = isShowUnmatchedSelected();
 		List<Integer> manualCreds = getSelectedCredentialFilterIds();
@@ -1009,7 +1009,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? shiftId : docNo);
 				sb.append(" | (no Start/End times in context)\n");
 				sb.append("Required: ").append(needs.requiredLine()).append('\n');
-				sb.append(buildFiltersLine(showUnavailable, employeeNotRostered, showUnmatched,
+				sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched,
 						needs.hasCredentials(), manualCreds.size()));
 				return sb.toString();
 			}
@@ -1017,7 +1017,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			sb.append("No shift in context. Open from Shift → Employee to apply leave/overlap")
 					.append(" filters.\n");
 			sb.append("Required: (none)\n");
-			sb.append(buildFiltersLine(showUnavailable, employeeNotRostered, showUnmatched, false,
+			sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched, false,
 					manualCreds.size()));
 			return sb.toString();
 		}
@@ -1026,12 +1026,12 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? "?" : docNo);
 		sb.append(" | ").append(formatBannerRange(range[0], range[1])).append('\n');
 		sb.append("Required: ").append(needs.requiredLine()).append('\n');
-		sb.append(buildFiltersLine(showUnavailable, employeeNotRostered, showUnmatched,
+		sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched,
 				needs.hasCredentials(), manualCreds.size()));
 		return sb.toString();
 	}
 
-	private static String buildFiltersLine(boolean showUnavailable, boolean employeeNotRostered,
+	private static String buildFiltersLine(boolean employeesNotOnLeave, boolean employeeNotRostered,
 			boolean showUnmatched, boolean hasCredentials, int manualCredentialCount) {
 		StringBuilder sb = new StringBuilder("Filters: ");
 		if (employeeNotRostered) {
@@ -1041,11 +1041,11 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					.append(" (tick \"Employee Not Rostered at this Time\" to exclude)");
 		}
 		sb.append("; ");
-		if (showUnavailable) {
-			sb.append("including staff on approved leave");
+		if (employeesNotOnLeave) {
+			sb.append("excluding staff on approved leave");
 		} else {
-			sb.append("excluding staff on approved leave")
-					.append(" (tick \"Show Unavailable Staff\" to include)");
+			sb.append("including staff on approved leave")
+					.append(" (tick \"Employees Not On Leave\" to exclude)");
 		}
 		sb.append("; ");
 		if (showUnmatched) {
@@ -1076,8 +1076,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		return ed != null && isYes(ed.getValue());
 	}
 
-	private boolean isShowUnavailableSelected() {
-		return showUnavailableCheckbox != null && showUnavailableCheckbox.isChecked();
+	/** Default true — exclude staff on approved leave overlapping the shift. */
+	private boolean isEmployeesNotOnLeaveSelected() {
+		return employeesNotOnLeaveCheckbox == null || employeesNotOnLeaveCheckbox.isChecked();
 	}
 
 	/** Default true — exclude staff already on an overlapping rostered shift. */
