@@ -44,10 +44,9 @@ import org.zkoss.zul.Vbox;
  *   <li>Shift-window leave exclusion (Employees Not On Leave, default on)</li>
  *   <li>Overlapping roster exclusion (Employee Not Rostered at this Time, default on)</li>
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
- *       with Show Unmatched Staff to include non-matches;
+ *       with Show Matched Staff (default on); untick to include non-matches and
+ *       optionally require selected credentials (AND);
  *       credentials must be active and valid for the shift Start/End dates</li>
- *   <li>When Show Unmatched is ticked, optional multi-select credentials (AND) —
- *       shift needs ignored; Find filters the list; Selected summary shows the set</li>
  * </ul>
  */
 public class StaffRosteringInfoWindow extends InfoWindow {
@@ -57,12 +56,12 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	private final GridField launchField;
 	private Label contextBanner;
-	private Checkbox showUnmatchedCheckbox;
+	private Checkbox showMatchedCheckbox;
 	/** Default on: exclude staff on approved leave overlapping the shift window. */
 	private Checkbox employeesNotOnLeaveCheckbox;
 	/** Default on: exclude staff already rostered on an overlapping shift. */
 	private Checkbox employeeNotRosteredCheckbox;
-	/** Visible only when Show Unmatched is ticked. */
+	/** Visible only when Show Matched is unticked (unmatched mode). */
 	private Div credentialFilterBox;
 	private Listbox credentialFilterList;
 	private Textbox credentialFilterSearch;
@@ -202,7 +201,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	@Override
 	protected String getSQLWhere() {
-		// Show Unmatched is a Java checkbox. Also clear/strip any leftover AD criterion.
+		// Show Matched is a Java checkbox. Also clear/strip any leftover AD
+		// AbERP_ShowUnmatchedStaff criterion (legacy name in AD).
 		WEditor showUnmatchedEditor = findEditor(COL_SHOW_UNMATCHED);
 		Object savedShowUnmatched = null;
 		boolean cleared = false;
@@ -226,8 +226,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				appendClause(extra, buildOverlappingRosterExclusionSql());
 			}
 
-			boolean showUnmatched = isShowUnmatchedSelected() || isYes(savedShowUnmatched);
-			if (!showUnmatched) {
+			// Matched (default) = Related Needs. Unticked / legacy AD Y = unmatched pool.
+			boolean showMatched = isShowMatchedSelected() && !isYes(savedShowUnmatched);
+			if (showMatched) {
 				// Matched mode: full Related Rostering Needs (CRD + GDR + EMP).
 				appendClause(extra, buildNeedsMatchSql());
 			} else {
@@ -576,15 +577,15 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				}
 			});
 		}
-		if (showUnmatchedCheckbox == null) {
-			showUnmatchedCheckbox = new Checkbox();
-			showUnmatchedCheckbox.setText("Show Unmatched Staff");
-			showUnmatchedCheckbox.setTooltiptext(
-					"When unticked (default), only staff matching Related Rostering Needs are listed. "
+		if (showMatchedCheckbox == null) {
+			showMatchedCheckbox = new Checkbox();
+			showMatchedCheckbox.setText("Show Matched Staff");
+			showMatchedCheckbox.setTooltiptext(
+					"When ticked (default), only staff matching Related Rostering Needs are listed. "
 							+ "Credentials must be active and valid for the shift Start/End. "
-							+ "Tick to ignore those needs and optionally require selected credentials (AND).");
-			showUnmatchedCheckbox.setChecked(false);
-			showUnmatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
+							+ "Untick to include unmatched staff and optionally require selected credentials (AND).");
+			showMatchedCheckbox.setChecked(true);
+			showMatchedCheckbox.addEventListener(Events.ON_CHECK, event -> {
 				syncCredentialFilterVisibility();
 				if (contextBanner != null) {
 					contextBanner.setValue(buildContextBannerText());
@@ -595,7 +596,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * Multi-select credentials (AND). Shown only when Show Unmatched is ticked.
+	 * Multi-select credentials (AND). Shown only when Show Matched is unticked.
 	 * Options = all active AbERP_Credentials (shift-required ones are among them).
 	 * Uses zul Listbox (not Chosenbox) so the OSGi bundle stays on Require-Bundle zul/zk.
 	 * Presentation: search filter + selected summary strip (AND logic unchanged).
@@ -804,21 +805,20 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	private void syncCredentialFilterVisibility() {
-		boolean unmatched = isShowUnmatchedSelected();
+		// Credential picker only in unmatched mode (Show Matched unticked).
+		boolean unmatchedMode = !isShowMatchedSelected();
 		if (credentialFilterBox != null) {
-			credentialFilterBox.setVisible(unmatched);
-			credentialFilterBox.setStyle(unmatched
+			credentialFilterBox.setVisible(unmatchedMode);
+			credentialFilterBox.setStyle(unmatchedMode
 					? "padding:6px 8px 8px 8px;border-top:1px solid #ddd;background:#fafafa;"
 					: "padding:6px 8px 8px 8px;");
-			// Vbox parents wrap Divs in a TR (-chdex). setVisible(false) leaves that TR as
-			// display:none; force both leaf + wrapper visible when unmatched is on.
-			if (unmatched) {
+			if (unmatchedMode) {
 				expandInfoParameterNorth();
 			} else {
 				restoreParameterNorthLayout();
 			}
 		}
-		if (!unmatched) {
+		if (!unmatchedMode) {
 			if (credentialFilterList != null) {
 				credentialFilterList.clearSelection();
 			}
@@ -919,7 +919,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	private List<Integer> getSelectedCredentialFilterIds() {
-		if (!isShowUnmatchedSelected()) {
+		if (isShowMatchedSelected()) {
 			return new ArrayList<>();
 		}
 		List<Integer> cache = credentialIdCache();
@@ -933,7 +933,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * Sit filter ticks under criteria columns:
-	 * Show Unmatched under Staff Name; roster / leave ticks under Employee.
+	 * Show Matched under Staff Name; roster / leave ticks under Employee.
 	 * Credential multi-select sits <em>below</em> the criteria grid (not inside a
 	 * row) so z-grid-body overflow cannot hide it when the tick expands the UI.
 	 */
@@ -942,7 +942,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		if (parameterGrid == null || parameterGrid.getRows() == null) {
 			return;
 		}
-		if (showUnmatchedCheckbox.getParent() != null
+		if (showMatchedCheckbox.getParent() != null
 				|| employeesNotOnLeaveCheckbox.getParent() != null
 				|| employeeNotRosteredCheckbox.getParent() != null) {
 			return;
@@ -956,7 +956,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		Row flagRow = new Row();
 		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
 		flagRow.appendChild(new Space()); // under Staff Name label
-		flagRow.appendChild(wrapCheckbox(showUnmatchedCheckbox));
+		flagRow.appendChild(wrapCheckbox(showMatchedCheckbox));
 		flagRow.appendChild(new Space()); // under Employee label
 		flagRow.appendChild(availabilityFlags);
 		flagRow.appendChild(new Space()); // under Agency label
@@ -1000,7 +1000,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		NeedsSummary needs = summarizeRelatedNeeds(shiftId);
 		boolean employeesNotOnLeave = isEmployeesNotOnLeaveSelected();
 		boolean employeeNotRostered = isEmployeeNotRosteredSelected();
-		boolean showUnmatched = isShowUnmatchedSelected();
+		boolean showMatched = isShowMatchedSelected();
 		List<Integer> manualCreds = getSelectedCredentialFilterIds();
 
 		if (range == null || range[0] == null || range[1] == null) {
@@ -1009,7 +1009,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? shiftId : docNo);
 				sb.append(" | (no Start/End times in context)\n");
 				sb.append("Required: ").append(needs.requiredLine()).append('\n');
-				sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched,
+				sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched,
 						needs.hasCredentials(), manualCreds.size()));
 				return sb.toString();
 			}
@@ -1017,7 +1017,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			sb.append("No shift in context. Open from Shift → Employee to apply leave/overlap")
 					.append(" filters.\n");
 			sb.append("Required: (none)\n");
-			sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched, false,
+			sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched, false,
 					manualCreds.size()));
 			return sb.toString();
 		}
@@ -1026,13 +1026,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		sb.append("Shift: #").append(Util.isEmpty(docNo, true) ? "?" : docNo);
 		sb.append(" | ").append(formatBannerRange(range[0], range[1])).append('\n');
 		sb.append("Required: ").append(needs.requiredLine()).append('\n');
-		sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showUnmatched,
+		sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched,
 				needs.hasCredentials(), manualCreds.size()));
 		return sb.toString();
 	}
 
 	private static String buildFiltersLine(boolean employeesNotOnLeave, boolean employeeNotRostered,
-			boolean showUnmatched, boolean hasCredentials, int manualCredentialCount) {
+			boolean showMatched, boolean hasCredentials, int manualCredentialCount) {
 		StringBuilder sb = new StringBuilder("Filters: ");
 		if (employeeNotRostered) {
 			sb.append("excluding overlapping rostered shifts");
@@ -1048,7 +1048,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 					.append(" (tick \"Employees Not On Leave\" to exclude)");
 		}
 		sb.append("; ");
-		if (showUnmatched) {
+		if (showMatched) {
+			if (!hasCredentials) {
+				sb.append("no required credentials on this shift");
+			} else {
+				sb.append("showing only staff matching required needs");
+			}
+		} else {
 			sb.append("shift needs ignored");
 			if (manualCredentialCount > 0) {
 				sb.append("; requiring ").append(manualCredentialCount)
@@ -1058,22 +1064,15 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			} else {
 				sb.append("; no manual credential filter");
 			}
-		} else if (!hasCredentials) {
-			sb.append("no required credentials on this shift");
-		} else {
-			sb.append("showing only staff with valid required credentials")
-					.append(" (tick \"Show Unmatched Staff\" to include)");
+			sb.append(" (tick \"Show Matched Staff\" to match needs)");
 		}
 		sb.append(". Reminder: Check employee alerts before assigning.");
 		return sb.toString();
 	}
 
-	private boolean isShowUnmatchedSelected() {
-		if (showUnmatchedCheckbox != null) {
-			return showUnmatchedCheckbox.isChecked();
-		}
-		WEditor ed = findEditor(COL_SHOW_UNMATCHED);
-		return ed != null && isYes(ed.getValue());
+	/** Default true — apply Related Rostering Needs match. */
+	private boolean isShowMatchedSelected() {
+		return showMatchedCheckbox == null || showMatchedCheckbox.isChecked();
 	}
 
 	/** Default true — exclude staff on approved leave overlapping the shift. */

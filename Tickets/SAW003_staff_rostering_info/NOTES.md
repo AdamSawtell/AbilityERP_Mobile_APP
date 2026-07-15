@@ -1,7 +1,7 @@
 # SAW003 notes
 
 - Ticket **done** and agent-ready. Point agents at **`DEPLOY.md`** (and GitHub [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)).
-- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071512`**.
+- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071513`**.
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not SAW011 (Accept Shift) or SAW004 (Rostering Chat).
 - **Later deploys:** if SQL already applied, use **JAR-only** section in `DEPLOY.md` (no need to re-run `01`–`24`).
@@ -12,7 +12,7 @@
 2. **Rewrite (SAW003):** Lean User+BP query, Java EXISTS filters, Related Info, clearer UX.
 3. **HCO follow-ups:** ZK **non-negative only** — fixed in SQL `21`–`23` + Java sanitize.
 4. **Perf:** `24-perf-staff-info.sql` + JAR credential prefetch.
-5. **Unmatched credential filter:** Show Unmatched ignores Related Needs; optional AND via zul Listbox.
+5. **Matched / unmatched:** Show Matched (default on) applies Related Needs; untick ignores needs and shows optional AND credential Listbox.
 6. **UX (`1510`):** Find + Selected summary; **two columns**; North expand scoped to Info Window only (closes without white gap on Shift window).
 
 ## Late UX (keep in packs)
