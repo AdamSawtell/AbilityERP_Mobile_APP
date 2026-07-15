@@ -33,6 +33,7 @@ import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
+import org.zkoss.zul.Space;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Vbox;
 
@@ -956,10 +957,11 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		flags.appendChild(employeesNotOnLeaveCheckbox);
 
 		Cell cell = new Cell();
-		cell.setColspan(7);
+		cell.setColspan(6);
 		cell.appendChild(flags);
 
 		Row flagRow = new Row();
+		flagRow.appendChild(new Space()); // column 1 — align ticks under editors (start col 2)
 		flagRow.appendChild(cell);
 		// Immediately under the criteria editors (first parameter row).
 		org.zkoss.zul.Rows rows = parameterGrid.getRows();
