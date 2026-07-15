@@ -1,6 +1,6 @@
 # SAW003 — External ticket update (copy/paste)
 
-**Status:** Ready for client install (JAR **1.1.0.2026071514** on staging and HCO Test)  
+**Status:** Ready for client install (JAR **1.1.0.2026071516** on staging and HCO Test)  
 **Area:** iDempiere — Shift (Rostered) → Employee staff search  
 **Internal ID:** SAW003_staff_rostering_info
 
@@ -11,7 +11,7 @@
 | **Info Window** | Employee (User) / Agency Staff Rostering Info | Updated — rewrite, criteria, needs-match, UX, lean grid, unmatched credential AND filter |
 | **Window** | Shift (Rostered) | Unchanged structure — uses updated Info from Employee tab search |
 | **Tab** | Employee (on Shift Rostered) | Uses the updated Info Window / callouts |
-| **OSGi plugin** | `com.aberp.rostering.staffinfo` `1.1.0.2026071514` | Java Info + callout (restart required) |
+| **OSGi plugin** | `com.aberp.rostering.staffinfo` `1.1.0.2026071516` | Java Info + callout (restart required) |
 | **Process** | *(none new)* | — |
 | **Menu** | *(none new)* | — |
 | **Related Info** | Roster period shifts / Leave / Alerts / Credentials | Enabled on this Info Window |
@@ -61,6 +61,6 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 ## Notes / caveats
 
 - Requires Info Window UU `2b4ab146-0809-47c6-96f3-8b841d60a6bf` already present.
-- JAR must be **`1.1.0.2026071514`** and **≥ ~40 KB**. A ~29 KB file with an older version string is a **stale build** (banner only — missing ticks / credential list).
+- JAR must be **`1.1.0.2026071516`** and **≥ ~40 KB**. A ~29 KB file with an older version string is a **stale build** (banner only — missing ticks / credential list).
 - Install includes Java plugin — iDempiere restart, then log out/in or Cache Reset.
 - Do not wipe the full OSGi configuration cache.
