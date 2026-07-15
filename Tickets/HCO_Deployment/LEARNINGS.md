@@ -2,6 +2,13 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-15 — SAW003 JAR-only to `1516` on HCO20260714 host
+
+**Host:** `54.253.165.194` (was `1237` from HCO20260714 dry run).  
+**Action:** JAR-only → `com.aberp.rostering.staffinfo_1.1.0.2026071516.jar` (60278 bytes) from prior Test `13.210.248.141`; `bundles.info` updated; stop + start; WebUI 200.  
+**SQL:** not re-run (`01`–`24` already applied).  
+**No `*_UU` changes.**
+
 ## 2026-07-15 — SAW022 Shift search current pay period (`13.210.248.141`)
 
 **Result:** Pass

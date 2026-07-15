@@ -122,7 +122,8 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
 | Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071516` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
-| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071516` | SSH `ubuntu@13.210.248.141` · `HCObusiness.pem` |
+| HCO Test (prior) | `http://13.210.248.141/webui/` | `1.1.0.2026071516` | SSH `ubuntu@13.210.248.141` · `HCObusiness.pem` |
+| HCO Test (HCO20260714 dry-run) | `http://54.253.165.194/webui/` | `1.1.0.2026071516` | JAR-only redeploy 2026-07-15 (was `1237`); stop + kill equinox then start |
 
 ## Packs
 
