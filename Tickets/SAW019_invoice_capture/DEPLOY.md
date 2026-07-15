@@ -48,7 +48,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 15. `sql/15-open-po-val-rule.sql`
 16. `sql/16-fix-element-trl.sql`
 17. `sql/17-fix-menu-trl-access.sql`
-18. `sql/08-verify.sql`
+18. `sql/18-clean-capture-layout.sql`
+19. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 

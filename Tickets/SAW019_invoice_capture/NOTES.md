@@ -51,6 +51,12 @@
 - Fix: `sql/17-fix-menu-trl-access.sql`. Menu path: **Ability ERP → Invoice Capture**.
 - Role: **AbilityERP Admin** (window access). Logout/in after apply.
 
+## Clean capture layout (2026-07-15)
+
+- `sql/18-clean-capture-layout.sql`: hide Org, File Path, Tax ID, Extracted Text, Active, Processed.
+- Two-column pairs (DocNo/Status, BP/PO, Invoice No/Date); **Upload PDF** + **Process** half-width same line.
+- Cache Reset / close+reopen Invoice Capture window after apply.
+
 ## Browser bugs found / fixed (2026-07-14)
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
