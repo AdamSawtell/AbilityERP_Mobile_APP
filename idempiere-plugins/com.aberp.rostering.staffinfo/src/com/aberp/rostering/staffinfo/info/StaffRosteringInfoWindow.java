@@ -64,6 +64,10 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private Textbox credentialFilterSearch;
 	private Label credentialSelectionSummary;
 	private A credentialClearLink;
+	/** Criteria North from renderParameterPane — never expand a page-global .z-north. */
+	private org.zkoss.zul.North parameterNorth;
+	private String savedParameterNorthHeight;
+	private boolean northLayoutListenersAttached;
 	/**
 	 * Server-side cache — Listbox selection AU is unreliable when the list was ever disabled.
 	 * Lazily created: InfoWindow super() renders before subclass field initializers run.
@@ -101,6 +105,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	 */
 	@Override
 	protected void renderParameterPane(org.zkoss.zul.North north) {
+		this.parameterNorth = north;
 		super.renderParameterPane(north);
 		// Criteria stay editable even when AD_InfoColumn.IsReadOnly=Y (needed so the
 		// result grid does not paint dropdown editors on the selected row).
@@ -109,8 +114,34 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		// Strip constraints + clear -1 as soon as criteria exist, then again after attach.
 		sanitizeIdEditors();
 		ensureContextBanner(north);
+		ensureNorthLayoutCleanupListeners();
 		// Editors / Related panes may finish attaching after North render.
 		Events.echoEvent("onSanitizeIdEditors", this, null);
+	}
+
+	/**
+	 * Dragging the Info criteria splitter (or our expand for credentials) must not
+	 * leave height styles on the parent Shift window. Restore on close/cancel/detach.
+	 */
+	private void ensureNorthLayoutCleanupListeners() {
+		if (northLayoutListenersAttached) {
+			return;
+		}
+		northLayoutListenersAttached = true;
+		addEventListener(Events.ON_CLOSE, event -> restoreParameterNorthLayout());
+		addEventListener(Events.ON_CANCEL, event -> restoreParameterNorthLayout());
+	}
+
+	@Override
+	public void onPageDetached(org.zkoss.zk.ui.Page page) {
+		restoreParameterNorthLayout();
+		super.onPageDetached(page);
+	}
+
+	@Override
+	public void detach() {
+		restoreParameterNorthLayout();
+		super.detach();
 	}
 
 	/** Echoed after layout so late-created Intboxes (Search embeds, Related) are cleaned. */
@@ -760,22 +791,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			// Vbox parents wrap Divs in a TR (-chdex). setVisible(false) leaves that TR as
 			// display:none; force both leaf + wrapper visible when unmatched is on.
 			if (unmatched) {
-				String uuid = credentialFilterBox.getUuid();
-				// Delay past ZK AU: Vbox wraps children in TR (-chdex) that stays
-				// display:none after an earlier setVisible(false). Expand north so
-				// the two-column credential picker is not clipped.
-				Clients.evalJavaScript(
-						"setTimeout(function(){try{"
-								+ "var id='" + uuid + "';"
-								+ "var n=jq('#'+id)[0];if(n){n.style.display='block';n.style.visibility='visible';}"
-								+ "var tr=jq('#'+id+'-chdex')[0];"
-								+ "if(tr){tr.style.display='table-row';tr.style.visibility='visible';}"
-								+ "var north=jq('.z-north').get(0), nb=jq('.z-north-body').get(0);"
-								+ "if(nb){nb.style.overflow='auto';nb.style.height='auto';nb.style.maxHeight='340px';}"
-								+ "if(north){north.style.height='280px';north.style.minHeight='260px';"
-								+ "try{var nw=zk.Widget.$(north);if(nw&&nw.setHeight){nw.setHeight('280px');}}catch(e2){}"
-								+ "}"
-								+ "}catch(e){}},80);");
+				expandInfoParameterNorth();
+			} else {
+				restoreParameterNorthLayout();
 			}
 		}
 		if (!unmatched) {
@@ -791,6 +809,68 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		} else if (credentialFilterSearch != null) {
 			applyCredentialListFilter(credentialFilterSearch.getValue());
 		}
+	}
+
+	/**
+	 * Grow only this Info Window's criteria North so the credential picker is
+	 * visible. Never use page-global {@code jq('.z-north').get(0)} — that hits
+	 * the parent Shift (Rostered) layout and leaves a white gap after close.
+	 */
+	private void expandInfoParameterNorth() {
+		if (parameterNorth != null) {
+			if (savedParameterNorthHeight == null) {
+				savedParameterNorthHeight = parameterNorth.getHeight();
+			}
+			parameterNorth.setHeight("280px");
+		}
+		String boxUuid = credentialFilterBox != null ? credentialFilterBox.getUuid() : "";
+		String northUuid = parameterNorth != null ? parameterNorth.getUuid() : "";
+		Clients.evalJavaScript(
+				"setTimeout(function(){try{"
+						+ "var id='" + boxUuid + "', nid='" + northUuid + "';"
+						+ "var n=id?jq('#'+id)[0]:null;if(n){n.style.display='block';n.style.visibility='visible';}"
+						+ "var tr=id?jq('#'+id+'-chdex')[0]:null;"
+						+ "if(tr){tr.style.display='table-row';tr.style.visibility='visible';}"
+						+ "var north=nid?jq('#'+nid)[0]:null;"
+						+ "if(!north){var el=n||tr;while(el){"
+						+ "if(el.classList&&el.classList.contains('z-north')){north=el;break;}"
+						+ "el=el.parentElement;}}"
+						+ "if(!north){return;}"
+						+ "var nb=north.querySelector?north.querySelector('.z-north-body'):null;"
+						+ "if(nb){nb.style.overflow='auto';nb.style.height='auto';nb.style.maxHeight='340px';}"
+						+ "north.style.height='280px';north.style.minHeight='260px';"
+						+ "try{var nw=zk.Widget.$(north);if(nw&&nw.setHeight){nw.setHeight('280px');}}catch(e2){}"
+						+ "}catch(e){}},80);");
+	}
+
+	/**
+	 * Clear heights we set on the Info North, and defensively strip leftover
+	 * 280px/260px styles from any .z-north (repairs parent Shift layout if an
+	 * older build mutated it, or if the user dragged the criteria splitter).
+	 */
+	private void restoreParameterNorthLayout() {
+		if (parameterNorth != null) {
+			String restore = savedParameterNorthHeight != null ? savedParameterNorthHeight : "";
+			parameterNorth.setHeight(restore);
+			savedParameterNorthHeight = null;
+		}
+		String northUuid = parameterNorth != null ? parameterNorth.getUuid() : "";
+		Clients.evalJavaScript(
+				"try{"
+						+ "function clearNorth(el){if(!el){return;}"
+						+ "el.style.height='';el.style.minHeight='';"
+						+ "var nb=el.querySelector?el.querySelector('.z-north-body'):null;"
+						+ "if(nb){nb.style.overflow='';nb.style.height='';nb.style.maxHeight='';}"
+						+ "try{var nw=zk.Widget.$(el);if(nw&&nw.setHeight){nw.setHeight('');}}catch(e2){}}"
+						+ "var nid='" + northUuid + "';"
+						+ "if(nid){clearNorth(jq('#'+nid)[0]);}"
+						+ "jq('.z-north').each(function(){"
+						+ "var h=this.style.height||'', mh=this.style.minHeight||'';"
+						+ "if(h==='280px'||mh==='260px'){clearNorth(this);}"
+						+ "});"
+						+ "try{zUtl.fireSized(zk.Desktop.$().firstChild);}catch(e3){}"
+						+ "try{jq(window).trigger('resize');}catch(e4){}"
+						+ "}catch(e){}");
 	}
 
 	private void refreshSelectedCredentialFilterIds() {
