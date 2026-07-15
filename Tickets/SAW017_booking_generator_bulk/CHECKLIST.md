@@ -16,6 +16,7 @@
 - [x] Yes/No display type 20 (`03-fix-yesno-display.sql`)
 - [x] Post-run process summary (header + per-row + totals) — JAR `7.1.0.202607160715` (summary-only; no filter/delegate change)
 - [x] Redeploy summary JAR on `13.210.248.141` (2026-07-16) — built on host, `bundles.info` → `…160715`, WebUI 200 after restart
+- [x] Per-row summary adds BP, Invoice Partner, Target DocType — JAR `…160730` on `13.210.248.141` (2026-07-16)
 
 ## Staging loop (HCO Test) — E2E 2026-07-13 **PASS**
 

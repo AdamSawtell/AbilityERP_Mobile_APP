@@ -167,7 +167,7 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 | DocAction list | `BookingGen_DocList` UU `285220bc-9749-4c4b-978d-4674fad038cd` | **Required** — not core `_Document Action` (135) |
 | Activity Short Term Accommodation | resolve by **name** · local ID `1000014` | STR smoke block |
 | Activity Day Program | resolve by **name** · local ID `1000004` | DO |
-| Bulk JAR | `com.aberp.bookinggenerator.bulk_7.1.0.202607160715.jar` (post-run summary; previous smoke used `…132235`) | |
+| Bulk JAR | `com.aberp.bookinggenerator.bulk_7.1.0.202607160730.jar` (per-row BP / Invoice Partner / Target DocType in summary; prior `…160715` / `…132235`) | |
 | Generator JAR | `com.aberp.servicebooking.generator_7.1.12.202602251048-no-opp-dep.jar` | |
 | E2E single SB | `53324` / BG `1000910` (`2001124`) | Sep 2026 · InvoiceRule `I` · DR |
 | E2E bulk SBs | `53325` (BG `1000393`), `53326` (BG `1000509`) | Bulk `ok=3` STR · InvoiceRule `I` |

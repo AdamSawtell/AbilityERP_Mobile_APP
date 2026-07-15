@@ -222,7 +222,7 @@ public class BulkGenerateBookings extends SvrProcess {
 		return ts.toString().substring(0, 10);
 	}
 
-	private static String formatBgLabel(PO bg, int bgId) {
+	private String formatBgLabel(PO bg, int bgId) {
 		Object value = bg.get_Value("Value");
 		Object desc = bg.get_Value("Description");
 		StringBuilder sb = new StringBuilder();
@@ -234,7 +234,31 @@ public class BulkGenerateBookings extends SvrProcess {
 		if (desc != null && desc.toString().trim().length() > 0) {
 			sb.append(" (").append(desc.toString().trim()).append(")");
 		}
+		String bpName = partnerName(bg.get_ValueAsInt("C_BPartner_ID"));
+		String invoicePartner = partnerName(bg.get_ValueAsInt("Bill_BPartner_ID"));
+		String targetDocType = docTypeName(bg.get_ValueAsInt("C_DocTypeTarget_ID"));
+		sb.append(" | BP=").append(bpName)
+				.append("; Invoice Partner=").append(invoicePartner)
+				.append("; Target DocType=").append(targetDocType);
 		return sb.toString();
+	}
+
+	private String partnerName(int bPartnerId) {
+		if (bPartnerId <= 0) {
+			return "(none)";
+		}
+		String name = DB.getSQLValueString(get_TrxName(),
+				"SELECT Name FROM C_BPartner WHERE C_BPartner_ID=?", bPartnerId);
+		return name != null && name.length() > 0 ? name : ("ID " + bPartnerId);
+	}
+
+	private String docTypeName(int docTypeId) {
+		if (docTypeId <= 0) {
+			return "(none)";
+		}
+		String name = DB.getSQLValueString(get_TrxName(),
+				"SELECT Name FROM C_DocType WHERE C_DocType_ID=?", docTypeId);
+		return name != null && name.length() > 0 ? name : ("ID " + docTypeId);
 	}
 
 	private String latestBookingDocumentNo(int bgId, Timestamp notBefore, String trxName) {

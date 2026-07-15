@@ -144,7 +144,7 @@ Use a **clean future period** (not a month that already has SBs).
    - DocAction = Drafted  
 3. Expect process dialog summary covering:
    - Run header: period, activity, Include IRR/STR, Invoice Rule, DocAction, candidate count
-   - Per-row `OK` / `Skip` / `FAIL` lines (OK includes Service Booking `DocumentNo` when created in that run)
+   - Per-row `OK` / `Skip` / `FAIL` lines (BG key, BP, Invoice Partner, Target DocType; OK includes Service Booking `DocumentNo` when created in that run)
    - Totals: `ok=…, skipped=…, failed=…`
    - New SBs with Invoice Rule **I** when Force = Yes
 4. Confirm existing **Generate Bookings** button unchanged.

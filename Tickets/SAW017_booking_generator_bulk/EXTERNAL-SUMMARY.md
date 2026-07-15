@@ -19,7 +19,7 @@
 - Defaults exclude Irregular Hrs and Short Term Respite/STA unless opted in; excludes templates, Programs of Support, Non Binding Offer doctypes, and `*Do Not Use*` activities.
 - Invoice Rule Immediate can be forced on newly created bookings.
 - HCO Test end-to-end: single generate SB `53324`; bulk STR `ok=3` with SBs `53325` / `53326` (Invoice Rule Immediate).
-- After each bulk run, the process dialog shows a clear summary: period, activity, Include IRR/STR, invoice rule, DocAction, candidate count, per-row OK/Skip/Fail (with Service Booking document number when created), and totals.
+- After each bulk run, the process dialog shows a clear summary: period, activity, Include IRR/STR, invoice rule, DocAction, candidate count, per-row OK/Skip/Fail (Business Partner, Invoice Partner, Target Doc Type, and Service Booking document number when created), and totals.
 
 ## Impact
 
