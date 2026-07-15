@@ -27,12 +27,12 @@ import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.event.InputEvent;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.A;
+import org.zkoss.zul.Cell;
 import org.zkoss.zul.Div;
 import org.zkoss.zul.Intbox;
 import org.zkoss.zul.Listbox;
 import org.zkoss.zul.Listitem;
 import org.zkoss.zul.Row;
-import org.zkoss.zul.Space;
 import org.zkoss.zul.Textbox;
 import org.zkoss.zul.Vbox;
 
@@ -932,10 +932,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * Sit filter ticks under criteria columns:
-	 * Show Matched under Staff Name; roster / leave ticks under Employee.
-	 * Credential multi-select sits <em>below</em> the criteria grid (not inside a
-	 * row) so z-grid-body overflow cannot hide it when the tick expands the UI.
+	 * Second criteria row: all filter ticks on one line (Matched / Not Rostered /
+	 * Not On Leave). Credential multi-select sits <em>below</em> the criteria grid
+	 * so z-grid-body overflow cannot hide it when unmatched mode expands the UI.
 	 */
 	private void placeFilterCheckboxes() {
 		ensureFilterCheckboxes();
@@ -948,21 +947,27 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			return;
 		}
 
-		Div availabilityFlags = new Div();
-		availabilityFlags.setStyle("display:flex;flex-direction:column;gap:2px;padding-top:2px;");
-		availabilityFlags.appendChild(employeeNotRosteredCheckbox);
-		availabilityFlags.appendChild(employeesNotOnLeaveCheckbox);
+		Div flags = new Div();
+		flags.setStyle(
+				"display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;"
+						+ "gap:4px 18px;padding:2px 0 0 0;");
+		flags.appendChild(showMatchedCheckbox);
+		flags.appendChild(employeeNotRosteredCheckbox);
+		flags.appendChild(employeesNotOnLeaveCheckbox);
+
+		Cell cell = new Cell();
+		cell.setColspan(7);
+		cell.appendChild(flags);
 
 		Row flagRow = new Row();
-		// Criteria layout is label+editor pairs: Name | Employee | Agency | All/Any
-		flagRow.appendChild(new Space()); // under Staff Name label
-		flagRow.appendChild(wrapCheckbox(showMatchedCheckbox));
-		flagRow.appendChild(new Space()); // under Employee label
-		flagRow.appendChild(availabilityFlags);
-		flagRow.appendChild(new Space()); // under Agency label
-		flagRow.appendChild(new Space()); // under Agency editor
-		flagRow.appendChild(new Space()); // under All/Any
-		parameterGrid.getRows().appendChild(flagRow);
+		flagRow.appendChild(cell);
+		// Immediately under the criteria editors (first parameter row).
+		org.zkoss.zul.Rows rows = parameterGrid.getRows();
+		if (rows.getFirstChild() != null && rows.getFirstChild().getNextSibling() != null) {
+			rows.insertBefore(flagRow, rows.getFirstChild().getNextSibling());
+		} else {
+			rows.appendChild(flagRow);
+		}
 
 		// Below criteria grid (avoids z-grid-body clipping the list). Two columns:
 		// left ≈ Staff Name, right ≈ Employee.
@@ -978,13 +983,6 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			}
 		}
 		syncCredentialFilterVisibility();
-	}
-
-	private static Div wrapCheckbox(Checkbox checkbox) {
-		Div wrap = new Div();
-		wrap.setStyle("padding-top:2px;");
-		wrap.appendChild(checkbox);
-		return wrap;
 	}
 
 	private String buildContextBannerText() {
