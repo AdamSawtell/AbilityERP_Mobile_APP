@@ -27,7 +27,8 @@ DECLARE
   v_s1  CONSTANT TEXT := '@Processed@=N & @LastResult@=''''';
   v_s2  CONSTANT TEXT := '@Processed@=N & @LastResult@!''''';
   v_s3  CONSTANT TEXT := '@Processed@=Y';
-  v_s23 CONSTANT TEXT := '@Processed@=Y | (@Processed@=N & @LastResult@!'''')';
+  -- Avoid nested parentheses — ZK Evaluator hid fields with (...|...) form
+  v_s23 CONSTANT TEXT := '@LastResult@!'''' | @Processed@=Y';
 BEGIN
   SELECT t.ad_tab_id INTO v_tab
   FROM ad_tab t

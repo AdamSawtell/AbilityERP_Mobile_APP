@@ -20,3 +20,4 @@
 - [x] Help / tooltips / How-To on window, tab, fields, processes — `sql/21-help-tooltips.sql`
 - [x] Batch only unprocessed (`Processed=N`) — JAR `7.1.0.202607151950` + `sql/22`
 - [x] Show Capture Status for Pending (daytime queue) — `sql/23-show-pending-status.sql`
+- [x] Fix Display Logic so Document/Status/Last Result actually render — `sql/24-fix-displaylogic.sql`

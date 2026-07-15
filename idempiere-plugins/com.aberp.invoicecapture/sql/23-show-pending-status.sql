@@ -9,7 +9,7 @@ DO $$
 DECLARE
   v_tab INTEGER;
   v_fg_ready INTEGER;
-  v_s23 CONSTANT TEXT := '@Processed@=Y | (@Processed@=N & @LastResult@!'''')';
+  v_s23 CONSTANT TEXT := '@LastResult@!'''' | @Processed@=Y';
 BEGIN
   SELECT t.ad_tab_id INTO v_tab
   FROM ad_tab t
