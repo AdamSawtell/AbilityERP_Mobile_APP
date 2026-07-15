@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Booking Generator Bulk Generate
 Bundle-SymbolicName: com.aberp.bookinggenerator.bulk
-Bundle-Version: 7.1.0.202607132235
+Bundle-Version: 7.1.0.202607160715
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.bookinggenerator.bulk
 Bundle-RequiredExecutionEnvironment: JavaSE-11

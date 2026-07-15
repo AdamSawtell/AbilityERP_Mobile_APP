@@ -92,14 +92,18 @@ public class BulkGenerateBookings extends SvrProcess {
 		}
 
 		final List<Integer> bgIds = selectBookingGenerators();
+		addLog(0, null, null, buildRunHeader(bgIds.size()));
 		if (bgIds.isEmpty()) {
-			return "No Booking Generator rows matched Standards filters for this run";
+			String empty = buildRunHeader(0) + " | No Booking Generator rows matched Standards filters for this run";
+			addLog(0, null, null, empty);
+			return empty;
 		}
 
 		int ok = 0;
 		int skipped = 0;
 		int failed = 0;
 		final StringBuilder errors = new StringBuilder();
+		final Timestamp runStarted = new Timestamp(System.currentTimeMillis());
 
 		final int bgTableId = MTable.getTable_ID(TABLE_BG);
 		final Properties ctx = getCtx();
@@ -109,13 +113,16 @@ public class BulkGenerateBookings extends SvrProcess {
 			PO bg = MTable.get(ctx, TABLE_BG).getPO(bgId, trxName);
 			if (bg == null || bg.get_ID() <= 0) {
 				skipped++;
+				addLog(0, null, null, "Skip ID " + bgId + " — record not found");
 				continue;
 			}
+
+			final String bgLabel = formatBgLabel(bg, bgId);
 
 			String skipReason = skipReason(bg);
 			if (skipReason != null) {
 				skipped++;
-				addLog(0, null, null, "Skip BG " + bgId + ": " + skipReason);
+				addLog(0, null, null, "Skip " + bgLabel + " — " + skipReason);
 				continue;
 			}
 
@@ -147,8 +154,8 @@ public class BulkGenerateBookings extends SvrProcess {
 				if (!started || pi.isError()) {
 					failed++;
 					String err = pi.getSummary() != null ? pi.getSummary() : "Generate Bookings failed";
-					errors.append("BG ").append(bgId).append(": ").append(err).append("; ");
-					addLog(0, null, null, "FAIL BG " + bgId + ": " + err);
+					errors.append(bgLabel).append(": ").append(err).append("; ");
+					addLog(0, null, null, "FAIL " + bgLabel + " — " + err);
 					continue;
 				}
 
@@ -157,12 +164,18 @@ public class BulkGenerateBookings extends SvrProcess {
 				}
 
 				ok++;
-				addLog(0, null, null, "OK BG " + bgId);
+				String bookingRef = latestBookingDocumentNo(bgId, runStarted, trxName);
+				if (bookingRef != null) {
+					addLog(0, null, null, "OK " + bgLabel + " — Service Booking " + bookingRef);
+				} else {
+					addLog(0, null, null,
+							"OK " + bgLabel + " — Generate Bookings completed (no new booking document for this run)");
+				}
 			} catch (Exception ex) {
 				failed++;
 				String err = ex.getMessage() != null ? ex.getMessage() : ex.toString();
-				errors.append("BG ").append(bgId).append(": ").append(err).append("; ");
-				addLog(0, null, null, "FAIL BG " + bgId + ": " + err);
+				errors.append(bgLabel).append(": ").append(err).append("; ");
+				addLog(0, null, null, "FAIL " + bgLabel + " — " + err);
 				if (log.isLoggable(Level.WARNING)) {
 					log.log(Level.WARNING, "Bulk generate failed for BG " + bgId, ex);
 				}
@@ -174,12 +187,62 @@ public class BulkGenerateBookings extends SvrProcess {
 			}
 		}
 
-		String summary = "Bulk generate: created/ok=" + ok + ", skipped=" + skipped + ", failed=" + failed
-				+ " (candidates=" + bgIds.size() + ")";
+		String summary = buildRunHeader(bgIds.size())
+				+ " | Result: ok=" + ok + ", skipped=" + skipped + ", failed=" + failed;
+		addLog(0, null, null, summary);
 		if (failed > 0) {
-			return summary + ". Errors: " + errors;
+			return summary + " | Errors: " + errors;
 		}
 		return summary;
+	}
+
+	/** Human-readable run parameters for the process dialog (does not change generation). */
+	private String buildRunHeader(int candidateCount) {
+		String activity = "All activities";
+		if (p_C_Activity_ID > 0) {
+			String name = DB.getSQLValueString(get_TrxName(),
+					"SELECT Name FROM C_Activity WHERE C_Activity_ID=?", p_C_Activity_ID);
+			activity = name != null && name.length() > 0 ? name : ("Activity ID " + p_C_Activity_ID);
+		}
+		return "Bulk Generate Bookings — Period "
+				+ formatDate(p_DateFrom) + " to " + formatDate(p_DateTo)
+				+ "; Activity=" + activity
+				+ "; Include Irregular=" + (p_IncludeIrregular ? "Yes" : "No")
+				+ "; Include STR=" + (p_IncludeSTR ? "Yes" : "No")
+				+ "; Invoice Rule=" + p_InvoiceRule
+				+ (p_ForceInvoiceRule ? " (forced)" : "")
+				+ "; DocAction=" + p_DocAction
+				+ "; Candidates=" + candidateCount;
+	}
+
+	private static String formatDate(Timestamp ts) {
+		if (ts == null) {
+			return "?";
+		}
+		return ts.toString().substring(0, 10);
+	}
+
+	private static String formatBgLabel(PO bg, int bgId) {
+		Object value = bg.get_Value("Value");
+		Object desc = bg.get_Value("Description");
+		StringBuilder sb = new StringBuilder();
+		if (value != null && value.toString().trim().length() > 0) {
+			sb.append(value.toString().trim());
+		} else {
+			sb.append("ID ").append(bgId);
+		}
+		if (desc != null && desc.toString().trim().length() > 0) {
+			sb.append(" (").append(desc.toString().trim()).append(")");
+		}
+		return sb.toString();
+	}
+
+	private String latestBookingDocumentNo(int bgId, Timestamp notBefore, String trxName) {
+		return DB.getSQLValueString(trxName,
+				"SELECT DocumentNo FROM C_Order WHERE AbERP_BookingGenerator_ID=? "
+						+ "AND Created >= ? "
+						+ "ORDER BY Created DESC, C_Order_ID DESC FETCH FIRST 1 ROW ONLY",
+				bgId, notBefore);
 	}
 
 	private int resolveGenerateBookingsProcessId() {

@@ -19,17 +19,18 @@
 - Defaults exclude Irregular Hrs and Short Term Respite/STA unless opted in; excludes templates, Programs of Support, Non Binding Offer doctypes, and `*Do Not Use*` activities.
 - Invoice Rule Immediate can be forced on newly created bookings.
 - HCO Test end-to-end: single generate SB `53324`; bulk STR `ok=3` with SBs `53325` / `53326` (Invoice Rule Immediate).
+- After each bulk run, the process dialog shows a clear summary: period, activity, Include IRR/STR, invoice rule, DocAction, candidate count, per-row OK/Skip/Fail (with Service Booking document number when created), and totals.
 
 ## Impact
 
-Operators can generate a block (e.g. Short Term Accommodation or Day Program) for a period in one run instead of opening each Booking Generator line.
+Operators can generate a block (e.g. Short Term Accommodation or Day Program) for a period in one run instead of opening each Booking Generator line. The run summary makes it clear what was selected and what happened without opening each Booking Generator.
 
 ## How to test
 
 1. Log in as **Admin** or **AbilityERP Admin**. Cache Reset after install.  
 2. Open a STANDARD Booking Generator → **Generate Bookings** (Draft) for a short future period → confirm Service Booking + Invoice Rule Immediate.  
 3. Menu or button **Bulk Generate Bookings**: set Date From/To, optional Activity, Include STR only if needed → OK.  
-4. Confirm process log counts and new Service Bookings for that period.  
+4. Confirm the process dialog summary (parameters + per-row results + `ok/skipped/failed`) and new Service Bookings for that period.  
 5. Confirm Irregular / STR stay out when Include flags are No.
 
 ## Access

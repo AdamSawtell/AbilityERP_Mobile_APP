@@ -14,6 +14,8 @@
 - [x] Run-level dates / Standards filters / Irregular+STR opt-in / Invoice Rule
 - [x] DocAction = `BookingGen_DocList` (`02-fix-docaction-list.sql`)
 - [x] Yes/No display type 20 (`03-fix-yesno-display.sql`)
+- [x] Post-run process summary (header + per-row + totals) — JAR `7.1.0.202607160715` (summary-only; no filter/delegate change)
+- [ ] Redeploy summary JAR on HCO when SSH is reachable; smoke process dialog text
 
 ## Staging loop (HCO Test) — E2E 2026-07-13 **PASS**
 

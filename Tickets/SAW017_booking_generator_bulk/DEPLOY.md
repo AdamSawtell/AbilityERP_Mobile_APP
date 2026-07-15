@@ -142,7 +142,11 @@ Use a **clean future period** (not a month that already has SBs).
    - Optional Activity (e.g. Short Term Accommodation)  
    - Include Irregular = No; Include STR = Yes only when testing STR  
    - DocAction = Drafted  
-3. Expect process summary `created/ok=N, failed=0` and new SBs with Invoice Rule **I** when Force = Yes.
+3. Expect process dialog summary covering:
+   - Run header: period, activity, Include IRR/STR, Invoice Rule, DocAction, candidate count
+   - Per-row `OK` / `Skip` / `FAIL` lines (OK includes Service Booking `DocumentNo` when created in that run)
+   - Totals: `ok=…, skipped=…, failed=…`
+   - New SBs with Invoice Rule **I** when Force = Yes
 4. Confirm existing **Generate Bookings** button unchanged.
 5. Confirm Include Irregular / Include STR / Force Invoice Rule show as **Yes/No** controls (not typed Y/N).
 
