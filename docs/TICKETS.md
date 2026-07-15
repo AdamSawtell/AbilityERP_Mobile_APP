@@ -42,10 +42,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW019 | `invoice_capture` | idempiere | Invoice Capture window: same-box OCR + Process Selected Invoice + optional nightly batch | in-progress | [#19](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/19) | [`Tickets/SAW019_…`](../Tickets/SAW019_invoice_capture/) |
 | SAW020 | `hco20260714_release` | idempiere | HCO20260714 Test release dry run → Production Deployment Runbook | done | [#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20) | [`Tickets/SAW020_…`](../Tickets/SAW020_hco20260714_release/) |
 | SAW021 | `unavailability_planning` | idempiere | Unavailability Planning Info (SAW016 framework on AbERP_OngoingUnavailability) | in-progress | [#21](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/21) | [`Tickets/SAW021_…`](../Tickets/SAW021_unavailability_planning/) |
+| SAW022 | `shift_period_search_default` | idempiere | Shift (Rostered) Find defaults Roster Period to current pay period | done | [#22](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/22) | [`Tickets/SAW022_…`](../Tickets/SAW022_shift_period_search_default/) |
 
 ## Next ID
 
-**SAW022**
+**SAW023**
 
 ## Naming reminder
 

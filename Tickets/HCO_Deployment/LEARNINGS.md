@@ -2,6 +2,34 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-15 — SAW022 Shift search current pay period (`13.210.248.141`)
+
+**Result:** Pass
+
+### What worked
+- SQL-only UserQuery `* Current Pay Period` (`6b2c9e11-4d8a-4f01-9b2e-a022shift001`) with `@SQL=EXISTS` on `AbERP_PR_Period` + `LOCALTIMESTAMP`.
+- WebUI: Saved Query selected on open; OK → pager **1/2797**.
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| `AD_Field.DefaultValue` does **not** fill Lookup for virtual `AbERP_PR_Period_ID` (literal ID also blank) | Ship shared `AD_UserQuery` IsDefault instead of relying on field default |
+| `@SQL=` defaults need `AS DefaultValue` alias | Kept on field as best-effort; not relied on for Find |
+| Custom UU strings must be exactly 36 chars | Validated length before INSERT |
+
+### HCO local IDs (hints only)
+| Object | HCO ID | UU |
+|--------|--------|-----|
+| Field Roster Period | 1005884 | `9099644b-d5cf-4b32-9921-1776cac6bd66` |
+| UserQuery | (next) | `6b2c9e11-4d8a-4f01-9b2e-a022shift001` |
+| Current period at smoke | 1000052 | 06/07/2026–19/07/2026 |
+
+### Ticket artefacts
+- `Tickets/SAW022_shift_period_search_default/`
+- `idempiere-plugins/com.aberp.rosteredshift.perioddefault/`
+
+**No `*_UU` changes on existing objects.**
+
 ## 2026-07-14 — HCO20260714 dry run on `54.253.165.194` (SAW020)
 
 **Release:** Full ordered install SAW018 → SAW001 → SAW003 → SAW007 → SAW009 → SAW010 → SAW013 → SAW015 → SAW014 → SAW017 on new Test host `54.253.165.194` (not the prior `13.210.248.141` host which already had most tickets).
