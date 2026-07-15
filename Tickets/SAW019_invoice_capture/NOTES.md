@@ -40,6 +40,11 @@
 - **Proof (dev):** Capture `IC-1000005` → Vendor Invoice `1000009` (`C_Invoice_ID=1000016`) linked to PO `800013`. Document Action **Complete** → DocStatus CO; PO line QtyInvoiced 0→1. **Matched POs tab empty** — AbilityERP PO lines are **charges** (PPE - Direct); core `M_MatchPO` fills for **product** lines. Zoom to PO + Vendor Invoice confirmed (field Search refs).
 - Packs: `Downloads/AbilityERP-ClientUpdate-SAW019_invoice_capture-20260715`, `Downloads/AbilityERP-ProdUpdate-SAW019_invoice_capture-20260715`.
 
+## No PK nor FK on first save (2026-07-15)
+
+- Cause: session language `en_AU` (system language) — `POInfo` INNER JOINs `AD_Element_Trl`; missing trl dropped the IsKey column.
+- Fix: `sql/16-fix-element-trl.sql` (+ restart / Cache Reset). Verify PK appears under en_AU join.
+
 ## Browser bugs found / fixed (2026-07-14)
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
