@@ -1,5 +1,26 @@
 # SAW019 — Notes
 
+## Agent deploy handoff
+
+Full runbook: [`DEPLOY.md`](DEPLOY.md). Do not skip `sql/16`, `17`, or `24`. JAR must be `7.1.0.202607151950`.
+
+### Role access (copy into GitHub / Role Access Update)
+
+| Access | Name | Search key |
+|--------|------|------------|
+| Window | Invoice Capture | — |
+| Process | Upload Invoice PDF | `AbERP_InvoiceCapture_UploadPdf` |
+| Process | Process Selected Invoice | `AbERP_InvoiceCapture_ProcessSelected` |
+| Process | Process Invoice Capture Batch | `AbERP_InvoiceCapture_ProcessBatch` |
+
+Granted in SQL by role name to **AbilityERP Admin**, **Admin**, **System Administrator**.
+
+### Runtime dependencies
+
+- Host: `poppler-utils`, `tesseract-ocr`
+- Data: `Ab_ERP` entity; API Vendor Invoice doc type; active Charge (prefer **Invoice Capture**)
+- Related windows for smoke (pre-existing): Invoice (Vendor), Purchase Order
+
 ## Decisions
 
 - Same-box OCR: `pdftotext` (poppler) then Tesseract — no separate OCR EC2
@@ -7,15 +28,17 @@
 - Anytime **Process Selected Invoice** is primary; nightly scheduler is catch-up (host idle)
 - Draft AP Invoice only; human completes later
 - Charge line: prefer Charge named `Invoice Capture`, else first active Charge
+- Batch only `Processed='N'` (JAR `…1950`)
 
 ## Dev host
 
 - `3.107.53.69` (currently t2.medium in discovery — production target described as t2.xlarge)
 - SSH key: `AbilityERP_Development_Keypair_Shared.pem`
+- Installed: SQL through `24-fix-displaylogic.sql` + JAR `7.1.0.202607151950`
 
 ## HCO Future Deployments variables
 
-(pending first HCO install)
+(pending first HCO install — record after HCO deploy: WebUI URL, role used for smoke, resolved menu parent name, any UU collisions fixed in SQL not on HCO)
 
 ## Attachment (2026-07-14)
 

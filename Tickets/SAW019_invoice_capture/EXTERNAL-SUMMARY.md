@@ -49,7 +49,9 @@ Accounts payable / finance users who receive supplier invoices as PDFs. AbilityE
 
 ## Access
 
-**AbilityERP Admin** (and Admin) can use Invoice Capture after install and re-login / Cache Reset. Role dependencies:
+**AbilityERP Admin** (and Admin) can use Invoice Capture after install and re-login / Cache Reset.
+
+Add these on the role (Window / Process Access):
 
 | Access | Name | Search key |
 |--------|------|------------|
@@ -57,3 +59,7 @@ Accounts payable / finance users who receive supplier invoices as PDFs. AbilityE
 | Process | Upload Invoice PDF | `AbERP_InvoiceCapture_UploadPdf` |
 | Process | Process Selected Invoice | `AbERP_InvoiceCapture_ProcessSelected` |
 | Process | Process Invoice Capture Batch | `AbERP_InvoiceCapture_ProcessBatch` |
+
+Install SQL grants those to AbilityERP Admin, Admin, and System Administrator by role name. Day users need Window + Upload + Process Selected; Batch is for overnight / menu catch-up.
+
+Host also needs `poppler-utils` and `tesseract-ocr`. Completing a Draft Vendor Invoice uses the existing Invoice (Vendor) window.

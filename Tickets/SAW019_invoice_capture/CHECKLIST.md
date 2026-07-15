@@ -21,3 +21,6 @@
 - [x] Batch only unprocessed (`Processed=N`) — JAR `7.1.0.202607151950` + `sql/22`
 - [x] Show Capture Status for Pending (daytime queue) — `sql/23-show-pending-status.sql`
 - [x] Fix Display Logic so Document/Status/Last Result actually render — `sql/24-fix-displaylogic.sql`
+- [x] Agent handoff: `DEPLOY.md` + README/NOTES list all processes, role Access table, host/AD dependencies, SQL→24 + JAR 1950
+- [ ] Foreign-build install by another agent (use `DEPLOY.md` only)
+- [ ] HCO install + LEARNINGS + HCO Future Deployments variables
