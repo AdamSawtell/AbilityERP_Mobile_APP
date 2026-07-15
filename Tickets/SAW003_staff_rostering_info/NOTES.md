@@ -1,7 +1,7 @@
 # SAW003 notes
 
 - Ticket **done** and agent-ready. Point agents at **`DEPLOY.md`** (and GitHub [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)).
-- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071510`**.
+- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071511`**.
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not SAW011 (Accept Shift) or SAW004 (Rostering Chat).
 - **Later deploys:** if SQL already applied, use **JAR-only** section in `DEPLOY.md` (no need to re-run `01`–`24`).
