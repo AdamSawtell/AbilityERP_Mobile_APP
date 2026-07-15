@@ -12,6 +12,7 @@ Find/Lookup on this build **does not apply** `AD_Field.DefaultValue` for virtual
 ## Install log
 
 - 2026-07-15: Applied on `13.210.248.141` (Test). Logout/in. Smoke: Saved Query `* Current Pay Period` selected; OK → **1/2797** rows.
+- 2026-07-15 (follow-up): Added `AbERP_isShowingAsAvailable='Y'`. Smoke → **1/53**.
 
 ## HCO Future Deployments variables
 
