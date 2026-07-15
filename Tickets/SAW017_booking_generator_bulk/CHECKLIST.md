@@ -15,7 +15,7 @@
 - [x] DocAction = `BookingGen_DocList` (`02-fix-docaction-list.sql`)
 - [x] Yes/No display type 20 (`03-fix-yesno-display.sql`)
 - [x] Post-run process summary (header + per-row + totals) — JAR `7.1.0.202607160715` (summary-only; no filter/delegate change)
-- [ ] Redeploy summary JAR on HCO when SSH is reachable; smoke process dialog text
+- [x] Redeploy summary JAR on `13.210.248.141` (2026-07-16) — built on host, `bundles.info` → `…160715`, WebUI 200 after restart
 
 ## Staging loop (HCO Test) — E2E 2026-07-13 **PASS**
 

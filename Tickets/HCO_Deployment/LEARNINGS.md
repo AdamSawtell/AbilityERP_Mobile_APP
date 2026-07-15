@@ -2,6 +2,14 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-16 — SAW017 summary JAR `160715` on `13.210.248.141`
+
+**Host:** `13.210.248.141` (key `Documents\SSH Keys\HCObusiness.pem`).  
+**Action:** JAR-only rebuild/install `com.aberp.bookinggenerator.bulk_7.1.0.202607160715.jar` (post-run process summary); `bundles.info` updated; stop + start; WebUI 200.  
+**SQL:** not re-run (AD already present).  
+**Note:** `32.236.127.117` timed out for this deploy — use `13.210.248.141` for current Test.  
+**No `*_UU` changes.**
+
 ## 2026-07-15 — SAW003 JAR-only to `1516` on HCO20260714 host
 
 **Host:** `54.253.165.194` (was `1237` from HCO20260714 dry run).  

@@ -156,9 +156,10 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 
 | Object | HCO value | Notes |
 |--------|-----------|--------|
-| Host | `32.236.127.117` | Same as SAW010 |
-| SSH | `ubuntu@32.236.127.117` · key `%USERPROFILE%\.ssh\HCObusiness.pem` | |
-| WebUI | `http://32.236.127.117/webui/` · SuperUser / `HCOflamingo` · role **Admin** | |
+| Host (current Test) | `13.210.248.141` | Prefer this for ongoing SAW017 work |
+| SSH | `ubuntu@13.210.248.141` · key `c:\Users\sawte\Documents\SSH Keys\HCObusiness.pem` | |
+| WebUI | `http://13.210.248.141/webui/` · SuperUser / `HCOflamingo` · role **Admin** | |
+| Host (prior E2E 2026-07-13) | `32.236.127.117` | Original SAW017 smoke host |
 | DB | `idempiere` / `adempiere` / `flamingo` | |
 | Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` (local) | Resolve by UU |
 | Process Generate Bookings | UU `6482f6b8-eaa3-4e7b-a8f6-4e263d44909b` · value `Generate Bookings` | Patched JAR `*-no-opp-dep.jar` |
