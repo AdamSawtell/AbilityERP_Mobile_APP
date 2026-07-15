@@ -1,0 +1,47 @@
+---
+description: ADOPTED — GitHub/ticket docs must list Role access as Access / Name / Search key
+alwaysApply: true
+---
+
+# ADOPTED: Role access table in GitHub documentation
+
+For Kind `idempiere` or `both`, every public handoff that mentions role grants must include an **Access** table so operators can add Window / Process (and Info / Form) dependencies on a role without guessing Search Keys.
+
+## Where it is mandatory
+
+1. **GitHub issue** body (Access / Role access section, or Deploy section)
+2. **`Tickets/SAW###_…/EXTERNAL-SUMMARY.md`** — under **Access** (customer-facing)
+3. **`Tickets/SAW###_…/DEPLOY.md`** — under **AbilityERP Admin access** (agent-facing)
+
+Also keep the prose note that **AbilityERP Admin** (and **Admin** on HCO when needed) is granted in install SQL.
+
+## Required table format
+
+Columns exactly: **Access** | **Name** | **Search key**
+
+| Access | Name | Search key |
+|--------|------|------------|
+| Window | Invoice Capture | — |
+| Process | Upload Invoice PDF | `AbERP_InvoiceCapture_UploadPdf` |
+| Process | Process Selected Invoice | `AbERP_InvoiceCapture_ProcessSelected` |
+| Process | Process Invoice Capture Batch | `AbERP_InvoiceCapture_ProcessBatch` |
+
+### Access column values
+
+Use one of: `Window` | `Process` | `Info Window` | `Form` | `Menu` (only if a standalone menu process needs access)
+
+### Name / Search key
+
+- **Name** = AD display name (what users see / Role → … Access picker).
+- **Search key** = `AD_Process.Value` / Info Window Value / Form class hint when stable; use `—` for windows (and other objects with no useful Search Key).
+- List **every** new or newly bound process a role needs (including Upload / button processes), not only the menu batch.
+
+## Do not
+
+- Say “process access granted” without naming each process + Search key.
+- Document only seed `AD_*_ID` instead of Name / Search key.
+- Omit Upload (or other button) processes when the window depends on them.
+
+## Guide
+
+Full checklist: `docs/DEV-REQUIREMENTS.md` § Role access documentation. Ticket layout: `Tickets/README.md`.

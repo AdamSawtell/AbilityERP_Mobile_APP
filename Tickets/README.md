@@ -34,12 +34,12 @@ Plain-language update for the **external ticket** (not for agents). Must be read
 - What changed (behaviour)  
 - Impact / who is affected  
 - How to test (business smoke)  
-- Access note: **AbilityERP Admin** can see/use all new windows, tabs, Info Windows, and processes  
+- **Access** — prose that Admin can use the feature, **plus** the Role access table (`Access` \| `Name` \| `Search key`) for every window/process/Info/form the role must receive (see `docs/DEV-REQUIREMENTS.md` §0a and `.cursor/rules/github-role-access-docs.mdc`)  
 - Any residual caveats  
 
 ### `DEPLOY.md` (agents)
 
-Enough for a new agent to install on another build. Must also grant **AbilityERP Admin** access to every new window / process / Info Window / form (see `docs/DEV-REQUIREMENTS.md`).
+Enough for a new agent to install on another build. Must also grant **AbilityERP Admin** access to every new window / process / Info Window / form (see `docs/DEV-REQUIREMENTS.md`). Under **AbilityERP Admin access**, include the same **Access \| Name \| Search key** table (not a bullet paraphrase only).
 
 **GitHub issue** for Kind `idempiere` / `both`: Deploy section + link to `DEPLOY.md`. Link or attach `EXTERNAL-SUMMARY.md` when advising the customer ticket is ready.
 

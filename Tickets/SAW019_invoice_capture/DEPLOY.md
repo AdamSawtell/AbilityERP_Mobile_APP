@@ -63,10 +63,14 @@ Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / 
 
 ## AbilityERP Admin access
 
-Granted in SQL by role **name**:
+Granted in SQL by role **name** to **AbilityERP Admin**, **Admin**, and **System Administrator**:
 
-- Window access: Invoice Capture → **AbilityERP Admin**, **Admin**, **System Administrator**
-- Process access: Process Selected Invoice + Process Invoice Capture Batch → same roles
+| Access | Name | Search key |
+|--------|------|------------|
+| Window | Invoice Capture | — |
+| Process | Upload Invoice PDF | `AbERP_InvoiceCapture_UploadPdf` |
+| Process | Process Selected Invoice | `AbERP_InvoiceCapture_ProcessSelected` |
+| Process | Process Invoice Capture Batch | `AbERP_InvoiceCapture_ProcessBatch` |
 
 After install: **Cache Reset** or logout/in. On HCO, SuperUser may need **Admin** role selected.
 

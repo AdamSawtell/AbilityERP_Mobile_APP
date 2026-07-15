@@ -2,7 +2,7 @@
 
 Checklist for any new feature, window, process, button, or API surface in this project.
 
-Also see: `.cursor/rules/ticket-ids.mdc`, `Tickets/README.md` (`DEPLOY.md` + **`EXTERNAL-SUMMARY.md`**), `client-update-staging-loop.mdc`, **`hco-deployment.mdc`** + [`Tickets/HCO_Deployment/`](../Tickets/HCO_Deployment/) (HCO client installs — never change HCO UUIDs; append learnings).
+Also see: `.cursor/rules/ticket-ids.mdc`, `.cursor/rules/github-role-access-docs.mdc`, `Tickets/README.md` (`DEPLOY.md` + **`EXTERNAL-SUMMARY.md`**), `client-update-staging-loop.mdc`, **`hco-deployment.mdc`** + [`Tickets/HCO_Deployment/`](../Tickets/HCO_Deployment/) (HCO client installs — never change HCO UUIDs; append learnings).
 
 ---
 
@@ -39,6 +39,25 @@ After granting access, users must **log out and log back in** (or run **Role Acc
 Use templates such as `idempiere-plugins/com.aberp.rosteredshift.process/sql/grant-process-access-roles.sql` and mirror the same pattern for window / info / form access.
 
 **Ticket handoff:** `DEPLOY.md` must list Admin grants; `EXTERNAL-SUMMARY.md` must tell the customer that Admin can use the feature.
+
+### 0a. Role access documentation — mandatory (GitHub + tickets)
+
+When documenting windows/processes for roles (GitHub issue, `DEPLOY.md`, `EXTERNAL-SUMMARY.md`), always include this table so Role → Window / Process Access can be filled without digging in AD:
+
+| Access | Name | Search key |
+|--------|------|------------|
+| Window | Invoice Capture | — |
+| Process | Upload Invoice PDF | `AbERP_InvoiceCapture_UploadPdf` |
+| Process | Process Selected Invoice | `AbERP_InvoiceCapture_ProcessSelected` |
+| Process | Process Invoice Capture Batch | `AbERP_InvoiceCapture_ProcessBatch` |
+
+| Column | Rule |
+|--------|------|
+| **Access** | `Window`, `Process`, `Info Window`, or `Form` |
+| **Name** | AD display name (Role access picker / menu) |
+| **Search key** | Process/Info `Value` when it exists; `—` for windows |
+
+List **every** process the feature needs (including button/upload processes), not only the menu batch. Cursor rule: `.cursor/rules/github-role-access-docs.mdc`.
 
 ### 1. Process access
 
