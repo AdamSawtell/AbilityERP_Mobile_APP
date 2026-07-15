@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Invoice Capture
 Bundle-SymbolicName: com.aberp.invoicecapture
-Bundle-Version: 7.1.0.202607151800
+Bundle-Version: 7.1.0.202607151950
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.invoicecapture
 Bundle-RequiredExecutionEnvironment: JavaSE-11

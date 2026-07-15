@@ -52,7 +52,10 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 19. `sql/19-show-extracted-text.sql`
 20. `sql/20-progressive-capture-ux.sql`
 21. `sql/21-help-tooltips.sql`
-22. `sql/08-verify.sql`
+22. `sql/22-batch-unprocessed-only.sql`
+23. `sql/08-verify.sql`
+
+JAR: `com.aberp.invoicecapture_7.1.0.202607151950.jar` — batch selects only `Processed='N'`.
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 

@@ -82,6 +82,7 @@ public class InvoiceCaptureService {
 
 		String status = str(capture.get_Value("CaptureStatus"));
 		int existingInvoiceId = intVal(capture.get_Value("C_Invoice_ID"));
+		boolean alreadyProcessed = "Y".equalsIgnoreCase(str(capture.get_Value("Processed")));
 		if (ST_SUCCESS.equals(status) && existingInvoiceId > 0) {
 			String msg = "Already processed — Draft Vendor Invoice linked (C_Invoice_ID=" + existingInvoiceId
 					+ "). Duplicate Vendor Invoice creation prevented.";
@@ -90,6 +91,13 @@ public class InvoiceCaptureService {
 			capture.saveEx();
 			return new InvoiceCaptureResult(InvoiceCaptureResult.Code.ALREADY_PROCESSED, msg, existingInvoiceId,
 					ST_SUCCESS);
+		}
+		// Batch never re-runs a record that already finished (manual or prior batch).
+		if ("Batch".equals(trigger) && alreadyProcessed) {
+			String msg = "Skipped by batch — already processed (Processed=Y). Use Process on the window to retry review statuses.";
+			appendLog(capture, InvoiceCaptureResult.Code.ALREADY_PROCESSED.name(), msg, existingInvoiceId, trigger);
+			return new InvoiceCaptureResult(InvoiceCaptureResult.Code.ALREADY_PROCESSED, msg, existingInvoiceId,
+					status);
 		}
 
 		if (!isEligible(status)) {

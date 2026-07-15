@@ -11,7 +11,8 @@ import com.aberp.invoicecapture.service.InvoiceCaptureResult;
 import com.aberp.invoicecapture.service.InvoiceCaptureService;
 
 /**
- * Batch / scheduler entry point. Processes all eligible pending captures via the shared service.
+ * Batch / scheduler entry point. Processes captures that have not been processed yet
+ * ({@code Processed='N'}). Records already run manually or in a prior batch are skipped.
  */
 public class ProcessInvoiceCaptureBatch extends SvrProcess {
 
@@ -23,7 +24,9 @@ public class ProcessInvoiceCaptureBatch extends SvrProcess {
 	@Override
 	protected String doIt() throws Exception {
 		final int clientId = Env.getAD_Client_ID(getCtx());
-		final String where = "AD_Client_ID=? AND IsActive='Y' AND CaptureStatus IN ("
+		// Only never-processed rows. Manual Process may still retry review/error statuses;
+		// overnight batch must not re-drive records that already finished once.
+		final String where = "AD_Client_ID=? AND IsActive='Y' AND Processed='N' AND CaptureStatus IN ("
 				+ InvoiceCaptureService.ELIGIBLE_STATUS_SQL_IN + ")";
 
 		List<PO> rows = new Query(getCtx(), InvoiceCaptureService.TABLE_CAPTURE, where, get_TrxName())
@@ -32,7 +35,7 @@ public class ProcessInvoiceCaptureBatch extends SvrProcess {
 				.list();
 
 		if (rows.isEmpty()) {
-			return "No eligible Invoice Capture records to process";
+			return "No unprocessed Invoice Capture records to process";
 		}
 
 		InvoiceCaptureService service = new InvoiceCaptureService(getCtx(), get_TrxName(), this);
