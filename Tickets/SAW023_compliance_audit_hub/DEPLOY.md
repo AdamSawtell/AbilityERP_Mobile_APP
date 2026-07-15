@@ -49,15 +49,16 @@ Install SQL grants window access to **AbilityERP Admin**, **Admin**, and **Syste
 
 ## Smoke
 
-1. Menu → **Ability ERP → Compliance & Audit Hub → Compliance Summary** (or search; Find with empty criteria if 0/0)
-2. Summary tab shows score / traffic light / totals
-3. Breadcrumb **Summary ▼** → Employee / Client / Incidents / Rostering / Documentation — identical KPI field layout
+1. Open **Compliance Summary** (logout/in after AD tab changes)
+2. Header **Organisation Audit** shows org score / traffic light / totals
+3. Child tabs: Employee, Client, Incidents, Rostering, Documentation
 4. **Compliance Rules** opens (empty until rules seeded)
 
 ## Dev install evidence (2026-07-16)
 
-- Host `3.27.207.215` — SQL 00–10 applied; verify: 3 tables, 1 view, 4 AD tables, 2 windows, 6 summary tabs
-- WebUI smoke (Admin / HCO): Summary KPIs 76.4 / Red / 1234; Employee tab 412/389/… layout OK
+- Host `3.27.207.215` — SQL through `12-org-header-category-tabs.sql`
+- Organisation Audit = TabLevel 0; category tabs = TabLevel 1
+- WebUI: org header 76.4 / Red / 1,234 with Employee child tab below
 
 ## Blockers / later
 
