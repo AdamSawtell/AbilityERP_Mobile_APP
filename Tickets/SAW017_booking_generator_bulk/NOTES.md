@@ -157,8 +157,9 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 | Object | HCO value | Notes |
 |--------|-----------|--------|
 | Host (current Test) | `13.210.248.141` | Prefer this for ongoing SAW017 work |
-| SSH | `ubuntu@13.210.248.141` · key `c:\Users\sawte\Documents\SSH Keys\HCObusiness.pem` | |
-| WebUI | `http://13.210.248.141/webui/` · SuperUser / `HCOflamingo` · role **Admin** | |
+| Host (HCO20260714 dry-run) | `54.253.165.194` | JAR-only to `…160730` on 2026-07-16 (was `…132235`) |
+| SSH | `ubuntu@<host>` · key `c:\Users\sawte\Documents\SSH Keys\HCObusiness.pem` | |
+| WebUI | `http://<host>/webui/` · SuperUser / `HCOflamingo` · role **Admin** | |
 | Host (prior E2E 2026-07-13) | `32.236.127.117` | Original SAW017 smoke host |
 | DB | `idempiere` / `adempiere` / `flamingo` | |
 | Window Booking Generator | UU `de336034-bd4e-4445-b018-9c762c98d847` · ID `1000163` (local) | Resolve by UU |

@@ -25,7 +25,7 @@ Status legend: `PENDING` · `IN PROGRESS` · `PASS` · `FAIL` · `BLOCKED` · `S
 | 7–8 | SAW013 Forms + Create Request filter | PASS | SQL 00→01→02→03→05→04 |
 | 9 | SAW015 Copy Dates From | PASS | SQL + JAR `7.1.0.202607131830` + restart |
 | 10 | SAW014 Support Location ColumnSQL | PASS | SQL 00→01→04; WebUI grid Email/Phone populated |
-| 11 | SAW017 Bulk Booking Generator | PASS | Generator stack JARs + bulk JAR + SQL 00→04 + restart |
+| 11 | SAW017 Bulk Booking Generator | PASS | Initial dry run: bulk `…132235` + stack + SQL 00→04 · **Update 2026-07-16:** JAR-only → **`…160730`** (see RELEASE-UPDATES) |
 | 12 | Release post-validation | PASS | Markers green; WebUI 200; Admin login OK |
 
 ---

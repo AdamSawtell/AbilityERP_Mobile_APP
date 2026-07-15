@@ -43,16 +43,18 @@ Hard rules: never change existing HCO `*_UU`; fix AbilityERP SQL/process instead
 |---|--------|-----------|----------|--------------|
 | 1 | SAW018 | SQL view + 4× `*_SYSTEM_hco_*.zip` PackIn | Maybe (PackInFolder stops OSGi app) | Yes |
 | 2 | SAW001 | SQL only (`com.aberp.notification.invoiceinfo`) | No | Yes |
-| 3 | SAW003 | SQL + JAR `com.aberp.rostering.staffinfo_1.1.0.2026071237` | **Yes** | Yes |
+| 3 | SAW003 | SQL + JAR `com.aberp.rostering.staffinfo_1.1.0.2026071516` | **Yes** | Yes |
 | 4 | SAW007 | SQL (+ optional marker JAR) | If JAR | Yes |
 | 5 | SAW009 | SQL only | No | Yes |
 | 6 | SAW010 | SQL only | No | Yes |
 | 7–8 | SAW013 | SQL only (`00`→`01`→`02`→`03`→`05`→`04`) | No | Yes |
 | 9 | SAW015 | SQL + JAR `com.aberp.skipdates.copyfrom_7.1.0.202607131830` | **Yes** (stop then start) | Yes |
 | 10 | SAW014 | SQL only | No | Yes |
-| 11 | SAW017 | Generator stack JARs (if missing) + bulk JAR + SQL `00`–`04` | **Yes** | Yes |
+| 11 | SAW017 | Generator stack (if missing) + bulk JAR **`7.1.0.202607160730`** + SQL `00`–`04` | **Yes** | Yes |
 
 After each ticket: verify SQL markers → Cache Reset / logout-in → WebUI smoke (see per-ticket DEPLOY.md).
+
+**Post dry-run JAR bumps** (already applied on Test; fold into Production): see [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md) (SAW003 `1516`, SAW017 `160730`).
 
 ### Per-ticket pointers
 
@@ -60,14 +62,14 @@ After each ticket: verify SQL markers → Cache Reset / logout-in → WebUI smok
 |--------|----------------|------------------------|
 | SAW018 | `Tickets/SAW018_hco_release_packins/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW018_hco_release_packins-20260713` |
 | SAW001 | `Tickets/SAW001_paid_filter_invoice_send_info/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW001_paid_filter_invoice_send_info-20260712` |
-| SAW003 | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712` |
+| SAW003 | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` | Prefer JAR **`1516`** from ticket `release/` (refresh Prod pack if still on older build) |
 | SAW007 | `Tickets/SAW007_activity_tab_integration/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712` |
 | SAW009 | `Tickets/SAW009_support_day_pattern_number/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW009_support_day_pattern_number-20260713` |
 | SAW010 | `Tickets/SAW010_timesheet_approval_info_columns/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW010_timesheet_approval_info_columns-20260712` |
 | SAW013 | `Tickets/SAW013_shift_change_form_enhancements/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW013_shift_change_form_enhancements-20260713` |
 | SAW015 | `Tickets/SAW015_skip_dates_copy_from/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW015_skip_dates_copy_from-20260713` |
 | SAW014 | `Tickets/SAW014_support_location_contact_grid/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW014_support_location_contact_grid-20260713` |
-| SAW017 | `Tickets/SAW017_booking_generator_bulk/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260714` |
+| SAW017 | `Tickets/SAW017_booking_generator_bulk/DEPLOY.md` | **`AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260716`** (bulk `…160730`) |
 
 ## AbilityERP Admin access
 

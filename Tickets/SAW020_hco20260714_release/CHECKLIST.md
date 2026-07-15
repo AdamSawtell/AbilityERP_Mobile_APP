@@ -27,7 +27,7 @@
 | 7–8 | SAW013 | [x] | [x] | [x] | [x] | [ ] | Request Submitted present |
 | 9 | SAW015 | [x] | [x] | [x] | [x] | [ ] | Process + JAR |
 | 10 | SAW014 | [x] | [x] | [x] | [x] | [x] | Grid Email/Phone Pass |
-| 11 | SAW017 | [x] | [x] | [x] | [x] | [ ] | Bulk + DocList + YesNo |
+| 11 | SAW017 | [x] | [x] | [x] | [x] | [ ] | Bulk `160730` on dry-run 2026-07-16 (was `132235`) |
 
 ## Release readiness
 
