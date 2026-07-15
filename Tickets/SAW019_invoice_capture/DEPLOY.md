@@ -17,8 +17,8 @@ Agent install runbook for another iDempiere build.
 |--|--|
 | Path | `idempiere-plugins/com.aberp.invoicecapture/` |
 | Symbolic name | `com.aberp.invoicecapture` |
-| Version | `7.1.0.202607141930` |
-| JAR | `com.aberp.invoicecapture_7.1.0.202607141930.jar` |
+| Version | `7.1.0.202607151700` |
+| JAR | `com.aberp.invoicecapture_7.1.0.202607151700.jar` |
 
 On host:
 
@@ -45,7 +45,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 12. `sql/12-fix-org-default-docno.sql`
 13. `sql/13-fix-client-field.sql`
 14. `sql/14-add-po-link.sql`
-13. `sql/08-verify.sql`
+15. `sql/15-open-po-val-rule.sql`
+16. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 
@@ -74,9 +75,15 @@ After install: **Cache Reset** or logout/in. On HCO, SuperUser may need **Admin*
 1. Login AbilityERP Admin → menu **Invoice Capture**
 2. New record → attach PDF (or File Path to server PDF)
 3. **Process Selected Invoice**
-4. Expect clear Last Result; on success, zoom **Vendor Invoice** (Draft)
+4. Expect clear Last Result; on success, zoom **Vendor Invoice** (Draft) and **Purchase Order** when linked
 5. Processing Log tab has a new row (prior logs kept)
 6. Re-process succeeded row → refuses duplicate create
+7. Complete Draft Vendor Invoice in an open accounting period → PO **Qty Invoiced** updates; **Matched POs** tab fills for product lines (charge-only AbilityERP POs usually leave Matched POs empty)
+
+## Packs
+
+- Staging: `Downloads/AbilityERP-ClientUpdate-SAW019_invoice_capture-20260715`
+- Thin prod: `Downloads/AbilityERP-ProdUpdate-SAW019_invoice_capture-20260715` (`01-APPLY.sql` = 11–15)
 
 ## Architecture note
 

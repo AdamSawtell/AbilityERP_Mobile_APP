@@ -89,7 +89,7 @@ BEGIN
     ) VALUES (
       v_ref, 0, 0, 'Y', NOW(), 100, NOW(), 100,
       v_order_table, v_key_col, v_disp_col, 'N', 'Ab_ERP',
-      'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'')',
+      'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'') AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID AND ol.IsActive=''Y'' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))',
       'DocumentNo DESC'
     );
   END IF;
@@ -109,12 +109,13 @@ BEGIN
       'AbERP PO by Vendor (Capture)',
       'Purchase orders for the capture vendor (or all POs if vendor blank)',
       'S',
-      'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'') AND C_Order.IsActive=''Y'' AND (@C_BPartner_ID@=0 OR C_Order.C_BPartner_ID=@C_BPartner_ID@)',
+      'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'') AND C_Order.IsActive=''Y'' AND (@C_BPartner_ID@=0 OR C_Order.C_BPartner_ID=@C_BPartner_ID@) AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID AND ol.IsActive=''Y'' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))',
       'Ab_ERP', v_vr_uu
     ) RETURNING ad_val_rule_id INTO v_vr;
   ELSE
     UPDATE ad_val_rule SET
-      code = 'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'') AND C_Order.IsActive=''Y'' AND (@C_BPartner_ID@=0 OR C_Order.C_BPartner_ID=@C_BPartner_ID@)',
+      code = 'C_Order.IsSOTrx=''N'' AND C_Order.DocStatus IN (''CO'',''CL'') AND C_Order.IsActive=''Y'' AND (@C_BPartner_ID@=0 OR C_Order.C_BPartner_ID=@C_BPartner_ID@) AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID AND ol.IsActive=''Y'' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))',
+      description = 'Open (qty) purchase orders for the capture vendor (or all open POs if vendor blank)',
       updated = NOW()
     WHERE ad_val_rule_id = v_vr;
   END IF;

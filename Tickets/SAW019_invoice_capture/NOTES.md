@@ -31,6 +31,15 @@
 - If no PO: existing single Charge-line draft path.
 - Test PDFs in Downloads: `SAW019_PO_Safety_Gear_Pro_800013.pdf`, `SAW019_PO_Adelaide_Property_Managers_800014.pdf`, `SAW019_PO_TechWorks_Australia_800017.pdf`.
 
+## PO → Complete → Matched PO (2026-07-15 Phase 1–3)
+
+- JAR `7.1.0.202607151700` + `sql/15-open-po-val-rule.sql`.
+- Amount check: invoice total must be within ±$1 of PO **GrandTotal** or open line-net; else **Requires Review**.
+- PO Search/val rule prefers POs with open qty.
+- Last Result distinguishes draft from PO / charge line / review.
+- **Proof (dev):** Capture `IC-1000005` → Vendor Invoice `1000009` (`C_Invoice_ID=1000016`) linked to PO `800013`. Document Action **Complete** → DocStatus CO; PO line QtyInvoiced 0→1. **Matched POs tab empty** — AbilityERP PO lines are **charges** (PPE - Direct); core `M_MatchPO` fills for **product** lines. Zoom to PO + Vendor Invoice confirmed (field Search refs).
+- Packs: `Downloads/AbilityERP-ClientUpdate-SAW019_invoice_capture-20260715`, `Downloads/AbilityERP-ProdUpdate-SAW019_invoice_capture-20260715`.
+
 ## Browser bugs found / fixed (2026-07-14)
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).

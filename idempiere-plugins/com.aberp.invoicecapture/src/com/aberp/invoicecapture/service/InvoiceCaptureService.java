@@ -191,6 +191,23 @@ public class InvoiceCaptureService {
 			}
 			capture.saveEx();
 
+			// Amount vs PO — accept tax-incl GrandTotal or open line-net (±$1). Else Require Review.
+			if (orderId > 0 && hasPositiveAmount(fields.grandTotal)) {
+				BigDecimal openPoNet = openPurchaseOrderAmount(orderId);
+				BigDecimal orderGrand = orderGrandTotal(orderId);
+				boolean closeToOpenNet = openPoNet != null
+						&& openPoNet.subtract(fields.grandTotal).abs().compareTo(AMOUNT_TOLERANCE) <= 0;
+				boolean closeToOrderGt = orderGrand != null
+						&& orderGrand.subtract(fields.grandTotal).abs().compareTo(AMOUNT_TOLERANCE) <= 0;
+				if (!closeToOpenNet && !closeToOrderGt) {
+					String msg = "Requires review: invoice amount " + fields.grandTotal
+							+ " differs from PO " + poDocumentNo(orderId)
+							+ " (open net=" + openPoNet + ", order total=" + orderGrand
+							+ ", tolerance ±" + AMOUNT_TOLERANCE + "). Confirm PO / amount, then Process again.";
+					return fail(capture, InvoiceCaptureResult.Code.REQUIRES_REVIEW, ST_REQUIRES_REVIEW, msg, trigger, 0);
+				}
+			}
+
 			int dupInvoiceId = findDuplicateInvoice(capture.getAD_Client_ID(), bpartnerId, fields.invoiceNo,
 					fields.grandTotal);
 			if (dupInvoiceId > 0) {
@@ -223,13 +240,25 @@ public class InvoiceCaptureService {
 			MInvoice invoice = createDraftVendorInvoice(capture, bpartnerId, docTypeId, chargeId, orderId, fields,
 					pdf);
 			int invoiceId = invoice.getC_Invoice_ID();
+			boolean fromPo = orderId > 0 && intVal(invoice.get_Value("C_Order_ID")) > 0
+					&& hasPoLinkedLines(invoiceId);
 
 			capture.set_ValueOfColumn("C_Invoice_ID", Integer.valueOf(invoiceId));
 			capture.set_ValueOfColumn("CaptureStatus", ST_SUCCESS);
-			String msg = "Draft Vendor Invoice created (C_Invoice_ID=" + invoiceId
-					+ ", DocNo/PORef=" + fields.invoiceNo
-					+ (orderId > 0 ? ", PO=" + poDocumentNo(orderId) : "")
-					+ "). Left in Draft for review.";
+			String msg;
+			if (fromPo) {
+				msg = "Draft from PO " + poDocumentNo(orderId)
+						+ " (open lines) — Vendor Invoice C_Invoice_ID=" + invoiceId
+						+ ", PORef=" + fields.invoiceNo
+						+ ". Complete Vendor Invoice to update PO qty; Matched PO tab fills for product lines.";
+			} else if (orderId > 0) {
+				msg = "Draft via charge line (PO " + poDocumentNo(orderId)
+						+ " had no open product/charge lines) — C_Invoice_ID=" + invoiceId
+						+ ", PORef=" + fields.invoiceNo + ". Left in Draft for review.";
+			} else {
+				msg = "Draft via charge line (no PO) — C_Invoice_ID=" + invoiceId
+						+ ", PORef=" + fields.invoiceNo + ". Left in Draft for review.";
+			}
 			finish(capture, msg, trigger, InvoiceCaptureResult.Code.DRAFT_CREATED, invoiceId);
 			return new InvoiceCaptureResult(InvoiceCaptureResult.Code.DRAFT_CREATED, msg, invoiceId, ST_SUCCESS);
 
@@ -487,6 +516,8 @@ public class InvoiceCaptureService {
 		return id == null ? 0 : id.intValue();
 	}
 
+	private static final BigDecimal AMOUNT_TOLERANCE = new BigDecimal("1.00");
+
 	/**
 	 * Resolve Purchase Order: prefer OCR PO document no; else unique open PO for vendor
 	 * when amounts match (within $1).
@@ -494,6 +525,19 @@ public class InvoiceCaptureService {
 	private int matchPurchaseOrder(int clientId, int bpartnerId, ParsedFields fields) {
 		if (!empty(fields.poDocNo)) {
 			Integer id = DB.getSQLValue(trxName,
+					"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND IsSOTrx='N' AND IsActive='Y' "
+							+ "AND DocStatus IN ('CO','CL') AND DocumentNo=? "
+							+ "AND (C_BPartner_ID=? OR ?=0) "
+							+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
+							+ "AND ol.IsActive='Y' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0)) "
+							+ "ORDER BY CASE WHEN C_BPartner_ID=? THEN 0 ELSE 1 END, C_Order_ID DESC "
+							+ "FETCH FIRST 1 ROW ONLY",
+					clientId, fields.poDocNo, bpartnerId, bpartnerId, bpartnerId);
+			if (id != null && id > 0) {
+				return id.intValue();
+			}
+			// Fallback: allow DocumentNo match even if fully invoiced (amount check may Require Review)
+			id = DB.getSQLValue(trxName,
 					"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND IsSOTrx='N' AND IsActive='Y' "
 							+ "AND DocStatus IN ('CO','CL') AND DocumentNo=? "
 							+ "AND (C_BPartner_ID=? OR ?=0) "
@@ -505,26 +549,48 @@ public class InvoiceCaptureService {
 			}
 		}
 		if (bpartnerId > 0 && hasPositiveAmount(fields.grandTotal)) {
-			Integer id = DB.getSQLValue(trxName,
-					"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND C_BPartner_ID=? AND IsSOTrx='N' "
-							+ "AND IsActive='Y' AND DocStatus='CO' "
-							+ "AND ABS(GrandTotal - ?) <= 1 "
-							+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
-							+ "AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0)) "
-							+ "ORDER BY DateOrdered DESC, C_Order_ID DESC",
-					clientId, bpartnerId, fields.grandTotal);
-			// Only auto-pick when exactly one amount match
 			int count = DB.getSQLValue(trxName,
 					"SELECT COUNT(*) FROM C_Order WHERE AD_Client_ID=? AND C_BPartner_ID=? AND IsSOTrx='N' "
 							+ "AND IsActive='Y' AND DocStatus='CO' AND ABS(GrandTotal - ?) <= 1 "
 							+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
-							+ "AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))",
+							+ "AND ol.IsActive='Y' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0))",
 					clientId, bpartnerId, fields.grandTotal);
-			if (count == 1 && id != null && id > 0) {
-				return id.intValue();
+			if (count == 1) {
+				Integer id = DB.getSQLValue(trxName,
+						"SELECT C_Order_ID FROM C_Order WHERE AD_Client_ID=? AND C_BPartner_ID=? AND IsSOTrx='N' "
+								+ "AND IsActive='Y' AND DocStatus='CO' "
+								+ "AND ABS(GrandTotal - ?) <= 1 "
+								+ "AND EXISTS (SELECT 1 FROM C_OrderLine ol WHERE ol.C_Order_ID=C_Order.C_Order_ID "
+								+ "AND ol.IsActive='Y' AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0)) "
+								+ "ORDER BY DateOrdered DESC, C_Order_ID DESC FETCH FIRST 1 ROW ONLY",
+						clientId, bpartnerId, fields.grandTotal);
+				if (id != null && id > 0) {
+					return id.intValue();
+				}
 			}
 		}
 		return 0;
+	}
+
+	/** Sum of open line net amounts (qty open × price) on the PO. */
+	private BigDecimal openPurchaseOrderAmount(int orderId) {
+		BigDecimal amt = DB.getSQLValueBD(trxName,
+				"SELECT COALESCE(SUM((ol.QtyOrdered - COALESCE(ol.QtyInvoiced,0)) * ol.PriceActual),0) "
+						+ "FROM C_OrderLine ol WHERE ol.C_Order_ID=? AND ol.IsActive='Y' "
+						+ "AND ol.QtyOrdered > COALESCE(ol.QtyInvoiced,0)",
+				orderId);
+		return amt;
+	}
+
+	private BigDecimal orderGrandTotal(int orderId) {
+		return DB.getSQLValueBD(trxName, "SELECT GrandTotal FROM C_Order WHERE C_Order_ID=?", orderId);
+	}
+
+	private boolean hasPoLinkedLines(int invoiceId) {
+		int n = DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM C_InvoiceLine WHERE C_Invoice_ID=? AND COALESCE(C_OrderLine_ID,0)>0",
+				invoiceId);
+		return n > 0;
 	}
 
 	private String poDocumentNo(int orderId) {
