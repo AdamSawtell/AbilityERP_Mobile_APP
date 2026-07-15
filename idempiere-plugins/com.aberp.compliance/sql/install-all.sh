@@ -12,7 +12,9 @@ for f in \
   07-menu-access.sql \
   08-seed-dummy-snapshot.sql \
   09-verify.sql \
-  10-menu-window-trl.sql
+  10-menu-window-trl.sql \
+  11-org-audit-tab-name.sql \
+  12-org-header-category-tabs.sql
 do
   echo "===== $f ====="
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$f"

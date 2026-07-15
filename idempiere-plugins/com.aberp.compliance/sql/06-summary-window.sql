@@ -71,7 +71,9 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION pg_temp.saw023_tab(
   p_uu TEXT, p_window_id INTEGER, p_table_id INTEGER,
-  p_name TEXT, p_seq INTEGER
+  p_name TEXT, p_seq INTEGER,
+  p_tablevel INTEGER DEFAULT 0,
+  p_link_col INTEGER DEFAULT NULL
 ) RETURNS INTEGER AS $$
 DECLARE
   v_tab_id INTEGER;
@@ -88,20 +90,24 @@ BEGIN
       created, createdby, updated, updatedby,
       name, description, ad_table_id, ad_window_id, seqno,
       tablevel, issinglerow, isinfotab, istranslationtab, isreadonly,
-      hastree, processing, issorttab, entitytype, isinsertrecord, isadvancedtab, ad_tab_uu
+      hastree, processing, issorttab, entitytype, isinsertrecord, isadvancedtab,
+      ad_column_id, ad_tab_uu
     ) VALUES (
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Tab' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       p_name, p_name || ' compliance KPIs',
       p_table_id, p_window_id, p_seq,
-      0, 'Y', 'N', 'N', 'Y',
-      'N', 'N', 'N', 'Ab_ERP', 'N', 'N', p_uu
+      p_tablevel, 'Y', 'N', 'N', 'Y',
+      'N', 'N', 'N', 'Ab_ERP', 'N', 'N',
+      p_link_col, p_uu
     ) RETURNING ad_tab_id INTO v_tab_id;
   ELSE
     UPDATE ad_tab SET
       name = p_name,
       ad_table_id = p_table_id,
       seqno = p_seq,
+      tablevel = p_tablevel,
+      ad_column_id = p_link_col,
       isreadonly = 'Y',
       isinsertrecord = 'N',
       issinglerow = 'Y',
@@ -142,6 +148,7 @@ DECLARE
   v_window_uu CONSTANT TEXT := '23a02305-c0d4-4f01-8e15-000000000001';
   v_window_id INTEGER;
   v_dash_id INTEGER;
+  v_link_col INTEGER;
   v_tab_sum INTEGER;
   v_tab_emp INTEGER;
   v_tab_cli INTEGER;
@@ -170,15 +177,16 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Window' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Compliance Summary',
-      'NDIS Audit Readiness summary — overall KPIs and category tabs',
-      'Read-only hub. Values come from the latest compliance snapshot (not live queries). Use Compliance Audit Results (later) to drill into findings. Fix source data in existing AbilityERP windows.',
+      'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation)',
+      'Organisation Audit (default tab) shows overall readiness score and totals. Switch tabs via the tab name dropdown (▼) for each function area. Values are from the latest snapshot, not live queries.',
       'M', 'N',
       'Ab_ERP', 'N', 'N', 'N', v_window_uu
     ) RETURNING ad_window_id INTO v_window_id;
   ELSE
     UPDATE ad_window SET
       name = 'Compliance Summary',
-      description = 'NDIS Audit Readiness summary — overall KPIs and category tabs',
+      description = 'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation)',
+      help = 'Organisation Audit (default tab) shows overall readiness score and totals. Switch tabs via the tab name dropdown (▼) for each function area. Values are from the latest snapshot, not live queries.',
       entitytype = 'Ab_ERP',
       ad_window_uu = COALESCE(ad_window_uu, v_window_uu),
       isactive = 'Y',
@@ -189,12 +197,17 @@ BEGIN
   UPDATE ad_table SET ad_window_id = v_window_id, updated = NOW()
   WHERE ad_table_id = v_dash_id;
 
-  v_tab_sum := pg_temp.saw023_tab('23a02310-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Summary', 10);
-  v_tab_emp := pg_temp.saw023_tab('23a02311-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Employee', 20);
-  v_tab_cli := pg_temp.saw023_tab('23a02312-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Client', 30);
-  v_tab_inc := pg_temp.saw023_tab('23a02313-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Incidents', 40);
-  v_tab_ros := pg_temp.saw023_tab('23a02314-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Rostering', 50);
-  v_tab_doc := pg_temp.saw023_tab('23a02315-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Documentation', 60);
+  v_tab_sum := pg_temp.saw023_tab('23a02310-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Organisation Audit', 10, 0, NULL);
+
+  SELECT ad_column_id INTO v_link_col
+  FROM ad_column
+  WHERE ad_table_id = v_dash_id AND columnname = 'AbERP_ComplianceDashboard_ID';
+
+  v_tab_emp := pg_temp.saw023_tab('23a02311-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Employee', 20, 1, v_link_col);
+  v_tab_cli := pg_temp.saw023_tab('23a02312-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Client', 30, 1, v_link_col);
+  v_tab_inc := pg_temp.saw023_tab('23a02313-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Incidents', 40, 1, v_link_col);
+  v_tab_ros := pg_temp.saw023_tab('23a02314-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Rostering', 50, 1, v_link_col);
+  v_tab_doc := pg_temp.saw023_tab('23a02315-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Documentation', 60, 1, v_link_col);
 
   -- Summary tab fields
   PERFORM pg_temp.saw023_field(v_tab_sum,'23a02310-f001-4f01-8e15-000000000001','AbERP_ComplianceDashboard_ID','Compliance Dashboard',0,'N','Y','N',0,'N');
