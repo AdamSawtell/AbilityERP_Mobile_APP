@@ -176,7 +176,7 @@ BEGIN
   END IF;
 
   -- Header fields (PK + Client must exist on tab — even hidden — or Record_ID/Client stay 0/-1)
-  -- Clean layout: hide Org/FilePath/Tax/ExtractedText/Active/Processed; buttons side-by-side
+  -- Clean layout: hide Org/FilePath/Tax/Active/Processed; Extracted Text after process; buttons side-by-side
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0000-4f01-8e15-000000000001','AbERP_InvoiceCapture_ID','Invoice Capture',0,'N','Y','N',0,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0017-4f01-8e15-000000000001','AD_Client_ID','Client',5,'N','Y','N',0,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0001-4f01-8e15-000000000001','AD_Org_ID','Organization',8,'N','N','N',0,'N');
@@ -190,12 +190,12 @@ BEGIN
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0010-4f01-8e15-000000000001','GrandTotal','Grand Total',80,'Y','N','N',80,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0011-4f01-8e15-000000000001','C_Invoice_ID','Vendor Invoice',90,'Y','Y','N',90,'Y');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0012-4f01-8e15-000000000001','LastResult','Last Result',100,'Y','Y','N',100,'Y',2);
+  PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0013-4f01-8e15-000000000001','ExtractedText','Extracted Text',105,'Y','Y','N',0,'N',10);
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0019-4f01-8e15-000000000001','AbERP_UploadPDF','Upload PDF',110,'Y','N','N',NULL,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0014-4f01-8e15-000000000001','AbERP_ProcessSelected','Process',120,'Y','N','Y',NULL,'N');
   -- Hidden legacy / system fields (still present for attachments / batch File Path)
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0005-4f01-8e15-000000000001','FilePath','File Path',900,'N','N','N',0,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0008-4f01-8e15-000000000001','TaxID','Tax ID',910,'N','N','N',0,'N');
-  PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0013-4f01-8e15-000000000001','ExtractedText','Extracted Text',920,'N','Y','N',0,'N',5);
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0015-4f01-8e15-000000000001','IsActive','Active',930,'N','N','N',0,'N');
   PERFORM pg_temp.saw019_field(v_tab1_id,'19a019f0-0016-4f01-8e15-000000000001','Processed','Processed',940,'N','Y','N',0,'N');
 
@@ -205,11 +205,13 @@ BEGIN
       WHEN 'CaptureStatus' THEN 4 WHEN 'C_Order_ID' THEN 4 WHEN 'InvoiceDate' THEN 4
       WHEN 'AbERP_UploadPDF' THEN 2 WHEN 'AbERP_ProcessSelected' THEN 3 ELSE 1 END,
     columnspan = CASE c.columnname
-      WHEN 'Name' THEN 5 WHEN 'LastResult' THEN 5 WHEN 'C_Invoice_ID' THEN 5
+      WHEN 'Name' THEN 5 WHEN 'LastResult' THEN 5 WHEN 'ExtractedText' THEN 5 WHEN 'C_Invoice_ID' THEN 5
       WHEN 'AbERP_UploadPDF' THEN 1 WHEN 'AbERP_ProcessSelected' THEN 1 ELSE 2 END,
     displaylength = CASE c.columnname
       WHEN 'AbERP_UploadPDF' THEN 14 WHEN 'AbERP_ProcessSelected' THEN 18
-      WHEN 'LastResult' THEN 60 ELSE f.displaylength END,
+      WHEN 'LastResult' THEN 60 WHEN 'ExtractedText' THEN 80 ELSE f.displaylength END,
+    displaylogic = CASE c.columnname
+      WHEN 'ExtractedText' THEN '@Processed@=Y' ELSE f.displaylogic END,
     iscentrallymaintained = CASE WHEN c.columnname IN ('AbERP_UploadPDF','AbERP_ProcessSelected') THEN 'N' ELSE f.iscentrallymaintained END,
     updated = NOW()
   FROM ad_column c

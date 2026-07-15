@@ -15,4 +15,4 @@
 - [x] Phase 1: Complete PO-linked AP → QtyInvoiced updates; MatchPO empty for charge lines (documented)
 - [x] Phase 2: amount vs PO review + open-PO val rule + clearer LastResult (`15` + JAR `7.1.0.202607151700`)
 - [x] Phase 3: packs + EXTERNAL/how-to notes; Zoom via Search refs (PO + Vendor Invoice)
-- [x] Fix No PK nor FK for en_AU (`sql/16-fix-element-trl.sql`) — applied + restart on `3.107.53.69`
+- [x] Show Extracted Text after process (large textarea) — `sql/19-show-extracted-text.sql` applied on `3.107.53.69`

@@ -53,7 +53,8 @@
 
 ## Clean capture layout (2026-07-15)
 
-- `sql/18-clean-capture-layout.sql`: hide Org, File Path, Tax ID, Extracted Text, Active, Processed.
+- `sql/18-clean-capture-layout.sql`: hide Org, File Path, Tax ID, Active, Processed; Extracted Text after process.
+- `sql/19-show-extracted-text.sql`: Extracted Text visible when `@Processed@=Y`, full width, 10 lines.
 - Two-column pairs (DocNo/Status, BP/PO, Invoice No/Date); **Upload PDF** + **Process** half-width same line.
 - Cache Reset / close+reopen Invoice Capture window after apply.
 

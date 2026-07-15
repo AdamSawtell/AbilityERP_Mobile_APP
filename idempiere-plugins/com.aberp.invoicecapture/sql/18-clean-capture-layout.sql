@@ -1,6 +1,7 @@
 -- =============================================================================
 -- SAW019 — Clean Invoice Capture window layout
--- Hide Org / File Path / Tax ID / Extracted Text / Active / Processed
+-- Hide Org / File Path / Tax ID / Active / Processed
+-- Extracted Text: after Last Result, full width, displaylogic @Processed@=Y (see also 19)
 -- Two-column field pairs; Upload + Process half-width on one line
 -- =============================================================================
 SET search_path TO adempiere;
@@ -33,7 +34,6 @@ BEGIN
       WHEN 'AD_Org_ID' THEN 'N'
       WHEN 'FilePath' THEN 'N'
       WHEN 'TaxID' THEN 'N'
-      WHEN 'ExtractedText' THEN 'N'
       WHEN 'IsActive' THEN 'N'
       WHEN 'Processed' THEN 'N'
       WHEN 'DocumentNo' THEN 'Y'
@@ -46,6 +46,7 @@ BEGIN
       WHEN 'GrandTotal' THEN 'Y'
       WHEN 'C_Invoice_ID' THEN 'Y'
       WHEN 'LastResult' THEN 'Y'
+      WHEN 'ExtractedText' THEN 'Y'
       WHEN 'AbERP_UploadPDF' THEN 'Y'
       WHEN 'AbERP_ProcessSelected' THEN 'Y'
       ELSE f.isdisplayed
@@ -77,11 +78,11 @@ BEGIN
       WHEN 'GrandTotal' THEN 80
       WHEN 'C_Invoice_ID' THEN 90
       WHEN 'LastResult' THEN 100
+      WHEN 'ExtractedText' THEN 105
       WHEN 'AbERP_UploadPDF' THEN 110
       WHEN 'AbERP_ProcessSelected' THEN 120
       WHEN 'FilePath' THEN 900
       WHEN 'TaxID' THEN 910
-      WHEN 'ExtractedText' THEN 920
       WHEN 'IsActive' THEN 930
       WHEN 'Processed' THEN 940
       ELSE f.seqno
@@ -117,6 +118,7 @@ BEGIN
     columnspan = CASE c.columnname
       WHEN 'Name' THEN 5
       WHEN 'LastResult' THEN 5
+      WHEN 'ExtractedText' THEN 5
       WHEN 'C_Invoice_ID' THEN 5
       WHEN 'AbERP_UploadPDF' THEN 1
       WHEN 'AbERP_ProcessSelected' THEN 1
@@ -131,6 +133,7 @@ BEGIN
     END,
     numlines = CASE c.columnname
       WHEN 'LastResult' THEN 2
+      WHEN 'ExtractedText' THEN 10
       ELSE 1
     END,
     displaylength = CASE c.columnname
@@ -144,15 +147,21 @@ BEGIN
       WHEN 'GrandTotal' THEN 14
       WHEN 'C_Invoice_ID' THEN 30
       WHEN 'LastResult' THEN 60
+      WHEN 'ExtractedText' THEN 80
       WHEN 'AbERP_UploadPDF' THEN 14
       WHEN 'AbERP_ProcessSelected' THEN 18
       ELSE COALESCE(f.displaylength, 0)
+    END,
+    displaylogic = CASE c.columnname
+      WHEN 'ExtractedText' THEN '@Processed@=Y'
+      ELSE f.displaylogic
     END,
     isreadonly = CASE c.columnname
       WHEN 'DocumentNo' THEN 'Y'
       WHEN 'CaptureStatus' THEN 'Y'
       WHEN 'C_Invoice_ID' THEN 'Y'
       WHEN 'LastResult' THEN 'Y'
+      WHEN 'ExtractedText' THEN 'Y'
       WHEN 'Processed' THEN 'Y'
       WHEN 'AbERP_InvoiceCapture_ID' THEN 'Y'
       WHEN 'AD_Client_ID' THEN 'Y'

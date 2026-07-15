@@ -36,7 +36,7 @@ for f in 00-preflight.sql 01-create-tables.sql 02-status-reference.sql 03-ad-tab
          09-batch-menu.sql 10-enable-attachment.sql 11-fix-pk-field.sql \
          12-fix-org-default-docno.sql 13-fix-client-field.sql 14-add-po-link.sql \
          15-open-po-val-rule.sql 16-fix-element-trl.sql 17-fix-menu-trl-access.sql \
-         18-clean-capture-layout.sql 08-verify.sql; do
+         18-clean-capture-layout.sql 19-show-extracted-text.sql 08-verify.sql; do
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/saw019-$f"
   echo "  -> $f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/saw019-$f"
