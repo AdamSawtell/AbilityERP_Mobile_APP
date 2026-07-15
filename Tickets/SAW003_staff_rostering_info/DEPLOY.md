@@ -1,7 +1,7 @@
 # SAW003 — Deploy to another build (agent)
 
 **Ticket / slug:** `SAW003_staff_rostering_info`  
-**Kind:** idempiere · **JAR:** Yes · **Status:** done  
+**Kind:** idempiere · **JAR:** Yes · **Status:** done (ready for agent deploy)  
 **GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)  
 **Current bundle:** **`1.1.0.2026071516`**
 
@@ -21,9 +21,9 @@ chmod +x build.sh deploy.sh
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
-## JAR-only update (UX refresh — typical later deploy)
+## JAR-only update (typical later deploy)
 
-Use when SQL `01`–`24`→`04` is **already** on the target (HCO Test / staging already are):
+Use when SQL `01`–`24`→`04` is **already** on the target (staging / HCO Test already are). This is the usual path for UX/filter JAR bumps:
 
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
@@ -46,7 +46,7 @@ sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 
 # Logout/in or Cache Reset
 ```
 
-Prebuilt JAR may exist on staging after a build:  
+Prebuilt JAR (after a staging build):  
 `/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071516.jar` — scp + same install steps above.
 
 ## Package / bundle
@@ -58,9 +58,24 @@ Prebuilt JAR may exist on staging after a build:
 | Version | **`1.1.0.2026071516`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
-| Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` |
+| Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` / `CalloutShiftStaffContact` |
 
-Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~40 KB** (≈57 KB for `1516`). ~29 KB with a version stamp is a **stale** banner-only build.
+Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~55 KB** (≈60 KB for `1516`). ~29 KB with a version stamp is a **stale** banner-only build.
+
+## What JAR `1516` includes (filters)
+
+Second criteria row (starts **column 2**), all default **On**:
+
+| Tick | On (default) | Off |
+|------|--------------|-----|
+| **Show Matched Staff** | Related Rostering Needs | Unmatched pool + credential Find / Select (AND) |
+| **Employee Not Rostered at this Time** | Exclude overlapping roster | Include overlapping |
+| **Employees Not On Leave** | Exclude approved leave overlap | Include leave |
+| **Show Familiar Staff** | Prior non-template roster at same Support Location within **12 months** | All staff |
+
+Familiarity: shift → `AbERP_MasterLocation` → `C_BPartner_Location_ID` (fallback Master Location id). Exclude templates + current shift. No location on shift → Familiar filter skipped (does not empty list).
+
+Also: scoped North expand for credential picker (never `jq('.z-north').get(0)` — that gaps the parent Shift window).
 
 ## Ordered SQL (`deploy.sh`) — greenfield / full reinstall only
 
@@ -80,61 +95,45 @@ Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~
 
 ## AbilityERP Admin access
 
-Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must already have (or be granted) access to Staff Rostering Info / Shift (Rostered). No new process. Smoke **as Admin**.
+Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must already have access to Staff Rostering Info / Shift (Rostered). No new process. Smoke **as Admin**.
 
 ## Portability risks
 
-- `sql/06-fix-shift-org.sql` only moves org=`*` data for the **AbilityERP** seed client; on HCO it skips data move and still sets AlwaysUpdateable on the Employee Search column.  
-- `sql/08-enable-related-info.sql` resolves Related Info / parent columns by **owned UU only** (never activate every `ColumnName=C_BPartner_ID` — that reactivates Multi Select “Support Receiver Needs” → ZK **non-negative only**).  
-- `sql/21-fix-nonnegative-multiselect.sql` deactivates Multi Select leftovers; keeps Agency Staff as filter-only criteria.  
-- Credential filter UI uses **zul Listbox** (multi + checkmark). Do **not** switch to Chosenbox unless the OSGi bundle exports it.  
-- Never `setDisabled(true)` on the credential Listbox — ZK drops `SelectEvent` and AND filter never applies.  
-- Credential box is a sibling **below** `parameterGrid` (not inside a grid row). Untick Show Matched expands **only this Info Window’s** North (by uuid) — never `jq('.z-north').get(0)` (that inflates the parent Shift window and leaves a white gap after close). Restore North height on close / re-tick Matched (`1516`).
+- Windows → Linux: LF-normalize `build.sh`/`deploy.sh`. Never `sed`/`tr` that eats trailing `r`.  
+- HCO idempiere stop can leave Java running (“already running”) — kill equinox launcher if WebUI stays 503.  
+- Credential UI uses **zul Listbox** (not Chosenbox). Never `setDisabled` on the credential Listbox.  
+- North expand only on **this Info** North uuid; restore on close / re-tick Matched.  
+- If open throws `org/zkoss/util/media/Media` → fix **leave.planning** `zcommon` (SAW016 / #16), not this JAR.
 
 ## WebUI smoke
 
-**From Shift (Rostered) → Employee → staff Search** (preferred):
+**From Shift (Rostered) → Employee → staff Search:**
 
-1. Title **Employee (User) / Agency Staff Rostering Info**; criteria **Staff Name**, Employee, Agency Staff.  
-2. Banner shows shift context (not “No shift in context”).  
-3. **Show Matched Staff**, **Employees Not On Leave**, **Employee Not Rostered at this Time**, and **Show Familiar Staff** all default on; untick Matched to include unmatched (+ credential picker); untick Familiar to include staff new to the Support Location.    
-4. Lean grid (no BP Name / Status / Business Partner / Agency Staff columns).  
-5. Related Info tabs; contact pick fills BP.
-
-**Show Matched unticked + credential AND (JAR `1516`):**
-
-1. Ticked (default) → Related Needs apply; credential picker hidden.  
-2. Unticked → needs ignored; **two columns** under criteria (aligned with Staff Name / Employee):
-   - **Left:** **Must have all of these credentials** · Find · Selected (N) / Clear  
-   - **Right:** **Select (AND)** checklist  
-3. Find narrows the list; select 2+ → summary lists names; ReQuery = AND. Empty selection → full unmatched pool.  
-4. **Clear** resets selection; re-tick Show Matched hides the picker. Criteria North pane should expand (~280px) so the checklist is visible.
-
-Standalone menu **Employee (User) Staff Rostering Info Search** is fine for unmatched/AND smoke (“No shift in context” banner is expected).
-
-## Known blocker on some hosts (not SAW003)
-
-If opening Staff Info throws `org/zkoss/util/media/Media` / `ClassNotFoundException` attributed to **`com.aberp.leave.planning`**, that bundle needs `zcommon` on `Require-Bundle` (see SAW016 / issue [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16)). Staff Info itself does not use `AMedia`.
+1. Four ticks on **one row** under criteria (start col 2), all default on.  
+2. Banner shows shift context.  
+3. Untick **Show Matched** → Find + Select (AND) credential columns; re-tick → hidden.  
+4. Untick **Not Rostered** / **Not On Leave** independently and ReQuery.  
+5. **Familiar:** on a shift with Support Location (e.g. Swinley 14), with Familiar on, staff with history (e.g. Anupam Choudhary, Damaris Harris on HCO) remain eligible; untick Familiar widens the pool.  
+6. Close Info after dragging criteria splitter → parent Shift window has **no** blank band under header.  
+7. Lean grid; Related Info; contact pick fills BP.
 
 ## Environments verified
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071516` | SSH key `AbilityERP_Development_Keypair_Shared.pem` |
-| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071516` | SSH `ubuntu@13.210.248.141` · `HCObusiness.pem` (old IP `32.236.127.117` retired) |
-
-HCO access / UUID rules: `Tickets/HCO_Deployment/` + `NOTES.md` **HCO Future Deployments variables**.
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071516` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
+| HCO Test | `http://13.210.248.141/webui/` | `1.1.0.2026071516` | SSH `ubuntu@13.210.248.141` · `HCObusiness.pem` |
 
 ## Packs
 
 - `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`  
 - `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`  
 
-Refresh packs when shipping a client zip: JAR **`1516`** (≥ ~40 KB) + SQL through **`24`**. Prefer host `./deploy.sh` / JAR-only steps over stale packs.
+Refresh packs when shipping a zip: JAR **`1516`** (≥ ~55 KB) + SQL through **`24`**. Prefer host build / JAR-only over stale packs.
 
 ## Agent prompt (copy)
 
-> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only update to `1.1.0.2026071516` if SQL is already applied. Run WebUI smoke: untick Show Matched → two-column Find + Select (AND); report pass/fail.
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only update to `1.1.0.2026071516` if SQL is already applied. Smoke: four default-on filter ticks (incl. Show Familiar Staff); untick Show Matched → credential AND; close Info without parent layout gap; report pass/fail.
 
 ## External ticket text
 
