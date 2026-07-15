@@ -55,6 +55,7 @@
 
 - `sql/18-clean-capture-layout.sql`: hide Org, File Path, Tax ID, Active, Processed; Extracted Text after process.
 - `sql/19-show-extracted-text.sql`: Extracted Text visible when `@Processed@=Y`, full width, 10 lines.
+- `sql/20-progressive-capture-ux.sql`: staged UX — (1) Name + Upload, (2) Doc No + Last Result + Process after upload, (3) Invoice Details + OCR groups after process; buttons hidden. Upload sets `LastResult` as the stage-2 signal.
 - Two-column pairs (DocNo/Status, BP/PO, Invoice No/Date); **Upload PDF** + **Process** half-width same line.
 - Cache Reset / close+reopen Invoice Capture window after apply.
 

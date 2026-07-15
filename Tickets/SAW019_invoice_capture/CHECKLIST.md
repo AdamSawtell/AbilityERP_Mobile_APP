@@ -16,3 +16,4 @@
 - [x] Phase 2: amount vs PO review + open-PO val rule + clearer LastResult (`15` + JAR `7.1.0.202607151700`)
 - [x] Phase 3: packs + EXTERNAL/how-to notes; Zoom via Search refs (PO + Vendor Invoice)
 - [x] Show Extracted Text after process (large textarea) — `sql/19-show-extracted-text.sql` applied on `3.107.53.69`
+- [x] Progressive UX (Name+Upload → Doc/LastResult+Process → Invoice Details/OCR groups) — `sql/20-progressive-capture-ux.sql`

@@ -50,7 +50,8 @@ Or: `bash build.sh` → copy JAR to `plugins/` + `customization-jar/` → append
 17. `sql/17-fix-menu-trl-access.sql`
 18. `sql/18-clean-capture-layout.sql`
 19. `sql/19-show-extracted-text.sql`
-20. `sql/08-verify.sql`
+20. `sql/20-progressive-capture-ux.sql`
+21. `sql/08-verify.sql`
 
 Never hardcode `AD_*_ID` targets across clients — scripts resolve by `*_UU` / name.
 
