@@ -46,9 +46,10 @@ No new window/process/Info Window — existing Shift (Rostered) access only. No 
 
 1. Login Admin (HCO: SuperUser → Admin).
 2. Open **Shift (Rostered)** (opens in Search).
-3. Confirm Saved Query = **\* Current Pay Period**.
+3. Confirm Saved Query = **\* Current period - available only**.
 4. OK — results limited to that period (pager ~thousands, not ~100k).
-5. Switch to **\* New Query \*\*** or a location saved query — works as before.
+5. Optional: open tab Help (?) — should explain default Find.
+6. Switch to **\* New Query \*\*** or a location saved query — works as before.
 
 ## Portability risks
 

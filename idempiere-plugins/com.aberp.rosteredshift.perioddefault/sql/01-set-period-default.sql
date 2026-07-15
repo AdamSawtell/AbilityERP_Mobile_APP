@@ -13,7 +13,16 @@ DECLARE
   v_tab_uu     CONSTANT varchar := '29867696-9561-462f-89f9-f92c26c8ea02';
   v_win_uu     CONSTANT varchar := '7c269a7e-65dd-4287-8d53-f7f3ca09ee00';
   v_query_uu   CONSTANT varchar := '6b2c9e11-4d8a-4f01-9b2e-a022shift001';
-  v_query_name CONSTANT varchar := '* Current Pay Period';
+  v_query_name CONSTANT varchar := '* Current period - available only';
+  v_query_desc CONSTANT text :=
+    'Default Find: current pay period and Showing As Available = Y only. '
+    || 'Switch to ** New Query ** or another saved query for other periods or all shifts.';
+  v_tab_help CONSTANT text :=
+    'Search defaults to the current pay period with available shifts only '
+    || '(saved query "* Current period - available only"). '
+    || 'Use ** New Query ** or pick another saved query to see other periods, locations, or unavailable shifts.';
+  v_tab_desc CONSTANT text :=
+    'Default search: current pay period, available shifts only.';
 
   -- Find/UserQuery @SQL= fragment: current period + Showing As Available
   v_code CONSTANT text :=
@@ -92,8 +101,9 @@ BEGIN
     SELECT ad_userquery_id INTO v_qid
     FROM ad_userquery
     WHERE ad_tab_id = v_tab_id
-      AND name = v_query_name
       AND ad_user_id IS NULL
+      AND name IN ('* Current Pay Period', v_query_name)
+    ORDER BY CASE WHEN ad_userquery_uu = v_query_uu THEN 0 ELSE 1 END
     LIMIT 1;
   END IF;
 
@@ -108,7 +118,7 @@ BEGIN
       v_client_id, 0, 'Y',
       NOW(), 100, NOW(), 100,
       v_query_name,
-      'SAW022: default Lookup — current pay period AND Showing As Available = Y (clear via ** New Query ** or other saved queries).',
+      v_query_desc,
       NULL, v_table_id, v_tab_id, v_window_id,
       NULL, 'Y',
       v_code,
@@ -118,7 +128,7 @@ BEGIN
   ELSE
     UPDATE ad_userquery
        SET name = v_query_name,
-           description = 'SAW022: default Lookup — current pay period AND Showing As Available = Y (clear via ** New Query ** or other saved queries).',
+           description = v_query_desc,
            code = v_code,
            isdefault = 'Y',
            isactive = 'Y',
@@ -134,6 +144,32 @@ BEGIN
     RAISE NOTICE 'SAW022: updated UserQuery id %', v_qid;
   END IF;
 
+  -- Also match legacy name if UU missed older row
+  UPDATE ad_userquery
+     SET name = v_query_name,
+         description = v_query_desc,
+         code = v_code,
+         isdefault = 'Y',
+         isactive = 'Y',
+         updated = NOW(),
+         updatedby = 100
+   WHERE ad_tab_id = v_tab_id
+     AND ad_user_id IS NULL
+     AND name IN ('* Current Pay Period', v_query_name)
+     AND ad_userquery_uu IS DISTINCT FROM v_query_uu;
+
+  -- 3) Tab explainer (Help on Shift header)
+  UPDATE ad_tab
+     SET help = v_tab_help,
+         description = v_tab_desc,
+         updated = NOW(),
+         updatedby = 100
+   WHERE ad_tab_uu = v_tab_uu;
+  GET DIAGNOSTICS v_n = ROW_COUNT;
+  IF v_n = 0 THEN
+    RAISE EXCEPTION 'SAW022: tab UU % not found for Help update', v_tab_uu;
+  END IF;
+
   -- Only one default on this tab
   UPDATE ad_userquery
      SET isdefault = 'N',
@@ -141,7 +177,8 @@ BEGIN
          updatedby = 100
    WHERE ad_tab_id = v_tab_id
      AND isdefault = 'Y'
-     AND ad_userquery_uu IS DISTINCT FROM v_query_uu;
+     AND ad_userquery_uu IS DISTINCT FROM v_query_uu
+     AND name IS DISTINCT FROM v_query_name;
 
   RAISE NOTICE 'SAW022 apply OK (client %)', v_client_id;
 END $$;
