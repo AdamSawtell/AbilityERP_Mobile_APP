@@ -1,8 +1,25 @@
 # JARs for SAW017
 
-## Always (Bulk plugin)
+## Always install (Bulk plugin) — current ship
 
-- `com.aberp.bookinggenerator.bulk_7.1.0.202607132235.jar`
+| File | Bundle version | Notes |
+|------|----------------|--------|
+| **`com.aberp.bookinggenerator.bulk_7.1.0.202607160730.jar`** | `7.1.0.202607160730` | **Use this** on every new / update deploy |
+
+Process summary includes run header, per-row **BP / Invoice Partner / Target DocType**, SB document no., and totals. Generation filters unchanged from prior versions.
+
+### Historical (do not ship to new builds)
+
+| File | Notes |
+|------|--------|
+| `com.aberp.bookinggenerator.bulk_7.1.0.202607160715.jar` | Summary without BP/Invoice Partner/DocType on each line |
+| `com.aberp.bookinggenerator.bulk_7.1.0.202607132235.jar` | Initial HCO E2E JAR |
+
+### `bundles.info`
+
+```text
+com.aberp.bookinggenerator.bulk,7.1.0.202607160730,plugins/com.aberp.bookinggenerator.bulk_7.1.0.202607160730.jar,4,true
+```
 
 ## Generator stack (only if Generate Bookings not ACTIVE)
 

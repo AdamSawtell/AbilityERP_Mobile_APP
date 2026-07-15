@@ -175,16 +175,19 @@ Recorded from HCO Test (`32.236.127.117`) on **2026-07-13**. **No HCO `*_UU` val
 
 ### Install order (future client / HCO)
 
-Follow **[`DEPLOY.md`](DEPLOY.md)** (authoritative). Packs:
+Follow **[`DEPLOY.md`](DEPLOY.md)** (authoritative). Packs (2026-07-16):
 
-- `Downloads\AbilityERP-ClientUpdate-SAW017_booking_generator_bulk-20260714\`
-- `Downloads\AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260714\`
+- `Downloads\AbilityERP-ClientUpdate-SAW017_booking_generator_bulk-20260716\`
+- `Downloads\AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260716\`
+
+**Ship bulk JAR:** `com.aberp.bookinggenerator.bulk_7.1.0.202607160730.jar`
 
 1. Install generator stack JARs (patched generator + deps) via OSGi console / `plugins` + `bundles.info` **only if** Generate Bookings not already ACTIVE
-2. Install `com.aberp.bookinggenerator.bulk` JAR
-3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `03-fix-yesno-display.sql` → `04-verify.sql`
+2. Install ship bulk JAR (`…160730`) — update `bundles.info` (remove older bulk lines)
+3. SQL: `00-preflight.sql` → `01-install-bulk-generate.sql` → `02-fix-docaction-list.sql` → `03-fix-yesno-display.sql` → `04-verify.sql`  
+   (skip SQL if host already has SAW017 AD and this is JAR-only upgrade)
 4. Cache Reset
-5. Smoke per `hco/E2E-SMOKE-20260713.md` (use a clean future period)
+5. Smoke per `DEPLOY.md` § F (expect BP / Invoice Partner / Target DocType on each summary line)
 
 ---
 

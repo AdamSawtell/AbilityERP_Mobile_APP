@@ -1,6 +1,6 @@
 # SAW017 — External summary (customer / ticket paste)
 
-**Status:** Delivered and smoke-tested on HCO Test (2026-07-13). Client / production update packs available (2026-07-14).
+**Status:** Delivered and smoke-tested on HCO Test. Current ship JAR `7.1.0.202607160730`. Client / production update packs: `AbilityERP-*-SAW017_booking_generator_bulk-20260716`.
 
 ## Windows / processes / objects affected
 

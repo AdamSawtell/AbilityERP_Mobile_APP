@@ -30,7 +30,7 @@ Evidence: [`hco/E2E-SMOKE-20260713.md`](hco/E2E-SMOKE-20260713.md)
 - [x] `DEPLOY.md` complete for agent install on another build
 - [x] `EXTERNAL-SUMMARY.md` customer-ready
 - [x] Bulk JAR in `Tickets/SAW017_…/jar/`
-- [x] ClientUpdate pack: `Downloads\AbilityERP-ClientUpdate-SAW017_booking_generator_bulk-20260714\`
-- [x] ProdUpdate pack: `Downloads\AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260714\`
-- [x] GitHub #17 Deploy section updated
+- [x] ClientUpdate pack: `Downloads\AbilityERP-ClientUpdate-SAW017_booking_generator_bulk-20260716\` (ship JAR `160730`)
+- [x] ProdUpdate pack: `Downloads\AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260716\`
+- [x] `DEPLOY.md` / `jar/README.md` / GitHub #17 point at JAR `7.1.0.202607160730`
 - [ ] Mark GitHub issue **done** when customer accepts / prod installed
