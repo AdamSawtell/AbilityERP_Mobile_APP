@@ -32,6 +32,7 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 - When opened from a shift: hide approved leave and overlapping roster by default
 - **Employees Not On Leave** tick (default on): exclude staff on approved leave overlapping the window; untick to include them
 - **Employee Not Rostered at this Time** tick (default on): exclude staff already on any overlapping rostered shift; untick to include them
+- **Show Familiar Staff** tick (default on): only staff who worked a rostered shift at this Support Location in the last 12 months (templates excluded); untick to include all
 - **Show Matched Staff** tick (default on): Related Rostering Needs apply. Untick to ignore needs and show a two-column credential picker — **Must have all of these credentials** / Find / Selected summary on the left, **Select (AND)** checklist on the right; selected credentials filter with AND; empty selection = full unmatched pool
 - Banner: shift context, required needs summary, filter status (including selected credential count)
 - Related Info: roster period shifts, leave, unavailability, alerts, credentials

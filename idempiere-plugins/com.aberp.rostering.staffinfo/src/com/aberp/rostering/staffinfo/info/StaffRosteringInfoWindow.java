@@ -44,6 +44,8 @@ import org.zkoss.zul.Vbox;
  *   <li>Context banner (Shift / Required / Filters) with credential names</li>
  *   <li>Shift-window leave exclusion (Employees Not On Leave, default on)</li>
  *   <li>Overlapping roster exclusion (Employee Not Rostered at this Time, default on)</li>
+ *   <li>Familiar Support Location (Show Familiar Staff, default on — prior roster
+ *       at same location within 1 year)</li>
  *   <li>Related Rostering Needs match (credentials / gender / restricted employee)
  *       with Show Matched Staff (default on); untick to include non-matches and
  *       optionally require selected credentials (AND);
@@ -62,6 +64,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private Checkbox employeesNotOnLeaveCheckbox;
 	/** Default on: exclude staff already rostered on an overlapping shift. */
 	private Checkbox employeeNotRosteredCheckbox;
+	/** Default on: only staff who worked this Support Location in the last year. */
+	private Checkbox showFamiliarStaffCheckbox;
 	/** Visible only when Show Matched is unticked (unmatched mode). */
 	private Div credentialFilterBox;
 	private Listbox credentialFilterList;
@@ -225,6 +229,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			}
 			if (isEmployeeNotRosteredSelected()) {
 				appendClause(extra, buildOverlappingRosterExclusionSql());
+			}
+			if (isShowFamiliarStaffSelected()) {
+				appendClause(extra, buildFamiliarSupportLocationSql());
 			}
 
 			// Matched (default) = Related Needs. Unticked / legacy AD Y = unmatched pool.
@@ -593,6 +600,20 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				}
 			});
 		}
+		if (showFamiliarStaffCheckbox == null) {
+			showFamiliarStaffCheckbox = new Checkbox();
+			showFamiliarStaffCheckbox.setText("Show Familiar Staff");
+			showFamiliarStaffCheckbox.setTooltiptext(
+					"When ticked (default), only staff who have worked a rostered shift at this "
+							+ "Support Location in the last 12 months are listed (templates excluded). "
+							+ "Untick to include all staff. Requires a location on the current shift.");
+			showFamiliarStaffCheckbox.setChecked(true);
+			showFamiliarStaffCheckbox.addEventListener(Events.ON_CHECK, event -> {
+				if (contextBanner != null) {
+					contextBanner.setValue(buildContextBannerText());
+				}
+			});
+		}
 		ensureCredentialFilter();
 	}
 
@@ -934,8 +955,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * Second criteria row: all filter ticks on one line (Matched / Not Rostered /
-	 * Not On Leave). Credential multi-select sits <em>below</em> the criteria grid
-	 * so z-grid-body overflow cannot hide it when unmatched mode expands the UI.
+	 * Not On Leave / Familiar). Credential multi-select sits <em>below</em> the
+	 * criteria grid so z-grid-body overflow cannot hide it when unmatched mode
+	 * expands the UI.
 	 */
 	private void placeFilterCheckboxes() {
 		ensureFilterCheckboxes();
@@ -944,7 +966,8 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 		if (showMatchedCheckbox.getParent() != null
 				|| employeesNotOnLeaveCheckbox.getParent() != null
-				|| employeeNotRosteredCheckbox.getParent() != null) {
+				|| employeeNotRosteredCheckbox.getParent() != null
+				|| showFamiliarStaffCheckbox.getParent() != null) {
 			return;
 		}
 
@@ -955,6 +978,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		flags.appendChild(showMatchedCheckbox);
 		flags.appendChild(employeeNotRosteredCheckbox);
 		flags.appendChild(employeesNotOnLeaveCheckbox);
+		flags.appendChild(showFamiliarStaffCheckbox);
 
 		Cell cell = new Cell();
 		cell.setColspan(6);
@@ -1001,6 +1025,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		boolean employeesNotOnLeave = isEmployeesNotOnLeaveSelected();
 		boolean employeeNotRostered = isEmployeeNotRosteredSelected();
 		boolean showMatched = isShowMatchedSelected();
+		boolean showFamiliar = isShowFamiliarStaffSelected();
 		List<Integer> manualCreds = getSelectedCredentialFilterIds();
 
 		if (range == null || range[0] == null || range[1] == null) {
@@ -1010,15 +1035,15 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 				sb.append(" | (no Start/End times in context)\n");
 				sb.append("Required: ").append(needs.requiredLine()).append('\n');
 				sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched,
-						needs.hasCredentials(), manualCreds.size()));
+						showFamiliar, needs.hasCredentials(), manualCreds.size()));
 				return sb.toString();
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append("No shift in context. Open from Shift → Employee to apply leave/overlap")
 					.append(" filters.\n");
 			sb.append("Required: (none)\n");
-			sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched, false,
-					manualCreds.size()));
+			sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched,
+					showFamiliar, false, manualCreds.size()));
 			return sb.toString();
 		}
 
@@ -1027,12 +1052,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		sb.append(" | ").append(formatBannerRange(range[0], range[1])).append('\n');
 		sb.append("Required: ").append(needs.requiredLine()).append('\n');
 		sb.append(buildFiltersLine(employeesNotOnLeave, employeeNotRostered, showMatched,
-				needs.hasCredentials(), manualCreds.size()));
+				showFamiliar, needs.hasCredentials(), manualCreds.size()));
 		return sb.toString();
 	}
 
 	private static String buildFiltersLine(boolean employeesNotOnLeave, boolean employeeNotRostered,
-			boolean showMatched, boolean hasCredentials, int manualCredentialCount) {
+			boolean showMatched, boolean showFamiliar, boolean hasCredentials,
+			int manualCredentialCount) {
 		StringBuilder sb = new StringBuilder("Filters: ");
 		if (employeeNotRostered) {
 			sb.append("excluding overlapping rostered shifts");
@@ -1046,6 +1072,13 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		} else {
 			sb.append("including staff on approved leave")
 					.append(" (tick \"Employees Not On Leave\" to exclude)");
+		}
+		sb.append("; ");
+		if (showFamiliar) {
+			sb.append("familiar at Support Location (last 12 months)");
+		} else {
+			sb.append("including staff new to this Support Location")
+					.append(" (tick \"Show Familiar Staff\" to filter)");
 		}
 		sb.append("; ");
 		if (showMatched) {
@@ -1084,6 +1117,11 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	private boolean isEmployeeNotRosteredSelected() {
 		// Before checkbox attach, match product default (Y).
 		return employeeNotRosteredCheckbox == null || employeeNotRosteredCheckbox.isChecked();
+	}
+
+	/** Default true — only staff familiar at this Support Location (last year). */
+	private boolean isShowFamiliarStaffSelected() {
+		return showFamiliarStaffCheckbox == null || showFamiliarStaffCheckbox.isChecked();
 	}
 
 	/** Banner range: {@code 9 Jul 2026, 4:00 PM – 11:00 PM}. */
@@ -1178,6 +1216,84 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		}
 		sql.append(')');
 		return sql.toString();
+	}
+
+	/**
+	 * Staff who worked this Support Location (via Master Location /
+	 * C_BPartner_Location) on a non-template rostered shift in the last 12 months.
+	 * Prefer address match; fall back to Master Location id. No location on the
+	 * current shift → no filter (return null). Excludes the current shift.
+	 */
+	private String buildFamiliarSupportLocationSql() {
+		Integer shiftId = resolveCurrentShiftId();
+		if (shiftId == null || shiftId.intValue() <= 0) {
+			return null;
+		}
+		int[] keys = resolveShiftLocationKeys(shiftId.intValue());
+		if (keys == null) {
+			return null;
+		}
+		int bpLocationId = keys[0];
+		int masterLocationId = keys[1];
+		if (bpLocationId <= 0 && masterLocationId <= 0) {
+			return null;
+		}
+
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -1);
+		String lookbackSql = DB.TO_DATE(new Timestamp(cal.getTimeInMillis()));
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("EXISTS (")
+				.append("SELECT 1 FROM AbERP_Rostered_ShiftStaff rss ")
+				.append("INNER JOIN AbERP_Rostered_Shift rs ON (")
+				.append("rs.AbERP_Rostered_Shift_ID = rss.AbERP_Rostered_Shift_ID ")
+				.append("AND rs.IsActive = 'Y' AND COALESCE(rs.AbERP_isShiftRosteredTemplate,'N') = 'N') ")
+				.append("INNER JOIN AbERP_MasterLocation ml ON (")
+				.append("ml.AbERP_MasterLocation_ID = rs.AbERP_MasterLocation_ID AND ml.IsActive = 'Y') ")
+				.append("WHERE rss.AbERP_User_Contact_ID = au.AD_User_ID AND rss.IsActive = 'Y' ")
+				.append("AND rs.StartDate >= ").append(lookbackSql).append(' ')
+				.append("AND rs.AbERP_Rostered_Shift_ID <> ").append(shiftId.intValue()).append(' ');
+		if (bpLocationId > 0) {
+			sql.append("AND ml.C_BPartner_Location_ID = ").append(bpLocationId);
+		} else {
+			sql.append("AND rs.AbERP_MasterLocation_ID = ").append(masterLocationId);
+		}
+		sql.append(')');
+		return sql.toString();
+	}
+
+	/**
+	 * @return {@code int[2] = { C_BPartner_Location_ID, AbERP_MasterLocation_ID }},
+	 *         or null if the shift has no usable location.
+	 */
+	private int[] resolveShiftLocationKeys(int shiftId) {
+		java.sql.PreparedStatement pstmt = null;
+		java.sql.ResultSet rs = null;
+		try {
+			pstmt = DB.prepareStatement(
+					"SELECT COALESCE(ml.C_BPartner_Location_ID,0), COALESCE(rs.AbERP_MasterLocation_ID,0) "
+							+ "FROM AbERP_Rostered_Shift rs "
+							+ "LEFT JOIN AbERP_MasterLocation ml ON ("
+							+ "ml.AbERP_MasterLocation_ID = rs.AbERP_MasterLocation_ID) "
+							+ "WHERE rs.AbERP_Rostered_Shift_ID=?",
+					null);
+			pstmt.setInt(1, shiftId);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				int bpLoc = rs.getInt(1);
+				int masterLoc = rs.getInt(2);
+				if (bpLoc <= 0 && masterLoc <= 0) {
+					return null;
+				}
+				return new int[] { bpLoc, masterLoc };
+			}
+		} catch (Exception e) {
+			log.log(java.util.logging.Level.WARNING, "resolveShiftLocationKeys", e);
+		} finally {
+			DB.close(rs, pstmt);
+		}
+		return null;
 	}
 
 	/**

@@ -6,7 +6,7 @@ Point agents at **`Tickets/SAW###_<slug>/DEPLOY.md`** (not chat history).
 |--------|------|--------------|-------|
 | SAW001 | `paid_filter_invoice_send_info` | Yes (SQL) | Thin prod pack; menu tree placement verify |
 | SAW002 | meta | N/A | Not an ERP install |
-| SAW003 | `staff_rostering_info` | Yes | JAR `1515`; filter ticks row starts col 2; GitHub [#3] |
+| SAW003 | `staff_rostering_info` | Yes | JAR `1516`; Familiar Staff (Support Loc, 1yr); GitHub [#3] |
 | SAW004 | `rostering_chat` | Yes with caveat | Must confirm Rostering Officer id vs `1000012`; use exact SQL list |
 | SAW005 | app | N/A | App deploy |
 | SAW006 | merged → SAW004 | Use SAW004 | |
