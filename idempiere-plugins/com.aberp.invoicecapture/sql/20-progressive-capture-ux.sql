@@ -206,9 +206,9 @@ BEGIN
       WHEN 'Name' THEN 10
       WHEN 'AbERP_UploadPDF' THEN 20
       WHEN 'DocumentNo' THEN 30
+      WHEN 'CaptureStatus' THEN 35
       WHEN 'LastResult' THEN 40
       WHEN 'AbERP_ProcessSelected' THEN 50
-      WHEN 'CaptureStatus' THEN 60
       WHEN 'C_BPartner_ID' THEN 70
       WHEN 'C_Order_ID' THEN 80
       WHEN 'VendorInvoiceNo' THEN 90
@@ -243,7 +243,7 @@ BEGIN
       WHEN 'DocumentNo' THEN v_s23
       WHEN 'LastResult' THEN v_s23
       WHEN 'AbERP_ProcessSelected' THEN v_s2
-      WHEN 'CaptureStatus' THEN v_s3
+      WHEN 'CaptureStatus' THEN v_s23
       WHEN 'C_BPartner_ID' THEN v_s3
       WHEN 'C_Order_ID' THEN v_s3
       WHEN 'VendorInvoiceNo' THEN v_s3
@@ -258,9 +258,9 @@ BEGIN
       WHEN 'Name' THEN NULL
       WHEN 'AbERP_UploadPDF' THEN v_fg_upload
       WHEN 'DocumentNo' THEN v_fg_ready
+      WHEN 'CaptureStatus' THEN v_fg_ready
       WHEN 'LastResult' THEN v_fg_ready
       WHEN 'AbERP_ProcessSelected' THEN v_fg_ready
-      WHEN 'CaptureStatus' THEN v_fg_invoice
       WHEN 'C_BPartner_ID' THEN v_fg_invoice
       WHEN 'C_Order_ID' THEN v_fg_invoice
       WHEN 'VendorInvoiceNo' THEN v_fg_invoice
@@ -271,11 +271,13 @@ BEGIN
       ELSE NULL
     END,
     issameline = CASE c.columnname
+      WHEN 'CaptureStatus' THEN 'Y'
       WHEN 'C_Order_ID' THEN 'Y'
       WHEN 'InvoiceDate' THEN 'Y'
       ELSE 'N'
     END,
     xposition = CASE c.columnname
+      WHEN 'CaptureStatus' THEN 4
       WHEN 'C_Order_ID' THEN 4
       WHEN 'InvoiceDate' THEN 4
       WHEN 'AbERP_UploadPDF' THEN 2

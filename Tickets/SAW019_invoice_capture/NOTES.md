@@ -58,6 +58,7 @@
 - `sql/20-progressive-capture-ux.sql`: staged UX — (1) Name + Upload, (2) Doc No + Last Result + Process after upload, (3) Invoice Details + OCR groups after process; buttons hidden. Upload sets `LastResult` as the stage-2 signal.
 - `sql/21-help-tooltips.sql`: Window/Tab/Field/Process Description (tooltip) + Help (How-To / Context Help) for the guided flow.
 - Batch (`ProcessInvoiceCaptureBatch` / JAR `…1950`): only `Processed='N'` — never re-runs manual or prior-batch results. Manual Process can still retry review/error statuses.
+- `sql/23-show-pending-status.sql`: show **Capture Status** after Upload (Pending = queued for overnight batch / manual Process); keep it after Process for the outcome.
 - Two-column pairs (DocNo/Status, BP/PO, Invoice No/Date); **Upload PDF** + **Process** half-width same line.
 - Cache Reset / close+reopen Invoice Capture window after apply.
 
