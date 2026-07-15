@@ -5,14 +5,14 @@
 | Object | Type | Change |
 |--------|------|--------|
 | Shift (Rostered) | Window | Opens Find with saved query **\* Current Pay Period** selected by default |
-| \* Current Pay Period | Saved query | New shared default — filters shifts in today’s active pay period |
+| \* Current Pay Period | Saved query | Default — current pay period **and** Showing As Available = Y |
 | Roster Period (field) | AD Field | Best-effort Find default value (query is what drives the filter) |
 
 No new menus, processes, or buttons. No JAR.
 
 ## What’s done
 
-Opening **Shift (Rostered)** now defaults the Lookup saved query to the **current pay period**, so the first search shows this fortnight’s shifts instead of the full historic list.
+Opening **Shift (Rostered)** now defaults the Lookup saved query to the **current pay period** with **Showing As Available = Y**, so the first search shows available shifts in this fortnight instead of the full historic list.
 
 ## What changed (behaviour)
 

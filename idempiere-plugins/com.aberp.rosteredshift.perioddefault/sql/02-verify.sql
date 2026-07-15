@@ -27,7 +27,10 @@ BEGIN
   FROM ad_userquery
   WHERE ad_userquery_uu = '6b2c9e11-4d8a-4f01-9b2e-a022shift001';
 
-  IF v_code IS NULL OR v_code NOT ILIKE '%AbERP_PR_Period%' OR v_def <> 'Y' THEN
+  IF v_code IS NULL
+     OR v_code NOT ILIKE '%AbERP_PR_Period%'
+     OR v_code NOT ILIKE '%AbERP_isShowingAsAvailable%'
+     OR v_def <> 'Y' THEN
     RAISE EXCEPTION 'SAW022 verify FAILED: UserQuery missing/not default: code=% isdefault=%', v_code, v_def;
   END IF;
 

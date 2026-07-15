@@ -15,9 +15,10 @@ DECLARE
   v_query_uu   CONSTANT varchar := '6b2c9e11-4d8a-4f01-9b2e-a022shift001';
   v_query_name CONSTANT varchar := '* Current Pay Period';
 
-  -- Find/UserQuery @SQL= fragment (dynamic current period by wall-clock)
+  -- Find/UserQuery @SQL= fragment: current period + Showing As Available
   v_code CONSTANT text :=
-    '@SQL=EXISTS (SELECT 1 FROM AbERP_PR_Period p'
+    '@SQL=AbERP_Rostered_Shift.AbERP_isShowingAsAvailable=''Y'''
+    || ' AND EXISTS (SELECT 1 FROM AbERP_PR_Period p'
     || ' WHERE p.IsActive=''Y'''
     || ' AND p.AD_Client_ID=AbERP_Rostered_Shift.AD_Client_ID'
     || ' AND LOCALTIMESTAMP >= p.StartDate'
@@ -107,7 +108,7 @@ BEGIN
       v_client_id, 0, 'Y',
       NOW(), 100, NOW(), 100,
       v_query_name,
-      'SAW022: default Lookup filter — current AbERP pay period (clear via ** New Query ** or other saved queries).',
+      'SAW022: default Lookup — current pay period AND Showing As Available = Y (clear via ** New Query ** or other saved queries).',
       NULL, v_table_id, v_tab_id, v_window_id,
       NULL, 'Y',
       v_code,
@@ -117,7 +118,7 @@ BEGIN
   ELSE
     UPDATE ad_userquery
        SET name = v_query_name,
-           description = 'SAW022: default Lookup filter — current AbERP pay period (clear via ** New Query ** or other saved queries).',
+           description = 'SAW022: default Lookup — current pay period AND Showing As Available = Y (clear via ** New Query ** or other saved queries).',
            code = v_code,
            isdefault = 'Y',
            isactive = 'Y',
