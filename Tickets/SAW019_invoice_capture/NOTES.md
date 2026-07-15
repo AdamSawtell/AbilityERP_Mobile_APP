@@ -45,6 +45,12 @@
 - Cause: session language `en_AU` (system language) — `POInfo` INNER JOINs `AD_Element_Trl`; missing trl dropped the IsKey column.
 - Fix: `sql/16-fix-element-trl.sql` (+ restart / Cache Reset). Verify PK appears under en_AU join.
 
+## Menu not visible under English (AU) (2026-07-15)
+
+- Same pattern: missing `AD_Menu_Trl` (and window/tab/field/process trls).
+- Fix: `sql/17-fix-menu-trl-access.sql`. Menu path: **Ability ERP → Invoice Capture**.
+- Role: **AbilityERP Admin** (window access). Logout/in after apply.
+
 ## Browser bugs found / fixed (2026-07-14)
 
 1. **PK field missing on tab** → WebUI `Record_ID=0` → Attachment greyed out; Upload/Process said “Save the record first”. Fixed in `sql/11-fix-pk-field.sql` (+ `04` includes hidden PK fields).
