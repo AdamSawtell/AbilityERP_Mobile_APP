@@ -19,11 +19,20 @@
 
 - [x] Seed 3 Employee rules (`15-seed-employee-rules.sql`)
 - [x] `ComplianceEngine` evaluates credential assignment expiry / 30d / screening
-- [x] Refresh writes `AbERP_ComplianceResult` + W snapshot (carry-forward other cats)
-- [x] WebUI smoke on `3.27.207.215` (123/65/8 findings)
+- [x] Refresh writes `AbERP_ComplianceResult` + W snapshot
+- [x] WebUI smoke on `3.27.207.215`
 - [x] Commit + push
 
-## Later
+## Phase 3b — remaining categories
 
-- [ ] Phase 3b — Client / Incidents / Rostering / Documentation rules
-- [ ] Phase 4 — Info Window + client packs
+- [x] Seed Client / Incidents / Rostering / Documentation rules (`16-seed-remaining-rules.sql`)
+- [x] Engine evaluates all categories (SA rule skipped when no date model)
+- [x] Deploy JAR `7.1.0.202607161100` + WebUI Refresh smoke
+
+## Phase 4 — Info Window + packs
+
+- [x] Info Window **Compliance Results** (`17-audit-results-info.sql`) + menu + Admin access
+- [x] Staging pack `AbilityERP-ClientUpdate-SAW023_…-20260716`
+- [x] Thin prod pack `AbilityERP-ProdUpdate-SAW023_…-20260716`
+- [x] DEPLOY.md / EXTERNAL-SUMMARY.md / Access tables
+- [x] Commit + push

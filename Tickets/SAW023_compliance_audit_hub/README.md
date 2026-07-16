@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress (skeleton) |
+| **Status** | done |
 | **Kind** | idempiere |
 | **GitHub** | [#23](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/23) |
 | **Slug** | `SAW023_compliance_audit_hub` |
@@ -18,14 +18,15 @@
 
 ## Goal
 
-Centralised NDIS Compliance & Audit Hub: Summary window (overall KPIs + Employee / Client / Incidents / Rostering / Documentation tabs), configurable rules, results, snapshots, refresh process, Audit Results Info Window.
+Centralised NDIS Compliance & Audit Hub: Organisation Audit KPIs + Employee / Client / Incidents / Rostering / Documentation tabs, configurable rules, results, snapshots, Refresh Compliance process, Compliance Results Info Window.
 
 ## Source of truth
 
 | Item | Path |
 |------|------|
 | Plugin / SQL | `idempiere-plugins/com.aberp.compliance/` |
-| AD SQL | `sql/00` … `sql/09` |
+| AD SQL | `sql/00` … `sql/17` |
+| JAR | `com.aberp.compliance_7.1.0.202607161100.jar` |
 
 ## Access
 
@@ -34,10 +35,11 @@ Centralised NDIS Compliance & Audit Hub: Summary window (overall KPIs + Employee
 | Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
+| Info Window | Compliance Results | — |
 
 ## Phase plan
 
-1. **Skeleton** — tables, refs, stub dashboard VIEW, NDIS Audit Tool + Rules windows, menu ✅
-2. **Refresh process + OSGi** — toolbar button + factory (stub → live later) 🔄
-3. Category views + rules (Employee first)
-4. Info Window + packs
+1. **Skeleton** — tables, refs, dashboard VIEW, NDIS Audit Tool + Rules windows, menu ✅
+2. **Refresh process + OSGi** — toolbar button + factory ✅
+3. **Employee + remaining category rules** ✅
+4. **Info Window + client packs** ✅

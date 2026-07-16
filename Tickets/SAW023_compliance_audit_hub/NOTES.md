@@ -25,6 +25,7 @@
 - Category tabs via Organisation Audit detail: Employee, Client, Incidents, Rostering, Documentation
 - Phase 2: OSGi `com.aberp.compliance` ACTIVE; **Refresh Compliance** stub OK
 - Phase 3: Employee rules live — Refresh wrote 123 NC + 65 WARN + 8 CRIT; W snapshot 9060 / score 98.20 / Red
+- Phase 3b/4: 10 active rules (W3/P2/I2/R2/D1); Info Window Compliance Results; packs 20260716; JAR `7.1.0.202607161100`
 
 ## Phase 3 rule sources
 
@@ -33,6 +34,13 @@
 | Employee credential expired | `aberp_credentialassignment.aberp_expirydate < today` |
 | Credential expires within 30 days | expiry within `DaysBeforeExpiry` (30) |
 | Worker screening expired | expired + name matches Worker Screening / Working with Child |
+| Risk assessment overdue | `aberp_risks.validto < today` |
+| Missing active Service Agreement | seeded; skipped when SA table has no usable dates |
+| Incident investigation overdue | `aberp_incident` past due, not Closed |
+| Outstanding incident actions | `hco_incident_actions` active + incomplete |
+| Upcoming shift unfilled | `aberp_rostered_shift` next N days, no staff |
+| Staff assigned without required credential | shift staff + rostering needs CRD |
+| Onboarding documentation expired | credential assignments in Onboarding Documentation category |
 
 ## Scope sources
 

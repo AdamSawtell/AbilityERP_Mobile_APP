@@ -11,9 +11,7 @@ SSH (dev): `ubuntu@3.27.207.215` with `C:\Users\sawte\Documents\SSH Keys\HCObusi
 
 ## JAR
 
-**Yes (Phase 2+):** `com.aberp.compliance_7.1.0.<timestamp>.jar`
-
-On the iDempiere host (preferred):
+**Yes:** `com.aberp.compliance_7.1.0.202607161100.jar`
 
 ```bash
 cd /path/to/idempiere-plugins/com.aberp.compliance
@@ -21,20 +19,11 @@ chmod +x build.sh deploy.sh
 ./deploy.sh
 ```
 
-`deploy.sh` builds the JAR, copies to `plugins/` + `customization-jar/`, updates `bundles.info`, applies `04` + `14` SQL, restarts iDempiere (does **not** clear OSGi cache).
-
-Manual console alternative: install/start the bundle after copy, then Cache Reset.
-
 ## SQL order
 
-From `idempiere-plugins/com.aberp.compliance/sql/`:
+`sql/00` … `sql/17` via `install-all.sh`, or ClientUpdate pack `sql/` folder.
 
-1. `00`–`13` skeleton + rename (see `install-all.sh`)
-2. `14-refresh-compliance-process.sql` — Refresh process + Organisation Audit toolbar button
-
-Or full: `bash install-all.sh` (SQL only). JAR still needs `./deploy.sh` or manual OSGi install.
-
-Then **Cache Reset** / logout-in.
+Key adds: `14` Refresh button, `15`–`16` rules, `17` Compliance Results Info Window.
 
 ## AbilityERP Admin access
 
@@ -43,22 +32,21 @@ Then **Cache Reset** / logout-in.
 | Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
+| Info Window | Compliance Results | — |
 
 ## Smoke
 
-1. Open **NDIS Audit Tool** as Admin
-2. Organisation Audit KPIs visible
-3. Toolbar **Refresh Compliance** → live Employee evaluation summary (expired / 30d / screening counts)
-4. ReQuery — Employee totals reflect live snapshot; other tabs carry forward prior values
-5. **Compliance Rules** shows the three Employee rules
+1. **NDIS Audit Tool** → **Refresh Compliance** (all categories)
+2. ReQuery KPIs
+3. **Compliance Results** Info Window — filter Status / Severity
+4. **Compliance Rules** — 10 rules
 
-## Dev install evidence
+## Packs (2026-07-16)
 
-- 2026-07-16: skeleton + rename + Phase 2 stub
-- Phase 3: Refresh `expired=123, due_in_30d=65, screening_expired=8`; W snapshot 9060 / 98.20 / Red
+- Staging: `C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-SAW023_compliance_audit_hub-20260716`
+- Production: `C:\Users\sawte\Downloads\AbilityERP-ProdUpdate-SAW023_compliance_audit_hub-20260716`
 
-## Blockers / later
+## Notes
 
-- Phase 3b: other categories
-- Phase 4: Audit Results Info Window + packs
-- Support Location FK = `AbERP_Support_Location_ID` → `aberp_support_location`
+- Missing Service Agreement rule is seeded but skipped when SA table has no date model / rows
+- Credential-need rostering rule can produce large result sets (next 14 days)
