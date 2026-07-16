@@ -26,6 +26,7 @@
 - Phase 2: OSGi `com.aberp.compliance` ACTIVE; **Refresh Compliance** stub OK
 - Phase 3: Employee rules live — Refresh wrote 123 NC + 65 WARN + 8 CRIT; W snapshot 9060 / score 98.20 / Red
 - Phase 3b/4: 10 active rules (W3/P2/I2/R2/D1); Info Window Compliance Results; packs 20260716; JAR `7.1.0.202607161100`
+- Final Refresh smoke (2026-07-16 11:08): W 123/65/8 score 98.20 R; P risk 202 score 20.16 R; I 11+563 score 49.04 A; R 54+1183 score 30.51 R; D 8 score 99.46 G; org KPI score **59.47** Red / 12,401 items; Info Window tab opens
 
 ## Phase 3 rule sources
 
