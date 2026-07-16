@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607161500"
+VERSION="7.1.0.202607161600"
 SYMBOLIC="com.aberp.compliance"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -39,6 +39,12 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/23-source-rec
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/24-source-assignment-link.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/25-assignment-label-toolbar.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/26-rename-org-audit-menu.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/27-restore-org-audit-menu.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/28-assignment-zoom-field.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/29-assignment-search-zoom.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/30-open-fix-pathway.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/31-clickable-assignment-pathway.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/32-physical-open-fix-button.sql"
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache)"
 sudo /etc/init.d/idempiere stop || true
