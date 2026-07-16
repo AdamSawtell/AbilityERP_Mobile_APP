@@ -30,6 +30,13 @@
 - Assignment column shows CA Value (e.g. `1003317`) not `-1` — pass
 - **Open & Fix** button → tab **Credential Assignment: 1003317** (CA Value for PK 1003323) — pass
 - JAR active: `com.aberp.compliance_7.1.0.202607161600`
+- **All-category findings (2026-07-16):** select category parent → Detail (Alt+Down) into findings sub-tab
+  - Employee → Open Findings: Worker screening expired — pass
+  - Client → Client Findings: Risk assessment overdue (no Assignment col) — pass
+  - Incidents → Incident Findings: Incident investigation overdue — pass
+  - Rostering → Rostering Findings: Upcoming shift unfilled — pass
+  - Documentation → Documentation Findings: Onboarding documentation expired + Assignment — pass
+  - Documentation **Open & Fix** → Credential Assignment: 1003317 — pass
 
 ## HCO Future Deployments variables
 

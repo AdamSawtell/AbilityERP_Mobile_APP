@@ -41,8 +41,8 @@ Then WebUI **Cache Reset**, **logout/in** as Admin.
 
 ## Smoke
 
-1. Menu → **Organisation Audit** → **Audit Hub**
-2. Open each category tab’s findings sub-tab (Open / Client / Incident / Rostering / Documentation Findings)
+1. Menu → **Organisation Audit** → **Audit Hub** (Find if the dashboard row is empty)
+2. Select a category parent (Employee / Client / Incidents / Rostering / Documentation), then **Detail** (Alt+Down) into its findings sub-tab
 3. Confirm rows are category-filtered; click **Open & Fix** on a row
 4. Update source → Save → Refresh Compliance
 

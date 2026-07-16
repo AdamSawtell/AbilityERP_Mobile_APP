@@ -11,5 +11,6 @@
 - [x] SQL `33-open-findings-all-categories.sql` — Client / Incidents / Rostering / Documentation findings nests
 - [x] SQL `34-rename-findings-tabs.sql` — distinct tab names (Client Findings, etc.)
 - [x] Dev DB: 5 category findings tabs + open result counts (W/P/I/R/D)
+- [x] Browser smoke all category findings + Documentation Open & Fix (2026-07-16)
 - [x] Commit + push
 - [ ] Refresh thin pack with SQL 24–34 + JAR
