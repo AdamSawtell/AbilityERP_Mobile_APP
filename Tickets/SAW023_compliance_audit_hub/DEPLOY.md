@@ -48,17 +48,17 @@ Then **Cache Reset** / logout-in.
 
 1. Open **NDIS Audit Tool** as Admin
 2. Organisation Audit KPIs visible
-3. Toolbar **Refresh Compliance** → stub success message
-4. Child tabs still present
-5. **Compliance Rules** opens
+3. Toolbar **Refresh Compliance** → live Employee evaluation summary (expired / 30d / screening counts)
+4. ReQuery — Employee totals reflect live snapshot; other tabs carry forward prior values
+5. **Compliance Rules** shows the three Employee rules
 
 ## Dev install evidence
 
-- 2026-07-16: skeleton through rename — org header 76.4 / Red
-- Phase 2: Refresh button + OSGi factory (see NOTES after deploy)
+- 2026-07-16: skeleton + rename + Phase 2 stub
+- Phase 3: Refresh `expired=123, due_in_30d=65, screening_expired=8`; W snapshot 9060 / 98.20 / Red
 
 ## Blockers / later
 
-- Phase 3: live rules / snapshots
+- Phase 3b: other categories
 - Phase 4: Audit Results Info Window + packs
 - Support Location FK = `AbERP_Support_Location_ID` → `aberp_support_location`

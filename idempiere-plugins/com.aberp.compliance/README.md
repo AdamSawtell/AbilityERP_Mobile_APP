@@ -5,8 +5,8 @@
 | Phase | Status |
 |-------|--------|
 | 1 Skeleton (tables, AD, NDIS Audit Tool + tabs, Rules window) | done |
-| 2 Refresh process + OSGi | in progress (stub) |
-| 3 Category views + rule engine (Employee first) | deferred |
+| 2 Refresh process + OSGi | done |
+| 3 Category views + rule engine (Employee first) | Employee live |
 | 4 Info Window + packs | deferred |
 
 ## Build / deploy (dev host)

@@ -42,4 +42,4 @@ AbilityERP Admin and Admin can open the new windows.
 
 ## Caveats
 
-Refresh process button is a Phase 2 stub (no live rule evaluation yet). Audit Results Info Window and the ten live compliance rules are later phases.
+Refresh Compliance now evaluates Employee credential rules live (expired / due within 30 days / worker screening). Other categories still use carried-forward snapshot numbers. Audit Results Info Window comes later.

@@ -284,10 +284,10 @@ BEGIN
     WHERE ad_field_id = v_field_id;
   END IF;
 
-  -- Keep Organisation Audit tab ReadOnly (VIEW uses NOW() for Updated — editable tab causes false concurrent-update).
-  -- Button runs via IsAlwaysUpdateable on the column.
+  -- VIEW uses stable Created/Updated timestamps; tab can be non-RO so the form button enables.
+  -- KPI columns remain non-updateable at column level.
   UPDATE ad_tab SET
-    isreadonly = 'Y',
+    isreadonly = 'N',
     updated = NOW()
   WHERE ad_tab_id = v_tab_id;
 END $$;

@@ -5,9 +5,8 @@ import org.compiere.model.MTable;
 import org.compiere.process.SvrProcess;
 
 /**
- * SAW023 Phase 2 — Refresh Compliance (stub).
- * Button on NDIS Audit Tool → Organisation Audit.
- * Later phases: evaluate rules, write AbERP_ComplianceResult, refresh snapshots.
+ * SAW023 — Refresh Compliance.
+ * Phase 3: evaluates Employee credential rules and refreshes organisation snapshots.
  */
 public class RefreshCompliance extends SvrProcess {
 
@@ -15,7 +14,7 @@ public class RefreshCompliance extends SvrProcess {
 
 	@Override
 	protected void prepare() {
-		// Phase 2 stub: no parameters yet (As At Date comes later)
+		// As At Date parameter reserved for later
 	}
 
 	@Override
@@ -31,9 +30,11 @@ public class RefreshCompliance extends SvrProcess {
 			throw new AdempiereException("Select an organisation audit row first");
 		}
 
-		addLog(0, null, null,
-				"Compliance refresh stub OK for dashboard record " + getRecord_ID()
-						+ " (rule evaluation not wired yet)");
-		return "Compliance refresh completed (stub). Rule evaluation comes in Phase 3.";
+		ComplianceEngine engine = new ComplianceEngine(getCtx(), get_TrxName());
+		String summary = engine.refresh();
+		for (String line : engine.getLogs()) {
+			addLog(0, null, null, line);
+		}
+		return summary;
 	}
 }
