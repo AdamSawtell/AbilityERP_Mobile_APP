@@ -30,7 +30,7 @@
 | Login | SuperUser / HCOflamingo · client **HCO** · role **Admin** | |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` | |
 | JAR | `…_1.1.0.2026071517.jar` (~60 KB) | JAR-only if SQL already applied |
-| SQL | through **`25`** | `25` hides On Approved Leave / Has Future Shift from grid |
+| SQL | through **`26`** | `26` shows Partner Location suburb in results |
 | WebUI health | `http://127.0.0.1/webui/` | Not `:8080` on HCO |
 
 ### Scope vs HCO / staging
