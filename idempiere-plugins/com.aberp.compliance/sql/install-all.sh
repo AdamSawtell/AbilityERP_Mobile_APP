@@ -20,7 +20,15 @@ for f in \
   15-seed-employee-rules.sql \
   16-seed-remaining-rules.sql \
   17-audit-results-info.sql \
-  18-employee-open-findings.sql
+  18-employee-open-findings.sql \
+  19-employee-findings-subtab.sql \
+  20-fix-open-assignment-zoom.sql \
+  21-physical-open-assignment.sql \
+  22-zoom-condition-credential.sql \
+  23-source-record-zoom-field.sql \
+  24-source-assignment-link.sql \
+  25-assignment-label-toolbar.sql \
+  26-rename-org-audit-menu.sql
 do
   echo "===== $f ====="
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$f"

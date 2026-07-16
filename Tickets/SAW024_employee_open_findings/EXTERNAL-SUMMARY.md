@@ -2,14 +2,14 @@
 
 ## What’s done
 
-On **NDIS Audit Tool → Employee**, **Open Findings** sits as a **sub-tab under Employee**. Each row shows why the check failed, what to do, and **Open & Fix** opens the **Credential Assignment** so you can renew/update and clear the issue on the next Refresh.
+On **Organisation Audit → Employee**, **Open Findings** sits as a **sub-tab under Employee**. Each row shows why the check failed, what to do, the related Credential Assignment **Value**, and **Open & Fix Source** opens that assignment so you can renew/update and clear the issue on the next Refresh.
 
 ## What changed
 
 - Open Findings nested under Employee (Included tab + TabLevel 2)
-- **Open & Fix Source** process (`AbERP_Compliance_OpenSource`) zooms to the Credential Assignment
-- **Open Assignment** column zooms to the same source record so you can edit and save
-- Physical parent link on compliance results for reliable nesting
+- **Assignment** column shows the Credential Assignment Value
+- **Open & Fix Source** process (`AbERP_Compliance_OpenSource`) opens that Credential Assignment
+- Menu entry **Organisation Audit** opens the NDIS Audit Tool window
 
 ## Impact
 
@@ -17,17 +17,18 @@ Workforce compliance issues are actionable from the Employee KPI view without le
 
 ## How to test
 
-1. Admin → **NDIS Audit Tool** → **Employee**
+1. Admin → menu **Organisation Audit** → **Employee**
 2. Open the **Open Findings** sub-tab
-3. Read **Why** and **What to resolve**
-4. Click **Open & Fix** → Credential Assignment → update expiry → Save
-5. **Refresh Compliance** and confirm the list updates
+3. Confirm **Assignment** shows a Value (not blank / not `-1`)
+4. Select a row → toolbar **Process** → **Open & Fix Source** → Credential Assignment opens
+5. Update expiry → Save → **Refresh Compliance** and confirm the list updates
 
 ## Access
 
 | Access | Name | Search key |
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
+| Menu | Organisation Audit | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 | Process | Open & Fix Source | `AbERP_Compliance_OpenSource` |
 | Window | Credential Assignment | — |

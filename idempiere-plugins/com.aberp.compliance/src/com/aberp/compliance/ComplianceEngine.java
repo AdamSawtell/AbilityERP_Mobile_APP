@@ -449,14 +449,14 @@ public class ComplianceEngine {
 						+ "aberp_compliancerule_id, ad_table_id, record_id, ad_user_id,"
 						+ "datedetected, datechecked, duedate, compliancestatus, severity,"
 						+ "resultmessage, isresolved, aberp_compliancedashboard_id,"
-						+ "aberp_openassignment_id"
-						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?,?,?,?, ?,?,?,?,?,?, 'N', ?, ?)";
+						+ "aberp_openassignment_id, aberp_sourceassignment_id"
+						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?,?,?,?, ?,?,?,?,?,?, 'N', ?, ?, ?)";
 		Object userVal = userContactId > 0 ? Integer.valueOf(userContactId) : null;
 		DB.executeUpdateEx(sql, new Object[] {
 				id, clientId, orgId, userId, userId, UUID.randomUUID().toString(),
 				ruleId, tableId, recordId, userVal,
 				asAt, asAt, dueDate, status, severity, truncate(message, 2000),
-				clientId, openAssignmentId
+				clientId, openAssignmentId, openAssignmentId
 		}, trxName);
 	}
 
