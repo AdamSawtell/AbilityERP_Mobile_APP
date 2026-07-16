@@ -9,7 +9,7 @@ On **Organisation Audit → Employee**, **Open Findings** sits as a **sub-tab un
 - Open Findings nested under Employee (Included tab + TabLevel 2)
 - **Assignment** column shows the Credential Assignment Value
 - **Open & Fix Source** process (`AbERP_Compliance_OpenSource`) opens that Credential Assignment
-- Menu entry **Organisation Audit** opens the NDIS Audit Tool window
+- Menu folder **Organisation Audit** → **Audit Hub** opens the NDIS Audit Tool window (plus Compliance Rules / Results)
 
 ## Impact
 
@@ -17,7 +17,7 @@ Workforce compliance issues are actionable from the Employee KPI view without le
 
 ## How to test
 
-1. Admin → menu **Organisation Audit** → **Employee**
+1. Admin → menu **Organisation Audit** → **Audit Hub** → **Employee**
 2. Open the **Open Findings** sub-tab
 3. Confirm **Assignment** shows a Value (not blank / not `-1`)
 4. Select a row → toolbar **Process** → **Open & Fix Source** → Credential Assignment opens
@@ -28,7 +28,8 @@ Workforce compliance issues are actionable from the Employee KPI view without le
 | Access | Name | Search key |
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
-| Menu | Organisation Audit | — |
+| Menu | Organisation Audit (folder) | — |
+| Menu | Audit Hub | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 | Process | Open & Fix Source | `AbERP_Compliance_OpenSource` |
 | Window | Credential Assignment | — |

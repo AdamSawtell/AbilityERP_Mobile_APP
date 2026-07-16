@@ -16,6 +16,7 @@ PLUGIN=idempiere-plugins/com.aberp.compliance
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/24-source-assignment-link.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/25-assignment-label-toolbar.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/26-rename-org-audit-menu.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/27-restore-org-audit-menu.sql
 ```
 
 JAR (manual OSGi): `com.aberp.compliance_7.1.0.202607161500.jar`
@@ -29,14 +30,16 @@ Then WebUI **Cache Reset**, **logout/in** as Admin.
 | Access | Name | Search key |
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
-| Menu | Organisation Audit | — |
+| Menu | Organisation Audit (folder) | — |
+| Menu | Audit Hub | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 | Process | Open & Fix Source | `AbERP_Compliance_OpenSource` |
 | Window | Credential Assignment | — |
 
 ## Smoke
 
-1. Menu → **Organisation Audit** (under Ability ERP / NDIS Audit Tool folder)
+1. Menu → **Organisation Audit** → **Audit Hub** (Ability ERP folder; leaf must not share folder name)
+
 2. **Employee** → detail → **Open Findings**
 3. **Assignment** column shows Credential Assignment **Value** (not `-1`)
 4. Select row → toolbar **Process** → **Open & Fix Source** → Credential Assignment opens on that assignment
@@ -47,5 +50,6 @@ Then WebUI **Cache Reset**, **logout/in** as Admin.
 - Open Findings is **TabLevel 2** under Employee via `Included_Tab_ID` + physical `AbERP_ComplianceDashboard_ID`.
 - Table lookup on `Record_ID` / Open Assignment showed `-1` on included tabs (context clash). Display uses String ColumnSQL **Assignment** label; zoom uses process `AbERP_Compliance_OpenSource`.
 - Process loads WebUI `AEnv` via OSGi bundle lookup (plain `Class.forName` fails from the process bundle).
-- Window menu was renamed **Organisation Audit** so it is not hidden under a same-named summary folder.
+- Menu folder **Organisation Audit** holds **Audit Hub** (window), Compliance Rules, Compliance Results. Window leaf must not reuse the folder name or ZK hides it.
+
 - Host `AD_PInstance` can be very large; process starts may be slow.

@@ -8,7 +8,8 @@
 - Visible **Assignment** = String ColumnSQL of Credential Assignment **Value** (`25-*.sql`)
 - Hidden `AbERP_SourceAssignment_ID` holds the CA PK for the process
 - **Open & Fix Source** (`AbERP_Compliance_OpenSource`) → OSGi-load `AEnv` → `executeAsyncDesktopTask` + `zoom(table, record)`
-- Menu window entry renamed **Organisation Audit** (`26-*.sql`) so it is not hidden under same-named summary folder
+- Menu folder renamed **Organisation Audit**; window leaf **Audit Hub** under it (`27-*.sql`) — same-named folder+leaf hides the window in WebUI
+
 
 ## Learnings
 

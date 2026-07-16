@@ -1,4 +1,5 @@
--- SAW024-26 — Make Organisation Audit window menu findable (was hidden: same name as parent folder)
+-- SAW024-26 — interim: renamed window menu to Organisation Audit (superseded by 27)
+-- Prefer sql/27-restore-org-audit-menu.sql: folder = Organisation Audit, leaf = Audit Hub.
 SET search_path TO adempiere;
 
 UPDATE ad_menu SET
