@@ -66,9 +66,9 @@ SELECT
   c.ad_client_id,
   0::numeric(10) AS ad_org_id,
   'Y'::character(1) AS isactive,
-  NOW() AS created,
+  TIMESTAMPTZ '2020-01-01 00:00:00+00' AS created,
   100::numeric(10) AS createdby,
-  NOW() AS updated,
+  TIMESTAMPTZ '2020-01-01 00:00:00+00' AS updated,
   100::numeric(10) AS updatedby,
   ('23a02304-dash-4f01-8e15-' || lpad(c.ad_client_id::text, 12, '0'))::character varying(36) AS aberp_compliancedashboard_uu,
 
@@ -138,7 +138,10 @@ SELECT
   COALESCE((SELECT atrisk FROM cur WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0)::numeric AS docatrisk,
   COALESCE((SELECT ontrack FROM cur WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0)::numeric AS docontrack,
   (COALESCE((SELECT totalitems FROM cur WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0)
-    - COALESCE((SELECT totalitems FROM prev WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0))::numeric AS docchange
+    - COALESCE((SELECT totalitems FROM prev WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0))::numeric AS docchange,
+
+  -- Virtual button column (AD Button → Refresh Compliance); not stored
+  NULL::character(1) AS aberp_refreshcompliance
 FROM clients c;
 
 

@@ -7,6 +7,7 @@
 | Menu folder | NDIS Audit Tool | Under Ability ERP when present |
 | Window | NDIS Audit Tool | Organisation Audit header + Employee / Client / Incidents / Rostering / Documentation tabs |
 | Window | Compliance Rules | Admin rule configuration |
+| Process | Refresh Compliance | Toolbar button on Organisation Audit (`AbERP_Compliance_Refresh`) |
 | Tables | Compliance Rule / Result / Snapshot | New AbERP tables |
 | View | Compliance Dashboard | Read-only pivoted KPIs for Organisation Audit |
 
@@ -37,7 +38,8 @@ AbilityERP Admin and Admin can open the new windows.
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
+| Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 
 ## Caveats
 
-Refresh process, Audit Results Info Window, and the ten live compliance rules are not included in this skeleton drop.
+Refresh process button is a Phase 2 stub (no live rule evaluation yet). Audit Results Info Window and the ten live compliance rules are later phases.

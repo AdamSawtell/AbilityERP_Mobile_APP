@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: AbERP Compliance Audit Hub
+Bundle-SymbolicName: com.aberp.compliance
+Bundle-Version: 7.1.0.202607160945
+Bundle-Vendor: ABERP
+Automatic-Module-Name: com.aberp.compliance
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
+Service-Component: compliance-process.xml

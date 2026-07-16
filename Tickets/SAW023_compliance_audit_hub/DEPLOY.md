@@ -1,67 +1,64 @@
-# SAW023 — Deploy (Compliance & Audit Hub)
+# SAW023 — Deploy (NDIS Audit Tool / Compliance & Audit Hub)
 
 ## Hosts
 
 | Env | Host | Notes |
 |-----|------|-------|
-| Dev | `3.27.207.215` | Skeleton installed here first |
+| Dev | `3.27.207.215` | Primary install host |
 | HCO | See `Tickets/HCO_Deployment/` | Later — never change HCO `*_UU` |
 
 SSH (dev): `ubuntu@3.27.207.215` with `C:\Users\sawte\Documents\SSH Keys\HCObusiness.pem`
 
 ## JAR
 
-None for skeleton. Phase 2 adds `com.aberp.compliance` OSGi JAR (manual OSGi console).
+**Yes (Phase 2+):** `com.aberp.compliance_7.1.0.<timestamp>.jar`
+
+On the iDempiere host (preferred):
+
+```bash
+cd /path/to/idempiere-plugins/com.aberp.compliance
+chmod +x build.sh deploy.sh
+./deploy.sh
+```
+
+`deploy.sh` builds the JAR, copies to `plugins/` + `customization-jar/`, updates `bundles.info`, applies `04` + `14` SQL, restarts iDempiere (does **not** clear OSGi cache).
+
+Manual console alternative: install/start the bundle after copy, then Cache Reset.
 
 ## SQL order
 
 From `idempiere-plugins/com.aberp.compliance/sql/`:
 
-1. `00-preflight.sql`
-2. `01-create-tables.sql`
-3. `02-ad-references.sql`
-4. `03-ad-table-columns.sql`
-5. `04-dashboard-view.sql`
-6. `05-rules-window.sql`
-7. `06-summary-window.sql`
-8. `07-menu-access.sql`
-9. `08-seed-dummy-snapshot.sql` (dev smoke numbers — skip on prod if unwanted)
-10. `09-verify.sql`
-11. `10-menu-window-trl.sql`
+1. `00`–`13` skeleton + rename (see `install-all.sh`)
+2. `14-refresh-compliance-process.sql` — Refresh process + Organisation Audit toolbar button
 
-```bash
-sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f /path/to/00-preflight.sql
-# … through 10
-```
+Or full: `bash install-all.sh` (SQL only). JAR still needs `./deploy.sh` or manual OSGi install.
 
-Or: `bash install-all.sh` from the `sql/` folder on the host.
-
-Then **Cache Reset** or restart iDempiere, then WebUI logout/in.
+Then **Cache Reset** / logout-in.
 
 ## AbilityERP Admin access
-
-Install SQL grants window access to **AbilityERP Admin**, **Admin**, and **System Administrator** by role name.
 
 | Access | Name | Search key |
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
+| Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 
 ## Smoke
 
-1. Open **NDIS Audit Tool** (search bar, or Ability ERP → NDIS Audit Tool)
-2. Header **Organisation Audit** shows org score / traffic light / totals
-3. Child tabs: Employee, Client, Incidents, Rostering, Documentation
-4. **Compliance Rules** opens (empty until rules seeded)
+1. Open **NDIS Audit Tool** as Admin
+2. Organisation Audit KPIs visible
+3. Toolbar **Refresh Compliance** → stub success message
+4. Child tabs still present
+5. **Compliance Rules** opens
 
-## Dev install evidence (2026-07-16)
+## Dev install evidence
 
-- Host `3.27.207.215` — SQL through `12-org-header-category-tabs.sql`
-- Organisation Audit = TabLevel 0; category tabs = TabLevel 1
-- WebUI: org header 76.4 / Red / 1,234 with Employee child tab below
+- 2026-07-16: skeleton through rename — org header 76.4 / Red
+- Phase 2: Refresh button + OSGi factory (see NOTES after deploy)
 
 ## Blockers / later
 
-- Refresh process + Info Window not in skeleton
-- Service Agreement source for Rule #4 TBD at Employee/Client view phase
+- Phase 3: live rules / snapshots
+- Phase 4: Audit Results Info Window + packs
 - Support Location FK = `AbERP_Support_Location_ID` → `aberp_support_location`

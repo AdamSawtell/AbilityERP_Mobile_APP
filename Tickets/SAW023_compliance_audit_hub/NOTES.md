@@ -20,9 +20,10 @@
 ## Smoke (2026-07-16)
 
 - SQL verify: tables 3, view 1, AD tables 4, windows 2, summary tabs 6, seed snaps multi-client
-- Compliance Summary: Audit Readiness 76.4, Traffic Light Red, Total Items 1,234
+- NDIS Audit Tool: Audit Readiness 76.4, Traffic Light Red, Total Items 1,234
 - Employee tab: Total 412, Compliant 389, identical field template
-- Category tabs via Summary ▼ breadcrumb: Employee, Client, Incidents, Rostering, Documentation
+- Category tabs via Organisation Audit detail: Employee, Client, Incidents, Rostering, Documentation
+- Phase 2: OSGi `com.aberp.compliance` ACTIVE; **Refresh Compliance** stub OK (`AD_PInstance` result=1, record 1000003)
 
 ## Scope sources
 

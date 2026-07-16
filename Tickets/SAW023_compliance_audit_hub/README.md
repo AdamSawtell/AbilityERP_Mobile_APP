@@ -33,10 +33,11 @@ Centralised NDIS Compliance & Audit Hub: Summary window (overall KPIs + Employee
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
+| Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
 
 ## Phase plan
 
-1. **Skeleton (now)** — tables, refs, stub dashboard VIEW, Summary + Rules windows, menu
-2. Refresh process + OSGi
+1. **Skeleton** — tables, refs, stub dashboard VIEW, NDIS Audit Tool + Rules windows, menu ✅
+2. **Refresh process + OSGi** — toolbar button + factory (stub → live later) 🔄
 3. Category views + rules (Employee first)
 4. Info Window + packs

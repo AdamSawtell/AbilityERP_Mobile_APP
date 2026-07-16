@@ -1,19 +1,26 @@
-# com.aberp.compliance — Compliance & Audit Hub (SAW023)
-
-NDIS Compliance & Audit Hub for AbilityERP (iDempiere).
+# com.aberp.compliance — NDIS Audit Tool / Compliance & Audit Hub (SAW023)
 
 ## Phase status
 
 | Phase | Status |
 |-------|--------|
-| 1 Skeleton (tables, AD, Summary window + tabs, Rules window) | in progress |
-| 2 Refresh process + OSGi | deferred |
+| 1 Skeleton (tables, AD, NDIS Audit Tool + tabs, Rules window) | done |
+| 2 Refresh process + OSGi | in progress (stub) |
 | 3 Category views + rule engine (Employee first) | deferred |
 | 4 Info Window + packs | deferred |
 
-## Dev host
+## Build / deploy (dev host)
 
-`3.27.207.215` — install ordered SQL under `sql/`.
+```bash
+chmod +x build.sh deploy.sh
+./deploy.sh
+```
+
+## Process
+
+| Name | Search key | Class |
+|------|------------|-------|
+| Refresh Compliance | `AbERP_Compliance_Refresh` | `com.aberp.compliance.RefreshCompliance` |
 
 ## Ticket
 
