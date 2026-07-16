@@ -127,6 +127,7 @@ public class ComplianceEngine {
 						+ " FROM aberp_credentialassignment ca"
 						+ " JOIN aberp_credentials c ON c.aberp_credentials_id = ca.aberp_credentials_id"
 						+ " WHERE ca.ad_client_id=? AND ca.isactive='Y'");
+		stats.population = countActiveEmployees();
 		writeCategorySnapshot(asAt, "W", stats);
 		String msg = String.format("W expired=%d 30d=%d screening=%d score=%s %s",
 				nExpired, n30, nScreen, stats.score.toPlainString(), stats.trafficLight);
@@ -158,6 +159,7 @@ public class ComplianceEngine {
 		SnapshotStats stats = computeBucketStats(
 				"SELECT CASE WHEN r.validto IS NOT NULL AND r.validto::date < CURRENT_DATE THEN 'NC' ELSE 'C' END"
 						+ " FROM aberp_risks r WHERE r.ad_client_id=? AND r.isactive='Y'");
+		stats.population = countActiveClients();
 		writeCategorySnapshot(asAt, "P", stats);
 		String msg = String.format("P risk_overdue=%d sa_skipped=%d score=%s %s",
 				nRisk, nSa, stats.score.toPlainString(), stats.trafficLight);
@@ -200,6 +202,7 @@ public class ComplianceEngine {
 		stats.critical = 0;
 		stats.compliant = Math.max(0, stats.total - stats.nonCompliant - stats.warning);
 		finalizeStats(stats);
+		stats.population = countActiveIncidents();
 		writeCategorySnapshot(asAt, "I", stats);
 		String msg = String.format("I overdue=%d open_actions=%d score=%s %s",
 				nOverdue, nAct, stats.score.toPlainString(), stats.trafficLight);
@@ -255,6 +258,7 @@ public class ComplianceEngine {
 		stats.warning = 0;
 		stats.compliant = Math.max(0, stats.total - stats.critical - stats.nonCompliant);
 		finalizeStats(stats);
+		stats.population = countCurrentPeriodShifts();
 		writeCategorySnapshot(asAt, "R", stats);
 		String msg = String.format("R unfilled=%d missing_cred=%d score=%s %s",
 				nUnfilled, nCred, stats.score.toPlainString(), stats.trafficLight);
@@ -293,6 +297,7 @@ public class ComplianceEngine {
 			stats.compliant = Math.max(0, stats.total - nDoc);
 			finalizeStats(stats);
 		}
+		stats.population = countTotalDocuments();
 		writeCategorySnapshot(asAt, "D", stats);
 		String msg = String.format("D onboard_doc_expired=%d score=%s %s",
 				nDoc, stats.score.toPlainString(), stats.trafficLight);
@@ -519,6 +524,48 @@ public class ComplianceEngine {
 		}
 	}
 
+	private int countActiveEmployees() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM ad_user u"
+						+ " JOIN c_bpartner bp ON bp.c_bpartner_id = u.c_bpartner_id"
+						+ " WHERE u.ad_client_id=? AND u.isactive='Y' AND bp.isactive='Y' AND bp.isemployee='Y'",
+				clientId));
+	}
+
+	private int countActiveClients() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM c_bpartner bp"
+						+ " WHERE bp.ad_client_id=? AND bp.isactive='Y' AND bp.iscustomer='Y'",
+				clientId));
+	}
+
+	private int countActiveIncidents() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM aberp_incident i"
+						+ " LEFT JOIN aberp_incident_status s ON s.aberp_incident_status_id = i.aberp_incident_status_id"
+						+ " WHERE i.ad_client_id=? AND i.isactive='Y'"
+						+ " AND COALESCE(s.name,'') NOT ILIKE '%closed%'",
+				clientId));
+	}
+
+	private int countCurrentPeriodShifts() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM aberp_rostered_shift rs"
+						+ " JOIN aberp_pr_period p ON p.ad_client_id = rs.ad_client_id AND p.isactive='Y'"
+						+ "  AND CURRENT_DATE BETWEEN p.startdate::date AND p.enddate::date"
+						+ " WHERE rs.ad_client_id=? AND rs.isactive='Y'"
+						+ " AND COALESCE(rs.aberp_isshiftrosteredtemplate,'N')='N'"
+						+ " AND rs.startdate::date BETWEEN p.startdate::date AND p.enddate::date",
+				clientId));
+	}
+
+	private int countTotalDocuments() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM aberp_credentialassignment ca"
+						+ " WHERE ca.ad_client_id=? AND ca.isactive='Y'",
+				clientId));
+	}
+
 	private void writeCategorySnapshot(Timestamp asAt, String category, SnapshotStats s) {
 		DB.executeUpdateEx(
 				"UPDATE aberp_compliancesnapshot SET isactive='N', updated=NOW(), updatedby=?"
@@ -530,13 +577,13 @@ public class ComplianceEngine {
 				BigDecimal.valueOf(s.warning), BigDecimal.valueOf(s.nonCompliant),
 				BigDecimal.valueOf(s.critical), BigDecimal.valueOf(s.overdue),
 				BigDecimal.valueOf(s.atRisk), BigDecimal.valueOf(s.onTrack),
-				s.score, s.trafficLight);
+				s.score, s.trafficLight, BigDecimal.valueOf(s.population));
 	}
 
 	private void insertSnapshot(Timestamp asAt, int orgId, String category,
 			BigDecimal total, BigDecimal compliant, BigDecimal warning, BigDecimal nc,
 			BigDecimal critical, BigDecimal overdue, BigDecimal atRisk, BigDecimal onTrack,
-			BigDecimal score, String traffic) {
+			BigDecimal score, String traffic, BigDecimal population) {
 		int id = MSequence.getNextID(clientId, "AbERP_ComplianceSnapshot", trxName);
 		if (id <= 0) {
 			throw new RuntimeException("SAW023: nextid AbERP_ComplianceSnapshot failed");
@@ -547,13 +594,15 @@ public class ComplianceEngine {
 						+ "created, createdby, updated, updatedby, aberp_compliancesnapshot_uu,"
 						+ "snapshotdate, aberp_support_location_id, compliancecategory,"
 						+ "totalitems, compliant, warning, noncompliant, critical,"
-						+ "overdue, atrisk, ontrack, auditreadinessscore, trafficlight, lastcalculated"
-						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?, NULL, ?, ?,?,?,?,?, ?,?,?,?,?, ?)";
+						+ "overdue, atrisk, ontrack, auditreadinessscore, trafficlight, lastcalculated,"
+						+ "populationcount"
+						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?, NULL, ?, ?,?,?,?,?, ?,?,?,?,?, ?, ?)";
 		DB.executeUpdateEx(sql, new Object[] {
 				id, clientId, orgId, userId, userId, UUID.randomUUID().toString(),
 				asAt, category,
 				nz(total), nz(compliant), nz(warning), nz(nc), nz(critical),
-				nz(overdue), nz(atRisk), nz(onTrack), nz(score), traffic, asAt
+				nz(overdue), nz(atRisk), nz(onTrack), nz(score), traffic, asAt,
+				nz(population)
 		}, trxName);
 	}
 
@@ -567,6 +616,7 @@ public class ComplianceEngine {
 		int warning;
 		int nonCompliant;
 		int critical;
+		int population;
 		int overdue;
 		int atRisk;
 		int onTrack;
