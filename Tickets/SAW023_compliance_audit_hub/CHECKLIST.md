@@ -13,7 +13,7 @@
 - [x] `com.aberp.compliance` OSGi JAR + `IProcessFactory`
 - [x] Process `AbERP_Compliance_Refresh` + Organisation Audit button
 - [x] Deploy on `3.27.207.215` + WebUI stub smoke (AD_PInstance OK)
-- [ ] Commit + push (this session)
+- [x] Commit + push (this session)
 
 ## Later
 
