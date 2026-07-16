@@ -2,11 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Rostering Staff Info
 Bundle-SymbolicName: com.aberp.rostering.staffinfo
-Bundle-Version: 1.1.0.2026071516
+Bundle-Version: 1.1.0.2026071517
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.rostering.staffinfo
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0",org.adempiere.ui.zk;bundle-version="7.1.0",zul;bundle-version="8.6.0",zk;bundle-version="8.6.0"
+Require-Bundle: org.adempiere.base;bundle-version="7.1.0",
+ org.adempiere.plugin.utils;bundle-version="7.1.0",
+ org.adempiere.ui.zk;bundle-version="7.1.0",
+ zul;bundle-version="8.6.0",
+ zk;bundle-version="8.6.0"
 Service-Component: staffinfo-info.xml,staffinfo-callout.xml
 AbERP-Package-Type: java-sql-ad
 AbERP-InfoWindow-UU: 2b4ab146-0809-47c6-96f3-8b841d60a6bf

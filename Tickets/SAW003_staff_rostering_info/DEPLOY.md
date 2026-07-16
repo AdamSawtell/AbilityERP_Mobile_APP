@@ -3,7 +3,7 @@
 **Ticket / slug:** `SAW003_staff_rostering_info`  
 **Kind:** idempiere · **JAR:** Yes · **Status:** done (ready for agent deploy)  
 **GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)  
-**Current bundle:** **`1.1.0.2026071516`**
+**Current bundle:** **`1.1.0.2026071517`**
 
 ## Required host access
 
@@ -17,7 +17,7 @@
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# build JAR 1.1.0.2026071516 → SQL 01→25→04 → restart → wait WebUI 200
+# build JAR 1.1.0.2026071517 → SQL 01→25→04 → restart → wait WebUI 200
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
@@ -28,9 +28,9 @@ Use when SQL `01`–`24`→`04` is **already** on the target. Still apply **`25-
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh
-# Confirm VERSION=1.1.0.2026071516 in build.sh + META-INF/MANIFEST.MF
+# Confirm VERSION=1.1.0.2026071517 in build.sh + META-INF/MANIFEST.MF
 ./build.sh
-JAR=com.aberp.rostering.staffinfo_1.1.0.2026071516.jar
+JAR=com.aberp.rostering.staffinfo_1.1.0.2026071517.jar
 IDEMPIERE_HOME=${IDEMPIERE_HOME:-/opt/idempiere-server}
 sudo rm -f $IDEMPIERE_HOME/plugins/com.aberp.rostering.staffinfo_*.jar
 sudo rm -f $IDEMPIERE_HOME/customization-jar/com.aberp.rostering.staffinfo_*.jar
@@ -39,7 +39,7 @@ sudo cp build/dist/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
 sudo chown idempiere:idempiere $IDEMPIERE_HOME/plugins/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
 B=$IDEMPIERE_HOME/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
 sudo sed -i '/^com.aberp.rostering.staffinfo,/d' "$B"
-echo "com.aberp.rostering.staffinfo,1.1.0.2026071516,plugins/$JAR,4,true" | sudo tee -a "$B" >/dev/null
+echo "com.aberp.rostering.staffinfo,1.1.0.2026071517,plugins/$JAR,4,true" | sudo tee -a "$B" >/dev/null
 # Restart (HCO: if stop leaves Java running, kill equinox launcher then start)
 sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 3; sudo /etc/init.d/idempiere start
 # Wait WebUI 200 — HCO check http://127.0.0.1/webui/ (not :8080)
@@ -47,7 +47,7 @@ sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 
 ```
 
 Prebuilt JAR (after a staging build):  
-`/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071516.jar` — scp + same install steps above.
+`/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` — scp + same install steps above.
 
 ## Package / bundle
 
@@ -55,14 +55,14 @@ Prebuilt JAR (after a staging build):
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | **`1.1.0.2026071516`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
+| Version | **`1.1.0.2026071517`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` / `CalloutShiftStaffContact` |
 
-Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~55 KB** (≈60 KB for `1516`). ~29 KB with a version stamp is a **stale** banner-only build.
+Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~55 KB** (≈60 KB for `1517`). ~29 KB with a version stamp is a **stale** banner-only build.
 
-## What JAR `1516` includes (filters)
+## What JAR `1517` includes (filters)
 
 Second criteria row (starts **column 2**), all default **On**:
 
@@ -76,6 +76,8 @@ Second criteria row (starts **column 2**), all default **On**:
 Familiarity: shift → `AbERP_MasterLocation` → `C_BPartner_Location_ID` (fallback Master Location id). Exclude templates + current shift. No location on shift → Familiar filter skipped (does not empty list).
 
 Also: scoped North expand for credential picker (never `jq('.z-north').get(0)` — that gaps the parent Shift window).
+
+**Results grid = single-select** (JAR `1517`): Related Information tabs key off one selected row. Multi-select was forced previously for fill UX and broke Related tab validation.
 
 ## Ordered SQL (`deploy.sh`) — greenfield / full reinstall only
 
@@ -122,19 +124,19 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071516` + SQL `25` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
-| HCO Test | `http://3.25.86.128/webui/` | `1.1.0.2026071516` + SQL `25` | SSH `ubuntu@3.25.86.128` · `HCObusiness.pem` (prior IPs `13.210.248.141` / `54.253.165.194`) |
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071517` + SQL `25` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
+| HCO Test | `http://3.25.86.128/webui/` | `1.1.0.2026071517` + SQL `25` | SSH `ubuntu@3.25.86.128` · `HCObusiness.pem` (prior IPs `13.210.248.141` / `54.253.165.194`) |
 
 ## Packs
 
 - `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`  
 - `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`  
 
-Refresh packs when shipping a zip: JAR **`1516`** (≥ ~55 KB) + SQL through **`25`**. Prefer host build / JAR-only over stale packs.
+Refresh packs when shipping a zip: JAR **`1517`** (≥ ~55 KB) + SQL through **`25`**. Prefer host build / JAR-only over stale packs.
 
 ## Agent prompt (copy)
 
-> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only update to `1.1.0.2026071516` if SQL through `24` is applied; still run `sql/25-hide-eligibility-display-columns.sql` if missing. Smoke: four default-on filter ticks; lean grid without On Approved Leave / Has Future Shift; report pass/fail.
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only update to `1.1.0.2026071517` if SQL through `24`/`25` is applied. Smoke: results grid single-select (Related Info follows one row); four default-on filter ticks; lean grid; report pass/fail.
 
 ## External ticket text
 

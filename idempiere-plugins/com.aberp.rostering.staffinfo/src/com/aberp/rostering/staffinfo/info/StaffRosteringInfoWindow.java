@@ -94,8 +94,9 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID, boolean lookup, GridField field) {
-		// Always multi-select so toolbar Select All / row checkboxes work for fill UX.
-		super(windowNo, tableName, keyColumn, queryValue, true, whereClause, AD_InfoWindow_ID, lookup, field);
+		// Single-select only: Related Information tabs key off one selected result row.
+		// Multi-select left Related tabs unable to validate against a chosen contact.
+		super(windowNo, tableName, keyColumn, queryValue, false, whereClause, AD_InfoWindow_ID, lookup, field);
 		this.launchField = field;
 	}
 

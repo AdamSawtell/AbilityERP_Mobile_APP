@@ -1,7 +1,7 @@
 # SAW003 notes
 
 - Ticket **done** and agent-ready. Point agents at **`DEPLOY.md`** (and GitHub [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)).
-- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071516`**.
+- Bundle: `com.aberp.rostering.staffinfo` — version **`1.1.0.2026071517`**.
 - Info Window UU: `2b4ab146-0809-47c6-96f3-8b841d60a6bf`
 - Not SAW011 (Accept Shift) or SAW004 (Rostering Chat).
 - **Later deploys:** if SQL already applied, use **JAR-only** section in `DEPLOY.md` (no need to re-run `01`–`24`).
@@ -17,9 +17,9 @@
 
 | JAR | Behaviour |
 |-----|-----------|
-| `1516` | Four filter ticks (inc. Familiar); Matched untick → credential Find+Select AND; scoped North |
+| `1517` | Results single-select (Related Info); four filter ticks; Matched untick → credential Find+Select AND; scoped North |
 
-**Pack rule:** JAR **`1516`** ≥ ~55 KB (≈60 KB). Prefer host build / JAR-only over stale packs.
+**Pack rule:** JAR **`1517`** ≥ ~55 KB (≈60 KB). Prefer host build / JAR-only over stale packs.
 
 ## HCO Future Deployments variables
 
@@ -29,7 +29,7 @@
 | SSH | `ubuntu@3.25.86.128` · `~/.ssh/HCObusiness.pem` | Same key as prior HCO hosts |
 | Login | SuperUser / HCOflamingo · client **HCO** · role **Admin** | |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` | |
-| JAR | `…_1.1.0.2026071516.jar` (~60 KB) | JAR-only if SQL already applied |
+| JAR | `…_1.1.0.2026071517.jar` (~60 KB) | JAR-only if SQL already applied |
 | SQL | through **`25`** | `25` hides On Approved Leave / Has Future Shift from grid |
 | WebUI health | `http://127.0.0.1/webui/` | Not `:8080` on HCO |
 
@@ -39,7 +39,7 @@
 |------|--------|
 | SQL `01`–`24`→`04` | Applied |
 | SQL `25` hide eligibility display cols | Staging + `3.25.86.128` |
-| JAR `1516` filters + Familiar | Staging + HCO |
+| JAR `1517` filters + Familiar | Staging + HCO |
 | Leave Planning Media CNFE | Separate — SAW016 `zcommon` |
 
 ## Agent pitfalls
