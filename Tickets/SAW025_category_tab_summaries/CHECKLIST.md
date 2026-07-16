@@ -6,3 +6,6 @@
 - [x] Install on `3.27.207.215`
 - [x] SQL `36-fix-population-client-90d.sql` — support-receiver clients + live 90d change
 - [x] Re-smoke view KPIs (127 clients; non-zero 90d changes)
+- [x] SQL `37-category-kpi-expansion.sql` — shared + category KPIs via DB functions
+- [x] Browser-smoke all five category tabs (no SQL modal; fields populated)
+- [ ] Client update packs (staging + thin prod) when ready for client install

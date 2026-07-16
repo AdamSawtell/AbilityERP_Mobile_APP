@@ -1,4 +1,4 @@
-﻿# SAW025 — Category tab population summaries
+﻿# SAW025 — Category tab population + KPI summaries
 
 | | |
 |--|--|
@@ -18,15 +18,17 @@
 
 ## Goal
 
-At the top of each Organisation Audit category tab, show a population summary and 90-day change. Tab layout will be refined in later reviews.
+At the top of each Organisation Audit category tab, show population + 90-day change and the expanded readiness / findings / category KPI set, using the same two-column readonly UX.
 
 ## Source of truth
 
 | Item | Path |
 |------|------|
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/35-category-population-summary.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/36-fix-population-client-90d.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/37-category-kpi-expansion.sql` |
 | Engine | `idempiere-plugins/com.aberp.compliance/src/com/aberp/compliance/ComplianceEngine.java` |
-| JAR | `com.aberp.compliance_7.1.0.202607170530` |
+| JAR | `com.aberp.compliance_7.1.0.202607170545` |
 
 ## Access
 
