@@ -30,7 +30,7 @@ sudo chown idempiere:idempiere "${IDEMPIERE_HOME}/customization-jar/$JAR_NAME" "
 sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
 echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
-echo "Applying SQL 01 → 24 → 04"
+echo "Applying SQL 01 → 25 → 04"
 for f in \
   01-indexes.sql \
   02-rewrite-infowindow.sql \
@@ -54,6 +54,7 @@ for f in \
   22-harden-nonnegative-editors.sql \
   23-force-no-id-criteria.sql \
   24-perf-staff-info.sql \
+  25-hide-eligibility-display-columns.sql \
   04-verify.sql
 do
   echo "=== $f ==="

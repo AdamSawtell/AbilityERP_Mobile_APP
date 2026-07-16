@@ -55,7 +55,7 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 5. Confirm banner shows shift context (not “No shift in context”).
 6. Confirm leave / overlapping roster / familiarity / needs filters independently via the ticks.
 7. Untick **Show Matched Staff** → confirm two columns (Find / Selected | Select checklist) → type in Find to narrow → select two → summary updates → ReQuery → Clear → re-tick (picker hides).
-8. Confirm lean grid (no BP Name / Status / Business Partner / Agency Staff columns).
+8. Confirm lean grid (no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff columns).
 9. Pick a contact and confirm BP fills; check Related Info tabs.
 
 ## Notes / caveats
