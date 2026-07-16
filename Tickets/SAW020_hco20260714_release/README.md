@@ -14,7 +14,7 @@
 
 **→ [`DEPLOY.md`](DEPLOY.md)** — Production Deployment Runbook from this dry run  
 **→ [`report/DEPLOYMENT-REPORT.md`](report/DEPLOYMENT-REPORT.md)** — full evidence log  
-**→ [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md)** — post dry-run JAR bumps (SAW003 `1516`, SAW017 `160730`) to fold into Production
+**→ [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md)** — post dry-run bumps (SAW003 **`1517`** + SQL `25`/`26`, SAW017 `160730`) to fold into Production
 
 ## External ticket (copy/paste)
 

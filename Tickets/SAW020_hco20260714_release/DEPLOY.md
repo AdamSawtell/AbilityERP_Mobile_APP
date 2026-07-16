@@ -43,7 +43,7 @@ Hard rules: never change existing HCO `*_UU`; fix AbilityERP SQL/process instead
 |---|--------|-----------|----------|--------------|
 | 1 | SAW018 | SQL view + 4× `*_SYSTEM_hco_*.zip` PackIn | Maybe (PackInFolder stops OSGi app) | Yes |
 | 2 | SAW001 | SQL only (`com.aberp.notification.invoiceinfo`) | No | Yes |
-| 3 | SAW003 | SQL + JAR `com.aberp.rostering.staffinfo_1.1.0.2026071516` | **Yes** | Yes |
+| 3 | SAW003 | SQL through **`26`** + JAR `com.aberp.rostering.staffinfo_1.1.0.2026071517` | **Yes** | Yes |
 | 4 | SAW007 | SQL (+ optional marker JAR) | If JAR | Yes |
 | 5 | SAW009 | SQL only | No | Yes |
 | 6 | SAW010 | SQL only | No | Yes |
@@ -62,7 +62,7 @@ After each ticket: verify SQL markers → Cache Reset / logout-in → WebUI smok
 |--------|----------------|------------------------|
 | SAW018 | `Tickets/SAW018_hco_release_packins/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW018_hco_release_packins-20260713` |
 | SAW001 | `Tickets/SAW001_paid_filter_invoice_send_info/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW001_paid_filter_invoice_send_info-20260712` |
-| SAW003 | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` | Prefer JAR **`1516`** from ticket `release/` (refresh Prod pack if still on older build) |
+| SAW003 | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` | Prefer JAR **`1517`** + SQL through **`26`** (`release/…1517.jar`) — see RELEASE-UPDATES |
 | SAW007 | `Tickets/SAW007_activity_tab_integration/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW007_activity_tab_integration-20260712` |
 | SAW009 | `Tickets/SAW009_support_day_pattern_number/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW009_support_day_pattern_number-20260713` |
 | SAW010 | `Tickets/SAW010_timesheet_approval_info_columns/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW010_timesheet_approval_info_columns-20260712` |

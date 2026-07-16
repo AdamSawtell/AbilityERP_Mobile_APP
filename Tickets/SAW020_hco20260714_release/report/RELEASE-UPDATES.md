@@ -11,7 +11,7 @@ Apply these **after** (or folded into) the baseline dry-run install in [`DEPLOYM
 
 | Seq | Ticket | Type | From → To | Host evidence |
 | ---: | ------ | ---- | --------- | ------------- |
-| U1 | SAW003 | JAR-only | staffinfo `1237` → **`1.1.0.2026071516`** (~60 KB) | Applied 2026-07-15 on `54.253.165.194` |
+| U1 | SAW003 | JAR + SQL `25`/`26` | staffinfo → **`1.1.0.2026071517`** (~52 KB) + Partner Location suburb | Applied 2026-07-16 on `54.253.165.194` (via `1516` interim 2026-07-15) |
 | U2 | SAW017 | JAR-only | bulk `…132235` → **`7.1.0.202607160730`** (9039 bytes) | Applied 2026-07-16 on `54.253.165.194` |
 
 Generator stack for SAW017 is unchanged from the dry run (keep patched generator):
@@ -23,22 +23,24 @@ Generator stack for SAW017 is unchanged from the dry run (keep patched generator
 
 ---
 
-## U1 — SAW003 Staff Rostering Info
+## U1 — SAW003 Staff Rostering Info (**ship this**)
 
 | | |
 |--|--|
-| Runbook | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` § JAR-only |
-| Ship JAR | `com.aberp.rostering.staffinfo_1.1.0.2026071516.jar` |
-| Repo copy | `idempiere-plugins/com.aberp.rostering.staffinfo/release/…1516.jar` |
-| SQL | **Skip** if `01`–`24`→`04` already applied |
+| Runbook | `Tickets/SAW003_staff_rostering_info/DEPLOY.md` + `AGENT-READY.md` |
+| Ship JAR | `com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` (~52 KB) |
+| Repo copy | `idempiere-plugins/com.aberp.rostering.staffinfo/release/…1517.jar` |
+| SQL delta (if host already has `01`–`24`) | `25-hide-eligibility-display-columns.sql` → **`26-show-partner-location-suburb.sql`** → optional `04-verify` |
 | Restart | Yes (stop → kill leftover equinox if needed → start) |
-| What changed | Four default-on filter ticks (Matched / Not Rostered / Not On Leave / Familiar); credential AND on Matched off; scoped North expand |
+| What changed | Single-select results; Partner Location **suburb** in grid; four filter ticks (Matched / Not Rostered / Not On Leave / Familiar); hide leave/future grid cols (`25`) |
 
 `bundles.info`:
 
 ```text
-com.aberp.rostering.staffinfo,1.1.0.2026071516,plugins/com.aberp.rostering.staffinfo_1.1.0.2026071516.jar,4,true
+com.aberp.rostering.staffinfo,1.1.0.2026071517,plugins/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar,4,true
 ```
+
+Do **not** ship interim `1516` on a new Production cut — go straight to **`1517`** + SQL through **`26`**.
 
 ---
 
@@ -72,7 +74,7 @@ Do **not** install historical bulk JARs `…132235` or `…160715` on a new Prod
 
 After baseline HCO20260714 install:
 
-- [ ] Apply U1 SAW003 JAR `1516` + restart + WebUI smoke filters / Familiar  
+- [ ] Apply U1 SAW003 JAR **`1517`** + SQL **`25`/`26`** + restart + smoke (single-select, Partner Location suburb, four ticks)  
 - [ ] Apply U2 SAW017 JAR `160730` + restart + smoke Bulk summary columns  
 - [ ] Confirm `bundles.info` has no stale staffinfo / bulk lines  
 - [ ] Cache Reset or re-login  
@@ -84,5 +86,6 @@ After baseline HCO20260714 install:
 
 | Date | Update | Result |
 |------|--------|--------|
-| 2026-07-15 | SAW003 → `1516` | PASS · WebUI 200 |
+| 2026-07-15 | SAW003 → `1516` | PASS · WebUI 200 (superseded) |
 | 2026-07-16 | SAW017 → `160730` | PASS · `04-verify` green · WebUI 200 · generator stack unchanged |
+| 2026-07-16 | SAW003 → **`1517`** + SQL `25`/`26` | PASS · WebUI 200 · Partner Location suburb selectclause active |

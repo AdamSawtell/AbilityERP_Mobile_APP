@@ -2,6 +2,13 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-16 — SAW003 JAR `1517` + SQL `25`/`26` on HCO20260714 host
+
+**Host:** `54.253.165.194` (was `1516`).  
+**Action:** SQL `25-hide-eligibility-display-columns` + `26-show-partner-location-suburb` + JAR `com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` (52603 bytes); restart; WebUI 200.  
+**Release fold-in:** `Tickets/SAW020_hco20260714_release/report/RELEASE-UPDATES.md` (U1 ship = `1517`).  
+**No `*_UU` changes.**
+
 ## 2026-07-16 — SAW017 JAR-only to `160730` on HCO20260714 host
 
 **Host:** `54.253.165.194` (was bulk `…132235` from dry run).  

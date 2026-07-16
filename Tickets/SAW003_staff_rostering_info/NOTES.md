@@ -25,12 +25,13 @@
 
 | Item | HCO value | Notes |
 |------|-----------|--------|
-| Host | **`3.25.86.128`** | WebUI `http://3.25.86.128/webui/` (prior: `13.210.248.141`, `54.253.165.194`) |
-| SSH | `ubuntu@3.25.86.128` · `~/.ssh/HCObusiness.pem` | Same key as prior HCO hosts |
+| Host (current Test) | **`3.25.86.128`** | WebUI `http://3.25.86.128/webui/` |
+| Host (HCO20260714 dry-run) | **`54.253.165.194`** | JAR `1517` + SQL `25`/`26` 2026-07-16 |
+| SSH | `ubuntu@<host>` · `~/.ssh/HCObusiness.pem` | Same key as prior HCO hosts |
 | Login | SuperUser / HCOflamingo · client **HCO** · role **Admin** | |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` | |
-| JAR | `release/…_1.1.0.2026071517.jar` (~52 KB) | JAR-only if SQL already applied |
-| SQL | through **`26`** | `26` shows Partner Location suburb in results |
+| JAR | `release/…_1.1.0.2026071517.jar` (~52 KB) | JAR-only if SQL through `24` already applied |
+| SQL | through **`26`** | `25` hide leave/future cols; `26` Partner Location suburb |
 | WebUI health | `http://127.0.0.1/webui/` | Not `:8080` on HCO |
 
 ### Scope vs HCO / staging
@@ -38,8 +39,8 @@
 | Area | Status |
 |------|--------|
 | SQL `01`–`24`→`04` | Applied |
-| SQL `25` hide eligibility display cols | Staging + `3.25.86.128` |
-| JAR `1517` filters + Familiar | Staging + HCO |
+| SQL `25` / `26` | Staging + `3.25.86.128` + `54.253.165.194` |
+| JAR `1517` single-select + filters | Staging + HCO |
 | Leave Planning Media CNFE | Separate — SAW016 `zcommon` |
 
 ## Agent pitfalls

@@ -130,7 +130,8 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
 | Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071517` + SQL `26` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
-| HCO Test | `http://3.25.86.128/webui/` | `1.1.0.2026071517` + SQL `26` | SSH `ubuntu@3.25.86.128` · `HCObusiness.pem` (prior IPs `13.210.248.141` / `54.253.165.194`) |
+| HCO Test | `http://3.25.86.128/webui/` | `1.1.0.2026071517` + SQL `26` | SSH `ubuntu@3.25.86.128` · `HCObusiness.pem` |
+| HCO Test (HCO20260714 dry-run) | `http://54.253.165.194/webui/` | `1.1.0.2026071517` + SQL `25`/`26` | JAR+SQL redeploy 2026-07-16 (was `1516`) |
 
 ## Packs
 
