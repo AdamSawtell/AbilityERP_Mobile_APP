@@ -31,7 +31,7 @@ Centralised NDIS Compliance & Audit Hub: Summary window (overall KPIs + Employee
 
 | Access | Name | Search key |
 |--------|------|------------|
-| Window | Compliance Summary | — |
+| Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
 
 ## Phase plan

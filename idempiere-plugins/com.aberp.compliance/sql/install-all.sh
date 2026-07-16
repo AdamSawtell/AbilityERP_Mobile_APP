@@ -14,7 +14,8 @@ for f in \
   09-verify.sql \
   10-menu-window-trl.sql \
   11-org-audit-tab-name.sql \
-  12-org-header-category-tabs.sql
+  12-org-header-category-tabs.sql \
+  13-rename-ndis-audit-tool.sql
 do
   echo "===== $f ====="
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$f"

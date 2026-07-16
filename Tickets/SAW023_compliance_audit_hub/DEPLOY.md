@@ -44,12 +44,12 @@ Install SQL grants window access to **AbilityERP Admin**, **Admin**, and **Syste
 
 | Access | Name | Search key |
 |--------|------|------------|
-| Window | Compliance Summary | — |
+| Window | NDIS Audit Tool | — |
 | Window | Compliance Rules | — |
 
 ## Smoke
 
-1. Open **Compliance Summary** (logout/in after AD tab changes)
+1. Open **NDIS Audit Tool** (search bar, or Ability ERP → NDIS Audit Tool)
 2. Header **Organisation Audit** shows org score / traffic light / totals
 3. Child tabs: Employee, Client, Incidents, Rostering, Documentation
 4. **Compliance Rules** opens (empty until rules seeded)
