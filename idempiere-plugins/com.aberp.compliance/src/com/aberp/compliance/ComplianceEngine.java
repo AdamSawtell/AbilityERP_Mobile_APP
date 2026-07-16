@@ -437,19 +437,26 @@ public class ComplianceEngine {
 		if (id <= 0) {
 			throw new RuntimeException("SAW023: nextid AbERP_ComplianceResult failed");
 		}
+		Integer openAssignmentId = null;
+		int credTableId = tableId("AbERP_CredentialAssignment");
+		if (credTableId > 0 && tableId == credTableId && recordId > 0) {
+			openAssignmentId = Integer.valueOf(recordId);
+		}
 		String sql =
 				"INSERT INTO aberp_complianceresult ("
 						+ "aberp_complianceresult_id, ad_client_id, ad_org_id, isactive,"
 						+ "created, createdby, updated, updatedby, aberp_complianceresult_uu,"
 						+ "aberp_compliancerule_id, ad_table_id, record_id, ad_user_id,"
 						+ "datedetected, datechecked, duedate, compliancestatus, severity,"
-						+ "resultmessage, isresolved"
-						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?,?,?,?, ?,?,?,?,?,?, 'N')";
+						+ "resultmessage, isresolved, aberp_compliancedashboard_id,"
+						+ "aberp_openassignment_id"
+						+ ") VALUES (?,?,?, 'Y', NOW(),?, NOW(),?, ?, ?,?,?,?, ?,?,?,?,?,?, 'N', ?, ?)";
 		Object userVal = userContactId > 0 ? Integer.valueOf(userContactId) : null;
 		DB.executeUpdateEx(sql, new Object[] {
 				id, clientId, orgId, userId, userId, UUID.randomUUID().toString(),
 				ruleId, tableId, recordId, userVal,
-				asAt, asAt, dueDate, status, severity, truncate(message, 2000)
+				asAt, asAt, dueDate, status, severity, truncate(message, 2000),
+				clientId, openAssignmentId
 		}, trxName);
 	}
 

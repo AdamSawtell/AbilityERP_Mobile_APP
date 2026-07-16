@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Compliance Audit Hub
 Bundle-SymbolicName: com.aberp.compliance
-Bundle-Version: 7.1.0.202607161100
+Bundle-Version: 7.1.0.202607161320
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.compliance
 Bundle-RequiredExecutionEnvironment: JavaSE-11

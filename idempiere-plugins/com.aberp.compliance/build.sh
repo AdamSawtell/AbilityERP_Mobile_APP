@@ -7,7 +7,7 @@ PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
-VERSION="7.1.0.202607161100"
+VERSION="7.1.0.202607161320"
 JAR_NAME="com.aberp.compliance_${VERSION}.jar"
 
 BASE_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.base_*.jar | head -1)

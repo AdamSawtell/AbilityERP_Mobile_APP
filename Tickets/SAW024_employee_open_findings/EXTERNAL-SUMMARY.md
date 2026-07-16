@@ -2,24 +2,26 @@
 
 ## What’s done
 
-On **NDIS Audit Tool → Employee**, admins can open **Open Findings**: each row shows why the check failed, what to do, and Zoom Across to the **Credential Assignment** to fix it.
+On **NDIS Audit Tool → Employee**, **Open Findings** sits as a **sub-tab under Employee**. Each row shows why the check failed, what to do, and **Open & Fix** opens the **Credential Assignment** so you can renew/update and clear the issue on the next Refresh.
 
 ## What changed
 
-- New child tab **Open Findings** (Employee findings only)
-- Rule resolve text on the three Employee credential rules
-- Credential Assignment window bound on the credential-assignment table for Zoom
+- Open Findings nested under Employee (Included tab + TabLevel 2)
+- **Open & Fix Source** process (`AbERP_Compliance_OpenSource`) zooms to the Credential Assignment
+- **Open Assignment** column zooms to the same source record so you can edit and save
+- Physical parent link on compliance results for reliable nesting
 
 ## Impact
 
-Workforce compliance issues are actionable from the audit hub without hunting through Info Windows first.
+Workforce compliance issues are actionable from the Employee KPI view without leaving the audit hub.
 
 ## How to test
 
-1. Admin → **NDIS Audit Tool** → **Employee** → **Open Findings**
-2. Read **Why** and **What to resolve**
-3. Select a row → **Open Assignment** field zoom → Credential Assignment
-4. After a fix, **Refresh Compliance** and confirm the list updates
+1. Admin → **NDIS Audit Tool** → **Employee**
+2. Open the **Open Findings** sub-tab
+3. Read **Why** and **What to resolve**
+4. Click **Open & Fix** → Credential Assignment → update expiry → Save
+5. **Refresh Compliance** and confirm the list updates
 
 ## Access
 
@@ -27,4 +29,5 @@ Workforce compliance issues are actionable from the audit hub without hunting th
 |--------|------|------------|
 | Window | NDIS Audit Tool | — |
 | Process | Refresh Compliance | `AbERP_Compliance_Refresh` |
+| Process | Open & Fix Source | `AbERP_Compliance_OpenSource` |
 | Window | Credential Assignment | — |

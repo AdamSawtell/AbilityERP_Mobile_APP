@@ -379,6 +379,7 @@ DECLARE
   v_cred_table INTEGER;
   v_key_col INTEGER;
   v_disp_col INTEGER;
+  v_cred_window INTEGER;
   v_ref_id INTEGER;
   v_col_id INTEGER;
   v_tab_id INTEGER;
@@ -388,10 +389,23 @@ BEGIN
   SELECT ad_table_id INTO v_cred_table FROM ad_table WHERE tablename = 'AbERP_CredentialAssignment';
   SELECT ad_column_id INTO v_key_col FROM ad_column
   WHERE ad_table_id = v_cred_table AND columnname = 'AbERP_CredentialAssignment_ID';
+  -- Name is often blank on client data; Value is populated
   SELECT ad_column_id INTO v_disp_col FROM ad_column
-  WHERE ad_table_id = v_cred_table AND columnname = 'Name';
+  WHERE ad_table_id = v_cred_table AND columnname = 'Value';
+  IF v_disp_col IS NULL THEN
+    SELECT ad_column_id INTO v_disp_col FROM ad_column
+    WHERE ad_table_id = v_cred_table AND columnname = 'Name';
+  END IF;
+  SELECT ad_window_id INTO v_cred_window
+  FROM ad_window
+  WHERE ad_window_uu = 'f974f00f-5cd3-4a5f-973e-0347aacc59df'
+     OR name = 'Credential Assignment'
+  LIMIT 1;
   IF v_result_table IS NULL OR v_cred_table IS NULL OR v_key_col IS NULL OR v_disp_col IS NULL THEN
     RAISE EXCEPTION 'SAW024: missing tables/columns for Open Assignment reference';
+  END IF;
+  IF v_cred_window IS NULL THEN
+    RAISE EXCEPTION 'SAW024: Credential Assignment window missing for Open Assignment zoom';
   END IF;
 
   SELECT ad_reference_id INTO v_ref_id
@@ -415,10 +429,12 @@ BEGIN
     INSERT INTO ad_ref_table (
       ad_reference_id, ad_client_id, ad_org_id, isactive,
       created, createdby, updated, updatedby,
-      ad_table_id, ad_key, ad_display, isvaluedisplayed, entitytype, whereclause, orderbyclause
+      ad_table_id, ad_key, ad_display, isvaluedisplayed, entitytype,
+      whereclause, orderbyclause, ad_window_id, isdisplayidentifier
     ) VALUES (
       v_ref_id, 0, 0, 'Y', NOW(), 100, NOW(), 100,
-      v_cred_table, v_key_col, v_disp_col, 'N', 'Ab_ERP', NULL, NULL
+      v_cred_table, v_key_col, v_disp_col, 'Y', 'Ab_ERP',
+      NULL, NULL, v_cred_window, 'Y'
     );
   ELSE
     UPDATE ad_reference SET
@@ -434,16 +450,21 @@ BEGIN
       INSERT INTO ad_ref_table (
         ad_reference_id, ad_client_id, ad_org_id, isactive,
         created, createdby, updated, updatedby,
-        ad_table_id, ad_key, ad_display, isvaluedisplayed, entitytype
+        ad_table_id, ad_key, ad_display, isvaluedisplayed, entitytype,
+        ad_window_id, isdisplayidentifier
       ) VALUES (
         v_ref_id, 0, 0, 'Y', NOW(), 100, NOW(), 100,
-        v_cred_table, v_key_col, v_disp_col, 'N', 'Ab_ERP'
+        v_cred_table, v_key_col, v_disp_col, 'Y', 'Ab_ERP',
+        v_cred_window, 'Y'
       );
     ELSE
       UPDATE ad_ref_table SET
         ad_table_id = v_cred_table,
         ad_key = v_key_col,
         ad_display = v_disp_col,
+        ad_window_id = v_cred_window,
+        isvaluedisplayed = 'Y',
+        isdisplayidentifier = 'Y',
         updated = NOW()
       WHERE ad_reference_id = v_ref_id;
     END IF;
@@ -474,13 +495,13 @@ BEGIN
       'AbERP_OpenAssignment_ID', v_result_table, 18, v_ref_id, 10,
       'N', 'N', 'N', 'N', 'N',
       95, 'N', 'N', 'N',
-      'Record_ID', 'N', 'N',
+      'AbERP_ComplianceResult.Record_ID', 'N', 'N',
       'N', 'N', '24a02402-c003-4f01-8e15-000000000001'
     ) RETURNING ad_column_id INTO v_col_id;
   ELSE
     UPDATE ad_column SET
       name = 'Open Assignment',
-      columnsql = 'Record_ID',
+      columnsql = 'AbERP_ComplianceResult.Record_ID',
       ad_reference_id = 18,
       ad_reference_value_id = v_ref_id,
       isupdateable = 'N',
