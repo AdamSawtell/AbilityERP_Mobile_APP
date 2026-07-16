@@ -21,7 +21,7 @@
 - [x] `ComplianceEngine` evaluates credential assignment expiry / 30d / screening
 - [x] Refresh writes `AbERP_ComplianceResult` + W snapshot (carry-forward other cats)
 - [x] WebUI smoke on `3.27.207.215` (123/65/8 findings)
-- [ ] Commit + push
+- [x] Commit + push
 
 ## Later
 
