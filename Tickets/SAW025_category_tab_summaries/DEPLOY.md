@@ -38,8 +38,10 @@ No new windows/processes. Existing grants cover NDIS Audit Tool + Refresh Compli
 
 | Tab | Count | Change (90d) |
 |-----|-------|--------------|
-| Employee | Active employees (`AD_User` + `C_BPartner.IsEmployee`) | vs snapshot population ≤90d ago (0 until baseline ages) |
-| Client | Active customers (`C_BPartner.IsCustomer`) | same |
+| Employee | Active employees (`AD_User` + `C_BPartner.IsEmployee`) | current − members Created ≤ today−90 (or snapshot ≤90d) |
+| Client | Active support receivers (`AbERP_IsSupport_Receiver=Y`) | same |
 | Incidents | Open (non-closed) active incidents | same |
-| Rostering | Shifts in current pay period | vs average shifts per completed period in last 90d |
-| Documentation | Active credential assignments | vs snapshot ≤90d ago |
+| Rostering | Shifts in current pay period | vs average of completed periods in last 90d |
+| Documentation | Active credential assignments | same |
+
+Apply `36-fix-population-client-90d.sql` after `35`. JAR `7.1.0.202607170545`.

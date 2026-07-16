@@ -535,7 +535,8 @@ public class ComplianceEngine {
 	private int countActiveClients() {
 		return Math.max(0, DB.getSQLValue(trxName,
 				"SELECT COUNT(*) FROM c_bpartner bp"
-						+ " WHERE bp.ad_client_id=? AND bp.isactive='Y' AND bp.iscustomer='Y'",
+						+ " WHERE bp.ad_client_id=? AND bp.isactive='Y'"
+						+ " AND COALESCE(bp.aberp_issupport_receiver,'N')='Y'",
 				clientId));
 	}
 

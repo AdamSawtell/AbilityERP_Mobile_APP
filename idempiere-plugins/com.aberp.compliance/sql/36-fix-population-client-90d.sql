@@ -1,18 +1,8 @@
--- SAW025 — Category tab population summaries (count + 90d change) at top of each tab
--- Employee / Client / Incidents: active population + vs snapshot ≤90d ago
--- Rostering: shifts in current pay period + vs avg completed periods in last 90d
--- Documentation: active credential assignments + vs snapshot ≤90d ago
+-- SAW025-36 — Fix Active Clients (support receivers) + working 90d change
+-- Clients: C_BPartner.AbERP_IsSupport_Receiver='Y' AND IsActive='Y' (matches Client window)
+-- Change (90d): current − baseline; baseline prefers snapshot ≤90d ago, else members Created ≤ today−90
 SET search_path TO adempiere;
 
--- 1. Physical population on snapshots (written by ComplianceEngine on Refresh)
-ALTER TABLE aberp_compliancesnapshot
-  ADD COLUMN IF NOT EXISTS populationcount NUMERIC(10);
-
-COMMENT ON COLUMN aberp_compliancesnapshot.populationcount IS
-  'SAW025 category population (active employees/clients/incidents, period shifts, or documents)';
-
--- 2. Recreate dashboard view with live population + 90d change columns
--- (CREATE OR REPLACE cannot rename/reorder trailing columns — drop first)
 DROP VIEW IF EXISTS aberp_compliancedashboard CASCADE;
 CREATE VIEW aberp_compliancedashboard AS
 WITH clients AS (
@@ -85,20 +75,26 @@ pop90 AS (
   ORDER BY s.ad_client_id, s.compliancecategory, s.snapshotdate DESC
 ),
 live_emp AS (
-  SELECT bp.ad_client_id, COUNT(*)::numeric AS n
+  SELECT bp.ad_client_id,
+         COUNT(*)::numeric AS n,
+         COUNT(*) FILTER (WHERE u.created::date <= (CURRENT_DATE - 90))::numeric AS n90
   FROM ad_user u
   JOIN c_bpartner bp ON bp.c_bpartner_id = u.c_bpartner_id
   WHERE u.isactive = 'Y' AND bp.isactive = 'Y' AND bp.isemployee = 'Y'
   GROUP BY bp.ad_client_id
 ),
 live_cli AS (
-  SELECT bp.ad_client_id, COUNT(*)::numeric AS n
+  SELECT bp.ad_client_id,
+         COUNT(*)::numeric AS n,
+         COUNT(*) FILTER (WHERE bp.created::date <= (CURRENT_DATE - 90))::numeric AS n90
   FROM c_bpartner bp
   WHERE bp.isactive = 'Y' AND COALESCE(bp.aberp_issupport_receiver, 'N') = 'Y'
   GROUP BY bp.ad_client_id
 ),
 live_inc AS (
-  SELECT i.ad_client_id, COUNT(*)::numeric AS n
+  SELECT i.ad_client_id,
+         COUNT(*)::numeric AS n,
+         COUNT(*) FILTER (WHERE i.created::date <= (CURRENT_DATE - 90))::numeric AS n90
   FROM aberp_incident i
   LEFT JOIN aberp_incident_status s ON s.aberp_incident_status_id = i.aberp_incident_status_id
   WHERE i.isactive = 'Y'
@@ -106,7 +102,9 @@ live_inc AS (
   GROUP BY i.ad_client_id
 ),
 live_doc AS (
-  SELECT ca.ad_client_id, COUNT(*)::numeric AS n
+  SELECT ca.ad_client_id,
+         COUNT(*)::numeric AS n,
+         COUNT(*) FILTER (WHERE ca.created::date <= (CURRENT_DATE - 90))::numeric AS n90
   FROM aberp_credentialassignment ca
   WHERE ca.isactive = 'Y'
   GROUP BY ca.ad_client_id
@@ -219,12 +217,12 @@ SELECT
   (COALESCE((SELECT totalitems FROM cur WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0)
     - COALESCE((SELECT totalitems FROM prev WHERE ad_client_id = c.ad_client_id AND compliancecategory='D'),0))::numeric AS docchange,
 
-  -- SAW025 population summaries (live counts; 90d change vs snapshot baseline or roster period avg)
+  -- SAW025 population (36: support-receiver clients + live 90d baseline fallback)
   COALESCE((SELECT n FROM live_emp WHERE ad_client_id = c.ad_client_id), 0)::numeric AS activeemployees,
   (COALESCE((SELECT n FROM live_emp WHERE ad_client_id = c.ad_client_id), 0)
     - COALESCE(
         (SELECT populationcount FROM pop90 WHERE ad_client_id = c.ad_client_id AND compliancecategory = 'W'),
-        (SELECT n FROM live_emp WHERE ad_client_id = c.ad_client_id),
+        (SELECT n90 FROM live_emp WHERE ad_client_id = c.ad_client_id),
         0
       ))::numeric AS activeemployeeschange90d,
 
@@ -232,7 +230,7 @@ SELECT
   (COALESCE((SELECT n FROM live_cli WHERE ad_client_id = c.ad_client_id), 0)
     - COALESCE(
         (SELECT populationcount FROM pop90 WHERE ad_client_id = c.ad_client_id AND compliancecategory = 'P'),
-        (SELECT n FROM live_cli WHERE ad_client_id = c.ad_client_id),
+        (SELECT n90 FROM live_cli WHERE ad_client_id = c.ad_client_id),
         0
       ))::numeric AS activeclientschange90d,
 
@@ -240,7 +238,7 @@ SELECT
   (COALESCE((SELECT n FROM live_inc WHERE ad_client_id = c.ad_client_id), 0)
     - COALESCE(
         (SELECT populationcount FROM pop90 WHERE ad_client_id = c.ad_client_id AND compliancecategory = 'I'),
-        (SELECT n FROM live_inc WHERE ad_client_id = c.ad_client_id),
+        (SELECT n90 FROM live_inc WHERE ad_client_id = c.ad_client_id),
         0
       ))::numeric AS activeincidentschange90d,
 
@@ -254,186 +252,14 @@ SELECT
   (COALESCE((SELECT n FROM live_doc WHERE ad_client_id = c.ad_client_id), 0)
     - COALESCE(
         (SELECT populationcount FROM pop90 WHERE ad_client_id = c.ad_client_id AND compliancecategory = 'D'),
-        (SELECT n FROM live_doc WHERE ad_client_id = c.ad_client_id),
+        (SELECT n90 FROM live_doc WHERE ad_client_id = c.ad_client_id),
         0
       ))::numeric AS totaldocumentschange90d,
 
   NULL::character(1) AS aberp_refreshcompliance
 FROM clients c;
 
--- 3. AD: PopulationCount on snapshot + summary columns on dashboard view
-UPDATE ad_sequence SET currentnext = GREATEST(currentnext, (SELECT COALESCE(MAX(ad_column_id),0)+1 FROM ad_column))
-WHERE name='AD_Column' AND istableid='Y';
-UPDATE ad_sequence SET currentnext = GREATEST(currentnext, (SELECT COALESCE(MAX(ad_element_id),0)+1 FROM ad_element))
-WHERE name='AD_Element' AND istableid='Y';
-UPDATE ad_sequence SET currentnext = GREATEST(currentnext, (SELECT COALESCE(MAX(ad_field_id),0)+1 FROM ad_field))
-WHERE name='AD_Field' AND istableid='Y';
-
-CREATE OR REPLACE FUNCTION pg_temp.saw025_col(
-  p_table_id INTEGER, p_uu TEXT, p_columnname TEXT, p_name TEXT, p_seqno INTEGER
-) RETURNS void AS $$
-DECLARE
-  v_col_id INTEGER;
-  v_el INTEGER;
-BEGIN
-  SELECT ad_element_id INTO v_el FROM ad_element WHERE columnname = p_columnname LIMIT 1;
-  IF v_el IS NULL THEN
-    INSERT INTO ad_element (
-      ad_element_id, ad_client_id, ad_org_id, isactive,
-      created, createdby, updated, updatedby,
-      columnname, entitytype, name, printname, ad_element_uu
-    ) VALUES (
-      nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Element' AND istableid = 'Y')::integer, 'N'),
-      0, 0, 'Y', NOW(), 100, NOW(), 100,
-      p_columnname, 'Ab_ERP', p_name, p_name,
-      '25a025e1-0000-4000-8000-' || lpad(substr(md5(p_columnname), 1, 12), 12, '0')
-    ) RETURNING ad_element_id INTO v_el;
-  END IF;
-
-  SELECT ad_column_id INTO v_col_id FROM ad_column WHERE ad_column_uu = p_uu;
-  IF v_col_id IS NULL THEN
-    SELECT ad_column_id INTO v_col_id FROM ad_column
-    WHERE ad_table_id = p_table_id AND columnname = p_columnname;
-  END IF;
-
-  IF v_col_id IS NULL THEN
-    INSERT INTO ad_column (
-      ad_column_id, ad_client_id, ad_org_id, isactive,
-      created, createdby, updated, updatedby,
-      name, version, entitytype, columnname, ad_table_id,
-      ad_reference_id, fieldlength, iskey, isparent, ismandatory, isupdateable,
-      isidentifier, seqno, istranslated, isencrypted, isselectioncolumn,
-      ad_element_id, issyncdatabase, isalwaysupdateable, isallowcopy, ad_column_uu
-    ) VALUES (
-      nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Column' AND istableid = 'Y')::integer, 'N'),
-      0, 0, 'Y', NOW(), 100, NOW(), 100,
-      p_name, 0, 'Ab_ERP', p_columnname, p_table_id,
-      11, 10, 'N', 'N', 'N', 'N',
-      'N', p_seqno, 'N', 'N', 'N',
-      v_el, 'Y', 'N', 'N', p_uu
-    );
-  ELSE
-    UPDATE ad_column SET
-      name = p_name,
-      ad_reference_id = 11,
-      entitytype = 'Ab_ERP',
-      ad_column_uu = COALESCE(ad_column_uu, p_uu),
-      updated = NOW()
-    WHERE ad_column_id = v_col_id;
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION pg_temp.saw025_field(
-  p_tab_uu TEXT, p_field_uu TEXT, p_columnname TEXT, p_name TEXT,
-  p_seqno INTEGER, p_sameline CHAR
-) RETURNS void AS $$
-DECLARE
-  v_tab_id INTEGER;
-  v_col_id INTEGER;
-  v_field_id INTEGER;
-  v_table_id INTEGER;
-BEGIN
-  SELECT ad_tab_id, ad_table_id INTO v_tab_id, v_table_id
-  FROM ad_tab WHERE ad_tab_uu = p_tab_uu;
-  IF v_tab_id IS NULL THEN
-    RAISE EXCEPTION 'SAW025: tab missing %', p_tab_uu;
-  END IF;
-  SELECT ad_column_id INTO v_col_id
-  FROM ad_column WHERE ad_table_id = v_table_id AND columnname = p_columnname;
-  IF v_col_id IS NULL THEN
-    RAISE EXCEPTION 'SAW025: column missing %', p_columnname;
-  END IF;
-
-  SELECT ad_field_id INTO v_field_id FROM ad_field WHERE ad_field_uu = p_field_uu;
-  IF v_field_id IS NULL THEN
-    SELECT ad_field_id INTO v_field_id FROM ad_field
-    WHERE ad_tab_id = v_tab_id AND ad_column_id = v_col_id;
-  END IF;
-
-  IF v_field_id IS NULL THEN
-    INSERT INTO ad_field (
-      ad_field_id, ad_client_id, ad_org_id, isactive,
-      created, createdby, updated, updatedby,
-      name, iscentrallymaintained, ad_tab_id, ad_column_id,
-      isdisplayed, displaylength, isreadonly, seqno, issameline,
-      isheading, isfieldonly, isencrypted, entitytype,
-      isdisplayedgrid, seqnogrid, xposition, columnspan, numlines, ad_field_uu
-    ) VALUES (
-      nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Field' AND istableid = 'Y')::integer, 'N'),
-      0, 0, 'Y', NOW(), 100, NOW(), 100,
-      p_name, 'N', v_tab_id, v_col_id,
-      'Y', 14, 'Y', p_seqno, p_sameline,
-      'N', 'N', 'N', 'Ab_ERP',
-      'Y', p_seqno, 1, 2, 1, p_field_uu
-    );
-  ELSE
-    UPDATE ad_field SET
-      name = p_name,
-      isdisplayed = 'Y',
-      isreadonly = 'Y',
-      seqno = p_seqno,
-      issameline = p_sameline,
-      isdisplayedgrid = 'Y',
-      seqnogrid = p_seqno,
-      ad_field_uu = COALESCE(ad_field_uu, p_field_uu),
-      updated = NOW()
-    WHERE ad_field_id = v_field_id;
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-DO $$
-DECLARE
-  v_snap_id INTEGER;
-  v_dash_id INTEGER;
-BEGIN
-  SELECT ad_table_id INTO v_snap_id FROM ad_table WHERE tablename = 'AbERP_ComplianceSnapshot';
-  SELECT ad_table_id INTO v_dash_id FROM ad_table WHERE tablename = 'AbERP_ComplianceDashboard';
-  IF v_snap_id IS NULL OR v_dash_id IS NULL THEN
-    RAISE EXCEPTION 'SAW025: snapshot/dashboard tables missing';
-  END IF;
-
-  PERFORM pg_temp.saw025_col(v_snap_id, '25a02503-c030-4f01-8e15-000000000001', 'PopulationCount', 'Population Count', 230);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c101-4f01-8e15-000000000001', 'ActiveEmployees', 'Active Employees', 300);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c102-4f01-8e15-000000000001', 'ActiveEmployeesChange90d', 'Active Employees Change (90d)', 310);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c103-4f01-8e15-000000000001', 'ActiveClients', 'Active Clients', 320);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c104-4f01-8e15-000000000001', 'ActiveClientsChange90d', 'Active Clients Change (90d)', 330);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c105-4f01-8e15-000000000001', 'ActiveIncidents', 'Active Incidents', 340);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c106-4f01-8e15-000000000001', 'ActiveIncidentsChange90d', 'Active Incidents Change (90d)', 350);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c107-4f01-8e15-000000000001', 'PeriodShifts', 'Shifts (Current Period)', 360);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c108-4f01-8e15-000000000001', 'PeriodShiftsChange90d', 'Shifts vs 90d Period Avg', 370);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c109-4f01-8e15-000000000001', 'TotalDocuments', 'Total Documents', 380);
-  PERFORM pg_temp.saw025_col(v_dash_id, '25a02504-c110-4f01-8e15-000000000001', 'TotalDocumentsChange90d', 'Total Documents Change (90d)', 390);
-
-  -- Fields at top of each category tab (seq 2 / 4 ahead of Total Items at 10)
-  PERFORM pg_temp.saw025_field('23a02311-c0d4-4f01-8e15-000000000001',
-    '25a02511-f001-4f01-8e15-000000000001', 'ActiveEmployees', 'Active Employees', 2, 'N');
-  PERFORM pg_temp.saw025_field('23a02311-c0d4-4f01-8e15-000000000001',
-    '25a02511-f002-4f01-8e15-000000000001', 'ActiveEmployeesChange90d', 'Change (90d)', 4, 'Y');
-
-  PERFORM pg_temp.saw025_field('23a02312-c0d4-4f01-8e15-000000000001',
-    '25a02512-f001-4f01-8e15-000000000001', 'ActiveClients', 'Active Clients', 2, 'N');
-  PERFORM pg_temp.saw025_field('23a02312-c0d4-4f01-8e15-000000000001',
-    '25a02512-f002-4f01-8e15-000000000001', 'ActiveClientsChange90d', 'Change (90d)', 4, 'Y');
-
-  PERFORM pg_temp.saw025_field('23a02313-c0d4-4f01-8e15-000000000001',
-    '25a02513-f001-4f01-8e15-000000000001', 'ActiveIncidents', 'Active Incidents', 2, 'N');
-  PERFORM pg_temp.saw025_field('23a02313-c0d4-4f01-8e15-000000000001',
-    '25a02513-f002-4f01-8e15-000000000001', 'ActiveIncidentsChange90d', 'Change (90d)', 4, 'Y');
-
-  PERFORM pg_temp.saw025_field('23a02314-c0d4-4f01-8e15-000000000001',
-    '25a02514-f001-4f01-8e15-000000000001', 'PeriodShifts', 'Shifts (Current Period)', 2, 'N');
-  PERFORM pg_temp.saw025_field('23a02314-c0d4-4f01-8e15-000000000001',
-    '25a02514-f002-4f01-8e15-000000000001', 'PeriodShiftsChange90d', 'vs 90d Period Avg', 4, 'Y');
-
-  PERFORM pg_temp.saw025_field('23a02315-c0d4-4f01-8e15-000000000001',
-    '25a02515-f001-4f01-8e15-000000000001', 'TotalDocuments', 'Total Documents', 2, 'N');
-  PERFORM pg_temp.saw025_field('23a02315-c0d4-4f01-8e15-000000000001',
-    '25a02515-f002-4f01-8e15-000000000001', 'TotalDocumentsChange90d', 'Change (90d)', 4, 'Y');
-END $$;
-
--- Seed today's population onto latest active snapshots so Change (90d) has a baseline going forward
+-- Reseed latest snapshot populations with corrected client definition
 UPDATE aberp_compliancesnapshot s SET
   populationcount = CASE s.compliancecategory
     WHEN 'W' THEN (
@@ -470,4 +296,28 @@ WHERE s.isactive = 'Y'
       AND s2.ad_client_id = s.ad_client_id
   );
 
-SELECT 'SAW025 population summary installed' AS status;
+-- Clarify Change (90d) field names on tabs (description)
+UPDATE ad_field SET
+  description = 'Current population minus members that already existed 90 days ago (or last snapshot ≤90d when available)',
+  help = 'Positive = net additions still in the population over 90 days. Rostering uses current period vs average of completed periods in the last 90 days.',
+  updated = NOW()
+WHERE ad_field_uu IN (
+  '25a02511-f002-4f01-8e15-000000000001',
+  '25a02512-f002-4f01-8e15-000000000001',
+  '25a02513-f002-4f01-8e15-000000000001',
+  '25a02514-f002-4f01-8e15-000000000001',
+  '25a02515-f002-4f01-8e15-000000000001'
+);
+
+UPDATE ad_field SET
+  description = 'Active NDIS clients (Business Partners with Support Receiver = Yes)',
+  help = 'Matches the Client window: AbERP_IsSupport_Receiver = Y and Active.',
+  updated = NOW()
+WHERE ad_field_uu = '25a02512-f001-4f01-8e15-000000000001';
+
+SELECT activeemployees, activeemployeeschange90d,
+       activeclients, activeclientschange90d,
+       activeincidents, activeincidentschange90d,
+       periodshifts, periodshiftschange90d,
+       totaldocuments, totaldocumentschange90d
+FROM aberp_compliancedashboard WHERE ad_client_id = 1000003;

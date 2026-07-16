@@ -9,7 +9,7 @@ Each Organisation Audit category tab now starts with a **population summary** an
 | Tab | Summary | Change |
 |-----|---------|--------|
 | Employee | Active Employees | Change (90d) |
-| Client | Active Clients | Change (90d) |
+| Client | Active Clients (Support Receiver) | Change (90d) |
 | Incidents | Active Incidents (open) | Change (90d) |
 | Rostering | Shifts (Current Period) | vs 90d Period Avg |
 | Documentation | Total Documents | Change (90d) |
