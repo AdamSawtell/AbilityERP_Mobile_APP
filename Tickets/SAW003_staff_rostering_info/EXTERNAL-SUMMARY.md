@@ -1,6 +1,6 @@
 # SAW003 — External ticket update (copy/paste)
 
-**Status:** Ready for client install (JAR **1.1.0.2026071517** on staging and HCO Test)  
+**Status:** Ready for client install (JAR **1.1.0.2026071517** + SQL through **26** on staging and HCO Test)  
 **Area:** iDempiere — Shift (Rostered) → Employee staff search  
 **Internal ID:** SAW003_staff_rostering_info
 
@@ -22,7 +22,7 @@
 
 ## What’s been done
 
-The **Employee (User) / Agency Staff** search used when assigning people on a rostered shift has been rewritten for speed and clearer filtering. Officers see needs matching, leave / overlap / familiarity filters (all default on), Related Info, a lean result grid, and an unmatched-staff credential filter with Find and a two-column picker.
+The **Employee (User) / Agency Staff** search used when assigning people on a rostered shift has been rewritten for speed and clearer filtering. Officers see needs matching, leave / overlap / familiarity filters (all default on), Related Info keyed to a single selected row, a lean result grid (including Partner Location suburb), and an unmatched-staff credential filter with Find and a two-column picker.
 
 ## What changed (full scope)
 
@@ -35,9 +35,9 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 - **Show Familiar Staff** tick (default on): only staff who worked a rostered shift at this Support Location in the last 12 months (templates excluded); untick to include all
 - **Show Matched Staff** tick (default on): Related Rostering Needs apply. Untick to ignore needs and show a two-column credential picker — **Must have all of these credentials** / Find / Selected summary on the left, **Select (AND)** checklist on the right; selected credentials filter with AND; empty selection = full unmatched pool
 - Banner: shift context, required needs summary, filter status (including selected credential count)
-- Related Info: roster period shifts, leave, unavailability, alerts, credentials
+- Related Info: roster period shifts, leave, unavailability, alerts, credentials (follows **one** selected result row)
 - Contact pick fills Business Partner (callout + save trigger); org sync helpers
-- Result grid read-only selection; hides BP Name / Status / Business Partner / Agency Staff columns
+- Result grid: single-select; **Partner Location** shows suburb; hides On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff
 - Indexes + AlwaysUpdateable on Employee Search field; perf indexes / join-based Gender & Position
 
 ## Impact
@@ -55,12 +55,14 @@ The **Employee (User) / Agency Staff** search used when assigning people on a ro
 5. Confirm banner shows shift context (not “No shift in context”).
 6. Confirm leave / overlapping roster / familiarity / needs filters independently via the ticks.
 7. Untick **Show Matched Staff** → confirm two columns (Find / Selected | Select checklist) → type in Find to narrow → select two → summary updates → ReQuery → Clear → re-tick (picker hides).
-8. Confirm lean grid (no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff columns).
-9. Pick a contact and confirm BP fills; check Related Info tabs.
+8. Confirm lean grid: **Partner Location** suburb visible; no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff columns.
+9. Select one row only → Related Info matches that contact; pick fills BP.
 
 ## Notes / caveats
 
 - Requires Info Window UU `2b4ab146-0809-47c6-96f3-8b841d60a6bf` already present.
-- JAR must be **`1.1.0.2026071517`** and **≥ ~40 KB**. A ~29 KB file with an older version string is a **stale build** (banner only — missing ticks / credential list).
-- Install includes Java plugin — iDempiere restart, then log out/in or Cache Reset.
+- JAR must be **`1.1.0.2026071517`** and **≥ ~40 KB** (known-good ~52 KB). A ~29 KB file with an older version string is a **stale build** (banner only — missing ticks / credential list).
+- SQL through **`26`** (Partner Location suburb). Install includes Java plugin — iDempiere restart, then log out/in or Cache Reset.
 - Do not wipe the full OSGi configuration cache.
+- Prebuilt JAR: `idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
+- Agent deploy: `Tickets/SAW003_staff_rostering_info/DEPLOY.md` + `AGENT-READY.md`

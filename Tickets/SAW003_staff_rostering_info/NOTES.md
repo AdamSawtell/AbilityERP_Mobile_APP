@@ -19,7 +19,7 @@
 |-----|-----------|
 | `1517` | Results single-select (Related Info); four filter ticks; Matched untick → credential Find+Select AND; scoped North |
 
-**Pack rule:** JAR **`1517`** ≥ ~55 KB (≈60 KB). Prefer host build / JAR-only over stale packs.
+**Pack rule:** JAR **`1517`** ≥ ~52 KB (release ≈52.6 KB). Prefer host build / git `release/` JAR over stale packs.
 
 ## HCO Future Deployments variables
 
@@ -29,7 +29,7 @@
 | SSH | `ubuntu@3.25.86.128` · `~/.ssh/HCObusiness.pem` | Same key as prior HCO hosts |
 | Login | SuperUser / HCOflamingo · client **HCO** · role **Admin** | |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` | |
-| JAR | `…_1.1.0.2026071517.jar` (~60 KB) | JAR-only if SQL already applied |
+| JAR | `release/…_1.1.0.2026071517.jar` (~52 KB) | JAR-only if SQL already applied |
 | SQL | through **`26`** | `26` shows Partner Location suburb in results |
 | WebUI health | `http://127.0.0.1/webui/` | Not `:8080` on HCO |
 

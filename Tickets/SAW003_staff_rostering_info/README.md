@@ -6,11 +6,16 @@
 | **Kind** | idempiere |
 | **GitHub** | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) |
 | **Slug** | `SAW003_staff_rostering_info` |
-| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` |
+| **JAR** | `com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` (~52 KB) |
+| **SQL** | through **`26`** |
 
 ## Deploy (other builds)
 
-**→ [`DEPLOY.md`](DEPLOY.md)** — full `./deploy.sh` or **JAR-only** update to `1517`, SQL order, smoke, pitfalls.
+**→ [`AGENT-READY.md`](AGENT-READY.md)** — short handoff for another agent  
+**→ [`DEPLOY.md`](DEPLOY.md)** — full `./deploy.sh` or JAR-only + SQL order, smoke, pitfalls
+
+Prebuilt JAR in git:  
+`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
 
 ## External ticket (copy/paste)
 
@@ -18,7 +23,7 @@
 
 ## Goal
 
-Rewrite **Employee (User) / Agency Staff Rostering Info** (Shift → Employee Find & Fill): lean query; filter ticks — **Show Matched**, **Not Rostered**, **Not On Leave**, **Show Familiar Staff** (all default on); credential AND when Matched unticked; Related Info; lean grid.
+Rewrite **Employee (User) / Agency Staff Rostering Info** (Shift → Employee Find & Fill): lean query; filter ticks — **Show Matched**, **Not Rostered**, **Not On Leave**, **Show Familiar Staff** (all default on); credential AND when Matched unticked; Related Info on single-select; Partner Location suburb; lean grid.
 
 ## Source of truth
 
@@ -30,5 +35,5 @@ None.
 
 ## Packs
 
-- Staging: `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`
-- Prod: `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`
+- Git release JAR: `idempiere-plugins/com.aberp.rostering.staffinfo/release/…1517.jar`
+- Optional zip folders: `Downloads\AbilityERP-*-SAW003_staff_rostering_info-*/` (refresh to `1517` + SQL `26` when shipping)

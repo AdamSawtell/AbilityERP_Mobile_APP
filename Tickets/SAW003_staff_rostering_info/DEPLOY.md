@@ -17,7 +17,7 @@
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# build JAR 1.1.0.2026071517 → SQL 01→25→04 → restart → wait WebUI 200
+# build JAR 1.1.0.2026071517 → SQL 01→26→04 → restart → wait WebUI 200
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
@@ -46,8 +46,9 @@ sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 
 # Logout/in or Cache Reset
 ```
 
-Prebuilt JAR (after a staging build):  
-`/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` — scp + same install steps above.
+Prebuilt JAR in git:  
+`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` (~52 KB) — scp + same install steps above.  
+Also on staging after build: `/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
 
 ## Package / bundle
 
@@ -60,7 +61,7 @@ Prebuilt JAR (after a staging build):
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` / `CalloutShiftStaffContact` |
 
-Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~55 KB** (≈60 KB for `1517`). ~29 KB with a version stamp is a **stale** banner-only build.
+Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~52 KB** (release `1517` ≈52.6 KB). ~29 KB with a version stamp is a **stale** banner-only build.
 
 ## What JAR `1517` includes (filters)
 
@@ -121,7 +122,8 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 4. Untick **Not Rostered** / **Not On Leave** independently and ReQuery.  
 5. **Familiar:** on a shift with Support Location (e.g. Swinley 14), with Familiar on, staff with history (e.g. Anupam Choudhary, Damaris Harris on HCO) remain eligible; untick Familiar widens the pool.  
 6. Close Info after dragging criteria splitter → parent Shift window has **no** blank band under header.  
-7. Lean grid (no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff columns); Related Info; contact pick fills BP.
+7. Lean grid: **Partner Location** suburb shown; no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff.  
+8. **Single-select** one row → Related Info matches that contact; pick fills BP.
 
 ## Environments verified
 
@@ -132,15 +134,14 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 
 ## Packs
 
-- `Downloads\AbilityERP-ClientUpdate-SAW003_staff_rostering_info-20260712\`  
-- `Downloads\AbilityERP-ProdUpdate-SAW003_staff_rostering_info-20260712\`  
-
-Refresh packs when shipping a zip: JAR **`1517`** (≥ ~55 KB) + SQL through **`25`**. Prefer host build / JAR-only over stale packs.
+- Prebuilt JAR (git): `idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
+- Client/prod zip folders (when used): `Downloads\AbilityERP-*-SAW003_staff_rostering_info-*/` — refresh to JAR **`1517`** + SQL through **`26`**
 
 ## Agent prompt (copy)
 
-> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md`. Prefer JAR-only if SQL through `25` is applied; still run `sql/26-show-partner-location-suburb.sql` if missing. Smoke: results single-select; Partner Location suburb column in grid; four filter ticks; report pass/fail.
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and `AGENT-READY.md`. Install JAR `1.1.0.2026071517` (host build or `release/…1517.jar`). If SQL through `25` is applied, still run `sql/26-show-partner-location-suburb.sql` if missing. Restart; Cache Reset / logout-in. Smoke: single-select results; Partner Location suburb; four filter ticks; Related Info follows one row; report pass/fail.
 
 ## External ticket text
 
-`Tickets/SAW003_staff_rostering_info/EXTERNAL-SUMMARY.md`
+`Tickets/SAW003_staff_rostering_info/EXTERNAL-SUMMARY.md`  
+Also: `Tickets/SAW003_staff_rostering_info/AGENT-READY.md`
