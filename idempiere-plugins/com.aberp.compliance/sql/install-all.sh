@@ -19,7 +19,8 @@ for f in \
   14-refresh-compliance-process.sql \
   15-seed-employee-rules.sql \
   16-seed-remaining-rules.sql \
-  17-audit-results-info.sql
+  17-audit-results-info.sql \
+  18-employee-open-findings.sql
 do
   echo "===== $f ====="
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$f"
