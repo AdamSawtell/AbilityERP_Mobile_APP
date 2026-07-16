@@ -1,27 +1,37 @@
-# SAW024 — Employee Open Findings (external summary)
+# SAW024 — Open Findings (external summary)
 
 ## What’s done
 
-On **Organisation Audit → Employee**, **Open Findings** sits as a **sub-tab under Employee**. Each row shows why the check failed, what to do, the related Credential Assignment **Value**, and **Open & Fix** opens that assignment so you can renew/update and clear the issue on the next Refresh.
+On **Organisation Audit**, every category tab has a findings sub-tab with open issues from Refresh Compliance. **Open & Fix** jumps to the source record (Credential Assignment for Employee / Documentation).
+
+| Category | Findings tab | Open findings (dev) |
+|----------|--------------|---------------------|
+| Employee | Open Findings | Workforce / credentials |
+| Client | Client Findings | Risks / service agreements |
+| Incidents | Incident Findings | Investigations / actions |
+| Rostering | Rostering Findings | Unfilled / credential gaps |
+| Documentation | Documentation Findings | Onboarding documents |
 
 ## What changed
 
-- Open Findings nested under Employee (Included tab + TabLevel 2)
-- **Assignment** column shows the Credential Assignment Value
-- **Open & Fix** (`AbERP_Compliance_OpenSource`) opens that Credential Assignment
-- Menu folder **Organisation Audit** → **Audit Hub** opens the NDIS Audit Tool window (plus Compliance Rules / Results)
+- Findings nested under all five category tabs (Included tab + TabLevel 2)
+- Category-filtered lists (`W` / `P` / `I` / `R` / `D`)
+- **Open & Fix** (`AbERP_Compliance_OpenSource`) opens the linked source
+- Employee / Documentation show Assignment Value; other categories use Why / Resolve
+- Menu **Organisation Audit → Audit Hub**
 
 ## Impact
 
-Workforce compliance issues are actionable from the Employee KPI view without leaving the audit hub.
+Audit issues are actionable from each KPI area without leaving the hub.
 
 ## How to test
 
-1. Admin → menu **Organisation Audit** → **Audit Hub** → **Employee**
-2. Open the **Open Findings** sub-tab
-3. Confirm **Assignment** shows a Value (not blank / not `-1`)
-4. Click **Open & Fix** on the row → Credential Assignment opens
-5. Update expiry → Save → **Refresh Compliance** and confirm the list updates
+1. Admin → **Organisation Audit** → **Audit Hub**
+2. For each of Employee / Client / Incidents / Rostering / Documentation: open the Findings sub-tab
+3. Confirm rows match that category (not mixed)
+4. On Employee or Documentation: **Open & Fix** → Credential Assignment opens
+5. On other categories: **Open & Fix** opens the linked source window when one exists
+6. Fix → Save → **Refresh Compliance** → list updates
 
 ## Access
 

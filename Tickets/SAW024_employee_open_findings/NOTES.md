@@ -8,8 +8,9 @@
 - Visible **Assignment** = String ColumnSQL of Credential Assignment **Value** (`25-*.sql`)
 - Hidden `AbERP_SourceAssignment_ID` holds the CA PK for the process
 - **Open & Fix Source** (`AbERP_Compliance_OpenSource`) → OSGi-load `AEnv` → `executeAsyncDesktopTask` + `zoom(table, record)`
-- Open & Fix was a **virtual** button (`ColumnSQL NULL::bpchar`) so WebUI kept it disabled; physical `aberp_opensource` + SQL 32 fixes click-through
-- Search Assignment on included tab shows `-1` — use Assignment Value string + Open & Fix process instead
+- Open Findings rolled out to **all category tabs** (`33`/`34`): Client / Incident / Rostering / Documentation Findings
+- Distinct tab names so ZK does not confuse twin “Open Findings” leaves
+- Open finding counts on dev: W 196 / P 202 / I 574 / R 1237 / D 8
 
 
 ## Learnings

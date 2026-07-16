@@ -45,6 +45,8 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/29-assignment
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/30-open-fix-pathway.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/31-clickable-assignment-pathway.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/32-physical-open-fix-button.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/33-open-findings-all-categories.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/34-rename-findings-tabs.sql"
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache)"
 sudo /etc/init.d/idempiere stop || true

@@ -8,6 +8,8 @@
 - [x] SQL `32-physical-open-fix-button.sql` — physical `Open & Fix` button (virtual ColumnSQL left it disabled) + Assignment Value label
 - [x] JAR `com.aberp.compliance_7.1.0.202607161500` (OpenComplianceSource loads AEnv via OSGi bundle)
 - [x] Install on `3.27.207.215`
-- [x] WebUI smoke: Assignment Value visible; **Open & Fix** opens **Credential Assignment** on the linked record
+- [x] SQL `33-open-findings-all-categories.sql` — Client / Incidents / Rostering / Documentation findings nests
+- [x] SQL `34-rename-findings-tabs.sql` — distinct tab names (Client Findings, etc.)
+- [x] Dev DB: 5 category findings tabs + open result counts (W/P/I/R/D)
 - [x] Commit + push
-- [ ] Refresh thin pack with SQL 24–32 + JAR
+- [ ] Refresh thin pack with SQL 24–34 + JAR

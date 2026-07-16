@@ -18,6 +18,8 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/25-assignme
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/26-rename-org-audit-menu.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/27-restore-org-audit-menu.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/32-physical-open-fix-button.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/33-open-findings-all-categories.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f $PLUGIN/sql/34-rename-findings-tabs.sql
 ```
 
 JAR (manual OSGi): `com.aberp.compliance_7.1.0.202607161500.jar`
@@ -39,10 +41,10 @@ Then WebUI **Cache Reset**, **logout/in** as Admin.
 
 ## Smoke
 
-1. Menu → **Organisation Audit** → **Audit Hub** → **Employee** → **Open Findings**
-2. Confirm **Assignment** shows a Credential Assignment Value (not `-1`)
-3. Click **Open & Fix** on the row → **Credential Assignment** opens on that record
-4. Update expiry → Save → Refresh Compliance
+1. Menu → **Organisation Audit** → **Audit Hub**
+2. Open each category tab’s findings sub-tab (Open / Client / Incident / Rostering / Documentation Findings)
+3. Confirm rows are category-filtered; click **Open & Fix** on a row
+4. Update source → Save → Refresh Compliance
 
 ## Notes
 
