@@ -13,7 +13,7 @@ Each Organisation Audit category tab now starts with a **population summary**, a
 | Employee | Active Employees | Change (90d) |
 | Client | Active Clients (Support Receiver) | Change (90d) |
 | Incidents | Active Incidents (open) | Change (90d) |
-| Rostering | Shifts (Current Period) | vs 90d Period Avg |
+| Rostering | Current Roster | Next Roster (not 90d avg) |
 | Documentation | Total Documents | Change (90d) |
 
 ### Shared KPIs (all category tabs)
@@ -27,7 +27,7 @@ Readiness Score, Status (R/A/G), Open Findings, Critical Open, Open >7/30/90d, N
 | Employee | Screening Expired / Due (30d), Credentials Current %, New Starters Missing Docs, Unavailable Today, Rostered This Period |
 | Client | Risk Reviews Overdue / Due (30d), No Support (30d), Plan Reviews Due (30d), Plans Expired, Assessments Current |
 | Incidents | Closed (30d), Investigations Overdue, Outstanding Actions, Reportable Open, Median Days Open, Oldest Open (days) |
-| Rostering | Filled / Unfilled / Partially Filled, Fill Rate %, Coverage 7d/14d %, Missing Credential, Agency / Employee Assignments, Cancelled Shifts |
+| Rostering | Current/Next Fill Rate %, Current/Next Unfilled, Current/Next Filled, Current/Next Cancelled, Current/Next Missing Cred |
 | Documentation | Expired / Due (30d) / Current Documents, Current %, Onboarding Expired, Added (90d), Expired in 90d, Missing Evidence |
 
 ## Impact

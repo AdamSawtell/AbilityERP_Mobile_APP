@@ -13,8 +13,9 @@ Yes — `com.aberp.compliance_7.1.0.202607170545.jar` (writes `PopulationCount` 
 1. `sql/35-category-population-summary.sql`
 2. `sql/36-fix-population-client-90d.sql`
 3. `sql/37-category-kpi-expansion.sql`
+4. `sql/38-roster-current-next-period.sql`
 
-Or `deploy.sh` (includes 35→37).
+Or `deploy.sh` (includes 35→38).
 
 ## Restart / cache
 
@@ -26,7 +27,7 @@ OSGi install/start JAR if deploying engine change. After SQL 37: **restart iDemp
 2. **Employee**: Active Employees + Change (90d) + shared/category KPIs (Screening, Credentials %, etc.)
 3. **Client**: Active Clients (~127) + Risk / No Support / Plans KPIs
 4. **Incidents**: Active Incidents + Closed / Actions / Median Days Open
-5. **Rostering**: Period shifts + Fill Rate % / Coverage 7–14d
+5. **Rostering**: **Current Roster | Next Roster**; fill/unfilled/filled/cancelled/missing-cred pairs for those two periods only (no 7d/14d)
 6. **Documentation**: Total Documents + Current % / Onboarding Expired
 7. Confirm **no SQL error modal** on any category tab
 

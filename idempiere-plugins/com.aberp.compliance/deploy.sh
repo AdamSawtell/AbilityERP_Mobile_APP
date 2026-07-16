@@ -50,6 +50,7 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/34-rename-fin
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/35-category-population-summary.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/36-fix-population-client-90d.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/37-category-kpi-expansion.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/38-roster-current-next-period.sql"
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache)"
 sudo /etc/init.d/idempiere stop || true

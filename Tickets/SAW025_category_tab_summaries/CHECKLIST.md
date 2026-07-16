@@ -8,4 +8,5 @@
 - [x] Re-smoke view KPIs (127 clients; non-zero 90d changes)
 - [x] SQL `37-category-kpi-expansion.sql` — shared + category KPIs via DB functions
 - [x] Browser-smoke all five category tabs (no SQL modal; fields populated)
+- [x] SQL `38-roster-current-next-period.sql` — roster KPIs = current + next period only
 - [ ] Client update packs (staging + thin prod) when ready for client install

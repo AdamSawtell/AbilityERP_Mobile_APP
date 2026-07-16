@@ -17,5 +17,5 @@
 
 - 2026-07-17 initial: Employee 210 / Change 0 (snapshot-only baseline)
 - **2026-07-17 fix (SQL 36):** Clients **127** (+11), Employees 210 (+3), Incidents 83 (+31), Period shifts 1866 (−91), Documents 9062 (+512)
-- **2026-07-17 KPI expansion (SQL 37):** all five category tabs load population + shared + category KPIs with **no SQL modal**. Spot checks: Active Clients 127; Employee Screening Expired 8; Roster Fill Rate 98.0%; Client No Support (30d) 85; Incident Median Days Open ~106.5; Doc Current % ~98.5
-- JAR `com.aberp.compliance_7.1.0.202607170545`
+- **SQL 38:** Rostering tab metrics are scoped to **current + next pay/roster period** only. Calendar 7d/14d coverage and the 90d period-average pair are removed from that tab.
+- Spot check after SQL 38: Current Roster **1866** / Next **1777**; Current Fill **98.0%** / Next **96.3%**.
