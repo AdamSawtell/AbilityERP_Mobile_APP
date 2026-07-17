@@ -25,9 +25,20 @@
 | Activity Types | `EM`, `ME`, `PC`, `CN`, `TA` | All enabled for Vehicle |
 | Role access | AbilityERP Admin + Admin | Existing grants confirmed active/read-write |
 | Vehicle Activity layout | Base `AD_Field` plus existing `AD_Tab_Customization` rows | User/Contact and Contact Activity hidden; Comments four lines; six-column operational grid |
+| SuperUser tab customization | ID `1000834`; user ID `100` | Local hint only; migration resolves the tab and field IDs dynamically |
 | Smoke result | Pass | Vehicle rendered as `S637 CMD`; grid showed Start Date, Activity Type, Description, Comments, End Date, and Complete |
 
 No JAR is required. Apply `sql/05-add-vehicle-activity-tab.sql`, run Cache
 Reset or log out/in, and run `sql/95-verify-vehicle-activity-tab.sql`. HCO
 Test001 required one service restart because its global window-definition cache
 survived Cache Reset; this is not normally required.
+
+## Next-environment handoff
+
+- Start with [`DEPLOY.md`](DEPLOY.md).
+- Run the ordered wrappers under `Tickets/SAW026_vehicle_activity_tab/sql/`.
+- Do not copy HCO numeric IDs or alter existing target UUIDs.
+- Treat the Downloads packs as optional copies; the repository artifacts are
+  complete for another agent.
+- If the target has a saved `AD_Tab_Customization`, the apply normalizes its
+  grid field IDs and widths using that environment's local `AD_Field` records.

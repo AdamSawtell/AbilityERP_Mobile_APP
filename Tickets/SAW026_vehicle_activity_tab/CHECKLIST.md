@@ -8,7 +8,14 @@
 - [x] Install on `54.153.138.216`
 - [x] Verify database metadata and activity types
 - [x] Run Admin WebUI smoke test
+- [x] Hide User/Contact and Contact Activity from form and grid
+- [x] Increase Comments from two to four visible lines
+- [x] Normalize existing `AD_Tab_Customization` grid overrides
+- [x] Verify the six-column operational grid in WebUI
 - [x] Produce staging and thin production update packs
+- [x] Add repository-native apply, verify, and rollback wrappers to the ticket
+- [x] Execute the apply and verify wrappers from a different working directory
+- [x] Add NO-JAR, NO-PACKOUT, and artifact manifest handoff files
 - [x] Complete deployment and external documentation
 - [x] Commit and push
 - [x] Mark GitHub issue and ticket done

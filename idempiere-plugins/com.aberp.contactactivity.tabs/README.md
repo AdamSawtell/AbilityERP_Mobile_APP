@@ -47,13 +47,17 @@ After deploy: **log out and log back in** on the WebUI to refresh the AD cache.
 1. `sql/01-add-link-columns.sql` — physical + AD columns on `C_ContactActivity`
 2. `sql/02-add-activity-tabs.sql` — tabs and fields on the three windows
 3. `sql/03-update-activity-type-windows.sql` — activity type list + Included Activities validation
-4. `sql/05-add-vehicle-activity-tab.sql` — SAW026 portable Vehicle tab, fields, Activity Types, and Admin grants
-5. `sql/95-verify-vehicle-activity-tab.sql` — SAW026 read-only verification
+4. `sql/05-add-vehicle-activity-tab.sql` — SAW026 portable Vehicle tab, focused form/grid layout, Activity Types, and Admin grants
+5. `sql/95-verify-vehicle-activity-tab.sql` — SAW026 read-only metadata, grid customization, access, and link verification
 6. `sql/99-rollback-vehicle-activity-tab.sql` — SAW026 conservative rollback
 
 ## Manual test
 
 1. Open **Booking Generator** → select a record → **Activity** tab → New → pick Activity Type, enter Description.
 2. Repeat on **Service Booking** and **Service Agreement (Project)**.
-3. For SAW026, repeat on **Vehicle** and confirm Email, Meeting, Phone call, Case Note, and Task.
-4. Configure **Included Activities** for a role if you need role-specific type filtering.
+3. For SAW026, repeat on **Vehicle** and confirm Email, Meeting, Phone call,
+   Case Note, and Task.
+4. Confirm User/Contact and Contact Activity are hidden, Comments has four
+   lines, and the grid shows Start Date, Activity Type, Description, Comments,
+   End Date, and Complete.
+5. Configure **Included Activities** for a role if you need role-specific type filtering.

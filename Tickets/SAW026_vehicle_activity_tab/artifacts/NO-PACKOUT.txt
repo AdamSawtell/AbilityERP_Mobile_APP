@@ -1,0 +1,6 @@
+No 2Pack or Pack Out is required for SAW026.
+
+The portable, idempotent SQL migration is authoritative because it resolves
+client objects by stable UUID or name, preserves existing client UUIDs, grants
+role access, normalizes field and grid metadata, and includes verification and
+rollback scripts.

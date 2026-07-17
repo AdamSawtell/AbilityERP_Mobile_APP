@@ -1,0 +1,4 @@
+SAW026 is an Application Dictionary and SQL-only update.
+
+No OSGi JAR is built or installed. Do not run bundle install, refresh, or start
+commands for this ticket.

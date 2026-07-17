@@ -8,6 +8,7 @@
 - SSH and `psql` access to the iDempiere database
 - WebUI login with Admin access
 - Cache Reset or logout/in after AD changes
+- An approved maintenance window if that build requires an iDempiere restart to clear stale metadata
 
 ## Target
 
@@ -18,27 +19,58 @@
 
 ## Install
 
-From the repository:
+Use the ticket wrappers from the repository root:
 
 ```bash
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f idempiere-plugins/com.aberp.contactactivity.tabs/sql/05-add-vehicle-activity-tab.sql
+  -f Tickets/SAW026_vehicle_activity_tab/sql/01-APPLY.sql
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f idempiere-plugins/com.aberp.contactactivity.tabs/sql/95-verify-vehicle-activity-tab.sql
+  -f Tickets/SAW026_vehicle_activity_tab/sql/95-VERIFY.sql
 ```
 
-No JAR, OSGi console action, or service restart is required. Log out/in or run Cache Reset after apply.
+The wrappers resolve the canonical plugin SQL using `\ir`; they can be invoked
+from any working directory while the repository layout is intact.
+
+No JAR or OSGi console action is required. Close Vehicle, run Cache Reset, log
+out/in, and reopen Vehicle after apply. If the target still serves the previous
+layout, restart iDempiere during an approved maintenance window and log in
+again.
 
 The apply is idempotent and fails closed when Vehicle, Enquiry Activity, the five Activity Types, the Included Activities validation rule, or AbilityERP Admin is missing. It does not hardcode client `AD_*_ID` values or replace existing client UUIDs.
+
+Do not edit an existing client `*_UU`, including on HCO. Resolve any mismatch
+by correcting the migration lookup or deployment process.
+
+## Expected verification
+
+`95-VERIFY.sql` must show:
+
+- one active Vehicle Activity tab linked by `AbERP_Vehicle_ID`;
+- link reference **Search** and Vehicle reference UU
+  `51ee0d93-0d9d-4d34-8b5b-e62a766c21fc`;
+- Activity Types `CN`, `EM`, `ME`, `PC`, and `TA` enabled;
+- AbilityERP Admin access active/read-write, plus Admin where present;
+- User/Contact and Contact Activity with `IsDisplayed=N` and
+  `IsDisplayedGrid=N`;
+- Comments with `NumLines=4`;
+- grid sequence Start Date, Activity Type, Description, Comments, End Date,
+  Complete;
+- any existing `AD_Tab_Customization` row normalized to those six fields.
 
 Rollback:
 
 ```bash
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
-  -f idempiere-plugins/com.aberp.contactactivity.tabs/sql/99-rollback-vehicle-activity-tab.sql
+  -f Tickets/SAW026_vehicle_activity_tab/sql/99-ROLLBACK.sql
 ```
 
 The conservative rollback retains the link column so existing Activity data is preserved.
+
+## Repository artifacts
+
+See [`ARTIFACTS.md`](ARTIFACTS.md). The ticket contains ordered SQL wrappers,
+NO-JAR and NO-PACKOUT declarations. The authoritative migration source remains
+under `idempiere-plugins/com.aberp.contactactivity.tabs/sql/`.
 
 ## AbilityERP Admin access
 
@@ -71,6 +103,7 @@ Install SQL grants the existing parent window to **AbilityERP Admin** and, where
 - **Layout:** User/Contact and Contact Activity hidden from form/grid; Comments set to four lines; grid reduced to six operational columns
 - **Customization override:** existing `AD_Tab_Customization` rows are normalized with dynamically resolved field IDs, so stale user layouts cannot restore hidden fields
 - **Layout smoke:** pass after Cache Reset/service restart and reopening Vehicle; grid showed Start Date, Activity Type, Description, Comments, End Date, and Complete
+- **Repository wrappers:** `sql/01-APPLY.sql` and `sql/95-VERIFY.sql` executed successfully from `/tmp`, confirming relative source resolution is independent of the current working directory
 - **Parent link:** database join confirmed `C_ContactActivity.AbERP_Vehicle_ID=1000000` → Vehicle `S637CMD`
 - **Cleanup:** the staging smoke Activity was deleted after verification
 

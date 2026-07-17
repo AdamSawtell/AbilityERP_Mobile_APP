@@ -60,6 +60,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW018](../SAW018_hco_release_packins/NOTES.md#hco-future-deployments-variables) | HCO release packins (credentials/employee/client/support location) — HCO install 2026-07-13 |
 | [SAW016](../SAW016_leave_planning/DEPLOY.md) | Leave Planning Info — redeploy via `redeploy-hco.sh` / JAR `1402` (Support Location Search + parser-safe display) |
 | [SAW020](../SAW020_hco20260714_release/README.md) | **HCO20260714** release dry run on `54.253.165.194` — Production runbook |
-| [SAW026](../SAW026_vehicle_activity_tab/NOTES.md#hco-future-deployments-variables) | Vehicle Activity tab — HCO Test001 install and Admin WebUI smoke 2026-07-17 |
+| [SAW026](../SAW026_vehicle_activity_tab/DEPLOY.md) | Vehicle Activity tab — HCO Test001 install, focused grid smoke, and repository deployment wrappers validated 2026-07-17 |
 
 Append new rows as tickets are installed.
