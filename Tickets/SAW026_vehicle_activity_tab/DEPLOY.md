@@ -61,9 +61,10 @@ Install SQL grants the existing parent window to **AbilityERP Admin** and, where
 - **Host:** `54.153.138.216` — HCO Test001
 - **Database apply:** pass; second apply also passed idempotently
 - **Metadata:** Activity tab ID `1000364`, fixed UU `7d14ac4f-5fef-4f1f-b917-026000000002`, 18 fields, link `AbERP_Vehicle_ID`
+- **Vehicle lookup:** canonical Search reference UU `51ee0d93-0d9d-4d34-8b5b-e62a766c21fc`; WebUI renders `S637 CMD`, not `~-1~`
 - **Types:** `EM`, `ME`, `PC`, `CN`, and `TA` all enabled
 - **Access:** AbilityERP Admin and Admin active/read-write
-- **WebUI:** Admin opened Vehicle `S637CMD`, saw all five options, created and saved Email Activity `1641181`
+- **WebUI:** Admin opened Vehicle `S637CMD`, saw all five options, and created Activity `1641183` with Vehicle displayed as `S637 CMD`
 - **Parent link:** database join confirmed `C_ContactActivity.AbERP_Vehicle_ID=1000000` → Vehicle `S637CMD`
 - **Cleanup:** the staging smoke Activity was deleted after verification
 

@@ -20,9 +20,10 @@
 | Vehicle window | ID `1000066`; UU `e6974bff-4ee3-4b8c-81b7-38936c74d93c` | Resolve by name + root table, never hardcode |
 | `AbERP_Vehicle` table | ID `1000091`; UU `fb3e84bc-6a28-420c-92e8-97398479f9a6` | Resolve by table name |
 | `C_ContactActivity` link column | ID `1007467`; UU `7d14ac4f-5fef-4f1f-b917-026000000001` | Physical column `aberp_vehicle_id` |
+| Vehicle Search reference | ID `1000220`; UU `51ee0d93-0d9d-4d34-8b5b-e62a766c21fc` | Required so WebUI renders the vehicle licence instead of `~-1~` |
 | Vehicle Activity tab | ID `1000364`; UU `7d14ac4f-5fef-4f1f-b917-026000000002` | 18 active fields; sequence 45 |
 | Activity Types | `EM`, `ME`, `PC`, `CN`, `TA` | All enabled for Vehicle |
 | Role access | AbilityERP Admin + Admin | Existing grants confirmed active/read-write |
-| Smoke result | Pass | Admin created Email activity against Vehicle `S637CMD`; DB parent join passed; smoke row deleted |
+| Smoke result | Pass | Admin created Activity `1641183`; Vehicle rendered as `S637 CMD`; DB linked `AbERP_Vehicle_ID=1000000`; smoke row deleted |
 
 No JAR or restart is required. Apply `sql/05-add-vehicle-activity-tab.sql`, log out/in, and run `sql/95-verify-vehicle-activity-tab.sql`.

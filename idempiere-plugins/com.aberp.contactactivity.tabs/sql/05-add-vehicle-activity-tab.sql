@@ -41,6 +41,19 @@ BEGIN
 
   IF NOT EXISTS (
     SELECT 1
+    FROM ad_reference r
+    JOIN ad_ref_table rt ON rt.ad_reference_id = r.ad_reference_id
+    JOIN ad_table tb ON tb.ad_table_id = rt.ad_table_id
+    WHERE r.ad_reference_uu = '51ee0d93-0d9d-4d34-8b5b-e62a766c21fc'
+      AND r.validationtype = 'T'
+      AND r.isactive = 'Y'
+      AND tb.tablename = 'AbERP_Vehicle'
+  ) THEN
+    RAISE EXCEPTION 'Active AbERP_Vehicle Search reference not found';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
     FROM ad_tab t
     JOIN ad_window w ON w.ad_window_id = t.ad_window_id
     JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
@@ -91,7 +104,7 @@ INSERT INTO ad_column (
   ad_column_id, ad_client_id, ad_org_id, isactive,
   created, createdby, updated, updatedby,
   name, entitytype, columnname, ad_table_id,
-  ad_reference_id, fieldlength, version,
+  ad_reference_id, ad_reference_value_id, fieldlength, version,
   iskey, isparent, ismandatory, isupdateable, isidentifier, seqno,
   istranslated, isencrypted, isselectioncolumn,
   ad_element_id, issyncdatabase, isalwaysupdateable,
@@ -111,9 +124,10 @@ SELECT
   'Vehicle', 'Ab_ERP', 'AbERP_Vehicle_ID', ca.ad_table_id,
   COALESCE((
     SELECT ad_reference_id FROM ad_reference
-    WHERE name = 'Table Direct' AND isactive = 'Y'
+    WHERE name = 'Search' AND validationtype = 'D' AND isactive = 'Y'
     LIMIT 1
-  ), 19),
+  ), 30),
+  vehicle_ref.ad_reference_id,
   22, 0,
   'N', 'N', 'N', 'N', 'N', 0,
   'N', 'N', 'N',
@@ -125,6 +139,10 @@ FROM ad_table ca
 JOIN ad_element e
   ON e.columnname = 'AbERP_Vehicle_ID'
  AND e.isactive = 'Y'
+JOIN ad_reference vehicle_ref
+  ON vehicle_ref.ad_reference_uu = '51ee0d93-0d9d-4d34-8b5b-e62a766c21fc'
+ AND vehicle_ref.validationtype = 'T'
+ AND vehicle_ref.isactive = 'Y'
 WHERE ca.tablename = 'C_ContactActivity'
   AND ca.isactive = 'Y'
   AND NOT EXISTS (
@@ -133,6 +151,31 @@ WHERE ca.tablename = 'C_ContactActivity'
     WHERE c.ad_table_id = ca.ad_table_id
       AND c.columnname = 'AbERP_Vehicle_ID'
   );
+
+-- Vehicle fields across AbilityERP use the canonical AbERP_Vehicle Search
+-- reference so the UI renders the licence identifier. A generic Table Direct
+-- link can inherit the numeric parent but display it as ~-1~ in ZK.
+UPDATE ad_column c
+SET ad_reference_id = COALESCE((
+      SELECT ad_reference_id
+      FROM ad_reference
+      WHERE name = 'Search'
+        AND validationtype = 'D'
+        AND isactive = 'Y'
+      LIMIT 1
+    ), 30),
+    ad_reference_value_id = vehicle_ref.ad_reference_id,
+    updated = NOW(),
+    updatedby = 100
+FROM ad_table ca
+JOIN ad_reference vehicle_ref
+  ON vehicle_ref.ad_reference_uu = '51ee0d93-0d9d-4d34-8b5b-e62a766c21fc'
+ AND vehicle_ref.validationtype = 'T'
+ AND vehicle_ref.isactive = 'Y'
+WHERE c.ad_table_id = ca.ad_table_id
+  AND ca.tablename = 'C_ContactActivity'
+  AND c.columnname = 'AbERP_Vehicle_ID'
+  AND c.isactive = 'Y';
 
 -- Register the level-one Activity tab after the existing Vehicle child tabs.
 INSERT INTO ad_tab (

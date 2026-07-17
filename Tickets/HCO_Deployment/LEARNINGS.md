@@ -587,7 +587,7 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 |----------|----------------|
 | The top toolbar New action creates a new parent Vehicle even while the Activity grid is visible | Use the child grid’s own **+** control to create a child Activity |
 | Typing list text does not commit the underlying Activity Type value | Open the combo arrow and select the list item before saving |
-| A new child form can display Vehicle as `~-1~` while the saved row still receives the correct parent ID | Verify the saved `C_ContactActivity.AbERP_Vehicle_ID` by joining back to `AbERP_Vehicle` |
+| A generic Table Direct Vehicle link inherits the numeric parent but can render as `~-1~` | Use the existing `AbERP_Vehicle` Search reference (`51ee0d93-0d9d-4d34-8b5b-e62a766c21fc`); WebUI now renders `S637 CMD`, and the saved row still joins to Vehicle ID `1000000` |
 
 ### HCO local IDs (hints only — do not use in portable SQL)
 | Object | HCO Test001 ID | UU |

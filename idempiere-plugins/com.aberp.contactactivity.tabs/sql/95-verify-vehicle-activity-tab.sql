@@ -4,17 +4,25 @@ SET search_path TO adempiere;
 
 SELECT w.ad_window_id, w.ad_window_uu, w.name AS window_name,
        t.ad_tab_id, t.ad_tab_uu, t.seqno, t.isactive,
-       c.columnname AS link_column, COUNT(f.ad_field_id) AS active_field_count
+       c.columnname AS link_column,
+       ref.name AS link_reference,
+       value_ref.name AS vehicle_reference,
+       value_ref.ad_reference_uu AS vehicle_reference_uu,
+       COUNT(f.ad_field_id) AS active_field_count
 FROM ad_window w
 JOIN ad_tab t ON t.ad_window_id = w.ad_window_id
 JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
 LEFT JOIN ad_column c ON c.ad_column_id = t.ad_column_id
+LEFT JOIN ad_reference ref ON ref.ad_reference_id = c.ad_reference_id
+LEFT JOIN ad_reference value_ref
+  ON value_ref.ad_reference_id = c.ad_reference_value_id
 LEFT JOIN ad_field f ON f.ad_tab_id = t.ad_tab_id AND f.isactive = 'Y'
 WHERE w.name = 'Vehicle'
   AND t.name = 'Activity'
   AND tb.tablename = 'C_ContactActivity'
 GROUP BY w.ad_window_id, w.ad_window_uu, w.name,
-         t.ad_tab_id, t.ad_tab_uu, t.seqno, t.isactive, c.columnname;
+         t.ad_tab_id, t.ad_tab_uu, t.seqno, t.isactive, c.columnname,
+         ref.name, value_ref.name, value_ref.ad_reference_uu;
 
 SELECT rl.value, rl.name,
        CASE
