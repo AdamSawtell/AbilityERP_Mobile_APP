@@ -46,10 +46,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW023 | `compliance_audit_hub` | idempiere | NDIS Compliance & Audit Hub — summary window, rules, results, snapshots, refresh | done | [#23](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/23) | [`Tickets/SAW023_…`](../Tickets/SAW023_compliance_audit_hub/) |
 | SAW024 | `employee_open_findings` | idempiere | NDIS Audit Tool Employee → Open Findings (why / resolve / Zoom) | in-progress | [#24](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/24) | [`Tickets/SAW024_…`](../Tickets/SAW024_employee_open_findings/) |
 | SAW025 | `category_tab_summaries` | idempiere | Organisation Audit category tabs: population + 90d change + expanded KPIs | in-progress | [#25](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/25) | [`Tickets/SAW025_…`](../Tickets/SAW025_category_tab_summaries/) |
+| SAW026 | `vehicle_activity_tab` | idempiere | Standard Activity tab on Vehicle (`AbERP_Vehicle`) | done | [#26](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/26) | [`Tickets/SAW026_…`](../Tickets/SAW026_vehicle_activity_tab/) |
 
 ## Next ID
 
-**SAW026**
+**SAW027**
 
 ## Naming reminder
 

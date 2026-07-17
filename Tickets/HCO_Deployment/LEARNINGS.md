@@ -572,6 +572,37 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-17 — SAW026 Vehicle Activity tab
+
+**Result:** Pass
+
+### What worked
+- Portable SQL added `AbERP_Vehicle_ID` to `C_ContactActivity`, registered the Vehicle Activity tab, and cloned 18 Enquiry Activity fields.
+- Admin WebUI smoke on HCO Test001 showed all five types: Email, Meeting, Phone call, Case Note, and Task.
+- A WebUI-created Email activity saved as `C_ContactActivity_ID=1641181` and joined to Vehicle `S637CMD` through `AbERP_Vehicle_ID=1000000`; the smoke record was then deleted.
+- A second apply was idempotent and retained the fixed AbilityERP column/tab UUIDs.
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| The top toolbar New action creates a new parent Vehicle even while the Activity grid is visible | Use the child grid’s own **+** control to create a child Activity |
+| Typing list text does not commit the underlying Activity Type value | Open the combo arrow and select the list item before saving |
+| A new child form can display Vehicle as `~-1~` while the saved row still receives the correct parent ID | Verify the saved `C_ContactActivity.AbERP_Vehicle_ID` by joining back to `AbERP_Vehicle` |
+
+### HCO local IDs (hints only — do not use in portable SQL)
+| Object | HCO Test001 ID | UU |
+|--------|----------------|-----|
+| Vehicle window | 1000066 | `e6974bff-4ee3-4b8c-81b7-38936c74d93c` |
+| Vehicle Activity tab | 1000364 | `7d14ac4f-5fef-4f1f-b917-026000000002` |
+| `C_ContactActivity.AbERP_Vehicle_ID` column | 1007467 | `7d14ac4f-5fef-4f1f-b917-026000000001` |
+
+### Ticket artefacts
+- `Tickets/SAW026_vehicle_activity_tab/`
+- `idempiere-plugins/com.aberp.contactactivity.tabs/sql/05-add-vehicle-activity-tab.sql`
+- Downloads packs `*SAW026_vehicle_activity_tab-20260717*`
+
+---
+
 <!-- Template for next entry:
 
 ## YYYY-MM-DD — SAW### short title
