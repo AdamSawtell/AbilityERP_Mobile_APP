@@ -37,6 +37,9 @@ else
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/register-contactactivity-tabs.sql"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/fix-activity-user-contact.sql"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/04-ensure-activity-types.sql"
+  # SAW026 — Vehicle Activity tab (idempotent; skips BP user/contact inheritance)
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/05-add-vehicle-activity-tab.sql"
+  sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$PLUGIN_DIR/sql/95-verify-vehicle-activity-tab.sql"
 fi
 
 echo "Restarting iDempiere via systemd"
@@ -66,4 +69,5 @@ if [ -d "$CHUBOE_UTILS" ]; then
   fi
 fi
 
-echo "Deploy complete — log out/in on WebUI. Ticket: Tickets/SAW007_activity_tab_integration/DEPLOY.md"
+echo "Deploy complete — log out/in on WebUI."
+echo "Tickets: Tickets/SAW007_activity_tab_integration/DEPLOY.md · Tickets/SAW026_vehicle_activity_tab/DEPLOY.md"
