@@ -28,7 +28,17 @@ BEGIN
       ('27a027a8-c0d4-4f01-8e15-000000000001', 'Restrictive practice', 'Restrictive practice', 'CM', 'CR', 'EP'),
       ('27a027a9-c0d4-4f01-8e15-000000000001', 'Abuse', 'Abuse allegation or concern', 'CM', 'CR', 'EW'),
       ('27a027aa-c0d4-4f01-8e15-000000000001', 'Neglect', 'Neglect concern', 'CM', 'CR', 'EW'),
-      ('27a027ab-c0d4-4f01-8e15-000000000001', 'Missing person', 'Missing person', 'IN', 'CR', 'EP')
+      ('27a027ab-c0d4-4f01-8e15-000000000001', 'Missing person', 'Missing person', 'IN', 'CR', 'EP'),
+      ('27a027b1-c0d4-4f01-8e15-000000000001', 'Seizure', 'Seizure or epileptic event', 'IN', 'HI', 'EW'),
+      ('27a027b2-c0d4-4f01-8e15-000000000001', 'Chest pain', 'Chest pain reported', 'IN', 'HI', 'EP'),
+      ('27a027b3-c0d4-4f01-8e15-000000000001', 'Stroke', 'Stroke symptoms or diagnosis', 'IN', 'CR', 'EW'),
+      ('27a027b4-c0d4-4f01-8e15-000000000001', 'Unconscious', 'Loss of consciousness', 'IN', 'CR', 'EW'),
+      ('27a027b5-c0d4-4f01-8e15-000000000001', 'Allergic reaction', 'Allergic reaction', 'SF', 'HI', 'EP'),
+      ('27a027b6-c0d4-4f01-8e15-000000000001', 'Insulin', 'Insulin administration concern', 'CM', 'MD', 'EW'),
+      ('27a027b7-c0d4-4f01-8e15-000000000001', 'Choking', 'Choking incident', 'SF', 'HI', 'EW'),
+      ('27a027b8-c0d4-4f01-8e15-000000000001', 'Fracture', 'Fracture or broken bone', 'SF', 'HI', 'EW'),
+      ('27a027b9-c0d4-4f01-8e15-000000000001', 'Paramedic', 'Paramedic attendance', 'IN', 'HI', 'EW'),
+      ('27a027ba-c0d4-4f01-8e15-000000000001', 'Blood pressure', 'Blood pressure concern', 'SF', 'MD', 'EP')
     ) AS t(uu, word, descr, cat, risk, mtype)
   LOOP
     -- Per-client UU: suffix with client id hex so rows do not collide across clients
