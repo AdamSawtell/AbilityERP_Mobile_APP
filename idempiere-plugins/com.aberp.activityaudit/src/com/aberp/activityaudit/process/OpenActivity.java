@@ -138,30 +138,66 @@ public class OpenActivity extends SvrProcess {
 		return windowId > 0 ? windowId : 0;
 	}
 
+	private static final String AENV = "org.adempiere.webui.apps.AEnv";
+
 	private static Class<?> loadAEnv() throws ClassNotFoundException {
+		// 1) Thread context (often WebUI when process runs from button)
 		try {
-			return Class.forName("org.adempiere.webui.apps.AEnv");
+			ClassLoader cl = Thread.currentThread().getContextClassLoader();
+			if (cl != null) {
+				return Class.forName(AENV, true, cl);
+			}
+		} catch (ClassNotFoundException ignored) {
+			// next
+		}
+		try {
+			return Class.forName(AENV);
 		} catch (ClassNotFoundException ignored) {
 			// OSGi
 		}
+
 		Bundle self = FrameworkUtil.getBundle(OpenActivity.class);
+		if (self == null) {
+			// Process may be loaded oddly — borrow any known OSGi class's context
+			self = FrameworkUtil.getBundle(Env.class);
+		}
 		if (self != null && self.getBundleContext() != null) {
+			// 2) Likely UI bundle names first
 			for (Bundle b : self.getBundleContext().getBundles()) {
 				String sn = b.getSymbolicName();
 				if (sn == null) {
 					continue;
 				}
-				if (sn.contains("adempiere.ui.zk") || sn.equals("org.adempiere.ui.zk")
-						|| sn.contains("webui")) {
-					try {
-						return b.loadClass("org.adempiere.webui.apps.AEnv");
-					} catch (ClassNotFoundException ignored) {
-						// next
+				String lower = sn.toLowerCase();
+				if (lower.contains("adempiere.ui.zk") || lower.equals("org.adempiere.ui.zk")
+						|| lower.contains("webui") || lower.contains("zk.ui")
+						|| lower.contains("adempiere.ui")) {
+					Class<?> c = tryLoad(b);
+					if (c != null) {
+						return c;
 					}
 				}
 			}
+			// 3) Last resort: any ACTIVE bundle that exports AEnv
+			for (Bundle b : self.getBundleContext().getBundles()) {
+				if (b.getState() != Bundle.ACTIVE) {
+					continue;
+				}
+				Class<?> c = tryLoad(b);
+				if (c != null) {
+					return c;
+				}
+			}
 		}
-		throw new ClassNotFoundException("org.adempiere.webui.apps.AEnv");
+		throw new ClassNotFoundException(AENV);
+	}
+
+	private static Class<?> tryLoad(Bundle b) {
+		try {
+			return b.loadClass(AENV);
+		} catch (ClassNotFoundException | IllegalStateException ignored) {
+			return null;
+		}
 	}
 
 	/** Process Record_ID first; then scan Env for AbERP_ActivityAuditReview_ID. */
