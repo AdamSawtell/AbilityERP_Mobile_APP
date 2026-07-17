@@ -223,6 +223,9 @@ BEGIN
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f013-4f01-8e15-000000000001','MatchedExtract','Matched Text Extract',130,'Y','Y','N',NULL,'N',4);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f014-4f01-8e15-000000000001','ReviewNotes','Review Notes',140,'Y','N','N',NULL,'N',3);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f015-4f01-8e15-000000000001','IsFollowUpRequired','Follow-Up Required',150,'Y');
+  -- IsActive required on tab for WebUI editability (GridField context)
+  -- UU f030 — do not reuse f018 (reserved for Processing in 11-fix-processing-column.sql)
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f030-4f01-8e15-000000000001','IsActive','Active',155,'Y','N','Y',155,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f016-4f01-8e15-000000000001','AD_Org_ID','Organisation',160,'N','Y','N',160,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f017-4f01-8e15-000000000001','ActivityUpdatedAudited','Activity Updated Audited',890,'Y','Y','N',890,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f020-4f01-8e15-000000000001','Created','Created',900,'Y','Y','N',900,'N');
@@ -238,6 +241,7 @@ BEGIN
   SELECT ad_table_id INTO v_tid FROM ad_table WHERE tablename = 'AbERP_ActivityAuditRunt';
   v_tab := pg_temp.saw027_tab('27a02761-c0d4-4f01-8e15-000000000001', v_win_run, v_tid, 'Runs', 10);
   UPDATE ad_table SET ad_window_id = v_win_run WHERE ad_table_id = v_tid;
+  PERFORM pg_temp.saw027_field(v_tab,'27a02761-f018-4f01-8e15-000000000001','IsActive','Active',5,'N','N','N',5,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f001-4f01-8e15-000000000001','StartTime','Start Time',10,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f002-4f01-8e15-000000000001','EndTime','End Time',20,'Y','Y','Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f003-4f01-8e15-000000000001','TriggerType','Trigger',30,'Y');

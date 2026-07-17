@@ -254,12 +254,30 @@ public class ActivityAuditEngine {
 						trxName);
 				reviewsReopened++;
 			} else if (!"Y".equals(isReviewed)) {
+				// Same open review row — refresh matches; keep prior terms in notes (do not lose history)
+				String priorTerms = DB.getSQLValueString(trxName,
+						"SELECT COALESCE(MatchedTerms,'') FROM AbERP_ActivityAuditReview"
+								+ " WHERE AbERP_ActivityAuditReview_ID=?",
+						reviewId);
+				String notes = DB.getSQLValueString(trxName,
+						"SELECT COALESCE(ReviewNotes,'') FROM AbERP_ActivityAuditReview"
+								+ " WHERE AbERP_ActivityAuditReview_ID=?",
+						reviewId);
+				String newNotes = notes;
+				if (priorTerms != null && !priorTerms.isEmpty()
+						&& !priorTerms.equals(matchedCsv)) {
+					String stamp = "Prior match replaced "
+							+ new Timestamp(System.currentTimeMillis()) + ": " + priorTerms;
+					newNotes = (notes == null || notes.isEmpty()) ? stamp : notes + "\n" + stamp;
+				}
 				DB.executeUpdateEx(
 						"UPDATE AbERP_ActivityAuditReview SET MatchedTerms=?, MatchedExtract=?,"
 								+ " Category=?, HighestRiskLevel=?, ActivityUpdatedAudited=?,"
-								+ " Updated=NOW(), UpdatedBy=? WHERE AbERP_ActivityAuditReview_ID=?",
+								+ " ReviewNotes=?, Updated=NOW(), UpdatedBy=?"
+								+ " WHERE AbERP_ActivityAuditReview_ID=?",
 						new Object[] { truncate(matchedCsv, 2000), truncate(match.extract, 4000),
-								match.topCategory, match.topRisk, updated, userId, reviewId },
+								match.topCategory, match.topRisk, updated,
+								truncate(newNotes, 2000), userId, reviewId },
 						trxName);
 			} else if (!reopenExisting) {
 				// create new review cycle
