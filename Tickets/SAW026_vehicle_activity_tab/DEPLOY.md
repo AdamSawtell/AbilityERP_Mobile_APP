@@ -107,6 +107,24 @@ Install SQL grants the existing parent window to **AbilityERP Admin** and, where
 - **Parent link:** database join confirmed `C_ContactActivity.AbERP_Vehicle_ID=1000000` → Vehicle `S637CMD`
 - **Cleanup:** the staging smoke Activity was deleted after verification
 
+### HCO20260714 release host
+
+- **Host:** `54.253.165.194` — HCO Test release host
+- **Applied:** 2026-07-17; SQL-only, no restart required
+- **Migration:** first attempt failed safely because HCO's `AD_Tab` sequence
+  lagged existing IDs; migration hardened to advance affected AD sequences,
+  then apply and second idempotency apply passed
+- **Metadata:** Activity tab ID `1000362`, fixed UU
+  `7d14ac4f-5fef-4f1f-b917-026000000002`, 18 fields, Search-linked
+  `AbERP_Vehicle_ID`
+- **Access/types:** AbilityERP Admin + Admin read/write; `CN`, `EM`, `ME`, `PC`,
+  and `TA` enabled
+- **WebUI:** Admin opened Vehicle `S637CMD`, opened Activity, confirmed all five
+  types and focused form, and saved Activity `1641178`
+- **Parent link:** saved row joined `AbERP_Vehicle_ID=1000000` to `S637CMD`
+- **Cleanup:** Activity `1641178` removed after verification; WebUI remained
+  HTTP 200
+
 ## Packs
 
 - Staging: `C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-SAW026_vehicle_activity_tab-20260717\`

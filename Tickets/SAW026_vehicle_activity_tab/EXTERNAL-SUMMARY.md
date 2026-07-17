@@ -45,6 +45,11 @@ the focused grid and hidden fields, confirmed all five Activity Types, saved an
 Email activity, and the database confirmed that it was linked to the correct
 Vehicle.
 
+The same SQL-only package was also installed on the HCO20260714 Test release
+host on 17 July 2026. Admin opened Vehicle `S637CMD`, confirmed the Activity
+tab and all five types, saved a linked Email activity, and the temporary test
+record was removed. The application remained available without a restart.
+
 ## Access
 
 Install SQL grants AbilityERP Admin, and Admin where required, access to the parent Vehicle window.

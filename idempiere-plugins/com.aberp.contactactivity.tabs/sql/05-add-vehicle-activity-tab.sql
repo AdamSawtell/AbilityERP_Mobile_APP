@@ -95,6 +95,30 @@ BEGIN
   END IF;
 END $$;
 
+-- Some long-lived client builds have AD sequences behind the highest table ID.
+-- Advance only the affected dictionary sequences before calling nextid so the
+-- portable insert cannot collide with an existing row.
+UPDATE ad_sequence s
+SET currentnext = GREATEST(s.currentnext, x.next_id),
+    updated = NOW(),
+    updatedby = 100
+FROM (
+  SELECT 'AD_Column'::TEXT AS name,
+         COALESCE(MAX(ad_column_id), 0) + 1 AS next_id
+  FROM ad_column
+  UNION ALL
+  SELECT 'AD_Tab',
+         COALESCE(MAX(ad_tab_id), 0) + 1
+  FROM ad_tab
+  UNION ALL
+  SELECT 'AD_Field',
+         COALESCE(MAX(ad_field_id), 0) + 1
+  FROM ad_field
+) x
+WHERE s.name = x.name
+  AND s.istableid = 'Y'
+  AND s.currentnext < x.next_id;
+
 -- Physical child link. Existing data and existing columns are preserved.
 ALTER TABLE c_contactactivity
   ADD COLUMN IF NOT EXISTS aberp_vehicle_id numeric(10);

@@ -66,3 +66,15 @@ See [`report/DEPLOYMENT-REPORT.md`](report/DEPLOYMENT-REPORT.md).
 | SAW018 package_imp | `1001029` credentials · `1001030` employee · `1001031` supportlocation · `1001032` client |
 | Support Location UU | unchanged `6ef3c558-3ec8-4f0c-be40-89f35d8acebf` |
 | Key JARs | staffinfo `1237` · skipdates `202607131830` · bulk `202607132235` + generator stack |
+
+### Post dry-run additions on `54.253.165.194`
+
+| Date | Ticket | Result |
+|---|---|---|
+| 2026-07-16 | SAW003 | Staffinfo `1517` + SQL through `26` passed |
+| 2026-07-16 | SAW017 | Bulk `160730` passed |
+| 2026-07-17 | SAW026 | Vehicle Activity SQL, full verify, idempotency, and Admin create/link/cleanup smoke passed |
+
+SAW026 exposed a drifted HCO `AD_Tab` sequence. The migration was corrected
+to advance affected dictionary sequences before allocating IDs; no existing
+HCO UUID was changed.

@@ -34,7 +34,7 @@ Hard rules: never change existing HCO `*_UU`; fix AbilityERP SQL/process instead
 
 ```text
 /tmp/HCO20260714/
-  SAW018/ … SAW017/     # thin ProdUpdate packs (or client packs)
+  SAW018/ … SAW026/     # thin ProdUpdate packs (or client packs)
 ```
 
 ## Ordered install (mandatory)
@@ -51,10 +51,11 @@ Hard rules: never change existing HCO `*_UU`; fix AbilityERP SQL/process instead
 | 9 | SAW015 | SQL + JAR `com.aberp.skipdates.copyfrom_7.1.0.202607131830` | **Yes** (stop then start) | Yes |
 | 10 | SAW014 | SQL only | No | Yes |
 | 11 | SAW017 | Generator stack (if missing) + bulk JAR **`7.1.0.202607160730`** + SQL `00`–`04` | **Yes** | Yes |
+| 12 | SAW026 | SQL `01-APPLY` → `95-VERIFY` | No | Yes / fresh login |
 
 After each ticket: verify SQL markers → Cache Reset / logout-in → WebUI smoke (see per-ticket DEPLOY.md).
 
-**Post dry-run JAR bumps** (already applied on Test; fold into Production): see [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md) (SAW003 `1516`, SAW017 `160730`).
+**Post dry-run updates** (already applied on Test; fold into Production): see [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md) (SAW003 `1517`, SAW017 `160730`, SAW026).
 
 ### Per-ticket pointers
 
@@ -70,10 +71,13 @@ After each ticket: verify SQL markers → Cache Reset / logout-in → WebUI smok
 | SAW015 | `Tickets/SAW015_skip_dates_copy_from/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW015_skip_dates_copy_from-20260713` |
 | SAW014 | `Tickets/SAW014_support_location_contact_grid/DEPLOY.md` | `AbilityERP-ProdUpdate-SAW014_support_location_contact_grid-20260713` |
 | SAW017 | `Tickets/SAW017_booking_generator_bulk/DEPLOY.md` | **`AbilityERP-ProdUpdate-SAW017_booking_generator_bulk-20260716`** (bulk `…160730`) |
+| SAW026 | `Tickets/SAW026_vehicle_activity_tab/DEPLOY.md` | **`AbilityERP-ProdUpdate-SAW026_vehicle_activity_tab-20260717`** |
 
 ## AbilityERP Admin access
 
-Each ticket’s SQL grants **Admin** + **AbilityERP Admin** where new Info / process / menu objects are created (SAW001, SAW015, SAW017, etc.). Smoke as **Admin** on HCO.
+Each ticket’s SQL grants **Admin** + **AbilityERP Admin** where new Info /
+process / menu objects are created. SAW026 grants both roles read/write access
+to the existing Vehicle window. Smoke as **Admin** on HCO.
 
 ## Rollback (high level)
 
@@ -89,6 +93,7 @@ Each ticket’s SQL grants **Admin** + **AbilityERP Admin** where new Info / pro
 | SAW015 | `sql/99-rollback.sql` + remove JAR |
 | SAW014 | `sql/99-rollback.sql` |
 | SAW017 | Deactivate process/menu + stop bulk bundle |
+| SAW026 | `Tickets/SAW026_vehicle_activity_tab/sql/99-ROLLBACK.sql` (retains link column/data) |
 
 Always Cache Reset after rollback.
 

@@ -13,6 +13,7 @@ Apply these **after** (or folded into) the baseline dry-run install in [`DEPLOYM
 | ---: | ------ | ---- | --------- | ------------- |
 | U1 | SAW003 | JAR + SQL `25`/`26` | staffinfo → **`1.1.0.2026071517`** (~52 KB) + Partner Location suburb | Applied 2026-07-16 on `54.253.165.194` (via `1516` interim 2026-07-15) |
 | U2 | SAW017 | JAR-only | bulk `…132235` → **`7.1.0.202607160730`** (9039 bytes) | Applied 2026-07-16 on `54.253.165.194` |
+| U3 | SAW026 | SQL/AD-only addition | Vehicle → Activity tab | Applied and WebUI-smoked 2026-07-17 on `54.253.165.194` |
 
 Generator stack for SAW017 is unchanged from the dry run (keep patched generator):
 
@@ -70,12 +71,35 @@ Do **not** install historical bulk JARs `…132235` or `…160715` on a new Prod
 
 ---
 
+## U3 — SAW026 Vehicle Activity tab
+
+| | |
+|--|--|
+| Runbook | `Tickets/SAW026_vehicle_activity_tab/DEPLOY.md` |
+| Production pack | `Downloads\AbilityERP-ProdUpdate-SAW026_vehicle_activity_tab-20260717\` |
+| SQL | `sql/01-APPLY.sql` → `sql/95-VERIFY.sql` |
+| JAR / PackOut | None |
+| Restart | No; Cache Reset and fresh login. Restart only if stale window metadata remains |
+| What changed | Adds the standard Activity tab to Vehicle with Email, Meeting, Phone call, Case Note, and Task |
+| Access | Existing Vehicle window granted read/write to AbilityERP Admin and Admin |
+
+The migration advances affected AD sequences when a long-lived client has
+`currentnext` behind its highest existing dictionary ID. It does not change
+existing HCO UUIDs.
+
+HCO Test evidence: Activity tab `1000362`, fixed UU
+`7d14ac4f-5fef-4f1f-b917-026000000002`; Admin saved Activity `1641178`
+against Vehicle `1000000` / `S637CMD`, then removed the smoke record.
+
+---
+
 ## Production checklist add-on
 
 After baseline HCO20260714 install:
 
 - [ ] Apply U1 SAW003 JAR **`1517`** + SQL **`25`/`26`** + restart + smoke (single-select, Partner Location suburb, four ticks)  
 - [ ] Apply U2 SAW017 JAR `160730` + restart + smoke Bulk summary columns  
+- [ ] Apply U3 SAW026 SQL + verify + Cache Reset/fresh login + Vehicle Activity smoke  
 - [ ] Confirm `bundles.info` has no stale staffinfo / bulk lines  
 - [ ] Cache Reset or re-login  
 - [ ] Append outcome to `Tickets/HCO_Deployment/LEARNINGS.md`
@@ -89,3 +113,4 @@ After baseline HCO20260714 install:
 | 2026-07-15 | SAW003 → `1516` | PASS · WebUI 200 (superseded) |
 | 2026-07-16 | SAW017 → `160730` | PASS · `04-verify` green · WebUI 200 · generator stack unchanged |
 | 2026-07-16 | SAW003 → **`1517`** + SQL `25`/`26` | PASS · WebUI 200 · Partner Location suburb selectclause active |
+| 2026-07-17 | SAW026 Vehicle Activity | PASS · apply + idempotency + full verify · Admin create/link/cleanup smoke · WebUI 200 |

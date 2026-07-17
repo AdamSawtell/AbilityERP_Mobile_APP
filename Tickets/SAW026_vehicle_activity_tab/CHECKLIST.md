@@ -19,3 +19,9 @@
 - [x] Complete deployment and external documentation
 - [x] Commit and push
 - [x] Mark GitHub issue and ticket done
+- [x] Add SAW026 to HCO20260714 release package
+- [x] Install on HCO Test release host `54.253.165.194`
+- [x] Harden migration for drifted client AD sequences
+- [x] Reapply successfully and confirm idempotency
+- [x] Run Admin WebUI create/link/cleanup smoke on Vehicle `S637CMD`
+- [x] Update SAW020 release and HCO deployment materials

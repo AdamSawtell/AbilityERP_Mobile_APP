@@ -42,3 +42,16 @@ survived Cache Reset; this is not normally required.
   complete for another agent.
 - If the target has a saved `AD_Tab_Customization`, the apply normalizes its
   grid field IDs and widths using that environment's local `AD_Field` records.
+- The HCO20260714 host `54.253.165.194` had `AD_Tab.currentnext=1000359`
+  while `MAX(AD_Tab_ID)=1000361`. The migration now advances the affected
+  `AD_Column`, `AD_Tab`, and `AD_Field` sequences before using `nextid`.
+
+## HCO20260714 release evidence
+
+| Item | HCO Test value (2026-07-17) | Notes |
+|---|---|---|
+| Host | `54.253.165.194` | Release HCO20260714 test environment |
+| Vehicle Activity tab | ID `1000362`; UU `7d14ac4f-5fef-4f1f-b917-026000000002` | 18 active fields |
+| Link column | `AbERP_Vehicle_ID`; Search reference UU `51ee0d93-0d9d-4d34-8b5b-e62a766c21fc` | Vehicle rendered `S637 CMD` |
+| Role access | AbilityERP Admin + Admin | Active/read-write |
+| Smoke result | Pass | Activity `1641178` saved against Vehicle `1000000` / `S637CMD`, then removed |

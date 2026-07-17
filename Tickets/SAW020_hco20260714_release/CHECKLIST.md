@@ -28,6 +28,7 @@
 | 9 | SAW015 | [x] | [x] | [x] | [x] | [ ] | Process + JAR |
 | 10 | SAW014 | [x] | [x] | [x] | [x] | [x] | Grid Email/Phone Pass |
 | 11 | SAW017 | [x] | [x] | [x] | [x] | [ ] | Bulk `160730` on dry-run 2026-07-16 (was `132235`) |
+| 12 | SAW026 | [x] | [x] | [x] | [x] | [x] | SQL-only; sequence drift fixed; create/link/cleanup Pass 2026-07-17 |
 
 ## Release readiness
 
@@ -37,3 +38,4 @@
 - [x] Smoke representative enhancement (SAW014) + Admin login
 - [x] Rollback notes recorded
 - [x] Production runbook (`DEPLOY.md` + report) matches actual steps
+- [x] SAW026 added to post-test Production package materials

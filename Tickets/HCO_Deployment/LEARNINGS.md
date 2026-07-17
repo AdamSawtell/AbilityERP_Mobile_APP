@@ -605,6 +605,38 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 
 ---
 
+## 2026-07-17 — SAW026 added to HCO20260714 Test release
+
+**Result:** Pass
+
+### What worked
+- SQL-only install on `54.253.165.194`; no restart required and WebUI remained HTTP 200.
+- Full verify and second idempotency apply passed.
+- Admin opened Vehicle `S637CMD`, confirmed the Activity tab and all five
+  types, and saved Activity `1641178` linked to Vehicle ID `1000000`.
+- The temporary Activity was removed after database linkage verification.
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| HCO's `AD_Tab` sequence (`1000359`) lagged the highest existing ID (`1000361`) | First transaction rolled back safely; migration now advances affected `AD_Column`, `AD_Tab`, and `AD_Field` sequences before `nextid` |
+| Typing `Email` into the ZK combo changes display text without committing the list value | Open the combo and click the visible list item before Save |
+| The Vehicle Activity child toolbar can be difficult to target in automation | Verify the saved row by description and `AbERP_Vehicle_ID`, then clean it up explicitly |
+
+### HCO local IDs (hints only — do not use in portable SQL)
+| Object | HCO20260714 Test ID | UU |
+|--------|---------------------|-----|
+| Vehicle window | 1000066 | `e6974bff-4ee3-4b8c-81b7-38936c74d93c` |
+| Vehicle Activity tab | 1000362 | `7d14ac4f-5fef-4f1f-b917-026000000002` |
+| Vehicle smoke record | 1000000 (`S637CMD`) | Existing client object; unchanged |
+
+### Ticket artefacts
+- `Tickets/SAW026_vehicle_activity_tab/`
+- `Tickets/SAW020_hco20260714_release/report/RELEASE-UPDATES.md`
+- `idempiere-plugins/com.aberp.contactactivity.tabs/sql/05-add-vehicle-activity-tab.sql`
+
+---
+
 <!-- Template for next entry:
 
 ## YYYY-MM-DD — SAW### short title

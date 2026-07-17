@@ -14,7 +14,7 @@
 
 **→ [`DEPLOY.md`](DEPLOY.md)** — Production Deployment Runbook from this dry run  
 **→ [`report/DEPLOYMENT-REPORT.md`](report/DEPLOYMENT-REPORT.md)** — full evidence log  
-**→ [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md)** — post dry-run bumps (SAW003 **`1517`** + SQL `25`/`26`, SAW017 `160730`) to fold into Production
+**→ [`report/RELEASE-UPDATES.md`](report/RELEASE-UPDATES.md)** — post dry-run additions and bumps (SAW003 **`1517`** + SQL `25`/`26`, SAW017 `160730`, SAW026 Vehicle Activity) to fold into Production
 
 ## External ticket (copy/paste)
 
@@ -38,6 +38,7 @@ Deploy the complete HCO20260714 release package to HCO Test in fixed order, vali
 | 9 | SAW015 | Skip Dates — Copy Dates From |
 | 10 | SAW014 | Support Location Email/Phone ColumnSQL |
 | 11 | SAW017 | Bulk Booking Generator |
+| 12 | SAW026 | Vehicle Activity tab |
 
 Per-ticket agent runbooks remain under each `Tickets/SAW###_…/DEPLOY.md`.
 

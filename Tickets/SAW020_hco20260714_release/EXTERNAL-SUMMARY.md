@@ -18,6 +18,7 @@
 | **Window** | Skip Dates | Copy Dates From process (SAW015) |
 | **Window** | Support Location | Email/Phone grid columns (SAW014) |
 | **Process** | Bulk Generate Bookings | New bulk generator (SAW017) |
+| **Window** | Vehicle | Activity tab for vehicle communication and follow-up (SAW026) |
 
 **Admin access:** Admin and AbilityERP Admin can use the new/changed Info Windows, processes, and menus introduced by this release.
 
@@ -29,7 +30,7 @@ The HCO20260714 package is being installed on HCO Test as a full production rehe
 
 ## What changed
 
-See the per-ticket external summaries linked from the internal registry. This release combines packins, Info Window improvements, activity tabs, support-day fields, timesheet approval grid, HCO Forms request-create safeguards, Skip Dates copy, Support Location contact columns, and Bulk Generate Bookings.
+See the per-ticket external summaries linked from the internal registry. This release combines packins, Info Window improvements, activity tabs, support-day fields, timesheet approval grid, HCO Forms request-create safeguards, Skip Dates copy, Support Location contact columns, Bulk Generate Bookings, and Vehicle Activity.
 
 ## Impact
 
@@ -39,8 +40,12 @@ See the per-ticket external summaries linked from the internal registry. This re
 ## How to test
 
 1. Log in as Admin on the HCO Test WebUI for this release host.  
-2. Smoke each area listed in the objects table (Paid filter, Staff search, Activity tabs, Support Days, Timesheet Approval, HCO Forms Create Request, Skip Dates Copy, Support Location grid contact, Bulk Generate Bookings).  
+2. Smoke each area listed in the objects table (Paid filter, Staff search, Activity tabs, Support Days, Timesheet Approval, HCO Forms Create Request, Skip Dates Copy, Support Location grid contact, Bulk Generate Bookings, Vehicle Activity).  
 3. Confirm menus/processes are visible to Admin.
+
+SAW026 was installed and tested on the HCO Test release host on 17 July 2026.
+Admin created an Email activity against Vehicle `S637CMD`, the database
+confirmed the correct Vehicle link, and the temporary record was removed.
 
 ## Notes / caveats
 

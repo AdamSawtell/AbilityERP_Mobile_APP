@@ -26,7 +26,8 @@ Status legend: `PENDING` · `IN PROGRESS` · `PASS` · `FAIL` · `BLOCKED` · `S
 | 9 | SAW015 Copy Dates From | PASS | SQL + JAR `7.1.0.202607131830` + restart |
 | 10 | SAW014 Support Location ColumnSQL | PASS | SQL 00→01→04; WebUI grid Email/Phone populated |
 | 11 | SAW017 Bulk Booking Generator | PASS | Initial dry run: bulk `…132235` + stack + SQL 00→04 · **Update 2026-07-16:** JAR-only → **`…160730`** (see RELEASE-UPDATES) |
-| 12 | Release post-validation | PASS | Markers green; WebUI 200; Admin login OK |
+| 12 | SAW026 Vehicle Activity | PASS | **Update 2026-07-17:** SQL apply + verify + idempotency; Admin create/link/cleanup smoke |
+| 13 | Release post-validation | PASS | Markers green; WebUI 200; Admin login OK |
 
 ---
 
@@ -50,6 +51,7 @@ Status legend: `PENDING` · `IN PROGRESS` · `PASS` · `FAIL` · `BLOCKED` · `S
 | 9 | SAW015 | plugin `sql/00,01,02,04` | PASS |
 | 10 | SAW014 | ticket `sql/00,01,04` | PASS |
 | 11 | SAW017 | plugin `sql/00…04` | PASS |
+| 12 | SAW026 | ticket `sql/01-APPLY.sql` → `sql/95-VERIFY.sql`; second apply | PASS |
 
 ---
 
@@ -86,6 +88,7 @@ Staging tarball on host: `/tmp/HCO20260714/` (packs + plugins + jars).
 | 2 | SAW018 | `hco_client` failed while server still warm / leftover Java | `systemctl/init.d stop` + `pkill equinox` → PackIn → start; success as `20260714212209_SYSTEM_hco_client.zip` (`1001032`) |
 | 3 | SAW018 | Stuck `ad_package_imp` Installing rows on baseline | `00-clear-stuck-package-imp.sql` |
 | 4 | Host | Ticket host `54.253.165.194` ≠ prior playbook `13.210.248.141` | Dry-run intentionally on fresh host; prior Test already had most tickets |
+| 5 | SAW026 | `AD_Tab.currentnext=1000359` lagged `MAX(AD_Tab_ID)=1000361`, causing a duplicate-key failure | Transaction rolled back safely; migration now advances affected AD sequences before `nextid`; reapply and idempotency passed |
 
 **No HCO `*_UU` values changed** for pre-existing objects (Support Location window UU remained `6ef3c558-3ec8-4f0c-be40-89f35d8acebf`).
 
@@ -106,6 +109,8 @@ Staging tarball on host: `/tmp/HCO20260714/` (packs + plugins + jars).
 | SAW017 DocAction → `BookingGen_DocList` | confirmed |
 | SAW009 Support Start/End Day fields | present |
 | Bundles.info staffinfo / skipdates / generator / bulk | registered |
+| SAW026 Vehicle Activity tab | ID `1000362`; fixed UU; 18 active fields |
+| SAW026 Activity Types / access | Five types enabled; AbilityERP Admin + Admin read/write |
 
 ### WebUI
 
@@ -114,6 +119,7 @@ Staging tarball on host: `/tmp/HCO20260714/` (packs + plugins + jars).
 | `http://54.253.165.194/webui/` | PASS | HTTP 200; title `AvERP HCO Test001 20260712` |
 | Admin login | PASS | SuperUser → Admin → Home |
 | SAW014 Support Location grid Email/Phone | PASS | Grid shows Email / Phone / 2nd Phone with values (e.g. Murray) |
+| SAW026 Vehicle Activity | PASS | Vehicle `S637CMD`; Activity tab and five types visible; Activity `1641178` saved against Vehicle `1000000`, then removed |
 | Additional window-by-window UI clicks | PARTIAL | After Support Location open, ZK global-search dblclick did not reliably open other windows in the same session; reopen via Menu after Cache Reset / new login at Production cutover |
 | Per-ticket verify SQL | PASS | Embedded in each install step |
 
@@ -133,6 +139,7 @@ Staging tarball on host: `/tmp/HCO20260714/` (packs + plugins + jars).
 | SAW015 | `sql/99-rollback.sql` + remove JAR |
 | SAW014 | `sql/99-rollback.sql` |
 | SAW017 | Deactivate process/menu + stop bulk bundle |
+| SAW026 | `Tickets/SAW026_vehicle_activity_tab/sql/99-ROLLBACK.sql`; retains link column and existing Activity data |
 
 Always Cache Reset after rollback.
 
@@ -144,6 +151,7 @@ Always Cache Reset after rollback.
 - [x] WebUI up  
 - [x] Verify SQL / markers green  
 - [x] Representative WebUI smoke (SAW014) + Admin login  
+- [x] SAW026 Vehicle Activity create/link/cleanup WebUI smoke  
 - [x] No HCO `*_UU` changed  
 - [x] LEARNINGS / host docs updated  
 - [x] **Ready for next HCO Production deployment**  
@@ -166,6 +174,7 @@ Always Cache Reset after rollback.
   - SAW015 Copy Dates From  
   - SAW014 Support Location grid Email/Phone  
   - SAW017 Bulk Generate Bookings Yes/No + Drafted DocAction  
+  - SAW026 Vehicle Activity tab, five types, focused grid, save/link/cleanup  
 
 ---
 
@@ -175,7 +184,7 @@ Always Cache Reset after rollback.
 2. Stage packs under `/tmp/HCO20260714/`.  
 3. SAW018: clear stuck → view SQL → mark employee.infopanel versions → **stop server fully** → PackIn each `yyyymmddHHMM_SYSTEM_hco_*.zip` one at a time → start → verify Support Location UU unchanged.  
 4. SAW001 SQL (no restart).  
-5. SAW003 SQL + JAR `1237` + restart.  
+5. SAW003 SQL through `26` + JAR `1.1.0.2026071517` + restart.  
 6. SAW007 SQL.  
 7. SAW009 SQL.  
 8. SAW010 SQL.  
@@ -183,7 +192,8 @@ Always Cache Reset after rollback.
 10. SAW015 SQL + JAR + restart.  
 11. SAW014 SQL.  
 12. SAW017 generator stack JARs + bulk JAR + SQL + restart.  
-13. Cache Reset · Admin smoke matrix · declare Production complete.
+13. SAW026 SQL apply + verify; Cache Reset / fresh login; Vehicle Activity smoke.  
+14. Cache Reset · Admin smoke matrix · declare Production complete.
 
 Per-ticket detail: each `Tickets/SAW###_…/DEPLOY.md` + Downloads `AbilityERP-ProdUpdate-SAW###_*`.
 
