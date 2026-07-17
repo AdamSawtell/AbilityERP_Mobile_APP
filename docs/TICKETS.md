@@ -47,10 +47,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW024 | `employee_open_findings` | idempiere | NDIS Audit Tool Employee → Open Findings (why / resolve / Zoom) | in-progress | [#24](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/24) | [`Tickets/SAW024_…`](../Tickets/SAW024_employee_open_findings/) |
 | SAW025 | `category_tab_summaries` | idempiere | Organisation Audit category tabs: population + 90d change + expanded KPIs | in-progress | [#25](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/25) | [`Tickets/SAW025_…`](../Tickets/SAW025_category_tab_summaries/) |
 | SAW026 | `vehicle_activity_tab` | idempiere | Standard Activity tab on Vehicle (`AbERP_Vehicle`) | done | [#26](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/26) | [`Tickets/SAW026_…`](../Tickets/SAW026_vehicle_activity_tab/) |
+| SAW027 | `activity_audit` | idempiere | Activity Audit — configurable nightly keyword review of Contact Activities | in-progress | [#27](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/27) | [`Tickets/SAW027_…`](../Tickets/SAW027_activity_audit/) |
 
 ## Next ID
 
-**SAW027**
+**SAW028**
 
 ## Naming reminder
 
