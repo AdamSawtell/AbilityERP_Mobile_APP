@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress |
+| **Status** | done |
 | **Kind** | idempiere |
 | **GitHub** | [#28](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/28) |
 | **Slug** | `SAW028_activity_viewer_links` |
