@@ -10,5 +10,5 @@
 - [x] Run Admin WebUI smoke test
 - [x] Produce staging and thin production update packs
 - [x] Complete deployment and external documentation
-- [ ] Commit and push
-- [ ] Mark GitHub issue and ticket done
+- [x] Commit and push
+- [x] Mark GitHub issue and ticket done
