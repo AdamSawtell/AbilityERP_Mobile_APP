@@ -10,7 +10,7 @@
 | Activity Audit Runs | Window | Nightly / historical process log |
 | Activity Audit Nightly | Process + scheduler | Scans Activities updated in last 24 hours |
 | Historical Activity Audit | Process | Date-range / new-term reprocess |
-| Open Activity | Process / button | Zoom to original Contact Activity |
+| Open Activity | Button on Review (SAW024-style) | Opens **Activity Viewer** on the linked Contact Activity |
 
 ## What’s done
 

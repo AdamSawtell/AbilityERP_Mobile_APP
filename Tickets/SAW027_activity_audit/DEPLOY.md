@@ -29,7 +29,9 @@ Yes — `com.aberp.activityaudit_7.1.0.202607171400.jar`
 9. `sql/08-seed-terms.sql`
 10. `sql/09-verify.sql`
 11. `sql/10-fix-review-grid.sql`
-12. `sql/11-fix-processing-column.sql` — adds physical `Processing` column (required for Open Activity button / grid load)
+12. `sql/11-fix-processing-column.sql` — adds physical `Processing` column (legacy; kept for pack compatibility)
+13. `sql/12-open-activity-button.sql` — dedicated `AbERP_OpenActivity` Button → Open Activity process (SAW024-style zoom to Activity Viewer)
+14. `sql/13-fix-terms-grid.sql` — Terms grid: PK field + `IsSingleRow=N`
 
 Or `deploy.sh` (build JAR + SQL + restart).
 

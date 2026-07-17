@@ -159,7 +159,14 @@ BEGIN
     'Configure organisation audit words and phrases for Activity scanning');
   SELECT ad_table_id INTO v_tid FROM ad_table WHERE tablename = 'AbERP_ActivityAuditTerm';
   v_tab := pg_temp.saw027_tab('27a02741-c0d4-4f01-8e15-000000000001', v_win_term, v_tid, 'Audit Terms', 10);
-  UPDATE ad_table SET ad_window_id = v_win_term WHERE ad_table_id = v_tid;
+  UPDATE ad_tab SET
+    issinglerow = 'N',
+    orderbyclause = 'AD_Org_ID, AuditWord, AbERP_ActivityAuditTerm_ID',
+    updated = NOW()
+  WHERE ad_tab_id = v_tab;
+  UPDATE ad_table SET ad_window_id = v_win_term, ishighvolume = 'N' WHERE ad_table_id = v_tid;
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f000-4f01-8e15-000000000001','AbERP_ActivityAuditTerm_ID','Activity Audit Term',0,'N','Y','N',0,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f00c-4f01-8e15-000000000001','AD_Client_ID','Client',5,'N','Y','N',5,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f001-4f01-8e15-000000000001','AD_Org_ID','Organisation',10,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f002-4f01-8e15-000000000001','AuditWord','Audit Word or Phrase',20,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f003-4f01-8e15-000000000001','Description','Description',30,'Y','N','N',30,'Y',3);

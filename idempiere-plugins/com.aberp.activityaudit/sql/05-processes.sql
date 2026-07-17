@@ -146,14 +146,16 @@ BEGIN
     RAISE EXCEPTION 'SAW027: Review tab missing — run 04 first';
   END IF;
 
-  -- Physical button column required — WebUI grid SELECTs displayed Button columns
+  -- Physical Open Activity button (SAW024 pattern) — also applied by 12-open-activity-button.sql
+  ALTER TABLE aberp_activityauditreview
+    ADD COLUMN IF NOT EXISTS aberp_openactivity character(1) DEFAULT NULL;
   ALTER TABLE aberp_activityauditreview
     ADD COLUMN IF NOT EXISTS processing character(1) NOT NULL DEFAULT 'N';
 
   -- Ensure a button column exists on review table (process button via AD_Column.AD_Process_ID)
   SELECT ad_column_id INTO v_col FROM ad_column
   WHERE ad_table_id = (SELECT ad_table_id FROM ad_tab WHERE ad_tab_id = v_tab)
-    AND columnname = 'Processing';
+    AND columnname = 'AbERP_OpenActivity';
   IF v_col IS NULL THEN
     INSERT INTO ad_column (
       ad_column_id, ad_client_id, ad_org_id, isactive,
@@ -167,20 +169,21 @@ BEGIN
     SELECT
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Column' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
-      'Open Activity', 0, 'Ab_ERP', 'Processing', t.ad_table_id,
+      'Open Activity', 0, 'Ab_ERP', 'AbERP_OpenActivity', t.ad_table_id,
       28, 1, 'N', 'N', 'N', 'Y',
-      'N', 250, 'N', 'N', 'N',
-      (SELECT ad_element_id FROM ad_element WHERE columnname = 'Processing' LIMIT 1),
+      'N', 5, 'N', 'N', 'N',
+      (SELECT ad_element_id FROM ad_element WHERE columnname = 'AbERP_OpenActivity' LIMIT 1),
       'N', 'Y', 'N',
-      v_open, '27a02704-c026-4f01-8e15-000000000001'
+      v_open, '27a02704-c027-4f01-8e15-000000000001'
     FROM ad_table t WHERE t.tablename = 'AbERP_ActivityAuditReview'
     RETURNING ad_column_id INTO v_col;
   ELSE
-    UPDATE ad_column SET ad_process_id = v_open, ad_reference_id = 28, updated = NOW()
+    UPDATE ad_column SET ad_process_id = v_open, ad_reference_id = 28,
+      columnsql = NULL, isupdateable = 'Y', isalwaysupdateable = 'Y', updated = NOW()
     WHERE ad_column_id = v_col;
   END IF;
 
-  SELECT ad_field_id INTO v_field FROM ad_field WHERE ad_field_uu = '27a02751-f018-4f01-8e15-000000000001';
+  SELECT ad_field_id INTO v_field FROM ad_field WHERE ad_field_uu = '27a02751-f019-4f01-8e15-000000000001';
   IF v_field IS NULL THEN
     INSERT INTO ad_field (
       ad_field_id, ad_client_id, ad_org_id, isactive,
@@ -193,9 +196,9 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Field' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Open Activity', 'N', v_tab, v_col,
-      'Y', 0, 'N', 125, 'Y',
+      'Y', 0, 'N', 15, 'Y',
       'N', 'N', 'N', 'Ab_ERP',
-      'N', 125, 4, 2, 1, '27a02751-f018-4f01-8e15-000000000001'
+      'Y', 15, 4, 2, 1, '27a02751-f019-4f01-8e15-000000000001'
     );
   END IF;
 

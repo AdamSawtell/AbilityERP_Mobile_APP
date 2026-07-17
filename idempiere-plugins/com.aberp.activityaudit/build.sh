@@ -7,11 +7,12 @@ PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
-VERSION="7.1.0.202607171400"
+VERSION="7.1.0.202607180715"
 JAR_NAME="com.aberp.activityaudit_${VERSION}.jar"
 
 BASE_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.base_*.jar | head -1)
 UTILS_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.adempiere.plugin.utils_*.jar | head -1)
+OSGI_JAR=$(ls "$IDEMPIERE_HOME"/plugins/org.eclipse.osgi_*.jar | head -1)
 
 if [ ! -f "$BASE_JAR" ] || [ ! -f "$UTILS_JAR" ]; then
   echo "Missing iDempiere base jars under $IDEMPIERE_HOME/plugins"
@@ -19,6 +20,9 @@ if [ ! -f "$BASE_JAR" ] || [ ! -f "$UTILS_JAR" ]; then
 fi
 
 CLASSPATH="$BASE_JAR:$UTILS_JAR"
+if [ -f "$OSGI_JAR" ]; then
+  CLASSPATH="$CLASSPATH:$OSGI_JAR"
+fi
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$CLASSES_DIR"

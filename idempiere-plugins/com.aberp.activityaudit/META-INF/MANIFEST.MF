@@ -2,10 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Activity Audit
 Bundle-SymbolicName: com.aberp.activityaudit
-Bundle-Version: 7.1.0.202607171400
+Bundle-Version: 7.1.0.202607180715
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.activityaudit
 Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: org.osgi.framework;version="1.8.0"
 Require-Bundle: org.adempiere.base;bundle-version="7.1.0",org.adempiere.plugin.utils;bundle-version="7.1.0"
 Service-Component: activityaudit-process.xml
 Export-Package: com.aberp.activityaudit.callout

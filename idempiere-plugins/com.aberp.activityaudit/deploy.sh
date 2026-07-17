@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607171400"
+VERSION="7.1.0.202607180715"
 SYMBOLIC="com.aberp.activityaudit"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -25,7 +25,8 @@ echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES
 echo "Applying AD SQL"
 for f in 00-preflight.sql 01-create-tables.sql 02-ad-references.sql 03-ad-table-columns.sql \
          04-windows.sql 05-processes.sql 06-menu-access.sql 07-scheduler.sql \
-         08-seed-terms.sql 09-verify.sql 10-fix-review-grid.sql 11-fix-processing-column.sql; do
+         08-seed-terms.sql 09-verify.sql 10-fix-review-grid.sql 11-fix-processing-column.sql \
+         12-open-activity-button.sql 13-fix-terms-grid.sql; do
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/saw027-$f"
   echo "  -> $f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/saw027-$f"
