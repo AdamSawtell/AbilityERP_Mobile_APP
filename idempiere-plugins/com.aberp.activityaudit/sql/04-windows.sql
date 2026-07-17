@@ -167,19 +167,20 @@ BEGIN
   UPDATE ad_table SET ad_window_id = v_win_term, ishighvolume = 'N' WHERE ad_table_id = v_tid;
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f000-4f01-8e15-000000000001','AbERP_ActivityAuditTerm_ID','Activity Audit Term',0,'N','Y','N',0,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f00c-4f01-8e15-000000000001','AD_Client_ID','Client',5,'N','Y','N',5,'N');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f001-4f01-8e15-000000000001','AD_Org_ID','Organisation',10,'Y');
+  -- Organisation hidden; Audit stamps via 14-format-audit-fieldgroup.sql
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f001-4f01-8e15-000000000001','AD_Org_ID','Organisation',10,'N','Y','N',10,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f002-4f01-8e15-000000000001','AuditWord','Audit Word or Phrase',20,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f003-4f01-8e15-000000000001','Description','Description',30,'Y','N','N',30,'Y',3);
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f004-4f01-8e15-000000000001','Category','Category',40,'Y','N','Y',40);
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f004-4f01-8e15-000000000001','Category','Category',40,'Y','N','N',40);
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f005-4f01-8e15-000000000001','RiskLevel','Risk Level',50,'Y','N','Y',50);
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f006-4f01-8e15-000000000001','MatchType','Match Type',60,'Y','N','N',60);
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f007-4f01-8e15-000000000001','IsActive','Active',70,'Y','N','Y',70);
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f008-4f01-8e15-000000000001','ValidFrom','Effective From',80,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f009-4f01-8e15-000000000001','ValidTo','Effective To',90,'Y','N','Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f010-4f01-8e15-000000000001','Created','Created',100,'Y','Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f011-4f01-8e15-000000000001','CreatedBy','Created By',110,'Y','Y','Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f012-4f01-8e15-000000000001','Updated','Updated',120,'Y','Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f013-4f01-8e15-000000000001','UpdatedBy','Updated By',130,'Y','Y','Y');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f010-4f01-8e15-000000000001','Created','Created',900,'Y','Y','N',900,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f011-4f01-8e15-000000000001','CreatedBy','Created By',910,'Y','Y','Y',910,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f012-4f01-8e15-000000000001','Updated','Updated',920,'Y','Y','N',920,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f013-4f01-8e15-000000000001','UpdatedBy','Updated By',930,'Y','Y','Y',930,'N');
 
   SELECT ad_table_id INTO v_tid FROM ad_table WHERE tablename = 'AbERP_ActivityAuditTermAudit';
   v_tab := pg_temp.saw027_tab('27a02742-c0d4-4f01-8e15-000000000001', v_win_term, v_tid, 'Change History', 20, NULL, 'AbERP_ActivityAuditTerm_ID');
@@ -222,8 +223,12 @@ BEGIN
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f013-4f01-8e15-000000000001','MatchedExtract','Matched Text Extract',130,'Y','Y','N',NULL,'N',4);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f014-4f01-8e15-000000000001','ReviewNotes','Review Notes',140,'Y','N','N',NULL,'N',3);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f015-4f01-8e15-000000000001','IsFollowUpRequired','Follow-Up Required',150,'Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f016-4f01-8e15-000000000001','AD_Org_ID','Organisation',160,'Y','Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f017-4f01-8e15-000000000001','ActivityUpdatedAudited','Activity Updated Audited',170,'Y','Y');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f016-4f01-8e15-000000000001','AD_Org_ID','Organisation',160,'N','Y','N',160,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f017-4f01-8e15-000000000001','ActivityUpdatedAudited','Activity Updated Audited',890,'Y','Y','N',890,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f020-4f01-8e15-000000000001','Created','Created',900,'Y','Y','N',900,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f021-4f01-8e15-000000000001','CreatedBy','Created By',910,'Y','Y','Y',910,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f022-4f01-8e15-000000000001','Updated','Updated',920,'Y','Y','N',920,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f023-4f01-8e15-000000000001','UpdatedBy','Updated By',930,'Y','Y','Y',930,'N');
 
   -- Runs window
   v_win_run := pg_temp.saw027_window(
@@ -246,6 +251,10 @@ BEGIN
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f011-4f01-8e15-000000000001','ReviewsReopened','Reopened',110,'Y','N','Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f012-4f01-8e15-000000000001','ErrorCount','Errors',120,'Y','N','Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02761-f013-4f01-8e15-000000000001','SummaryMsg','Summary',130,'Y','Y','N',NULL,'Y',3);
+  PERFORM pg_temp.saw027_field(v_tab,'27a02761-f014-4f01-8e15-000000000001','Created','Created',900,'Y','Y','N',900,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02761-f015-4f01-8e15-000000000001','CreatedBy','Created By',910,'Y','Y','Y',910,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02761-f016-4f01-8e15-000000000001','Updated','Updated',920,'Y','Y','N',920,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02761-f017-4f01-8e15-000000000001','UpdatedBy','Updated By',930,'Y','Y','Y',930,'N');
 
-  RAISE NOTICE 'SAW027 windows ready';
+  RAISE NOTICE 'SAW027 windows ready — run 14-format-audit-fieldgroup.sql for Audit field group wiring';
 END $$;

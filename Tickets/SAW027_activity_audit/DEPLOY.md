@@ -32,6 +32,7 @@ Yes — `com.aberp.activityaudit_7.1.0.202607171400.jar`
 12. `sql/11-fix-processing-column.sql` — adds physical `Processing` column (legacy; kept for pack compatibility)
 13. `sql/12-open-activity-button.sql` — dedicated `AbERP_OpenActivity` Button → Open Activity process (SAW024-style zoom to Activity Viewer)
 14. `sql/13-fix-terms-grid.sql` — Terms grid: PK field + `IsSingleRow=N`
+15. `sql/14-format-audit-fieldgroup.sql` — hide Organisation; Created/Created By/Updated/Updated By in Ab_ERP **Audit** field group (all three windows)
 
 Or `deploy.sh` (build JAR + SQL + restart).
 

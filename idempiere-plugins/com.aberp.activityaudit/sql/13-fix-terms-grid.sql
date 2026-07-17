@@ -98,7 +98,7 @@ BEGIN
     'AD_Client_ID','Client',5,'N','Y','N',5,'N');
 
   -- Keep primary grid columns visible
-  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f001-4f01-8e15-000000000001','AD_Org_ID','Organisation',10,'Y','N','N',10,'Y');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02741-f001-4f01-8e15-000000000001','AD_Org_ID','Organisation',10,'N','Y','N',10,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f002-4f01-8e15-000000000001','AuditWord','Audit Word or Phrase',20,'Y','N','N',20,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f003-4f01-8e15-000000000001','Description','Description',30,'Y','N','N',30,'Y',3);
   PERFORM pg_temp.saw027_field(v_tab,'27a02741-f004-4f01-8e15-000000000001','Category','Category',40,'Y','N','Y',40,'Y');

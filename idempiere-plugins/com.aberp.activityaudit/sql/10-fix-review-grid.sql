@@ -114,7 +114,7 @@ BEGIN
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f007-4f01-8e15-000000000001','HighestRiskLevel','Risk Level',70,'Y','Y','Y',70,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f008-4f01-8e15-000000000001','ReviewStatus','Review Status',80,'Y','N','N',80,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f009-4f01-8e15-000000000001','IsReviewed','Reviewed',90,'Y','N','Y',90,'Y');
-  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f012-4f01-8e15-000000000001','C_ContactActivity_ID','Activity',120,'Y','Y','N',120,'Y');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f012-4f01-8e15-000000000001','C_ContactActivity_ID','Activity',120,'N','Y','N',120,'N');
 
   RAISE NOTICE 'SAW027 Review grid fix applied (tab=%)', v_tab;
 END $$;
