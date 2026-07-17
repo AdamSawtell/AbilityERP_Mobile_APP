@@ -18,7 +18,7 @@
 
 ## Goal
 
-At the top of each Organisation Audit category tab, show population + 90-day change and the expanded readiness / findings / category KPI set, using the same two-column readonly UX.
+On the Organisation Audit lead page and each category tab, show readiness, findings and category KPIs in a grouped progressive layout with persistent plain-language calculation explanations.
 
 ## Source of truth
 
@@ -27,6 +27,8 @@ At the top of each Organisation Audit category tab, show population + 90-day cha
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/35-category-population-summary.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/36-fix-population-client-90d.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/37-category-kpi-expansion.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/38-roster-current-next-period.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/39-category-progressive-explainers.sql` |
 | Engine | `idempiere-plugins/com.aberp.compliance/src/com/aberp/compliance/ComplianceEngine.java` |
 | JAR | `com.aberp.compliance_7.1.0.202607170545` |
 

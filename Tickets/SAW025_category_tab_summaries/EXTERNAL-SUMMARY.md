@@ -2,7 +2,16 @@
 
 ## What’s done
 
-Each Organisation Audit category tab now starts with a **population summary**, a **90-day change**, and an expanded set of **readiness / findings / category KPIs** in the same two-column readonly layout as before.
+The Organisation Audit lead page and each category tab now use a cleaner progressive layout. Primary calculations include visible plain-language explanations; secondary trends and compliance breakdowns remain available in collapsed sections.
+
+### Page layout
+
+- **At a glance** — population, readiness, status and current findings, with calculation explanations
+- **Action required** — category-specific operational KPIs and a visible calculation guide
+- **Trends and ageing** — collapsed by default
+- **Compliance breakdown** — collapsed by default
+
+The lead page explains the overall readiness score, traffic light, total checks, compliant/warning/non-compliant/critical counts and refresh time.
 
 ## What changed
 
@@ -32,13 +41,16 @@ Readiness Score, Status (R/A/G), Open Findings, Critical Open, Open >7/30/90d, N
 
 ## Impact
 
-Admins get workforce, client, incident, roster and document context above the Open Findings list — without leaving the tab.
+Admins get workforce, client, incident, roster and document context above the Open Findings list without leaving the tab. Persistent explanations make the primary calculations understandable, while collapsed secondary sections reduce page clutter.
 
 ## How to test
 
 1. Open **Organisation Audit → Audit Hub**
-2. On each of Employee / Client / Incidents / Rostering / Documentation, confirm the summary and KPI fields at the top populate (not blank) and no error dialog appears
-3. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
+2. On the lead page, confirm explanations appear beside each overall calculation
+3. On each category tab, use form/detail view and confirm **At a glance** and **Action required** are open
+4. Confirm explanation text appears under population, readiness/status, findings and category action calculations
+5. Confirm **Trends and ageing** and **Compliance breakdown** are collapsed
+6. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
 
 ## Access
 
@@ -53,7 +65,7 @@ AbilityERP Admin already has the window/process from SAW023.
 
 | Object | Name | Notes |
 |--------|------|-------|
-| Window | NDIS Audit Tool | Population + KPI fields on category tabs |
+| Window | NDIS Audit Tool | Grouped KPI fields + persistent explainers |
 | Table/View | AbERP_ComplianceDashboard | Population columns + virtual KPI columns |
 | Table | AbERP_ComplianceSnapshot | `PopulationCount` |
 | DB functions | `aberp_compliance_*` | Live KPI calculations |

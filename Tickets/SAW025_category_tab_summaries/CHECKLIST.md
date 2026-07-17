@@ -9,4 +9,6 @@
 - [x] SQL `37-category-kpi-expansion.sql` — shared + category KPIs via DB functions
 - [x] Browser-smoke all five category tabs (no SQL modal; fields populated)
 - [x] SQL `38-roster-current-next-period.sql` — roster KPIs = current + next period only
+- [x] SQL `39-category-progressive-explainers.sql` — grouped lead/category layouts + persistent calculation explanations
+- [x] Browser-smoke lead page + all five category form views (groups + explainers; no SQL modal)
 - [ ] Client update packs (staging + thin prod) when ready for client install
