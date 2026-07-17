@@ -48,10 +48,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW025 | `category_tab_summaries` | idempiere | Organisation Audit category tabs: population + 90d change + expanded KPIs | in-progress | [#25](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/25) | [`Tickets/SAW025_…`](../Tickets/SAW025_category_tab_summaries/) |
 | SAW026 | `vehicle_activity_tab` | idempiere | Standard Activity tab on Vehicle (`AbERP_Vehicle`) | done | [#26](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/26) | [`Tickets/SAW026_…`](../Tickets/SAW026_vehicle_activity_tab/) |
 | SAW027 | `activity_audit` | idempiere | Activity Audit — configurable nightly keyword review of Contact Activities | in-progress | [#27](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/27) | [`Tickets/SAW027_…`](../Tickets/SAW027_activity_audit/) |
+| SAW028 | `activity_viewer_links` | idempiere | Activity Viewer — Client / Employee / Support Location link buttons | in-progress | [#28](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/28) | [`Tickets/SAW028_…`](../Tickets/SAW028_activity_viewer_links/) |
 
 ## Next ID
 
-**SAW028**
+**SAW029**
 
 ## Naming reminder
 

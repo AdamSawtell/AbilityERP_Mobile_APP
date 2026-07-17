@@ -9,6 +9,9 @@ import com.aberp.activityaudit.callout.CalloutActivityAuditReview;
 import com.aberp.activityaudit.process.ActivityAuditHistorical;
 import com.aberp.activityaudit.process.ActivityAuditNightly;
 import com.aberp.activityaudit.process.OpenActivity;
+import com.aberp.activityaudit.process.OpenActivityClient;
+import com.aberp.activityaudit.process.OpenActivityEmployee;
+import com.aberp.activityaudit.process.OpenActivitySupportLocation;
 
 public class ActivityAuditProcessFactory implements IProcessFactory, IColumnCalloutFactory {
 
@@ -22,6 +25,15 @@ public class ActivityAuditProcessFactory implements IProcessFactory, IColumnCall
 		}
 		if (OpenActivity.class.getName().equals(className)) {
 			return new OpenActivity();
+		}
+		if (OpenActivityClient.class.getName().equals(className)) {
+			return new OpenActivityClient();
+		}
+		if (OpenActivityEmployee.class.getName().equals(className)) {
+			return new OpenActivityEmployee();
+		}
+		if (OpenActivitySupportLocation.class.getName().equals(className)) {
+			return new OpenActivitySupportLocation();
 		}
 		return null;
 	}

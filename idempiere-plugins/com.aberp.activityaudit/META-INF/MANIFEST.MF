@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Activity Audit
 Bundle-SymbolicName: com.aberp.activityaudit
-Bundle-Version: 7.1.0.202607180830
+Bundle-Version: 7.1.0.202607180900
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.activityaudit
 Bundle-RequiredExecutionEnvironment: JavaSE-11
