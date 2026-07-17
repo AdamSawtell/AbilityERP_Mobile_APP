@@ -20,3 +20,4 @@
 - **SQL 38:** Rostering tab metrics are scoped to **current + next pay/roster period** only. Calendar 7d/14d coverage and the 90d period-average pair are removed from that tab.
 - Spot check after SQL 38: Current Roster **1866** / Next **1777**; Current Fill **98.0%** / Next **96.3%**.
 - **SQL 39:** the lead page and all five category form views show open **At a glance** / **Action required** sections with persistent explainers. **Trends and ageing** / **Compliance breakdown** are collapsed by default. Browser smoke passed with no SQL modal.
+- **SQL 40:** each Findings tab uses its parent’s population field in `AD_Tab.DisplayLogic`. The lead page therefore shows only Employee / Client / Incidents / Rostering / Documentation; selecting a category exposes only its own included Findings grid. Employee was browser-smoked with 195 findings and working **Open & Fix** controls.

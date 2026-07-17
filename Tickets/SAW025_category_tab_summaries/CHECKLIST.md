@@ -11,4 +11,6 @@
 - [x] SQL `38-roster-current-next-period.sql` — roster KPIs = current + next period only
 - [x] SQL `39-category-progressive-explainers.sql` — grouped lead/category layouts + persistent calculation explanations
 - [x] Browser-smoke lead page + all five category form views (groups + explainers; no SQL modal)
+- [x] SQL `40-findings-parent-only-navigation.sql` — Findings subtabs hidden until their category is selected
+- [x] Browser-smoke lead hierarchy + parent Findings grid/Open & Fix access
 - [ ] Client update packs (staging + thin prod) when ready for client install

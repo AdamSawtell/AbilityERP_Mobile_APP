@@ -29,6 +29,7 @@ On the Organisation Audit lead page and each category tab, show readiness, findi
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/37-category-kpi-expansion.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/38-roster-current-next-period.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/39-category-progressive-explainers.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/40-findings-parent-only-navigation.sql` |
 | Engine | `idempiere-plugins/com.aberp.compliance/src/com/aberp/compliance/ComplianceEngine.java` |
 | JAR | `com.aberp.compliance_7.1.0.202607170545` |
 

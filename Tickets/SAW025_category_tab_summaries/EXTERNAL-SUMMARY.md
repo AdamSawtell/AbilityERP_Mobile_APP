@@ -12,6 +12,7 @@ The Organisation Audit lead page and each category tab now use a cleaner progres
 - **Compliance breakdown** — collapsed by default
 
 The lead page explains the overall readiness score, traffic light, total checks, compliant/warning/non-compliant/critical counts and refresh time.
+The lead page now shows only the five category tabs. Findings subtabs are hidden there and become available only after opening their parent category.
 
 ## What changed
 
@@ -50,7 +51,9 @@ Admins get workforce, client, incident, roster and document context above the Op
 3. On each category tab, use form/detail view and confirm **At a glance** and **Action required** are open
 4. Confirm explanation text appears under population, readiness/status, findings and category action calculations
 5. Confirm **Trends and ageing** and **Compliance breakdown** are collapsed
-6. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
+6. Return to the lead page and confirm no Findings subtabs are visible
+7. Open each category and confirm its own Findings grid remains available with **Open & Fix**
+8. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
 
 ## Access
 
