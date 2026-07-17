@@ -28,7 +28,8 @@ for f in \
   23-source-record-zoom-field.sql \
   24-source-assignment-link.sql \
   25-assignment-label-toolbar.sql \
-  26-rename-org-audit-menu.sql
+  26-rename-org-audit-menu.sql \
+  27-restore-org-audit-menu.sql
 do
   echo "===== $f ====="
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$f"
