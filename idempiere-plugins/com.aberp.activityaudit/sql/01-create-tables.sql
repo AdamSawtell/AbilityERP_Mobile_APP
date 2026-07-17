@@ -108,10 +108,12 @@ CREATE TABLE IF NOT EXISTS aberp_activityauditreview (
   reviewnotes                  character varying(2000),
   isfollowuprequired           character(1) DEFAULT 'N',
   activityupdatedaudited       timestamp,
+  processing                   character(1) NOT NULL DEFAULT 'N',
   CONSTRAINT aberp_activityauditreview_pkey PRIMARY KEY (aberp_activityauditreview_id),
   CONSTRAINT aberp_activityauditreview_isactive_chk CHECK (isactive IN ('Y','N')),
   CONSTRAINT aberp_activityauditreview_isreviewed_chk CHECK (isreviewed IN ('Y','N')),
-  CONSTRAINT aberp_activityauditreview_isfollowup_chk CHECK (isfollowuprequired IN ('Y','N') OR isfollowuprequired IS NULL)
+  CONSTRAINT aberp_activityauditreview_isfollowup_chk CHECK (isfollowuprequired IN ('Y','N') OR isfollowuprequired IS NULL),
+  CONSTRAINT aberp_activityauditreview_processing_chk CHECK (processing IN ('Y','N'))
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS aberp_activityauditreview_uu_idx

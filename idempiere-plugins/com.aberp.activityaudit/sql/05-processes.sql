@@ -146,12 +146,15 @@ BEGIN
     RAISE EXCEPTION 'SAW027: Review tab missing — run 04 first';
   END IF;
 
-  -- Ensure a button column exists on review table (process button via AD_Field.AD_Process_ID)
+  -- Physical button column required — WebUI grid SELECTs displayed Button columns
+  ALTER TABLE aberp_activityauditreview
+    ADD COLUMN IF NOT EXISTS processing character(1) NOT NULL DEFAULT 'N';
+
+  -- Ensure a button column exists on review table (process button via AD_Column.AD_Process_ID)
   SELECT ad_column_id INTO v_col FROM ad_column
   WHERE ad_table_id = (SELECT ad_table_id FROM ad_tab WHERE ad_tab_id = v_tab)
     AND columnname = 'Processing';
   IF v_col IS NULL THEN
-    -- use virtual: create Processing column as Button
     INSERT INTO ad_column (
       ad_column_id, ad_client_id, ad_org_id, isactive,
       created, createdby, updated, updatedby,

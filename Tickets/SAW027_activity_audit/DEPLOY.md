@@ -28,6 +28,8 @@ Yes — `com.aberp.activityaudit_7.1.0.202607171400.jar`
 8. `sql/07-scheduler.sql`
 9. `sql/08-seed-terms.sql`
 10. `sql/09-verify.sql`
+11. `sql/10-fix-review-grid.sql`
+12. `sql/11-fix-processing-column.sql` — adds physical `Processing` column (required for Open Activity button / grid load)
 
 Or `deploy.sh` (build JAR + SQL + restart).
 

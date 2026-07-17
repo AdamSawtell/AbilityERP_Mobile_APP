@@ -183,7 +183,7 @@ BEGIN
   PERFORM pg_temp.saw027_field(v_tab,'27a02742-f005-4f01-8e15-000000000001','OldValue','Previous Value',50,'Y');
   PERFORM pg_temp.saw027_field(v_tab,'27a02742-f006-4f01-8e15-000000000001','NewValue','New Value',60,'Y');
 
-  -- Review window (outstanding default)
+  -- Review window (outstanding default) — grid-first for queue
   v_win_rev := pg_temp.saw027_window(
     '27a02750-c0d4-4f01-8e15-000000000001',
     'Activity Audit Review',
@@ -192,7 +192,14 @@ BEGIN
   v_tab := pg_temp.saw027_tab(
     '27a02751-c0d4-4f01-8e15-000000000001', v_win_rev, v_tid, 'Reviews', 10,
     'IsReviewed=''N'' AND ReviewStatus IN (''NW'',''UR'',''FU'',''IR'',''ES'')');
-  UPDATE ad_table SET ad_window_id = v_win_rev WHERE ad_table_id = v_tid;
+  UPDATE ad_tab SET
+    issinglerow = 'N',
+    orderbyclause = 'ActivityDate DESC, AbERP_ActivityAuditReview_ID DESC',
+    updated = NOW()
+  WHERE ad_tab_id = v_tab;
+  UPDATE ad_table SET ad_window_id = v_win_rev, ishighvolume = 'N' WHERE ad_table_id = v_tid;
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f000-4f01-8e15-000000000001','AbERP_ActivityAuditReview_ID','Activity Audit Review',0,'N','Y','N',0,'N');
+  PERFORM pg_temp.saw027_field(v_tab,'27a02751-f00c-4f01-8e15-000000000001','AD_Client_ID','Client',5,'N','Y','N',5,'N');
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f001-4f01-8e15-000000000001','ActivityDate','Activity Date',10,'Y','Y','N',10);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f002-4f01-8e15-000000000001','C_BPartner_ID','Client',20,'Y','Y','N',20);
   PERFORM pg_temp.saw027_field(v_tab,'27a02751-f003-4f01-8e15-000000000001','AD_User_ID','Employee',30,'Y','Y','Y',30);
