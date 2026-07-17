@@ -371,6 +371,131 @@ WHERE f.ad_tab_id = t.ad_tab_id
   AND t.name = 'Activity'
   AND tb.tablename = 'C_ContactActivity';
 
+-- Vehicle-specific form and grid layout. Keep this after field cloning so
+-- fresh installs and re-applies converge on the same portable configuration.
+-- User/Contact and the internal Contact Activity ID are not useful to users.
+UPDATE ad_field f
+SET isdisplayed = 'N',
+    isdisplayedgrid = 'N',
+    seqno = 0,
+    seqnogrid = 0,
+    updated = NOW(),
+    updatedby = 100
+FROM ad_tab t
+JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
+JOIN ad_column c ON c.ad_table_id = tb.ad_table_id
+WHERE f.ad_tab_id = t.ad_tab_id
+  AND c.ad_column_id = f.ad_column_id
+  AND w.name = 'Vehicle'
+  AND t.name = 'Activity'
+  AND tb.tablename = 'C_ContactActivity'
+  AND c.columnname IN ('AD_User_ID', 'C_ContactActivity_ID');
+
+-- Give Comments four visible lines (two more than the cloned two-line field).
+UPDATE ad_field f
+SET numlines = 4,
+    columnspan = 4,
+    updated = NOW(),
+    updatedby = 100
+FROM ad_tab t
+JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
+JOIN ad_column c ON c.ad_table_id = tb.ad_table_id
+WHERE f.ad_tab_id = t.ad_tab_id
+  AND c.ad_column_id = f.ad_column_id
+  AND w.name = 'Vehicle'
+  AND t.name = 'Activity'
+  AND tb.tablename = 'C_ContactActivity'
+  AND c.columnname = 'Comments';
+
+-- Keep the grid focused on operational Activity information. Hidden form
+-- fields, parent/context fields, IDs, and audit-user columns stay out.
+UPDATE ad_field f
+SET isdisplayedgrid = CASE
+      WHEN c.columnname IN (
+        'StartDate', 'ContactActivityType', 'Description', 'Comments',
+        'EndDate', 'IsComplete'
+      ) THEN 'Y'
+      ELSE 'N'
+    END,
+    seqnogrid = CASE c.columnname
+      WHEN 'StartDate' THEN 10
+      WHEN 'ContactActivityType' THEN 20
+      WHEN 'Description' THEN 30
+      WHEN 'Comments' THEN 40
+      WHEN 'EndDate' THEN 50
+      WHEN 'IsComplete' THEN 60
+      ELSE 0
+    END,
+    updated = NOW(),
+    updatedby = 100
+FROM ad_tab t
+JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
+JOIN ad_column c ON c.ad_table_id = tb.ad_table_id
+WHERE f.ad_tab_id = t.ad_tab_id
+  AND c.ad_column_id = f.ad_column_id
+  AND w.name = 'Vehicle'
+  AND t.name = 'Activity'
+  AND tb.tablename = 'C_ContactActivity';
+
+-- Existing user grid customizations override AD_Field. Normalize any rows
+-- created before this layout was installed, resolving local field IDs at
+-- runtime so the migration remains portable between client databases.
+WITH grid_fields AS (
+  SELECT t.ad_tab_id,
+         string_agg(
+           f.ad_field_id::TEXT,
+           ',' ORDER BY CASE c.columnname
+             WHEN 'StartDate' THEN 10
+             WHEN 'ContactActivityType' THEN 20
+             WHEN 'Description' THEN 30
+             WHEN 'Comments' THEN 40
+             WHEN 'EndDate' THEN 50
+             WHEN 'IsComplete' THEN 60
+           END
+         ) || ';' ||
+         string_agg(
+           CASE c.columnname
+             WHEN 'StartDate' THEN '160px'
+             WHEN 'ContactActivityType' THEN '150px'
+             WHEN 'Description' THEN '280px'
+             WHEN 'Comments' THEN '320px'
+             WHEN 'EndDate' THEN '160px'
+             WHEN 'IsComplete' THEN '90px'
+           END,
+           ',' ORDER BY CASE c.columnname
+             WHEN 'StartDate' THEN 10
+             WHEN 'ContactActivityType' THEN 20
+             WHEN 'Description' THEN 30
+             WHEN 'Comments' THEN 40
+             WHEN 'EndDate' THEN 50
+             WHEN 'IsComplete' THEN 60
+           END
+         ) AS custom
+  FROM ad_tab t
+  JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+  JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
+  JOIN ad_field f ON f.ad_tab_id = t.ad_tab_id
+  JOIN ad_column c ON c.ad_column_id = f.ad_column_id
+  WHERE w.name = 'Vehicle'
+    AND t.name = 'Activity'
+    AND tb.tablename = 'C_ContactActivity'
+    AND c.columnname IN (
+      'StartDate', 'ContactActivityType', 'Description', 'Comments',
+      'EndDate', 'IsComplete'
+    )
+  GROUP BY t.ad_tab_id
+)
+UPDATE ad_tab_customization tc
+SET custom = gf.custom,
+    isactive = 'Y',
+    updated = NOW(),
+    updatedby = 100
+FROM grid_fields gf
+WHERE tc.ad_tab_id = gf.ad_tab_id;
+
 -- Enable the five SAW007 Activity Types for Vehicle.
 DO $$
 DECLARE

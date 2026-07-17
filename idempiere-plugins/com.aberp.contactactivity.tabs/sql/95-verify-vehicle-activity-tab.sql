@@ -50,6 +50,26 @@ WHERE w.name = 'Vehicle'
   AND r.name IN ('AbilityERP Admin', 'Admin')
 ORDER BY r.name;
 
+SELECT c.columnname, f.name, f.seqno, f.isdisplayed,
+       f.seqnogrid, f.isdisplayedgrid, f.numlines
+FROM ad_field f
+JOIN ad_tab t ON t.ad_tab_id = f.ad_tab_id
+JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+JOIN ad_table tb ON tb.ad_table_id = t.ad_table_id
+JOIN ad_column c ON c.ad_column_id = f.ad_column_id
+WHERE w.name = 'Vehicle'
+  AND t.name = 'Activity'
+  AND tb.tablename = 'C_ContactActivity'
+ORDER BY f.seqnogrid, f.seqno, c.columnname;
+
+SELECT tc.ad_user_id, tc.isactive, tc.custom
+FROM ad_tab_customization tc
+JOIN ad_tab t ON t.ad_tab_id = tc.ad_tab_id
+JOIN ad_window w ON w.ad_window_id = t.ad_window_id
+WHERE w.name = 'Vehicle'
+  AND t.name = 'Activity'
+ORDER BY tc.ad_user_id;
+
 SELECT COUNT(*) AS activities_linked_to_vehicle
 FROM c_contactactivity
 WHERE aberp_vehicle_id IS NOT NULL;

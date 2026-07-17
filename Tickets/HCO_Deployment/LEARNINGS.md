@@ -588,6 +588,8 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 | The top toolbar New action creates a new parent Vehicle even while the Activity grid is visible | Use the child grid’s own **+** control to create a child Activity |
 | Typing list text does not commit the underlying Activity Type value | Open the combo arrow and select the list item before saving |
 | A generic Table Direct Vehicle link inherits the numeric parent but can render as `~-1~` | Use the existing `AbERP_Vehicle` Search reference (`51ee0d93-0d9d-4d34-8b5b-e62a766c21fc`); WebUI now renders `S637 CMD`, and the saved row still joins to Vehicle ID `1000000` |
+| `AD_Tab_Customization` overrides `AD_Field.IsDisplayedGrid` and `SeqNoGrid` | Normalize existing customization rows with runtime-resolved field IDs; the Vehicle Activity grid now shows only Start Date, Activity Type, Description, Comments, End Date, and Complete |
+| HCO Test001 retained the old window definition after Cache Reset and a fresh login | Restart the staging iDempiere service only when Cache Reset does not refresh changed tab metadata |
 
 ### HCO local IDs (hints only — do not use in portable SQL)
 | Object | HCO Test001 ID | UU |

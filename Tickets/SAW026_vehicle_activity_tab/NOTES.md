@@ -24,6 +24,10 @@
 | Vehicle Activity tab | ID `1000364`; UU `7d14ac4f-5fef-4f1f-b917-026000000002` | 18 active fields; sequence 45 |
 | Activity Types | `EM`, `ME`, `PC`, `CN`, `TA` | All enabled for Vehicle |
 | Role access | AbilityERP Admin + Admin | Existing grants confirmed active/read-write |
-| Smoke result | Pass | Admin created Activity `1641183`; Vehicle rendered as `S637 CMD`; DB linked `AbERP_Vehicle_ID=1000000`; smoke row deleted |
+| Vehicle Activity layout | Base `AD_Field` plus existing `AD_Tab_Customization` rows | User/Contact and Contact Activity hidden; Comments four lines; six-column operational grid |
+| Smoke result | Pass | Vehicle rendered as `S637 CMD`; grid showed Start Date, Activity Type, Description, Comments, End Date, and Complete |
 
-No JAR or restart is required. Apply `sql/05-add-vehicle-activity-tab.sql`, log out/in, and run `sql/95-verify-vehicle-activity-tab.sql`.
+No JAR is required. Apply `sql/05-add-vehicle-activity-tab.sql`, run Cache
+Reset or log out/in, and run `sql/95-verify-vehicle-activity-tab.sql`. HCO
+Test001 required one service restart because its global window-definition cache
+survived Cache Reset; this is not normally required.

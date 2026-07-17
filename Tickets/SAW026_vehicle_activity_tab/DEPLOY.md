@@ -52,9 +52,12 @@ Install SQL grants the existing parent window to **AbilityERP Admin** and, where
 
 1. Log out/in as Admin after installation.
 2. Open **Vehicle** and select an existing vehicle.
-3. Open **Activity** and create a record.
-4. Confirm Activity Type offers Email, Meeting, Phone call, Case Note, and Task.
-5. Save and confirm the activity remains linked to the selected Vehicle.
+3. Open **Activity** and confirm the grid shows Start Date, Activity Type,
+   Description, Comments, End Date, and Complete only.
+4. Confirm User/Contact and Contact Activity are hidden, and Comments uses four lines.
+5. Create a record and confirm Activity Type offers Email, Meeting, Phone call,
+   Case Note, and Task.
+6. Save and confirm the activity remains linked to the selected Vehicle.
 
 ## Staging evidence
 
@@ -65,6 +68,9 @@ Install SQL grants the existing parent window to **AbilityERP Admin** and, where
 - **Types:** `EM`, `ME`, `PC`, `CN`, and `TA` all enabled
 - **Access:** AbilityERP Admin and Admin active/read-write
 - **WebUI:** Admin opened Vehicle `S637CMD`, saw all five options, and created Activity `1641183` with Vehicle displayed as `S637 CMD`
+- **Layout:** User/Contact and Contact Activity hidden from form/grid; Comments set to four lines; grid reduced to six operational columns
+- **Customization override:** existing `AD_Tab_Customization` rows are normalized with dynamically resolved field IDs, so stale user layouts cannot restore hidden fields
+- **Layout smoke:** pass after Cache Reset/service restart and reopening Vehicle; grid showed Start Date, Activity Type, Description, Comments, End Date, and Complete
 - **Parent link:** database join confirmed `C_ContactActivity.AbERP_Vehicle_ID=1000000` → Vehicle `S637CMD`
 - **Cleanup:** the staging smoke Activity was deleted after verification
 
