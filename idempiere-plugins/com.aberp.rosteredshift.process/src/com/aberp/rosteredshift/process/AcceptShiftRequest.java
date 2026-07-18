@@ -76,22 +76,15 @@ public class AcceptShiftRequest extends SvrProcess {
 			throw new AdempiereException("Requesting user has no linked business partner (employee)");
 		}
 
-		if (hasConfirmedAssignee(shiftId, staffBPartnerId, userContactId)) {
-			throw new AdempiereException("This shift is already assigned to another worker");
-		}
-
-		if (hasAnyAssignedStaff(shiftId)) {
-			throw new AdempiereException("This shift already has an employee assigned on the Employee tab");
+		// Multi-staff shifts can have some lines filled and others vacant.
+		// Vacancy = active Employee line with no AbERP_User_Contact_ID (matches AbERP_NoOfUnfilledStaff).
+		if (isWorkerAlreadyOnShift(shiftId, userContactId, staffBPartnerId)) {
+			throw new AdempiereException("This worker is already assigned on the Employee tab");
 		}
 
 		PO shiftStaff = findOpenStaffLine(shiftId);
 		if (shiftStaff == null) {
-			shiftStaff = createStaffLine(shiftId, responseLog.getAD_Client_ID(), responseLog.getAD_Org_ID());
-		}
-
-		if (getInt(shiftStaff.get_Value("C_BPartner_Staff_ID")) > 0
-				&& getInt(shiftStaff.get_Value("C_BPartner_Staff_ID")) != staffBPartnerId) {
-			throw new AdempiereException("Shift staff line is already allocated");
+			throw new AdempiereException("This shift has no vacant employee slot");
 		}
 
 		shiftStaff.set_ValueOfColumn("C_BPartner_Staff_ID", staffBPartnerId);
@@ -113,49 +106,23 @@ public class AcceptShiftRequest extends SvrProcess {
 		return "@Processed@";
 	}
 
+	/** Open Employee slot: active line with no user contact (same rule as AbERP_NoOfUnfilledStaff). */
 	private PO findOpenStaffLine(int shiftId) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
-				+ "AND (C_BPartner_Staff_ID IS NULL OR C_BPartner_Staff_ID=0)";
+				+ "AND COALESCE(AbERP_User_Contact_ID,0)=0";
 		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
 				.setParameters(shiftId)
 				.setOrderBy("Line ASC")
 				.first();
 	}
 
-	private PO createStaffLine(int shiftId, int clientId, int orgId) {
-		final int nextLine = DB.getSQLValue(get_TrxName(),
-				"SELECT COALESCE(MAX(Line),0)+10 FROM AbERP_Rostered_ShiftStaff WHERE AbERP_Rostered_Shift_ID=?",
-				shiftId);
-
-		final PO shiftStaff = MTable.get(getCtx(), TABLE_SHIFT_STAFF).getPO(0, get_TrxName());
-		shiftStaff.set_ValueOfColumn("AD_Client_ID", clientId);
-		shiftStaff.set_ValueOfColumn("AD_Org_ID", orgId);
-		shiftStaff.set_ValueOfColumn("AbERP_Rostered_Shift_ID", shiftId);
-		shiftStaff.set_ValueOfColumn("Line", nextLine > 0 ? nextLine : 10);
-		shiftStaff.set_ValueOfColumn("AbERP_RequestShift", "N");
-		shiftStaff.set_ValueOfColumn("AbERP_ClockIn", "N");
-		shiftStaff.set_ValueOfColumn("AbERP_ClockOut", "N");
-		return shiftStaff;
-	}
-
-	private boolean hasAnyAssignedStaff(int shiftId) {
+	private boolean isWorkerAlreadyOnShift(int shiftId, int userContactId, int staffBPartnerId) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
-				+ "AND COALESCE(AbERP_User_Contact_ID,0) > 0";
+				+ "AND (AbERP_User_Contact_ID=? OR C_BPartner_Staff_ID=?)";
 		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
-				.setParameters(shiftId)
-				.match();
-	}
-
-	private boolean hasConfirmedAssignee(int shiftId, int staffBPartnerId, int userContactId) {
-		final String whereClause = ""
-				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
-				+ "AND C_BPartner_Staff_ID IS NOT NULL AND C_BPartner_Staff_ID > 0 "
-				+ "AND (AbERP_RequestShift IS NULL OR AbERP_RequestShift <> 'Y') "
-				+ "AND C_BPartner_Staff_ID <> ? AND AbERP_User_Contact_ID <> ?";
-		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
-				.setParameters(shiftId, staffBPartnerId, userContactId)
+				.setParameters(shiftId, userContactId, staffBPartnerId)
 				.match();
 	}
 
@@ -202,7 +169,14 @@ public class AcceptShiftRequest extends SvrProcess {
 	}
 
 	private static boolean isYes(Object value) {
-		return "Y".equals(String.valueOf(value));
+		if (value == null) {
+			return false;
+		}
+		if (value instanceof Boolean) {
+			return ((Boolean) value).booleanValue();
+		}
+		final String s = String.valueOf(value);
+		return "Y".equalsIgnoreCase(s) || "true".equalsIgnoreCase(s);
 	}
 
 	private static int getInt(Object value) {

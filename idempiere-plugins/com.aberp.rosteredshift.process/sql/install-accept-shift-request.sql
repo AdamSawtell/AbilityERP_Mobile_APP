@@ -260,7 +260,7 @@ SELECT
   0, 0, 'Y', NOW(), 100, NOW(), 100,
   'Accept Shift Request', 'N', tab.ad_tab_id, c.ad_column_id,
   'Y',
-  '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
+  '@IsReviewed@!Y & @IsSuperseded@!Y',
   1, 'N', 55,
   'N', 'N', 'N', 'N', 'Ab_ERP',
   'Y', 2, 1, 2,
@@ -376,7 +376,7 @@ SET isactive = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
     istoolbarbutton = 'N',
-    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@IsReviewed@!Y & @IsSuperseded@!Y',
     seqno = 55,
     seqnogrid = 35,
     columnspan = 2,
@@ -406,7 +406,7 @@ WHERE f.ad_tab_id = tab.ad_tab_id
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
