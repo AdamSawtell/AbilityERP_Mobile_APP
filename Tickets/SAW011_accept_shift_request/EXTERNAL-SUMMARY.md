@@ -15,7 +15,13 @@
 | **Button / column** | Accept Shift Request (`AbERP_AcceptShiftRequest`) | **New** on Response Log |
 | **Menu** | *(none new)* | Uses existing Shift (Rostered) menu |
 
-**Admin access:** AbilityERP Admin (and Rostering Officer) have process access so Accept is visible and runnable.
+**Admin access:**
+
+| Access | Name | Search key |
+|--------|------|------------|
+| Process | Accept Shift Request | `SHIFT_ACCEPT_REQUEST` |
+
+Granted to AbilityERP Admin, Admin, and Rostering / Rostering TL / Rostering Officer when those roles exist.
 
 ---
 
@@ -48,5 +54,5 @@ Rostering officers can **Accept Shift Request** from a worker’s **Yes – Requ
 ## Notes / caveats
 
 - Install includes a Java plugin — restart iDempiere, then log out/in.
-- Published status uses a configured Shift Status on the build; confirm “Published” resolves correctly on the target client.
+- Published status uses Shift Status → **Published** by name (portable across clients).
 - Do not clear the full OSGi cache as a “fix” (can break other AbERP plugins).

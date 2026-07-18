@@ -6,7 +6,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607092140"
+VERSION="7.1.0.202607181300"
 SYMBOLIC="com.aberp.rosteredshift.acceptrequest"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -54,28 +54,28 @@ sudo sed -i "/^${SYMBOLIC},/d" "$BUNDLES_INFO"
 echo "${SYMBOLIC},${VERSION},plugins/${JAR_NAME},4,true" | sudo tee -a "$BUNDLES_INFO" >/dev/null
 
 echo "Applying AD registration SQL"
-sudo cp "$PLUGIN_DIR/sql/register-accept-shift-request.sql" /tmp/register-accept-shift-request.sql
-sudo cp "$PLUGIN_DIR/sql/add-accept-button-field.sql" /tmp/add-accept-button-field.sql
-sudo -u postgres psql -d idempiere -f /tmp/register-accept-shift-request.sql
-sudo -u postgres psql -d idempiere -f /tmp/add-accept-button-field.sql
-sudo cp "$PLUGIN_DIR/sql/grant-process-access-roles.sql" /tmp/grant-process-access-roles.sql
-sudo -u postgres psql -d idempiere -f /tmp/grant-process-access-roles.sql
-sudo cp "$PLUGIN_DIR/sql/update-accept-button-displaylogic.sql" /tmp/update-accept-button-displaylogic.sql
-sudo -u postgres psql -d idempiere -f /tmp/update-accept-button-displaylogic.sql
-if [ -f "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" ]; then
-  sudo cp "$PLUGIN_DIR/sql/enable-accept-button-safe.sql" /tmp/enable-accept-button-safe.sql
-  sudo -u postgres psql -d idempiere -f /tmp/enable-accept-button-safe.sql
-fi
+sudo cp "$PLUGIN_DIR/sql/install-accept-shift-request.sql" /tmp/install-accept-shift-request.sql
+sudo -u postgres psql -d idempiere -f /tmp/install-accept-shift-request.sql
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache — that breaks dynamically installed AbERP plugins)"
 sudo systemctl restart idempiere
-sleep 25
+
+echo "Waiting for WebUI (up to 6 minutes — do not telnet OSGi during startup)"
+for i in $(seq 1 24); do
+  sleep 15
+  CODE=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/webui/ || echo 000)
+  echo "  attempt $i: HTTP $CODE"
+  if [ "$CODE" = "200" ]; then
+    break
+  fi
+done
+
 sudo systemctl is-active idempiere
-sudo systemctl status idempiere --no-pager -l | head -15
+curl -s -o /dev/null -w 'WebUI HTTP %{http_code}\n' http://127.0.0.1:8080/webui/
 
 CHUBOE_UTILS="/opt/chuboe/idempiere-installation-script/utils"
 if [ -d "$CHUBOE_UTILS" ]; then
-  echo "Ensuring ${SYMBOLIC} bundle is ACTIVE"
+  echo "Ensuring ${SYMBOLIC} bundle is ACTIVE (after WebUI is up)"
   cd "$CHUBOE_UTILS"
   BUNDLE_ID=$(sudo -u idempiere ./chuboe_osgi_ss.sh 2>/dev/null | grep "${SYMBOLIC}" | awk '{print $1}')
   STATE=$(sudo -u idempiere ./chuboe_osgi_ss.sh 2>/dev/null | grep "${SYMBOLIC}" | awk '{print $2}')

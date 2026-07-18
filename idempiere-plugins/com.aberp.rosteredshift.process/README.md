@@ -29,11 +29,16 @@ Requires Java 11 and iDempiere at `/opt/idempiere-server`.
 ./deploy.sh
 ```
 
-This copies the JAR to `customization-jar/` and `plugins/`, registers the OSGi bundle, runs:
+This copies the JAR to `customization-jar/` and `plugins/`, registers the OSGi bundle, and runs:
 
-- `sql/register-accept-shift-request.sql` (process + **process access for Admin / Rostering Officer**)
-- `sql/add-accept-button-field.sql`
-- `sql/enable-accept-button-safe.sql` (if present)
+- `sql/install-accept-shift-request.sql` (process, button field, display logic, **process access for Admin / Rostering Officer**)
+
+For manual install on another build (JAR + SQL only):
+
+```bash
+sudo -u postgres psql -d idempiere -f sql/install-accept-shift-request.sql
+sudo systemctl restart idempiere
+```
 
 See **`docs/DEV-REQUIREMENTS.md`** — every new process/button must grant `AD_Process_Access` to **AbilityERP Admin** (`AD_Role_ID = 1000004`).
 

@@ -16,8 +16,9 @@ public class AcceptShiftRequest extends SvrProcess {
 	private static final String TABLE_SHIFT = "AbERP_Rostered_Shift";
 	private static final String TABLE_SHIFT_STAFF = "AbERP_Rostered_ShiftStaff";
 	private static final String RESPONSE_REQUEST = "REQ";
-	/** Shift Status → Published (r_status.value = PUB, category Shift Status). */
-	private static final int STATUS_PUBLISHED_ID = 1000040;
+	/** Shift Status category name — R_Status_ID differs per client; resolve at runtime. */
+	private static final String STATUS_CATEGORY_SHIFT = "Shift Status";
+	private static final String STATUS_PUBLISHED_NAME = "Published";
 
 	@Override
 	protected void prepare() {
@@ -165,10 +166,30 @@ public class AcceptShiftRequest extends SvrProcess {
 		if (shift.get_Value("AbERP_IsShowingAsAvailable") != null) {
 			shift.set_ValueOfColumn("AbERP_IsShowingAsAvailable", "N");
 		}
-		shift.set_ValueOfColumn("R_Status_ID", STATUS_PUBLISHED_ID);
+		shift.set_ValueOfColumn("R_Status_ID", resolvePublishedStatusId());
 		if (!shift.save()) {
 			throw new AdempiereException("Worker assigned but failed to publish shift");
 		}
+	}
+
+	/**
+	 * Resolve Published under Shift Status by name (portable across clients).
+	 * Seed/dev often used 1000040; HCO builds use a different R_Status_ID.
+	 */
+	private int resolvePublishedStatusId() {
+		final int statusId = DB.getSQLValue(get_TrxName(),
+				"SELECT s.R_Status_ID FROM R_Status s"
+						+ " INNER JOIN R_StatusCategory c ON c.R_StatusCategory_ID=s.R_StatusCategory_ID"
+						+ " WHERE s.IsActive='Y' AND c.IsActive='Y'"
+						+ " AND c.Name=? AND s.Name=?"
+						+ " ORDER BY s.R_Status_ID"
+						+ " LIMIT 1",
+				STATUS_CATEGORY_SHIFT, STATUS_PUBLISHED_NAME);
+		if (statusId <= 0) {
+			throw new AdempiereException(
+					"Published status not found under category '" + STATUS_CATEGORY_SHIFT + "'");
+		}
+		return statusId;
 	}
 
 	private static boolean isYes(Object value) {

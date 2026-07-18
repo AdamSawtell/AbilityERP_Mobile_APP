@@ -6,6 +6,7 @@ Living home for installing AbilityERP tickets onto the **HCO** customer build. A
 |--|--|
 | **Host (HCO20260714 dry run)** | `54.253.165.194` (hostname `ip-172-31-3-32`) — release ticket [`SAW020`](../SAW020_hco20260714_release/) |
 | **Host (prior Test)** | `13.210.248.141` (hostname `Test`) — previous IPs `32.236.127.117` retired; most tickets already installed here 2026-07-12/13 |
+| **Host (SAW011 / current work)** | `3.27.207.215` (hostname `ip-172-31-4-174`) — SAW011 Accept Shift Request installed 2026-07-18 |
 | **WebUI** | `http://54.253.165.194/webui/` (dry run) · `http://13.210.248.141/webui/` (prior Test) |
 | **SSH** | `ubuntu@<host>` — key `C:\Users\sawte\Documents\SSH Keys\HCObusiness.pem` (also `C:\Users\sawte\.ssh\HCObusiness.pem`; OpenSSH needs user-only ACL). Prefer `ssh` stdin upload over multi-file `scp` if SCP hangs; kill stale local `ssh.exe`/`scp.exe` if connects stall. |
 | **WebUI login** | `SuperUser` / `HCOflamingo` |
@@ -51,7 +52,7 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 |--------|--------|
 | [SAW003](../SAW003_staff_rostering_info/NOTES.md#hco-future-deployments-variables) | Staff Rostering Info on Shift (Rostered) → Employee — HCO install 2026-07-12 |
 | [SAW007](../SAW007_activity_tab_integration/NOTES.md#hco-future-deployments-variables) | Activity tabs on BG / Service Booking / Service Agreement — HCO install 2026-07-12 |
-| [SAW010](../SAW010_timesheet_approval_info_columns/NOTES.md#hco-future-deployments-variables) | Timesheet Approval Info columns — HCO install 2026-07-12 |
+| [SAW011](../SAW011_accept_shift_request/NOTES.md#hco-future-deployments-variables) | Accept Shift Request — host `3.27.207.215` install 2026-07-18 (Published lookup + role names) |
 | [SAW009](../SAW009_support_day_pattern_number/NOTES.md#hco-future-deployments-variables) | Support Start/End Day pattern numbers — HCO install 2026-07-12 |
 | [SAW001](../SAW001_paid_filter_invoice_send_info/NOTES.md#hco-future-deployments-variables) | Paid filter Info Window — first HCO install 2026-07-12 |
 | [SAW014](../SAW014_support_location_contact_grid/NOTES.md#hco-future-deployments-variables) | Support Location Email/Phone grid ColumnSQL — HCO install 2026-07-13 |

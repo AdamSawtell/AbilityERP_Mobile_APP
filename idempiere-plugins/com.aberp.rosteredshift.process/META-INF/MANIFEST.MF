@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Rostered Shift Accept Request
 Bundle-SymbolicName: com.aberp.rosteredshift.acceptrequest
-Bundle-Version: 7.1.0.202607092140
+Bundle-Version: 7.1.0.202607181300
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.rosteredshift.acceptrequest
 Bundle-RequiredExecutionEnvironment: JavaSE-11

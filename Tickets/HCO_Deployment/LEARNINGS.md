@@ -2,6 +2,24 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-18 — SAW011 Accept Shift Request on `3.27.207.215`
+
+**Host:** `3.27.207.215` (`ip-172-31-4-174`) — key `Documents\SSH Keys\HCObusiness.pem`.  
+**Result:** Pass (AD + JAR); full WebUI accept smoke deferred pending scoped update.  
+**Action:** Built/installed `com.aberp.rosteredshift.acceptrequest_7.1.0.202607181300.jar` + `install-accept-shift-request.sql`; restart; WebUI 200; bundle ACTIVE.  
+**No `*_UU` changes.**
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| Published `R_Status_ID` 1000040 is **Active** on this build; Published is **1000058** | Java now resolves Published by name under Shift Status |
+| No role named Rostering Officer | Grant Admin, Rostering, Rostering TL by name |
+| PG rejects `UPDATE f … JOIN c ON c.id = f.id` | Fixed install SQL comma-join pattern |
+
+### Ticket artefacts
+- `Tickets/SAW011_accept_shift_request/NOTES.md`
+- `idempiere-plugins/com.aberp.rosteredshift.process/`
+
 ## 2026-07-16 — SAW003 JAR `1517` + SQL `25`/`26` on HCO20260714 host
 
 **Host:** `54.253.165.194` (was `1516`).  
