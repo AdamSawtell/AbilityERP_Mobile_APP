@@ -6,5 +6,6 @@
 - [x] SQL `16-activity-viewer-links.sql` + `17-activity-viewer-links-display.sql`
 - [x] Deploy JAR + SQL on `3.27.207.215` (`7.1.0.202607180900` ACTIVE)
 - [x] Browser smoke: Client → Client; Employee → Employee; Support Location → Support Location
+- [x] Full matrix: show/hide + zoom on `1638777`, `1641172`, `1617870`, `1641170`, `1374218` (2026-07-18)
 - [x] Commit + push (`fa7d9ee`)
 - [x] EXTERNAL-SUMMARY ready for paste

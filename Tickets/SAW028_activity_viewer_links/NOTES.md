@@ -23,3 +23,17 @@ Uses `AEnv.zoom(windowId, MQuery)` only — no table/MQuery-only fallback (avoid
 - Activity Viewer UU: `e5e62a4b-bd38-49d6-b2e7-e5a44e194b0e`
 - Confirm Client / Employee / Support Location windows by UU/name before smoke
 - Never change existing HCO `*_UU` values
+
+## Full link / function test (2026-07-18, host `3.27.207.215`, Admin)
+
+SQL matrix (`tmp-full-test-matrix.sql`): processes ACTIVE; Admin + AbilityERP Admin grants; resolution rows OK.
+
+| Activity | Expected buttons | Zoom destinations | Result |
+|----------|------------------|-------------------|--------|
+| `1638777` (SAW027-SEED ambulance) | Client, Employee, Support Location | `Client: 000455 Lindsay Pau…`; `Employee: 421 Jack Elder`; `Support Location: Centennia…` | PASS |
+| `1641172` (client only) | Client only | `Client: 000490 Peter Kielow` | PASS |
+| `1617870` (client + SL) | Client, Support Location | `Support Location: 2 Ware Close` | PASS |
+| `1641170` (employee + SL) | Employee, Support Location | `Employee: 656 Jasveerpal K…`; `Support Location: Gawler 73` | PASS |
+| `1374218` (no links) | none | — | PASS |
+
+No zoom opened generic Business Partner as the primary window.
