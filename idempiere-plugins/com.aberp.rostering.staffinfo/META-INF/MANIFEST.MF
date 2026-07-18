@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AbERP Rostering Staff Info
 Bundle-SymbolicName: com.aberp.rostering.staffinfo
-Bundle-Version: 1.1.0.202607181830
+Bundle-Version: 1.1.0.202607182000
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.rostering.staffinfo
 Bundle-RequiredExecutionEnvironment: JavaSE-11

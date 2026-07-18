@@ -86,17 +86,19 @@ public class ResponseLogFindFill extends SvrProcess {
 				@Override
 				public void run() {
 					try {
-						int windowNo = resolveActiveWindowNo();
-						if (windowNo <= 0) {
-							throw new AdempiereException(
-									"Open Find and Fill from Shift (Rostered) → Response Log");
-						}
-						Env.setContext(Env.getCtx(), windowNo, "AbERP_Rostered_Shift_ID", shift);
-						Env.setContext(Env.getCtx(), windowNo, CTX_RESPONSE_LOG_ID, logId);
-
+						// Process dialog is often "active" — fall back to WindowNo 0.
+						int windowNo = resolveWindowNoForInfo();
 						StaffRosteringInfoWindow info = new StaffRosteringInfoWindow(
 								windowNo, "AD_User", "AD_User_ID", queryValue,
 								false, "", infoId, false, null);
+						// Info may use its own WindowNo — bind shift/response ctx to that.
+						int infoWindowNo = info.getWindowNo();
+						Env.setContext(Env.getCtx(), infoWindowNo, "AbERP_Rostered_Shift_ID", shift);
+						Env.setContext(Env.getCtx(), infoWindowNo, CTX_RESPONSE_LOG_ID, logId);
+						if (windowNo != infoWindowNo) {
+							Env.setContext(Env.getCtx(), windowNo, "AbERP_Rostered_Shift_ID", shift);
+							Env.setContext(Env.getCtx(), windowNo, CTX_RESPONSE_LOG_ID, logId);
+						}
 						info.setAttribute(Window.MODE_KEY, Window.MODE_HIGHLIGHTED);
 						info.setTitle("Find and Fill — "
 								+ (Util.isEmpty(queryValue) ? "Staff" : queryValue));
@@ -116,14 +118,60 @@ public class ResponseLogFindFill extends SvrProcess {
 		return "@OK@ Review the worker against the shift, then OK to fill a vacant Employee slot";
 	}
 
-	/** WindowNo of the active Shift (Rostered) AD window (iDempiere 7.1 ProcessInfo has no getWindowNo). */
-	private static int resolveActiveWindowNo() {
-		Component active = SessionManager.getAppDesktop().getActiveWindow();
-		if (active instanceof ADWindow) {
-			ADWindow adw = (ADWindow) active;
-			if (adw.getADWindowContent() != null) {
-				return adw.getADWindowContent().getWindowNo();
+	/**
+	 * Prefer the Shift (Rostered) AD window WindowNo. When the Process dialog is
+	 * active, getActiveWindow() is not an ADWindow — walk parents / open windows,
+	 * then allocate a standalone WindowNo for Info context.
+	 */
+	private static int resolveWindowNoForInfo() {
+		try {
+			Component active = SessionManager.getAppDesktop().getActiveWindow();
+			int wn = windowNoFromComponent(active);
+			if (wn > 0) {
+				return wn;
 			}
+			wn = findOpenADWindowNo();
+			if (wn > 0) {
+				return wn;
+			}
+		} catch (Exception e) {
+			// fall through
+		}
+		// InfoWindow supports WindowNo 0 (same as menu-opened Staff Rostering Info).
+		return 0;
+	}
+
+	private static int findOpenADWindowNo() {
+		try {
+			Object desktop = SessionManager.getAppDesktop();
+			java.lang.reflect.Method m = desktop.getClass().getMethod("getWindows");
+			Object result = m.invoke(desktop);
+			if (result instanceof Iterable) {
+				for (Object o : (Iterable<?>) result) {
+					if (o instanceof Component) {
+						int wn = windowNoFromComponent((Component) o);
+						if (wn > 0) {
+							return wn;
+						}
+					}
+				}
+			}
+		} catch (Exception ignore) {
+			// API differs by iDempiere build
+		}
+		return 0;
+	}
+
+	private static int windowNoFromComponent(Component start) {
+		Component c = start;
+		while (c != null) {
+			if (c instanceof ADWindow) {
+				ADWindow adw = (ADWindow) c;
+				if (adw.getADWindowContent() != null) {
+					return adw.getADWindowContent().getWindowNo();
+				}
+			}
+			c = c.getParent();
 		}
 		return 0;
 	}
