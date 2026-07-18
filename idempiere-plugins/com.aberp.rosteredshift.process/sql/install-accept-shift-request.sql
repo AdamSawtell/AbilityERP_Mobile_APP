@@ -260,7 +260,7 @@ SELECT
   0, 0, 'Y', NOW(), 100, NOW(), 100,
   'Accept Shift Request', 'N', tab.ad_tab_id, c.ad_column_id,
   'Y',
-  '@IsReviewed@!Y & @IsSuperseded@!Y',
+  NULL,
   1, 'N', 55,
   'N', 'N', 'N', 'N', 'Ab_ERP',
   'Y', 2, 1, 2,
@@ -359,8 +359,9 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND tb.tablename = 'AbERP_RosteredResponseLog'
   AND c.columnname = 'AbERP_IsShiftEmployeeVacant';
 
+-- Toolbar+form (B=Both) so buttons work in Grid Toggle (usual Response Log view).
 UPDATE ad_column c
-SET istoolbarbutton = 'N',
+SET istoolbarbutton = 'B',
     issyncdatabase = 'Y',
     fieldlength = 1,
     updated = NOW(),
@@ -370,16 +371,14 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND tb.tablename = 'AbERP_RosteredResponseLog'
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
--- Window button (same pattern as Employee → Clock In Shift).
--- Hide when Reviewed=Y. Use !Y (not ='N') so NULL still shows the button.
--- Do not gate on REQ name/value in ZK — Java enforces REQ / vacancy.
+-- No DisplayLogic. Java enforces REQ / vacancy / reviewed.
 UPDATE ad_field f
 SET isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
     istoolbarbutton = NULL,
-    displaylogic = '@IsReviewed@!Y',
+    displaylogic = NULL,
     seqno = 55,
     seqnogrid = 35,
     columnspan = 2,
@@ -409,7 +408,7 @@ WHERE f.ad_tab_id = tab.ad_tab_id
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = '@IsReviewed@!Y',
+    displaylogic = NULL,
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab

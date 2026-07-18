@@ -88,7 +88,7 @@ SELECT
   'N', 'N', 'N',
   e.ad_element_id, p.ad_process_id, 'Y', 'Y',
   'N', 'Y', 'Y', 0,
-  'N', 'N', 'N', 'N', 'N',
+  'B', 'N', 'N', 'N', 'N',
   'a030f003-4130-4c01-d030-a012f0000003'
 FROM ad_element e
 JOIN ad_process p ON p.value = 'AbERP_ResponseLog_FindFill'
@@ -102,7 +102,7 @@ WHERE e.columnname = 'AbERP_FindFillStaff'
 
 UPDATE ad_column c
 SET ad_process_id = p.ad_process_id,
-    istoolbarbutton = 'N',
+    istoolbarbutton = 'B',
     isalwaysupdateable = 'Y',
     isupdateable = 'Y',
     isactive = 'Y',
@@ -130,7 +130,7 @@ SELECT
   0, 0, 'Y', NOW(), 100, NOW(), 100,
   'Find and Fill', 'Y', tab.ad_tab_id, c.ad_column_id,
   'Y',
-  '@IsReviewed@!Y',
+  NULL,
   14, 'N', 68,
   'N', 'N', 'N', 'N', 'Ab_ERP',
   'Y', 5, 1, 2,
@@ -154,7 +154,7 @@ SET isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
     istoolbarbutton = NULL,
-    displaylogic = '@IsReviewed@!Y',
+    displaylogic = NULL,
     seqno = 68,
     seqnogrid = 40,
     xposition = 5,

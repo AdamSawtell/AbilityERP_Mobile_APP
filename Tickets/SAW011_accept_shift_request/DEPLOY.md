@@ -45,8 +45,12 @@ Roles granted when present: **AbilityERP Admin**, **Admin**, **Rostering Officer
 
 ## WebUI smoke
 
-1. Pending **REQ** → **Accept Shift Request** → Employee filled · Reviewed · Published  
-2. Unreviewed response + vacant Employee → **Find and Fill** → Info prefilled → OK → Employee filled · Reviewed  
+1. Open **Shift (Rostered)** → **Response Log** (stay on a selected row).
+2. **Accept / Find and Fill** appear under the Response Log toolbar **Process** (gear), and in form view after Grid Toggle. No DisplayLogic hide.
+3. Pending **REQ** → **Accept Shift Request** → Employee filled · Reviewed · Published
+4. Unreviewed response + vacant Employee → **Find and Fill** → Info prefilled → OK → Employee filled · Reviewed
+
+Apply `sql/37-accept-findfill-toolbar-and-form.sql` if buttons only exist in form (grid hides form pane).
 3. Both buttons hidden when **Reviewed = Y**
 
 ## External ticket text
