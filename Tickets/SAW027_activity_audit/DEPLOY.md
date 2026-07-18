@@ -74,3 +74,8 @@ Install SQL grants AbilityERP Admin, Admin, and System Administrator by role nam
 | Contains | Substring, case-insensitive |
 
 Scan fields: `C_ContactActivity.Description` + `Comments`.
+
+## Follow-on (optional UX)
+
+After SAW027 is green, apply **SAW029** for Review form field groups (Activity / Match / Review / Audit):  
+`Tickets/SAW029_activity_audit_review_ux/DEPLOY.md` — SQL-only `18-review-field-groups.sql`, no JAR.
