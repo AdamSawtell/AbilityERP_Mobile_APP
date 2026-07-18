@@ -6,5 +6,5 @@
 - [x] `deploy.sh` includes 18
 - [x] Applied on `3.27.207.215`
 - [x] Browser smoke: Activity / Match / Review / Audit groups + Open Activity
-- [ ] Commit + push
+- [x] Commit + push (`3a51fba`)
 - [x] EXTERNAL-SUMMARY / DEPLOY ready
