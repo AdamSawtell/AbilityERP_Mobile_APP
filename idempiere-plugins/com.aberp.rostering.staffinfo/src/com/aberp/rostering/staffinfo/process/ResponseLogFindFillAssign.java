@@ -10,8 +10,8 @@ import org.compiere.util.Env;
 import org.compiere.util.Trx;
 
 /**
- * SAW030 — assign selected Find and Fill worker onto a vacant Employee line
- * and mark the Response Log reviewed (same vacancy / publish rules as SAW011 Accept).
+ * SAW011 — assign selected Find and Fill worker onto a vacant Employee line
+ * and mark the Response Log reviewed (same vacancy / publish rules as Accept).
  */
 public final class ResponseLogFindFillAssign {
 
@@ -30,7 +30,7 @@ public final class ResponseLogFindFillAssign {
 			throw new AdempiereException("Select a worker in Find and Fill first");
 		}
 
-		String trxName = Trx.createTrxName("SAW030_FindFill");
+		String trxName = Trx.createTrxName("SAW011_FindFill");
 		Trx trx = Trx.get(trxName, true);
 		try {
 			PO responseLog = MTable.get(Env.getCtx(), TABLE_RESPONSE_LOG).getPO(responseLogId, trxName);

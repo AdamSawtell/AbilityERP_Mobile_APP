@@ -8,18 +8,22 @@
 
 | Type | Name | Change |
 |------|------|--------|
-| **Window** | Shift (Rostered) | Unchanged shell — Response Log gains Accept action |
-| **Tab** | Response Log | Updated — Accept Shift Request Window button on record (form + grid) |
-| **Tab** | Employee | Updated by process — worker assigned on accept |
-| **Process** | Accept Shift Request (`SHIFT_ACCEPT_REQUEST` / `AcceptShiftRequest`) | **New** |
-| **Button / column** | Accept Shift Request (`AbERP_AcceptShiftRequest`) | **New** on Response Log |
-| **Menu** | *(none new)* | Uses existing Shift (Rostered) menu |
+| **Window** | Shift (Rostered) | Response Log gains Accept + Find and Fill |
+| **Tab** | Response Log | **Accept Shift Request** and **Find and Fill** buttons |
+| **Tab** | Employee | Filled by either action |
+| **Process** | Accept Shift Request | Assign REQ worker without opening Info |
+| **Process** | Find and Fill | Opens Staff Rostering Info; OK fills vacant slot |
+| **Info Window** | Employee (User) / Agency Staff Rostering Info | Existing Find & Fill (used from Response Log) |
+| **Menu** | *(none new)* | Existing Shift (Rostered) menu |
 
-**Admin access:**
+## Access
 
 | Access | Name | Search key |
 |--------|------|------------|
 | Process | Accept Shift Request | `SHIFT_ACCEPT_REQUEST` |
+| Process | Find and Fill | `AbERP_ResponseLog_FindFill` |
+| Info Window | Employee (User) / Agency Staff Rostering Info | — |
+| Window | Shift (Rostered) | — |
 
 Granted to AbilityERP Admin, Admin, and Rostering / Rostering TL / Rostering Officer when those roles exist.
 
@@ -27,29 +31,23 @@ Granted to AbilityERP Admin, Admin, and Rostering / Rostering TL / Rostering Off
 
 ## What’s been done
 
-Rostering officers / Admin can **Accept Shift Request** from a worker’s **Yes – Request Shift** row on the Response Log. That assigns the worker onto the shift **Employee** tab, marks the response reviewed, and publishes the shift.
+Rostering officers can handle Response Log requests two ways:
 
-## What the function does (step by step)
+1. **Accept Shift Request** — quick assign for a **Yes – Request Shift** row  
+2. **Find and Fill** — review that worker against the shift (leave / overlap / familiar / matched) in the usual Find & Fill screen, then OK to fill a vacant Employee line  
 
-1. Open **Shift (Rostered)** → **Response Log**
-2. Open the **Yes – Request Shift** response record (form view; use **Grid Toggle** if you are in multi-row grid)
-3. Press the **Accept Shift Request** button on that response record (also shown as a grid column when toggled to grid)
-4. System copies that response’s user onto the **Employee** tab (`AbERP_User_Contact_ID` on shift staff)
-5. Marks the response **Reviewed**
-6. Clears “showing as available” and sets shift status to **Published**
-7. Accept hides for reviewed / superseded rows; process also blocks if the shift already has an employee
+Both mark the response reviewed and publish when applicable. Buttons hide when Reviewed is already set.
 
 ## How to test
 
-1. Log in as **Admin** (or AbilityERP Admin / Rostering).
-2. Open a **Shift (Rostered)** with a pending **Yes – Request Shift** on **Response Log**.
-3. On the response record, click **Accept Shift Request** (form or grid toggle view).
-4. Confirm the worker appears on the **Employee** tab.
-5. Confirm the response is marked reviewed and Accept no longer shows for that row.
-6. Confirm declined / reviewed / already-staffed rows cannot be accepted.
+1. Log in as **Admin** (or AbilityERP Admin / Rostering).  
+2. Open a **Shift (Rostered)** with a vacant Employee line and an unreviewed Response Log row.  
+3. **Accept:** on a REQ row, click **Accept Shift Request** → confirm Employee + Reviewed.  
+4. **Find and Fill:** on another unreviewed row, click **Find and Fill** → confirm Info opens with the worker → OK → confirm Employee + Reviewed.  
+5. Confirm Reviewed rows no longer show either button.
 
 ## Notes / caveats
 
-- Install includes a Java plugin — restart iDempiere, then log out/in.
-- Published status uses Shift Status → **Published** by name (portable across clients).
-- Do not clear the full OSGi cache as a “fix” (can break other AbERP plugins).
+- Install includes Java plugins — restart iDempiere, then log out/in.  
+- Find and Fill requires the Staff Rostering Info (Find & Fill) already on the build.  
+- Do not clear the full OSGi cache as a “fix”.

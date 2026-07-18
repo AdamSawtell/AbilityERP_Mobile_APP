@@ -174,7 +174,7 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	}
 
 	/**
-	 * SAW030 — when opened from Response Log Find and Fill, OK assigns the selected
+	 * SAW011 — when opened from Response Log Find and Fill, OK assigns the selected
 	 * worker onto a vacant Employee line and marks the response reviewed.
 	 */
 	@Override
