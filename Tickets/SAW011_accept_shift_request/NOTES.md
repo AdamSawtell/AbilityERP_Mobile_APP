@@ -1,9 +1,9 @@
 # SAW011 notes
 
-- Bundle: `com.aberp.rosteredshift.acceptrequest`
-- Use only `sql/install-accept-shift-request.sql` (name-based role grants)
-- Do not use `grant-process-access-roles.sql` / `register-accept-shift-request.sql` on other builds (hardcoded role IDs)
-- Published status: **resolved at runtime** by name `Published` under category `Shift Status` (no hardcoded `R_Status_ID`)
+- Bundle: `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181500**
+- Use only `sql/install-accept-shift-request.sql` (+ `sql/31-fix-accept-button-visibility.sql` for visibility hotfix)
+- Published status: resolved via client-scoped SQL (`AD_Client_ID IN (0,?)`) — do not use LIMIT with `DB.getSQLValue`
+- **UI:** Response Log → gear **Process** → **Accept Shift Request** (detail tabs put process buttons under Process, not as a form button)
 
 ## HCO Future Deployments variables
 
@@ -11,14 +11,15 @@
 |---|---|
 | Host | `3.27.207.215` (SSH key `HCObusiness.pem`) |
 | Client | HCO - Disability and Community Services |
-| Published `R_Status_ID` | **1000058** (name `Published`, value `1000021`, category Shift Status) — **not** 1000040 (that ID is Active here) |
-| Response Log tab | `AD_Tab_ID` 1000256 on Shift (Rostered) |
-| Roles granted | AbilityERP Admin, Admin, Rostering, Rostering TL (no role named Rostering Officer on this build) |
-| Bundle | `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181300** ACTIVE |
-| Process | `SHIFT_ACCEPT_REQUEST` → `com.aberp.rosteredshift.process.AcceptShiftRequest` |
+| Published `R_Status_ID` | **1000058** (name `Published`, category Shift Status) |
+| Response Log tab | `AD_Tab_ID` 1000256 |
+| Bundle | `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181500** ACTIVE |
+| Process | `SHIFT_ACCEPT_REQUEST` |
+| Smoke | Shift `1115309` / Doc `1108335` — Madura REQ accepted → staff + IsReviewed=Y (2026-07-18) |
 
 ### Install learnings (2026-07-18)
 
-1. Hardcoded Published `1000040` would have set status to **Active** on HCO — fixed in Java via name lookup.
-2. Grant list must include **Admin** / **Rostering** / **Rostering TL** (HCO naming), not only Rostering Officer.
-3. PostgreSQL rejected `UPDATE ad_field f … JOIN ad_column c ON c.ad_column_id = f.ad_column_id` — fixed to comma-join `ad_column` in WHERE.
+1. Hardcoded Published `1000040` is **Active** on HCO — resolve by name + client.
+2. Detail-tab Button with IsToolbarButton=Y appears under **Process (gear)**, not as Save-and-Validate-style form button.
+3. Displaylogic must use unquoted list Value `@AbERP_RosteredResponse@=REQ`; `@IsSuperseded@='N'` fails when NULL — use `!Y`.
+4. `DB.getSQLValue` + LIMIT / multi-string binds failed; use CloseRosteringChat-style client-scoped SQL.

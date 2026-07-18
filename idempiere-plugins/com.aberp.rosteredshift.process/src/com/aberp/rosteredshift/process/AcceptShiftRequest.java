@@ -7,6 +7,7 @@ import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.process.SvrProcess;
 import org.compiere.util.DB;
+import org.compiere.util.Env;
 /**
  * Accept a pending shift request from the Response Log tab.
  * Assigns the requesting worker to the rostered shift staff line and marks the log reviewed.
@@ -173,18 +174,26 @@ public class AcceptShiftRequest extends SvrProcess {
 	}
 
 	/**
-	 * Resolve Published under Shift Status by name (portable across clients).
-	 * Seed/dev often used 1000040; HCO builds use a different R_Status_ID.
+	 * Resolve Published under Shift Status (portable). Matches CloseRosteringChat pattern:
+	 * client-scoped SQL, no LIMIT (DB.getSQLValue can mishandle LIMIT / multi-param string binds).
 	 */
 	private int resolvePublishedStatusId() {
-		final int statusId = DB.getSQLValue(get_TrxName(),
-				"SELECT s.R_Status_ID FROM R_Status s"
-						+ " INNER JOIN R_StatusCategory c ON c.R_StatusCategory_ID=s.R_StatusCategory_ID"
-						+ " WHERE s.IsActive='Y' AND c.IsActive='Y'"
-						+ " AND c.Name=? AND s.Name=?"
-						+ " ORDER BY s.R_Status_ID"
-						+ " LIMIT 1",
-				STATUS_CATEGORY_SHIFT, STATUS_PUBLISHED_NAME);
+		final int clientId = Env.getAD_Client_ID(getCtx());
+		int statusId = DB.getSQLValue(get_TrxName(),
+				"SELECT rs.R_Status_ID FROM R_Status rs "
+						+ "JOIN R_StatusCategory c ON c.R_StatusCategory_ID=rs.R_StatusCategory_ID "
+						+ "WHERE rs.IsActive='Y' AND c.IsActive='Y' "
+						+ "AND c.Name='Shift Status' AND rs.Name='Published' "
+						+ "AND rs.AD_Client_ID IN (0,?) "
+						+ "ORDER BY rs.R_Status_ID ASC",
+				clientId);
+		if (statusId <= 0) {
+			statusId = DB.getSQLValue(get_TrxName(),
+					"SELECT R_Status_ID FROM R_Status "
+							+ "WHERE IsActive='Y' AND Name='Published' AND AD_Client_ID IN (0,?) "
+							+ "ORDER BY R_Status_ID ASC",
+					clientId);
+		}
 		if (statusId <= 0) {
 			throw new AdempiereException(
 					"Published status not found under category '" + STATUS_CATEGORY_SHIFT + "'");

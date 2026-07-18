@@ -260,11 +260,11 @@ SELECT
   0, 0, 'Y', NOW(), 100, NOW(), 100,
   'Accept Shift Request', 'N', tab.ad_tab_id, c.ad_column_id,
   'Y',
-  '@AbERP_RosteredResponse@=''REQ'' & @IsReviewed@=''N'' & @IsSuperseded@=''N'' & @AbERP_IsShiftEmployeeVacant@=''Y''',
-  1, 'N', 61,
+  '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
+  1, 'N', 55,
   'N', 'N', 'N', 'N', 'Ab_ERP',
   'Y', 5, 1, 2,
-  'N', 'N', 'N', 'N',
+  'N', 'Y', 'N', 'N',
   'N', 'N', 'N',
   (
     substring(md5('AbERP_AcceptShiftRequest-field-' || tab.ad_tab_id::text), 1, 8) || '-' ||
@@ -326,9 +326,9 @@ INSERT INTO ad_toolbarbutton (
 )
 SELECT
   (SELECT COALESCE(MAX(ad_toolbarbutton_id), 0) + 1 FROM ad_toolbarbutton),
-  0, 0, 'N',
+  0, 0, 'Y',
   NOW(), 100, NOW(), 100,
-  'Accept Shift Request', 'Accept Shift Request', 'W', tab.ad_tab_id, p.ad_process_id,
+  'Accept Shift Request', 'Accept Shift Request', 'P', tab.ad_tab_id, p.ad_process_id,
   10, 'N', 'N', 'Ab_ERP', 'N',
   NULL,
   (
@@ -360,7 +360,7 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND c.columnname = 'AbERP_IsShiftEmployeeVacant';
 
 UPDATE ad_column c
-SET istoolbarbutton = 'B',
+SET istoolbarbutton = 'Y',
     issyncdatabase = 'Y',
     fieldlength = 1,
     updated = NOW(),
@@ -373,13 +373,13 @@ WHERE c.ad_table_id = tb.ad_table_id
 UPDATE ad_field f
 SET isactive = 'Y',
     isdisplayed = 'Y',
-    isdisplayedgrid = 'Y',
+    isdisplayedgrid = 'N',
     isfieldonly = 'N',
-    istoolbarbutton = 'N',
-    displaylogic = '@AbERP_RosteredResponse@=''REQ'' & @IsReviewed@=''N'' & @IsSuperseded@=''N'' & @AbERP_IsShiftEmployeeVacant@=''Y''',
-    seqno = 61,
+    istoolbarbutton = 'Y',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
+    seqno = 55,
     columnspan = 2,
-    xposition = 5,
+    xposition = 1,
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
@@ -403,8 +403,9 @@ WHERE f.ad_tab_id = tab.ad_tab_id
   AND tb.tablename = 'AbERP_RosteredResponseLog';
 
 UPDATE ad_toolbarbutton tb
-SET isactive = 'N',
-    displaylogic = NULL,
+SET isactive = 'Y',
+    action = 'P',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
