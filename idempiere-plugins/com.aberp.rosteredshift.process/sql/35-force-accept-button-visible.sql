@@ -1,6 +1,7 @@
--- SAW011: Accept Shift Request — stable Window button on Response Log.
+-- SAW011: Accept Shift Request — Window button on Response Log.
 -- Match Employee → Clock In: column IsToolbarButton=N, field IsToolbarButton NULL.
--- Place right of Employee (xposition=4). No DisplayLogic (Java enforces rules).
+-- Place right of Employee (xposition=4).
+-- DisplayLogic: hide when Reviewed=Y (@IsReviewed@!Y). Java still enforces rules.
 -- After apply: Cache Reset or reopen window (or restart iDempiere).
 
 SET search_path TO adempiere;
@@ -23,7 +24,7 @@ SET istoolbarbutton = NULL,
     isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
-    displaylogic = NULL,
+    displaylogic = '@IsReviewed@!Y',
     seqno = 55,
     seqnogrid = 35,
     xposition = 4,
@@ -41,7 +42,7 @@ WHERE f.ad_tab_id = tab.ad_tab_id
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = NULL,
+    displaylogic = '@IsReviewed@!Y',
     ad_process_id = (SELECT ad_process_id FROM ad_process WHERE value = 'SHIFT_ACCEPT_REQUEST' LIMIT 1),
     updated = NOW(),
     updatedby = 100

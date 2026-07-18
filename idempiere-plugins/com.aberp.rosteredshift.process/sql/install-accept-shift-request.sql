@@ -371,15 +371,15 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
 -- Window button (same pattern as Employee → Clock In Shift).
--- No DisplayLogic: ZK context for list names / NULL flags hid the button.
--- Java process still enforces REQ / not reviewed / vacant Employee slot.
+-- Hide when Reviewed=Y. Use !Y (not ='N') so NULL still shows the button.
+-- Do not gate on REQ name/value in ZK — Java enforces REQ / vacancy.
 UPDATE ad_field f
 SET isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
     istoolbarbutton = NULL,
-    displaylogic = NULL,
+    displaylogic = '@IsReviewed@!Y',
     seqno = 55,
     seqnogrid = 35,
     columnspan = 2,
@@ -409,7 +409,7 @@ WHERE f.ad_tab_id = tab.ad_tab_id
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = NULL,
+    displaylogic = '@IsReviewed@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
