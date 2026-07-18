@@ -1,7 +1,8 @@
 # SAW011 notes
 
 - Bundle: `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181600**
-- **Vacancy:** multi-staff shifts can have filled + vacant Employee lines. Accept fills the first active line with no `AbERP_User_Contact_ID` (same rule as `AbERP_NoOfUnfilledStaff`). Do not block just because another worker is already on the shift.
+- **Vacancy:** multi-staff OK — fill first active Employee line with no `AbERP_User_Contact_ID`. Another worker already filled ≠ block.
+- **Already on Employee:** if this worker is already on a filled line, Accept / Find&Fill OK marks Reviewed (no error).
 - **UI:** Response Log → **Accept Shift Request** + **Find and Fill**. `IsToolbarButton=B` (toolbar/Process **and** form). No DisplayLogic (Java enforces). Response Log is usually in **grid** — use gear → **Process**, or Grid Toggle to form. Do **not** set DisplayLogic that hides buttons.
 - **Function:** Accept assigns Response Log `AbERP_User_Contact_ID` → vacant Employee tab staff line, sets IsReviewed, publishes shift.
 - **Access:** always grant process to **Admin** and **AbilityERP Admin** (plus Rostering roles when present).

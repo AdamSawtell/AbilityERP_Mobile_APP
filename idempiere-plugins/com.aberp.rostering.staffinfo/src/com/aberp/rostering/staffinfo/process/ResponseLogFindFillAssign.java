@@ -56,7 +56,13 @@ public final class ResponseLogFindFillAssign {
 			}
 
 			if (isWorkerAlreadyOnShift(shiftId, selectedUserId, staffBPartnerId, trxName)) {
-				throw new AdempiereException("This worker is already assigned on the Employee tab");
+				responseLog.set_ValueOfColumn("IsReviewed", "Y");
+				if (!responseLog.save()) {
+					throw new AdempiereException("Worker already on Employee but failed to mark response reviewed");
+				}
+				finalizeShiftAfterFill(shiftId, trxName);
+				trx.commit(true);
+				return user.getName() + " already on Employee; response marked reviewed";
 			}
 
 			PO shiftStaff = findOpenStaffLine(shiftId, trxName);
@@ -102,10 +108,12 @@ public final class ResponseLogFindFillAssign {
 				.first();
 	}
 
+	/** True only when this worker already fills an Employee line (user contact set). */
 	private static boolean isWorkerAlreadyOnShift(int shiftId, int userContactId, int staffBPartnerId,
 			String trxName) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
+				+ "AND COALESCE(AbERP_User_Contact_ID,0)>0 "
 				+ "AND (AbERP_User_Contact_ID=? OR C_BPartner_Staff_ID=?)";
 		return new Query(Env.getCtx(), TABLE_SHIFT_STAFF, whereClause, trxName)
 				.setParameters(shiftId, userContactId, staffBPartnerId)

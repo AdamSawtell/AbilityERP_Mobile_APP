@@ -76,10 +76,16 @@ public class AcceptShiftRequest extends SvrProcess {
 			throw new AdempiereException("Requesting user has no linked business partner (employee)");
 		}
 
-		// Multi-staff shifts can have some lines filled and others vacant.
-		// Vacancy = active Employee line with no AbERP_User_Contact_ID (matches AbERP_NoOfUnfilledStaff).
+		// Multi-staff: fill first vacant Employee line (no AbERP_User_Contact_ID).
+		// If this worker is already on Employee, mark reviewed — do not error.
 		if (isWorkerAlreadyOnShift(shiftId, userContactId, staffBPartnerId)) {
-			throw new AdempiereException("This worker is already assigned on the Employee tab");
+			responseLog.set_ValueOfColumn("IsReviewed", "Y");
+			if (!responseLog.save()) {
+				throw new AdempiereException("Worker already on Employee but failed to mark response reviewed");
+			}
+			finalizeShiftAfterAccept(shiftId);
+			addLog(0, null, null, "Worker already on Employee tab; response marked reviewed");
+			return "@Processed@ Worker already on Employee — response marked reviewed";
 		}
 
 		PO shiftStaff = findOpenStaffLine(shiftId);
@@ -117,9 +123,11 @@ public class AcceptShiftRequest extends SvrProcess {
 				.first();
 	}
 
+	/** True only when this worker already fills an Employee line (user contact set). */
 	private boolean isWorkerAlreadyOnShift(int shiftId, int userContactId, int staffBPartnerId) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
+				+ "AND COALESCE(AbERP_User_Contact_ID,0)>0 "
 				+ "AND (AbERP_User_Contact_ID=? OR C_BPartner_Staff_ID=?)";
 		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
 				.setParameters(shiftId, userContactId, staffBPartnerId)
