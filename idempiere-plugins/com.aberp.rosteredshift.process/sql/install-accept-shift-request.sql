@@ -149,7 +149,7 @@ SELECT
   'N', 'N', 'N',
   e.ad_element_id, p.ad_process_id, 'Y', 'N',
   'N', 'Y', 'Y', 0,
-  'Y', 'N', 'N', 'N', 'N',
+  'N', 'N', 'N', 'N', 'N',
   (
     substring(md5('AbERP_AcceptShiftRequest-col'), 1, 8) || '-' ||
     substring(md5('AbERP_AcceptShiftRequest-col'), 9, 4) || '-4123-e456-789012345678'
@@ -263,8 +263,8 @@ SELECT
   '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
   1, 'N', 55,
   'N', 'N', 'N', 'N', 'Ab_ERP',
-  'Y', 5, 1, 2,
-  'N', 'Y', 'N', 'N',
+  'Y', 2, 1, 2,
+  'N', 'N', 'N', 'N',
   'N', 'N', 'N',
   (
     substring(md5('AbERP_AcceptShiftRequest-field-' || tab.ad_tab_id::text), 1, 8) || '-' ||
@@ -360,7 +360,7 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND c.columnname = 'AbERP_IsShiftEmployeeVacant';
 
 UPDATE ad_column c
-SET istoolbarbutton = 'Y',
+SET istoolbarbutton = 'N',
     issyncdatabase = 'Y',
     fieldlength = 1,
     updated = NOW(),
@@ -375,12 +375,12 @@ SET isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
-    istoolbarbutton = 'Y',
+    istoolbarbutton = 'N',
     displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     seqno = 55,
     seqnogrid = 35,
     columnspan = 2,
-    xposition = 1,
+    xposition = 2,
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
