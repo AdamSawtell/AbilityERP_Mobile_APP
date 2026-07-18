@@ -55,7 +55,17 @@ public final class ResponseLogFindFillAssign {
 				throw new AdempiereException("Selected worker has no linked business partner");
 			}
 
+			PO shiftStaff = findOpenStaffLine(shiftId, trxName);
+			boolean hasVacant = shiftStaff != null;
+
 			if (isWorkerAlreadyOnShift(shiftId, selectedUserId, staffBPartnerId, trxName)) {
+				// Never overwrite an allocated line. If a vacant slot remains, force a
+				// different worker — marking reviewed here would "complete" against the
+				// filled line and leave Unfilled Staff unchanged.
+				if (hasVacant) {
+					throw new AdempiereException(user.getName()
+							+ " is already allocated on Employee. Select a different worker for the vacant slot");
+				}
 				responseLog.set_ValueOfColumn("IsReviewed", "Y");
 				if (!responseLog.save()) {
 					throw new AdempiereException("Worker already on Employee but failed to mark response reviewed");
@@ -65,9 +75,14 @@ public final class ResponseLogFindFillAssign {
 				return user.getName() + " already on Employee; response marked reviewed";
 			}
 
-			PO shiftStaff = findOpenStaffLine(shiftId, trxName);
 			if (shiftStaff == null) {
 				throw new AdempiereException("This shift has no vacant employee slot");
+			}
+
+			// Refuse to write if the chosen line is no longer vacant (race / bad query).
+			if (getInt(shiftStaff.get_Value("AbERP_User_Contact_ID")) > 0
+					|| getInt(shiftStaff.get_Value("C_BPartner_Staff_ID")) > 0) {
+				throw new AdempiereException("Refusing to overwrite an allocated Employee line");
 			}
 
 			shiftStaff.set_ValueOfColumn("C_BPartner_Staff_ID", staffBPartnerId);
@@ -98,10 +113,15 @@ public final class ResponseLogFindFillAssign {
 		}
 	}
 
+	/**
+	 * First vacant Employee line only — never a line with user or staff BP set.
+	 * Matches AbERP_NoOfUnfilledStaff (null contact) and also blocks BP-only fills.
+	 */
 	private static PO findOpenStaffLine(int shiftId, String trxName) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
-				+ "AND COALESCE(AbERP_User_Contact_ID,0)=0";
+				+ "AND COALESCE(AbERP_User_Contact_ID,0)=0 "
+				+ "AND COALESCE(C_BPartner_Staff_ID,0)=0";
 		return new Query(Env.getCtx(), TABLE_SHIFT_STAFF, whereClause, trxName)
 				.setParameters(shiftId)
 				.setOrderBy("Line ASC")

@@ -176,13 +176,16 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/**
 	 * SAW011 — when opened from Response Log Find and Fill, OK assigns the selected
 	 * worker onto a vacant Employee line and marks the response reviewed.
+	 * Do not call super.saveSelectionDetail() in Find/Fill mode — that writes the
+	 * selected user into the currently focused parent Employee field and can
+	 * overwrite an already-allocated staff line.
 	 */
 	@Override
 	protected void saveSelectionDetail() {
-		super.saveSelectionDetail();
 		int responseLogId = Env.getContextAsInt(Env.getCtx(), getWindowNo(),
 				ResponseLogFindFill.CTX_RESPONSE_LOG_ID);
 		if (responseLogId <= 0) {
+			super.saveSelectionDetail();
 			return;
 		}
 		int selectedUserId = Env.getContextAsInt(Env.getCtx(), getWindowNo(), Env.TAB_INFO, "AD_User_ID");

@@ -93,6 +93,12 @@ public class AcceptShiftRequest extends SvrProcess {
 			throw new AdempiereException("This shift has no vacant employee slot");
 		}
 
+		// Never overwrite an allocated Employee line.
+		if (getInt(shiftStaff.get_Value("AbERP_User_Contact_ID")) > 0
+				|| getInt(shiftStaff.get_Value("C_BPartner_Staff_ID")) > 0) {
+			throw new AdempiereException("Refusing to overwrite an allocated Employee line");
+		}
+
 		shiftStaff.set_ValueOfColumn("C_BPartner_Staff_ID", staffBPartnerId);
 		shiftStaff.set_ValueOfColumn("AbERP_User_Contact_ID", userContactId);
 		shiftStaff.set_ValueOfColumn("AbERP_RequestShift", "N");
@@ -112,11 +118,15 @@ public class AcceptShiftRequest extends SvrProcess {
 		return "@Processed@";
 	}
 
-	/** Open Employee slot: active line with no user contact (same rule as AbERP_NoOfUnfilledStaff). */
+	/**
+	 * First vacant Employee line only — never a line with user or staff BP set.
+	 * Aligns with AbERP_NoOfUnfilledStaff (null contact) and blocks BP-only rows.
+	 */
 	private PO findOpenStaffLine(int shiftId) {
 		final String whereClause = ""
 				+ "AbERP_Rostered_Shift_ID=? AND IsActive='Y' "
-				+ "AND COALESCE(AbERP_User_Contact_ID,0)=0";
+				+ "AND COALESCE(AbERP_User_Contact_ID,0)=0 "
+				+ "AND COALESCE(C_BPartner_Staff_ID,0)=0";
 		return new Query(getCtx(), TABLE_SHIFT_STAFF, whereClause, get_TrxName())
 				.setParameters(shiftId)
 				.setOrderBy("Line ASC")
