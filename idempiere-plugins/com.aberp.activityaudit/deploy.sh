@@ -28,7 +28,7 @@ for f in 00-preflight.sql 01-create-tables.sql 02-ad-references.sql 03-ad-table-
          08-seed-terms.sql 09-verify.sql 10-fix-review-grid.sql 11-fix-processing-column.sql \
          12-open-activity-button.sql 13-fix-terms-grid.sql 14-format-audit-fieldgroup.sql \
          15-fix-isactive-edit.sql 16-activity-viewer-links.sql \
-         17-activity-viewer-links-display.sql; do
+         17-activity-viewer-links-display.sql 18-review-field-groups.sql; do
   sudo cp "$PLUGIN_DIR/sql/$f" "/tmp/saw027-$f"
   echo "  -> $f"
   sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "/tmp/saw027-$f"
