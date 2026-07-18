@@ -196,6 +196,8 @@ BEGIN
 
   --------------------------------------------------------------------------
   -- Review — decision fields
+  -- Reviewed checkbox is kept: stamps Reviewed By/Date and clears the queue.
+  -- Follow-Up Required checkbox is hidden: use Review Status = Follow-Up Required.
   --------------------------------------------------------------------------
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f008-4f01-8e15-000000000001',
     'ReviewStatus','Review Status',100,'Y','N','N',80,'Y', v_fg_review, 1, 2);
@@ -205,18 +207,19 @@ BEGIN
     'ReviewedBy','Reviewed By',120,'Y','Y','N',100,'Y', v_fg_review, 1, 2);
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f011-4f01-8e15-000000000001',
     'ReviewedDate','Reviewed Date',130,'Y','Y','Y',110,'Y', v_fg_review, 4, 2);
-  PERFORM pg_temp.saw029_field(v_tab,'27a02751-f015-4f01-8e15-000000000001',
-    'IsFollowUpRequired','Follow-Up Required',140,'Y','N','N',150,'Y', v_fg_review, 1, 2);
-  PERFORM pg_temp.saw029_field(v_tab,'27a02751-f030-4f01-8e15-000000000001',
-    'IsActive','Active',150,'Y','N','Y',155,'Y', v_fg_review, 4, 2);
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f014-4f01-8e15-000000000001',
-    'ReviewNotes','Review Notes',160,'Y','N','N',140,'N', v_fg_review, 1, 5, 3);
+    'ReviewNotes','Review Notes',140,'Y','N','N',140,'N', v_fg_review, 1, 5, 3);
+  -- Hidden: redundant with Review Status list value FU
+  PERFORM pg_temp.saw029_field(v_tab,'27a02751-f015-4f01-8e15-000000000001',
+    'IsFollowUpRequired','Follow-Up Required',150,'N','N','N',150,'N', NULL, 1, 2);
 
   --------------------------------------------------------------------------
-  -- Audit (collapsed)
+  -- Audit (collapsed) — Active on same line as Activity Updated Audited
   --------------------------------------------------------------------------
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f017-4f01-8e15-000000000001',
     'ActivityUpdatedAudited','Activity Updated Audited',890,'Y','Y','N',890,'N', v_fg_audit, 1, 2);
+  PERFORM pg_temp.saw029_field(v_tab,'27a02751-f030-4f01-8e15-000000000001',
+    'IsActive','Active',895,'Y','N','Y',155,'N', v_fg_audit, 4, 2);
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f020-4f01-8e15-000000000001',
     'Created','Created',900,'Y','Y','N',900,'N', v_fg_audit, 1, 2);
   PERFORM pg_temp.saw029_field(v_tab,'27a02751-f021-4f01-8e15-000000000001',

@@ -10,8 +10,10 @@ Fields are grouped:
 
 - **Activity** — date, client, employee, activity type, and **Open Activity**
 - **Match** — matched terms, category, risk level, and the matched text extract
-- **Review** — status, reviewed flag, reviewer, dates, follow-up, notes
-- **Audit** — system timestamps (collapsed by default)
+- **Review** — status, **Reviewed** (completes the item), reviewer, dates, notes
+- **Audit** — Active + system timestamps (collapsed by default)
+
+Use **Review Status** for outcomes such as Follow-Up Required. The separate Follow-Up checkbox is hidden (it duplicated status).
 
 No change to how activities are scanned or which rows appear in the queue.
 
