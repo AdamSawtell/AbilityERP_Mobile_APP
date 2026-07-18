@@ -8,7 +8,7 @@ SRC_DIR="$PLUGIN_DIR/src"
 BUILD_DIR="$PLUGIN_DIR/build"
 CLASSES_DIR="$BUILD_DIR/classes"
 STAGE_DIR="$BUILD_DIR/stage"
-VERSION="1.1.0.2026071517"
+VERSION="1.1.0.202607181830"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 
@@ -34,6 +34,7 @@ javac -encoding UTF-8 -source 11 -target 11 -classpath "$CLASSPATH" -d "$CLASSES
 
 cp "$PLUGIN_DIR/staffinfo-info.xml" "$CLASSES_DIR/"
 cp "$PLUGIN_DIR/staffinfo-callout.xml" "$CLASSES_DIR/"
+cp "$PLUGIN_DIR/staffinfo-process.xml" "$CLASSES_DIR/"
 cp "$PLUGIN_DIR/META-INF/MANIFEST.MF" "$STAGE_DIR/META-INF/MANIFEST.MF"
 cp "$PLUGIN_DIR"/sql/*.sql "$STAGE_DIR/sql/"
 cp "$PLUGIN_DIR/README.md" "$STAGE_DIR/" 2>/dev/null || true

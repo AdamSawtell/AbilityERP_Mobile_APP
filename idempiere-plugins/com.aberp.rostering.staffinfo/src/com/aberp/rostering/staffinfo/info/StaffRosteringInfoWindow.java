@@ -13,6 +13,7 @@ import org.adempiere.webui.component.Checkbox;
 import org.adempiere.webui.component.Label;
 import org.adempiere.webui.editor.WEditor;
 import org.adempiere.webui.info.InfoWindow;
+import org.adempiere.webui.window.FDialog;
 import org.compiere.model.GridField;
 import org.compiere.model.GridTab;
 import org.compiere.model.MInfoColumn;
@@ -21,6 +22,9 @@ import org.compiere.util.DB;
 import org.compiere.util.DisplayType;
 import org.compiere.util.Env;
 import org.compiere.util.Util;
+
+import com.aberp.rostering.staffinfo.process.ResponseLogFindFill;
+import com.aberp.rostering.staffinfo.process.ResponseLogFindFillAssign;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.Events;
@@ -167,6 +171,35 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	public void onUserQuery() {
 		sanitizeIdEditors();
 		super.onUserQuery();
+	}
+
+	/**
+	 * SAW030 — when opened from Response Log Find and Fill, OK assigns the selected
+	 * worker onto a vacant Employee line and marks the response reviewed.
+	 */
+	@Override
+	protected void saveSelectionDetail() {
+		super.saveSelectionDetail();
+		int responseLogId = Env.getContextAsInt(Env.getCtx(), getWindowNo(),
+				ResponseLogFindFill.CTX_RESPONSE_LOG_ID);
+		if (responseLogId <= 0) {
+			return;
+		}
+		int selectedUserId = Env.getContextAsInt(Env.getCtx(), getWindowNo(), Env.TAB_INFO, "AD_User_ID");
+		if (selectedUserId <= 0) {
+			Integer key = getSelectedRowKey();
+			if (key != null) {
+				selectedUserId = key.intValue();
+			}
+		}
+		try {
+			String msg = ResponseLogFindFillAssign.assign(responseLogId, selectedUserId);
+			Env.setContext(Env.getCtx(), getWindowNo(), ResponseLogFindFill.CTX_RESPONSE_LOG_ID, 0);
+			FDialog.info(getWindowNo(), this, msg);
+		} catch (Exception e) {
+			String err = e.getMessage() != null ? e.getMessage() : "Find and Fill assign failed";
+			FDialog.error(getWindowNo(), this, err);
+		}
 	}
 
 	@Override
