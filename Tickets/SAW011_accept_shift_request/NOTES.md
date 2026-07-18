@@ -1,9 +1,11 @@
 # SAW011 notes
 
 - Bundle: `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181500**
-- Use only `sql/install-accept-shift-request.sql` (+ `sql/31-fix-accept-button-visibility.sql` for visibility hotfix)
+- Use `sql/install-accept-shift-request.sql` (+ `sql/33-accept-displaylogic-name.sql` for toolbar/Process + Admin grants)
 - Published status: resolved via client-scoped SQL (`AD_Client_ID IN (0,?)`) — do not use LIMIT with `DB.getSQLValue`
-- **UI:** Response Log → gear **Process** → **Accept Shift Request** (detail tabs put process buttons under Process, not as a form button)
+- **UI:** Response Log (select REQ row) → detail toolbar **Process** → **Accept Shift Request**. Detail tabs stay in grid; Window form buttons stay hidden — use `IsToolbarButton=Y`.
+- **Function:** Accept assigns Response Log `AbERP_User_Contact_ID` → Employee tab staff line, sets IsReviewed, publishes shift.
+- **Access:** always grant process to **Admin** and **AbilityERP Admin** (plus Rostering roles when present).
 
 ## HCO Future Deployments variables
 
@@ -15,11 +17,12 @@
 | Response Log tab | `AD_Tab_ID` 1000256 |
 | Bundle | `com.aberp.rosteredshift.acceptrequest` **7.1.0.202607181500** ACTIVE |
 | Process | `SHIFT_ACCEPT_REQUEST` |
-| Smoke | Shift `1115309` / Doc `1108335` — Madura REQ accepted → staff + IsReviewed=Y (2026-07-18) |
+| Smoke | Shift `1115309` Madura; shift `1110644` / Doc `1103676` Navroop Gill REQ → Employee + IsReviewed=Y (2026-07-18, Admin) |
 
 ### Install learnings (2026-07-18)
 
 1. Hardcoded Published `1000040` is **Active** on HCO — resolve by name + client.
-2. Detail-tab Button with IsToolbarButton=Y appears under **Process (gear)**, not as Save-and-Validate-style form button.
-3. Displaylogic must use unquoted list Value `@AbERP_RosteredResponse@=REQ`; `@IsSuperseded@='N'` fails when NULL — use `!Y`.
+2. Response Log is grid-first: `IsToolbarButton=N` (Window) keeps Accept invisible; use **Y** → detail **Process** menu on the selected row.
+3. Displaylogic: list Value `@AbERP_RosteredResponse@=REQ`; `@IsSuperseded@='N'` fails when NULL — use `!Y`. Do not match list Name with hyphens in DisplayLogic.
 4. `DB.getSQLValue` + LIMIT / multi-string binds failed; use CloseRosteringChat-style client-scoped SQL.
+5. Admin process access is mandatory for this feature (and any new process).

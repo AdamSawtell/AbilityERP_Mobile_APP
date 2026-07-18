@@ -149,7 +149,7 @@ SELECT
   'N', 'N', 'N',
   e.ad_element_id, p.ad_process_id, 'Y', 'N',
   'N', 'Y', 'Y', 0,
-  'B', 'N', 'N', 'N', 'N',
+  'Y', 'N', 'N', 'N', 'N',
   (
     substring(md5('AbERP_AcceptShiftRequest-col'), 1, 8) || '-' ||
     substring(md5('AbERP_AcceptShiftRequest-col'), 9, 4) || '-4123-e456-789012345678'
@@ -373,11 +373,12 @@ WHERE c.ad_table_id = tb.ad_table_id
 UPDATE ad_field f
 SET isactive = 'Y',
     isdisplayed = 'Y',
-    isdisplayedgrid = 'N',
+    isdisplayedgrid = 'Y',
     isfieldonly = 'N',
     istoolbarbutton = 'Y',
     displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     seqno = 55,
+    seqnogrid = 35,
     columnspan = 2,
     xposition = 1,
     updated = NOW(),

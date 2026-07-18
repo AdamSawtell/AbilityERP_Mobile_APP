@@ -1,15 +1,15 @@
--- SAW011: Accept as Window button on the Response Log record (like Employee Clock In)
--- + ensure Admin / AbilityERP Admin process access
+-- SAW011: Response Log Accept — detail-tab Process (toolbar) on selected row
+-- Detail tabs stay in grid; Window form buttons are hidden until form mode.
+-- IsToolbarButton=Y puts Accept under Response Log toolbar → Process.
+-- DisplayLogic uses list Value REQ (AD context); !Y is null-safe for flags.
 -- Cache Reset + re-open Shift window after apply.
 
 SET search_path TO adempiere;
 
--- Window button against the response record (not Toolbar/Process-menu only)
 UPDATE ad_column c
-SET istoolbarbutton = 'N',
+SET istoolbarbutton = 'Y',
     isactive = 'Y',
     isupdateable = 'Y',
-    issyncdatabase = 'Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_table tb
@@ -18,16 +18,12 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
 UPDATE ad_field f
-SET istoolbarbutton = 'N',
+SET istoolbarbutton = 'Y',
     isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
     isfieldonly = 'N',
-    seqno = 55,
-    seqnogrid = 35,
-    columnspan = 2,
-    xposition = 1,
-    displaylogic = '(@AbERP_RosteredResponse@=REQ | @AbERP_RosteredResponse@=''Yes - Request Shift'') & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
@@ -38,11 +34,10 @@ WHERE f.ad_tab_id = tab.ad_tab_id
   AND w.name = 'Shift (Rostered)' AND tab.name = 'Response Log'
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
--- Keep AD_ToolbarButton as Process-menu backup (Action P)
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = '(@AbERP_RosteredResponse@=REQ | @AbERP_RosteredResponse@=''Yes - Request Shift'') & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
@@ -51,7 +46,7 @@ WHERE tb.ad_tab_id = tab.ad_tab_id
   AND w.name = 'Shift (Rostered)' AND tab.name = 'Response Log'
   AND tb.name = 'Accept Shift Request';
 
--- Mandatory: process access for Admin + AbilityERP Admin (and rostering roles when present)
+-- Mandatory: Admin + AbilityERP Admin (+ rostering roles when present)
 INSERT INTO ad_process_access (
   ad_process_id, ad_role_id, ad_client_id, ad_org_id, isactive,
   created, createdby, updated, updatedby, isreadwrite, ad_process_access_uu
@@ -79,7 +74,6 @@ WHERE p.value = 'SHIFT_ACCEPT_REQUEST'
       AND x.ad_client_id = roles.ad_client_id
   );
 
--- Re-activate if previously deactivated
 UPDATE ad_process_access pa
 SET isactive = 'Y', isreadwrite = 'Y', updated = NOW(), updatedby = 100
 FROM ad_process p, ad_role r
@@ -88,12 +82,12 @@ WHERE pa.ad_process_id = p.ad_process_id
   AND p.value = 'SHIFT_ACCEPT_REQUEST'
   AND r.name IN ('AbilityERP Admin', 'Admin', 'Rostering', 'Rostering TL', 'Rostering Officer');
 
-SELECT 'field' AS kind, f.name, f.istoolbarbutton, f.isdisplayed, f.isdisplayedgrid, f.displaylogic
+SELECT 'field' AS kind, f.istoolbarbutton::text, f.displaylogic
 FROM ad_field f
 JOIN ad_column c ON c.ad_column_id = f.ad_column_id
-WHERE f.ad_tab_id = 1000256 AND c.columnname = 'AbERP_AcceptShiftRequest'
+WHERE c.columnname = 'AbERP_AcceptShiftRequest'
 UNION ALL
-SELECT 'access', r.name, pa.isreadwrite, pa.isactive, NULL, NULL
+SELECT 'access', r.name, pa.isactive
 FROM ad_process_access pa
 JOIN ad_role r ON r.ad_role_id = pa.ad_role_id
 JOIN ad_process p ON p.ad_process_id = pa.ad_process_id

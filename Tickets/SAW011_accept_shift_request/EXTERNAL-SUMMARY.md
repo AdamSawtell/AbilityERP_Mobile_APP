@@ -9,7 +9,7 @@
 | Type | Name | Change |
 |------|------|--------|
 | **Window** | Shift (Rostered) | Unchanged shell — Response Log gains Accept action |
-| **Tab** | Response Log | Updated — Accept Shift Request button / toolbar |
+| **Tab** | Response Log | Updated — Accept via detail toolbar Process on selected row |
 | **Tab** | Employee | Updated by process — worker assigned on accept |
 | **Process** | Accept Shift Request (`SHIFT_ACCEPT_REQUEST` / `AcceptShiftRequest`) | **New** |
 | **Button / column** | Accept Shift Request (`AbERP_AcceptShiftRequest`) | **New** on Response Log |
@@ -27,29 +27,26 @@ Granted to AbilityERP Admin, Admin, and Rostering / Rostering TL / Rostering Off
 
 ## What’s been done
 
-Rostering officers can **Accept Shift Request** from a worker’s **Yes – Request Shift** response on the Response Log. That assigns the worker onto the shift **Employee** tab, marks the response reviewed, and publishes the shift.
+Rostering officers / Admin can **Accept Shift Request** from a worker’s **Yes – Request Shift** row on the Response Log. That assigns the worker onto the shift **Employee** tab, marks the response reviewed, and publishes the shift.
 
-## What changed
+## What the function does (step by step)
 
-- New **Accept Shift Request** action on **Shift (Rostered) → Response Log**
-- Only for **REQ** (request) responses that are not already reviewed or superseded
-- Hidden when the shift already has an employee assigned
-- Assigns the requesting worker on the Employee tab
-- Marks the response log reviewed and updates shift published status / availability flags as designed
-
-## Impact
-
-- Rostering officers allocating requested shifts without manual re-keying of the employee
-- Workers still request via the mobile/app response path; acceptance is WebUI
+1. Open **Shift (Rostered)** → **Response Log**
+2. Select a **Yes – Request Shift** row that is not reviewed / superseded
+3. On that response row’s toolbar, open **Process** → **Accept Shift Request**
+4. System copies that response’s user onto the **Employee** tab (`AbERP_User_Contact_ID` on shift staff)
+5. Marks the response **Reviewed**
+6. Clears “showing as available” and sets shift status to **Published**
+7. Accept is hidden for reviewed / superseded rows; process also blocks if the shift already has an employee
 
 ## How to test
 
-1. Log in as AbilityERP Admin or Rostering Officer.
-2. Open a **Shift (Rostered)** with a pending **REQ** on **Response Log**.
-3. Select the REQ row → **Accept Shift Request**.
+1. Log in as **Admin** (or AbilityERP Admin / Rostering).
+2. Open a **Shift (Rostered)** with a pending **Yes – Request Shift** on **Response Log**.
+3. Select that row → toolbar **Process** → **Accept Shift Request**.
 4. Confirm the worker appears on the **Employee** tab.
-5. Confirm the response is marked reviewed and the button no longer shows for that row / already-staffed shifts.
-6. Confirm declined / reviewed rows do not show Accept.
+5. Confirm the response is marked reviewed and Accept no longer shows for that row.
+6. Confirm declined / reviewed / already-staffed rows cannot be accepted.
 
 ## Notes / caveats
 

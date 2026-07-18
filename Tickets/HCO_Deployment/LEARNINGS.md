@@ -677,3 +677,23 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 - …
 
 -->
+
+## 2026-07-18 — SAW011 Accept Shift Request UI (Admin Process on Response Log)
+
+**Result:** Pass
+
+### What worked
+- Response Log selected REQ row → detail toolbar Process → Accept Shift Request (Admin)
+- Smoke: shift 1110644 / Doc 1103676 Navroop Gill → Employee staff + IsReviewed=Y + Published
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| Response Log is grid-first; Window button (IsToolbarButton=N) stays invisible | Use IsToolbarButton=Y so Accept appears under detail Process on the selected row |
+| Admin must have process access for any new process | Install SQL grants Admin + AbilityERP Admin (+ Rostering roles when present) |
+| DisplayLogic matching list Name with hyphens is fragile | Keep Value REQ + null-safe !Y for Reviewed/Superseded |
+
+### Ticket artefacts
+- Tickets/SAW011_accept_shift_request/
+- idempiere-plugins/com.aberp.rosteredshift.process/sql/33-accept-displaylogic-name.sql
+

@@ -1,12 +1,12 @@
--- SAW011: Accept as Window button on the Response Log record (like Employee Clock In)
+-- SAW011: Accept on Response Log via detail toolbar Process (selected row)
 -- + ensure Admin / AbilityERP Admin process access
 -- Cache Reset + re-open Shift window after apply.
 
 SET search_path TO adempiere;
 
--- Window button against the response record (not Toolbar/Process-menu only)
+-- Toolbar/Process on the selected response row (detail grid — Window buttons stay hidden)
 UPDATE ad_column c
-SET istoolbarbutton = 'N',
+SET istoolbarbutton = 'Y',
     isactive = 'Y',
     isupdateable = 'Y',
     issyncdatabase = 'Y',
@@ -18,7 +18,7 @@ WHERE c.ad_table_id = tb.ad_table_id
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
 UPDATE ad_field f
-SET istoolbarbutton = 'N',
+SET istoolbarbutton = 'Y',
     isactive = 'Y',
     isdisplayed = 'Y',
     isdisplayedgrid = 'Y',
@@ -27,7 +27,7 @@ SET istoolbarbutton = 'N',
     seqnogrid = 35,
     columnspan = 2,
     xposition = 1,
-    displaylogic = '(@AbERP_RosteredResponse@=REQ | @AbERP_RosteredResponse@=''Yes - Request Shift'') & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
@@ -38,11 +38,10 @@ WHERE f.ad_tab_id = tab.ad_tab_id
   AND w.name = 'Shift (Rostered)' AND tab.name = 'Response Log'
   AND c.columnname = 'AbERP_AcceptShiftRequest';
 
--- Keep AD_ToolbarButton as Process-menu backup (Action P)
 UPDATE ad_toolbarbutton tb
 SET isactive = 'Y',
     action = 'P',
-    displaylogic = '(@AbERP_RosteredResponse@=REQ | @AbERP_RosteredResponse@=''Yes - Request Shift'') & @IsReviewed@!Y & @IsSuperseded@!Y',
+    displaylogic = '@AbERP_RosteredResponse@=REQ & @IsReviewed@!Y & @IsSuperseded@!Y',
     updated = NOW(),
     updatedby = 100
 FROM ad_tab tab
