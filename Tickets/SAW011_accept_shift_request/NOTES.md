@@ -21,6 +21,23 @@
 | Process | `SHIFT_ACCEPT_REQUEST` |
 | Smoke | Shift `1115309` Madura; shift `1110644` / Doc `1103676` Navroop Gill REQ → Employee + IsReviewed=Y (2026-07-18, Admin) |
 
+### Incident — shift 1110073 / Doc 1103105 (2026-07-19)
+
+**Report:** Find/Fill “won’t assign to vacant” after never-overwrite fix.
+
+**Fact:** There was **no vacant Employee line**. Both active staff rows already have `AbERP_User_Contact_ID`:
+
+| Staff ID | Line | Employee | Updated |
+|---|---|---|---|
+| 1125903 | 10 | Jully Patel (LVE) | 2026-07-14 |
+| 1125902 | (null) | Elizabeth Kimani | 2026-07-19 15:04 SuperUser |
+
+UI Unfilled Staff = **0**. Vacancy query returns **0 rows**. Process correctly refuses to overwrite. Elizabeth Response Log `1027636` already Reviewed.
+
+**Not overwrite regression.** If a further worker is needed, create another empty Employee line first.
+
+GitHub: issue [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) comment 2026-07-19.
+
 ### Install learnings (2026-07-18)
 
 1. Hardcoded Published `1000040` is **Active** on HCO — resolve by name + client.
