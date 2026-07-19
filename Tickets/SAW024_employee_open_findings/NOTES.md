@@ -11,7 +11,12 @@
 - Open Findings rolled out to **all category tabs** (`33`/`34`): Client / Incident / Rostering / Documentation Findings
 - Distinct tab names so ZK does not confuse twin “Open Findings” leaves
 - Open finding counts on dev: W 196 / P 202 / I 574 / R 1237 / D 8
+- **SQL 40 (owned here):** Findings `DisplayLogic` uses parent population fields from SAW025 so the lead page shows only the five category tabs; selecting a category exposes only its own Findings grid
 
+## Ticket boundary (2026-07-19)
+
+- **SAW024** = Findings navigation (nest, Open & Fix, parent-only visibility)
+- **SAW025** = Category KPIs / summaries / progressive layout (not Findings tab strip)
 
 ## Learnings
 
@@ -37,6 +42,7 @@
   - Rostering → Rostering Findings: Upcoming shift unfilled — pass
   - Documentation → Documentation Findings: Onboarding documentation expired + Assignment — pass
   - Documentation **Open & Fix** → Credential Assignment: 1003317 — pass
+- **SQL 40 (2026-07-17):** lead page tabs = Employee / Client / Incidents / Rostering / Documentation only; Employee → Open Findings (195) + Open & Fix — pass
 
 ## HCO Future Deployments variables
 

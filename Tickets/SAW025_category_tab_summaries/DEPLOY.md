@@ -15,9 +15,8 @@ Yes — `com.aberp.compliance_7.1.0.202607170545.jar` (writes `PopulationCount` 
 3. `sql/37-category-kpi-expansion.sql`
 4. `sql/38-roster-current-next-period.sql`
 5. `sql/39-category-progressive-explainers.sql`
-6. `sql/40-findings-parent-only-navigation.sql`
 
-Or `deploy.sh` (includes 35→40).
+Or `deploy.sh` (includes 35→39 for this ticket; SQL 40 is **SAW024** Findings navigation and runs after 39 when using the full script).
 
 ## Restart / cache
 
@@ -35,9 +34,9 @@ OSGi install/start JAR if deploying engine change. After SQL 37–39: **restart 
 8. In form view, confirm **At a glance** and **Action required** are open
 9. Confirm persistent calculation explanations appear below the primary metric rows
 10. Confirm **Trends and ageing** + **Compliance breakdown** are collapsed
-11. Return to the Organisation Audit lead page and confirm only the five category tabs are visible
-12. Open each category and confirm only its own Findings subtab/grid becomes available
-13. Confirm **no SQL error modal** on any category tab
+11. Confirm **no SQL error modal** on any category tab
+
+Findings tab visibility / Open & Fix: see **SAW024** `DEPLOY.md`.
 
 ## AbilityERP Admin access
 

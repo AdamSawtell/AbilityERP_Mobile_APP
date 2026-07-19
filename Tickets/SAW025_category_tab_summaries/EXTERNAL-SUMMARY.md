@@ -1,18 +1,19 @@
-﻿# SAW025 — Category tab summaries (external)
+﻿# SAW025 — Category KPIs & layout (external)
 
 ## What’s done
 
-The Organisation Audit lead page and each category tab now use a cleaner progressive layout. Primary calculations include visible plain-language explanations; secondary trends and compliance breakdowns remain available in collapsed sections.
+The Organisation Audit lead page and each category tab show population, readiness, and category KPIs in a progressive layout. Primary calculations include visible plain-language explanations; secondary trends and compliance breakdowns remain available in collapsed sections.
 
 ### Page layout
 
-- **At a glance** — population, readiness, status and current findings, with calculation explanations
+- **At a glance** — population, readiness, status and current findings counts, with calculation explanations
 - **Action required** — category-specific operational KPIs and a visible calculation guide
 - **Trends and ageing** — collapsed by default
 - **Compliance breakdown** — collapsed by default
 
 The lead page explains the overall readiness score, traffic light, total checks, compliant/warning/non-compliant/critical counts and refresh time.
-The lead page now shows only the five category tabs. Findings subtabs are hidden there and become available only after opening their parent category.
+
+Findings lists and **Open & Fix** are covered by the separate Findings navigation work (SAW024).
 
 ## What changed
 
@@ -42,18 +43,16 @@ Readiness Score, Status (R/A/G), Open Findings, Critical Open, Open >7/30/90d, N
 
 ## Impact
 
-Admins get workforce, client, incident, roster and document context above the Open Findings list without leaving the tab. Persistent explanations make the primary calculations understandable, while collapsed secondary sections reduce page clutter.
+Admins get workforce, client, incident, roster and document context without leaving the category tab. Persistent explanations make the primary calculations understandable, while collapsed secondary sections reduce page clutter.
 
 ## How to test
 
 1. Open **Organisation Audit → Audit Hub**
 2. On the lead page, confirm explanations appear beside each overall calculation
 3. On each category tab, use form/detail view and confirm **At a glance** and **Action required** are open
-4. Confirm explanation text appears under population, readiness/status, findings and category action calculations
+4. Confirm explanation text appears under population, readiness/status, findings counts and category action calculations
 5. Confirm **Trends and ageing** and **Compliance breakdown** are collapsed
-6. Return to the lead page and confirm no Findings subtabs are visible
-7. Open each category and confirm its own Findings grid remains available with **Open & Fix**
-8. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
+6. Spot-check: Active Clients ≈ Client window count; Rostering Fill Rate near 100% when most shifts are filled
 
 ## Access
 

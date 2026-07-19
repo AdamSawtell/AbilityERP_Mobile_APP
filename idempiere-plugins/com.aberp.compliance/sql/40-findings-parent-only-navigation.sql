@@ -1,6 +1,7 @@
--- SAW025-40 — Hide category Findings subtabs until their parent category is selected
--- The parent-specific virtual field is only available to tab DisplayLogic while
--- that category is the active header. Included findings grids remain available.
+-- SAW024-40 — Hide category Findings subtabs until their parent category is selected
+-- Owned by SAW024 (Findings navigation). Requires SAW025 population columns
+-- (ActiveEmployees / ActiveClients / ActiveIncidents / PeriodShifts / TotalDocuments)
+-- because DisplayLogic evaluates those parent fields while the category tab is active.
 SET search_path TO adempiere;
 
 DO $$
@@ -28,7 +29,7 @@ BEGIN
 
   GET DIAGNOSTICS v_count = ROW_COUNT;
   IF v_count <> 5 THEN
-    RAISE EXCEPTION 'SAW025-40: expected 5 Findings tabs, updated %', v_count;
+    RAISE EXCEPTION 'SAW024-40: expected 5 Findings tabs, updated %', v_count;
   END IF;
 
   SELECT COUNT(*) INTO v_count
@@ -55,7 +56,7 @@ BEGIN
     GROUP BY child.ad_tab_id
     HAVING COUNT(*) <> 1
   ) THEN
-    RAISE EXCEPTION 'SAW025-40: invalid category-to-Findings included-tab linkage (count=%)', v_count;
+    RAISE EXCEPTION 'SAW024-40: invalid category-to-Findings included-tab linkage (count=%)', v_count;
   END IF;
 END $$;
 
