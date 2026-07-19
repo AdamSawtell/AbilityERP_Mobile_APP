@@ -1,5 +1,7 @@
 # SAW028 — Deploy
 
+> **Merged into SAW027.** Use [`Tickets/SAW027_activity_audit/DEPLOY.md`](../SAW027_activity_audit/DEPLOY.md) for installs (SQL 16–17 included in `00`–`18`).
+
 ## Environment
 
 | Tier | Host | Notes |

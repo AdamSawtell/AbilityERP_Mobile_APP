@@ -1,19 +1,25 @@
-# AbERP Activity Audit (SAW027)
+# com.aberp.activityaudit — Activity Audit
 
-Configurable keyword audit of `C_ContactActivity` with nightly incremental processing and review workflow.
+AbilityERP **Activity Audit** (ticket **SAW027**): terms, nightly/historical engine, review queue, Activity Viewer links, review form groups.
 
-## Build / deploy
+## Deploy
 
 ```bash
-cd /path/to/com.aberp.activityaudit
 chmod +x build.sh deploy.sh
 ./deploy.sh
 ```
 
+Applies SQL `00`–`18`, installs JAR `7.1.0.202607180900`, restarts iDempiere.
+
+Agent handoff: `Tickets/SAW027_activity_audit/DEPLOY.md`
+
 ## Processes
 
-| Value | Class |
-|-------|--------|
-| `AbERP_ActivityAudit_Nightly` | `ActivityAuditNightly` |
-| `AbERP_ActivityAudit_Historical` | `ActivityAuditHistorical` |
-| `AbERP_ActivityAudit_OpenActivity` | `OpenActivity` |
+| Value | Role |
+|-------|------|
+| `AbERP_ActivityAudit_Nightly` | Incremental scan |
+| `AbERP_ActivityAudit_Historical` | Date-range / new terms |
+| `AbERP_ActivityAudit_OpenActivity` | Review → Activity Viewer |
+| `AbERP_ActivityViewer_OpenClient` | Viewer → Client |
+| `AbERP_ActivityViewer_OpenEmployee` | Viewer → Employee |
+| `AbERP_ActivityViewer_OpenSupportLocation` | Viewer → Support Location |

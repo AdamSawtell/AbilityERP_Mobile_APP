@@ -1,29 +1,35 @@
-# Activity Audit — external summary
+# Activity Audit
 
 ## Windows / processes / objects affected
 
-| Object | Type | Notes |
-|--------|------|--------|
-| Activity Audit Terms | Window | Maintain org-specific audit words/phrases |
-| Change History | Tab | Term change history (plus AD change log) |
-| Activity Audit Review | Window | Outstanding flagged Activities; mark Reviewed |
-| Activity Audit Runs | Window | Nightly / historical process log |
-| Activity Audit Nightly | Process + scheduler | Scans Activities updated in last 24 hours |
-| Historical Activity Audit | Process | Date-range / new-term reprocess |
-| Open Activity | Button on Review (SAW024-style) | Opens **Activity Viewer** on the linked Contact Activity |
+| Type | Name | Notes |
+|------|------|--------|
+| Window | Activity Audit Terms | Configurable words/phrases; Change History tab |
+| Window | Activity Audit Review | Outstanding flagged Activities; mark Reviewed |
+| Window | Activity Audit Runs | Nightly / historical process log |
+| Window | Activity Viewer | Open Activity target; Client / Employee / Support Location links |
+| Process | Activity Audit Nightly | Incremental scan (last 24 hours) + scheduler |
+| Process | Historical Activity Audit | Date-range / new-term reprocess |
+| Process | Open Activity | Review → Activity Viewer |
+| Process | Open Client | Activity Viewer → Client window |
+| Process | Open Employee | Activity Viewer → Employee window |
+| Process | Open Support Location | Activity Viewer → Support Location window |
 
-## What’s done
+## Done
 
-Organisations can maintain their own list of audit words and phrases (for example Hospital, Ambulance, Fall, Medication error). A nightly process reviews recently updated Activities and creates a review item when a configured term is found. Reviewers open the original Activity, assess it, and mark it Reviewed. Unchanged Activities are not flagged again.
+Organisations can maintain audit words and phrases. A nightly process flags Contact Activities that match, and reviewers work a queue: open the activity, decide, mark Reviewed. From Activity Viewer, Client / Employee / Support Location open the correct AbilityERP windows. The Review form is grouped so the match and the decision are easy to scan.
 
 ## What changed (behaviour)
 
-- New **Activity Audit** menu under Ability ERP
-- Terms are configurable without deployment (Exact Word / Exact Phrase / Contains; risk; category; effective dates; organisation)
+- **Activity Audit** menu under Ability ERP (Terms, Review, Runs, Nightly, Historical)
+- Terms: Exact Word / Exact Phrase / Contains; risk; category; effective dates; organisation
 - Nightly incremental scan of Activities created or updated in the previous 24 hours
-- One review record per Activity when matches exist (multiple terms on the same review)
-- Reviewed checkbox stamps Reviewed By / Date and moves the item out of the outstanding queue
-- Historical process available for checking new terms against a selected date range
+- One review per Activity when matches exist (multiple terms on the same review)
+- **Reviewed** stamps Reviewed By / Date and clears the outstanding queue
+- Review form sections: **Activity** → **Match** → **Review** → **Audit**
+- Use **Review Status** for Follow-Up Required (separate Follow-Up checkbox not shown)
+- Activity Viewer **Activity Links**: Client / Employee / Support Location when resolvable
+- Historical process for new terms against a date range
 
 ## Impact / who is affected
 
@@ -32,21 +38,27 @@ Compliance / quality / operations staff who review significant events in Activit
 ## How to test
 
 1. Log in as Admin / AbilityERP Admin
-2. Open **Activity Audit Terms** and confirm sample terms (or add `ambulance`)
-3. Update an Activity so Description or Comments includes a configured word
+2. **Activity Audit Terms** — confirm sample terms (or add one)
+3. Update an Activity Description/Comments with a configured word → Save
 4. Run **Activity Audit Nightly**
-5. Open **Activity Audit Review**, confirm the match, use **Open Activity**, then check **Reviewed**
-6. Confirm the item leaves the outstanding list and that a second nightly run does not recreate it while the Activity is unchanged
+5. **Activity Audit Review** — confirm the match; form shows Activity / Match / Review / Audit
+6. **Open Activity** → read the source; check **Reviewed** → item leaves the outstanding list
+7. Second Nightly run does not recreate the row while the Activity is unchanged
+8. On Activity Viewer, use Client / Employee / Support Location when those links apply
 
 ## Access
 
-**AbilityERP Admin** (and Admin) can use Activity Audit after install and re-login / Cache Reset.
+**AbilityERP Admin** (and Admin where granted) can use Activity Audit after install and re-login / Cache Reset.
 
 | Access | Name | Search key |
 |--------|------|------------|
 | Window | Activity Audit Terms | — |
 | Window | Activity Audit Review | — |
 | Window | Activity Audit Runs | — |
+| Window | Activity Viewer | — |
 | Process | Activity Audit Nightly | `AbERP_ActivityAudit_Nightly` |
 | Process | Historical Activity Audit | `AbERP_ActivityAudit_Historical` |
 | Process | Open Activity | `AbERP_ActivityAudit_OpenActivity` |
+| Process | Open Client | `AbERP_ActivityViewer_OpenClient` |
+| Process | Open Employee | `AbERP_ActivityViewer_OpenEmployee` |
+| Process | Open Support Location | `AbERP_ActivityViewer_OpenSupportLocation` |

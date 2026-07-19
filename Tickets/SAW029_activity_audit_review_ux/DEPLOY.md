@@ -1,5 +1,7 @@
 # SAW029 — Deploy
 
+> **Merged into SAW027.** Use [`Tickets/SAW027_activity_audit/DEPLOY.md`](../SAW027_activity_audit/DEPLOY.md) for installs (SQL 18 included in `00`–`18`). Below kept as a detail note only.
+
 Agent install guide for **another** iDempiere build. SQL-only layout change on **Activity Audit Review**.
 
 ## Prerequisites (fail closed)
