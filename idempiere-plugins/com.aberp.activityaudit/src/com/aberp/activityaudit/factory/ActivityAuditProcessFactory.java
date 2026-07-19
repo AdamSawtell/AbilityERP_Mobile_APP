@@ -2,10 +2,13 @@ package com.aberp.activityaudit.factory;
 
 import org.adempiere.base.IColumnCallout;
 import org.adempiere.base.IColumnCalloutFactory;
+import org.adempiere.base.IModelValidatorFactory;
 import org.adempiere.base.IProcessFactory;
+import org.compiere.model.ModelValidator;
 import org.compiere.process.ProcessCall;
 
 import com.aberp.activityaudit.callout.CalloutActivityAuditReview;
+import com.aberp.activityaudit.model.ActivityAuditReviewValidator;
 import com.aberp.activityaudit.process.ActivityAuditHistorical;
 import com.aberp.activityaudit.process.ActivityAuditNightly;
 import com.aberp.activityaudit.process.OpenActivity;
@@ -13,7 +16,7 @@ import com.aberp.activityaudit.process.OpenActivityClient;
 import com.aberp.activityaudit.process.OpenActivityEmployee;
 import com.aberp.activityaudit.process.OpenActivitySupportLocation;
 
-public class ActivityAuditProcessFactory implements IProcessFactory, IColumnCalloutFactory {
+public class ActivityAuditProcessFactory implements IProcessFactory, IColumnCalloutFactory, IModelValidatorFactory {
 
 	@Override
 	public ProcessCall newProcessInstance(String className) {
@@ -43,6 +46,14 @@ public class ActivityAuditProcessFactory implements IProcessFactory, IColumnCall
 		if ("AbERP_ActivityAuditReview".equalsIgnoreCase(tableName)
 				&& "IsReviewed".equalsIgnoreCase(columnName)) {
 			return new IColumnCallout[] { new CalloutActivityAuditReviewAdapter() };
+		}
+		return null;
+	}
+
+	@Override
+	public ModelValidator newModelValidatorInstance(String className) {
+		if (ActivityAuditReviewValidator.CLASSNAME.equals(className)) {
+			return new ActivityAuditReviewValidator();
 		}
 		return null;
 	}

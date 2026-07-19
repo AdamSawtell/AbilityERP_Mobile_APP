@@ -2,7 +2,7 @@
 
 | | |
 |--|--|
-| **Status** | in-progress |
+| **Status** | done |
 | **Kind** | idempiere |
 | **GitHub** | [#27](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/27) |
 | **Slug** | `SAW027_activity_audit` |
@@ -26,9 +26,9 @@ One Activity Audit product: configurable terms → nightly/historical scan of Co
 | Item | Path |
 |------|------|
 | Plugin | `idempiere-plugins/com.aberp.activityaudit/` |
-| SQL | `…/sql/00`–`18` (via `deploy.sh`) |
+| SQL | `…/sql/00`–`21` (via `deploy.sh`) |
 | Engine | `…/engine/ActivityAuditEngine.java` |
-| JAR | `com.aberp.activityaudit_7.1.0.202607180900` |
+| JAR | `com.aberp.activityaudit_7.1.0.202607191400` |
 
 ## Related IDs (merged)
 

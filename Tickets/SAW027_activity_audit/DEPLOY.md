@@ -18,9 +18,11 @@ Former SAW028 / SAW029 SQL is included here — do **not** run those tickets sep
 
 ## JAR
 
-Yes — `com.aberp.activityaudit_7.1.0.202607180900.jar`
+Yes — `com.aberp.activityaudit_7.1.0.202607191400.jar`
 
-Includes: Nightly / Historical engine, Open Activity, Reviewed callout, Activity Viewer Open Client / Employee / Support Location (`WebUiZoom`).
+Includes: Nightly / Historical engine, Open Activity, Activity Viewer Open Client / Employee / Support Location (`WebUiZoom`).
+
+Reviewed By/Date stamping is **not** via classic Callout — use SQL `21` trigger (see below). Keep AD_ModelValidator from SQL `20` **INACTIVE** (activating breaks login).
 
 Manual OSGi console install/start (or host `deploy.sh` for non-client builds).
 
@@ -51,6 +53,9 @@ Manual order under `idempiere-plugins/com.aberp.activityaudit/sql/`:
 | 16 | `16-activity-viewer-links.sql` | Viewer Client / Employee / SL buttons |
 | 17 | `17-activity-viewer-links-display.sql` | DisplayLogic / placement |
 | 18 | `18-review-field-groups.sql` | Review form: Activity / Match / Review / Audit |
+| 19 | `19-fix-reviewed-callout.sql` | Clear classic Callout on IsReviewed (ClassNotFound under OSGi) |
+| 20 | `20-reviewed-model-validator.sql` | AD_ModelValidator metadata — **must stay INACTIVE** |
+| 21 | `21-reviewed-stamp-trigger.sql` | BEFORE UPDATE trigger stamps Reviewed By/Date/status |
 
 UUID-safe upserts throughout — never hardcode `AD_*_ID` across clients. Never change existing HCO `*_UU`.
 
@@ -117,12 +122,12 @@ Scan fields: `C_ContactActivity.Description` + `Comments`.
 
 ## Packs
 
-| Tier | Path (when built) |
-|------|-------------------|
-| Staging | `Downloads\AbilityERP-ClientUpdate-SAW027_activity_audit-<YYYYMMDD>\` |
-| Production | `Downloads\AbilityERP-ProdUpdate-SAW027_activity_audit-<YYYYMMDD>\` |
+| Tier | Path |
+|------|------|
+| Staging | `Downloads\AbilityERP-ClientUpdate-SAW027_activity_audit-20260719\` |
+| Production | `Downloads\AbilityERP-ProdUpdate-SAW027_activity_audit-20260719\` |
 
-One pack for the whole function (JAR + SQL `00`–`18`). Do not ship separate SAW028/SAW029 packs for new installs.
+One pack for the whole function (JAR `191400` + SQL `00`–`21`). Do not ship separate SAW028/SAW029 packs for new installs.
 
 ## Blockers
 
@@ -130,4 +135,4 @@ One pack for the whole function (JAR + SQL `00`–`18`). Do not ship separate SA
 |------|--------|
 | Named zoom windows missing | Client / Employee / Support Location windows must exist for viewer links |
 | Stale form layout | Cache Reset + reopen window after SQL 18 |
-| Partial E2E on staging | Steps 7–8 (Reviewed + no-duplicate) still need a logged PASS before packs / done |
+| AD_ModelValidator active | Never activate SQL `20` validator — breaks login; stamp uses SQL `21` trigger |

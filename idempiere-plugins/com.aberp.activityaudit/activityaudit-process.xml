@@ -5,5 +5,6 @@
    <service>
       <provide interface="org.adempiere.base.IProcessFactory"/>
       <provide interface="org.adempiere.base.IColumnCalloutFactory"/>
+      <provide interface="org.adempiere.base.IModelValidatorFactory"/>
    </service>
 </scr:component>

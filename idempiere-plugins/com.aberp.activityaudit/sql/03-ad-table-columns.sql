@@ -264,8 +264,9 @@ BEGIN
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c017-4f01-8e15-000000000001','Category','Category',17,v_cat,'N','N',160,2,'N','N','N','Y');
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c018-4f01-8e15-000000000001','HighestRiskLevel','Highest Risk Level',17,v_rl,'N','N',170,2,'N','N','N','Y');
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c019-4f01-8e15-000000000001','ReviewStatus','Review Status',17,v_rs,'Y','Y',180,2,'N','N','N','Y','NW');
+  -- Callout via IColumnCalloutFactory only (do not set classic AD_Column.Callout — OSGi ClassNotFound)
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c020-4f01-8e15-000000000001','IsReviewed','Reviewed',20,NULL,'Y','Y',190,1,'N','N','N','Y','N',
-    'com.aberp.activityaudit.callout.CalloutActivityAuditReview.reviewed');
+    NULL);
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c021-4f01-8e15-000000000001','ReviewedBy','Reviewed By',18,110,'N','N',200,10);
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c022-4f01-8e15-000000000001','ReviewedDate','Reviewed Date',16,NULL,'N','N',210,7);
   PERFORM pg_temp.saw027_col(v_rev,'27a02704-c023-4f01-8e15-000000000001','ReviewNotes','Review Notes',14,NULL,'N','Y',220,2000);

@@ -9,7 +9,7 @@ chmod +x build.sh deploy.sh
 ./deploy.sh
 ```
 
-Applies SQL `00`–`18`, installs JAR `7.1.0.202607180900`, restarts iDempiere.
+Applies SQL `00`–`21`, installs JAR `7.1.0.202607191400`, restarts iDempiere.
 
 Agent handoff: `Tickets/SAW027_activity_audit/DEPLOY.md`
 
