@@ -88,6 +88,7 @@ BEGIN
   PERFORM pg_temp.saw023_list_val(v_cat,'23a02320-0004-4f01-8e15-000000000001','R','Rostering',40);
   PERFORM pg_temp.saw023_list_val(v_cat,'23a02320-0005-4f01-8e15-000000000001','F','Financials',50);
   PERFORM pg_temp.saw023_list_val(v_cat,'23a02320-0006-4f01-8e15-000000000001','D','Documentation',60);
+  PERFORM pg_temp.saw023_list_val(v_cat,'23a02320-0007-4f01-8e15-000000000001','L','Support Location',70);
 
   v_sev := pg_temp.saw023_list_ref(
     '23a02321-c0d4-4f01-8e15-000000000001',

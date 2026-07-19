@@ -1,7 +1,7 @@
 -- =============================================================================
 -- SAW023 — Compliance Summary window + functional tabs
 -- Window UU: 23a02305-c0d4-4f01-8e15-000000000001
--- Tabs: Summary 10 / Employee 20 / Client 30 / Incidents 40 / Rostering 50 / Documentation 60
+-- Tabs: Summary 10 / Employee 20 / Client 30 / Incidents 40 / Rostering 50 / Documentation 60 / Support Location 70
 -- =============================================================================
 SET search_path TO adempiere;
 
@@ -155,6 +155,7 @@ DECLARE
   v_tab_inc INTEGER;
   v_tab_ros INTEGER;
   v_tab_doc INTEGER;
+  v_tab_loc INTEGER;
 BEGIN
   SELECT ad_table_id INTO v_dash_id FROM ad_table WHERE tablename = 'AbERP_ComplianceDashboard';
   IF v_dash_id IS NULL THEN
@@ -177,7 +178,7 @@ BEGIN
       nextidfunc((SELECT ad_sequence_id FROM ad_sequence WHERE name = 'AD_Window' AND istableid = 'Y')::integer, 'N'),
       0, 0, 'Y', NOW(), 100, NOW(), 100,
       'Compliance Summary',
-      'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation)',
+      'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation, Support Location)',
       'Organisation Audit (default tab) shows overall readiness score and totals. Switch tabs via the tab name dropdown (▼) for each function area. Values are from the latest snapshot, not live queries.',
       'M', 'N',
       'Ab_ERP', 'N', 'N', 'N', v_window_uu
@@ -185,7 +186,7 @@ BEGIN
   ELSE
     UPDATE ad_window SET
       name = 'Compliance Summary',
-      description = 'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation)',
+      description = 'Organisation NDIS Audit Readiness — overall KPIs plus category tabs (Employee, Client, Incidents, Rostering, Documentation, Support Location)',
       help = 'Organisation Audit (default tab) shows overall readiness score and totals. Switch tabs via the tab name dropdown (▼) for each function area. Values are from the latest snapshot, not live queries.',
       entitytype = 'Ab_ERP',
       ad_window_uu = COALESCE(ad_window_uu, v_window_uu),
@@ -208,6 +209,7 @@ BEGIN
   v_tab_inc := pg_temp.saw023_tab('23a02313-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Incidents', 40, 1, v_link_col);
   v_tab_ros := pg_temp.saw023_tab('23a02314-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Rostering', 50, 1, v_link_col);
   v_tab_doc := pg_temp.saw023_tab('23a02315-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Documentation', 60, 1, v_link_col);
+  v_tab_loc := pg_temp.saw023_tab('23a02317-c0d4-4f01-8e15-000000000001', v_window_id, v_dash_id, 'Support Location', 70, 1, v_link_col);
 
   -- Summary tab fields
   PERFORM pg_temp.saw023_field(v_tab_sum,'23a02310-f001-4f01-8e15-000000000001','AbERP_ComplianceDashboard_ID','Compliance Dashboard',0,'N','Y','N',0,'N');
@@ -227,6 +229,7 @@ BEGIN
   PERFORM pg_temp.saw023_category_fields(v_tab_inc, 'Incident', '23a02313');
   PERFORM pg_temp.saw023_category_fields(v_tab_ros, 'Roster', '23a02314');
   PERFORM pg_temp.saw023_category_fields(v_tab_doc, 'Doc', '23a02315');
+  -- Location legacy buckets + KPIs are completed by sql/41 (ColumnSQL)
 
   -- Fine-tune same-line pairs to column 4
   UPDATE ad_field f SET

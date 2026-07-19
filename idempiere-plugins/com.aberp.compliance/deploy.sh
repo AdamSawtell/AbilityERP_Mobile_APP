@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="7.1.0.202607170545"
+VERSION="7.1.0.202607191730"
 SYMBOLIC="com.aberp.compliance"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -53,6 +53,7 @@ sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/37-category-k
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/38-roster-current-next-period.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/39-category-progressive-explainers.sql"
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/40-findings-parent-only-navigation.sql"
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 -f "$SQL_DIR/41-support-location-category.sql"
 
 echo "Restarting iDempiere via systemd (NOT clearing OSGi cache)"
 sudo /etc/init.d/idempiere stop || true

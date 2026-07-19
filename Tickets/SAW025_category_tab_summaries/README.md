@@ -31,8 +31,9 @@ Findings tab strip / Open & Fix navigation is **SAW024** (including SQL 40).
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/37-category-kpi-expansion.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/38-roster-current-next-period.sql` |
 | SQL | `idempiere-plugins/com.aberp.compliance/sql/39-category-progressive-explainers.sql` |
+| SQL | `idempiere-plugins/com.aberp.compliance/sql/41-support-location-category.sql` |
 | Engine | `idempiere-plugins/com.aberp.compliance/src/com/aberp/compliance/ComplianceEngine.java` |
-| JAR | `com.aberp.compliance_7.1.0.202607170545` |
+| JAR | `com.aberp.compliance_7.1.0.202607191730` |
 
 ## Access
 

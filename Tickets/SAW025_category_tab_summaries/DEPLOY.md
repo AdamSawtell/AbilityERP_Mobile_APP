@@ -6,7 +6,7 @@
 
 ## JAR
 
-Yes — `com.aberp.compliance_7.1.0.202607170545.jar` (writes `PopulationCount` on refresh). Live population + KPIs also work from SQL view / ColumnSQL functions alone.
+Yes — `com.aberp.compliance_7.1.0.202607191730.jar` (writes `PopulationCount` including Support Location `L` on refresh). Live population + KPIs also work from SQL view / ColumnSQL functions alone.
 
 ## Ordered SQL
 
@@ -15,12 +15,13 @@ Yes — `com.aberp.compliance_7.1.0.202607170545.jar` (writes `PopulationCount` 
 3. `sql/37-category-kpi-expansion.sql`
 4. `sql/38-roster-current-next-period.sql`
 5. `sql/39-category-progressive-explainers.sql`
+6. `sql/41-support-location-category.sql`
 
-Or `deploy.sh` (includes 35→39 for this ticket; SQL 40 is **SAW024** Findings navigation and runs after 39 when using the full script).
+Or `deploy.sh` (includes 35→41 for this ticket; SQL 40 is **SAW024** Findings navigation and runs before 41 when using the full script).
 
 ## Restart / cache
 
-OSGi install/start JAR if deploying engine change. After SQL 37–39: **restart iDempiere** (or Cache Reset + logout/in) so ColumnSQL and field-layout updates are picked up.
+OSGi install/start JAR if deploying engine change. After SQL 37–41: **restart iDempiere** (or Cache Reset + logout/in) so ColumnSQL and field-layout updates are picked up.
 
 ## Smoke
 
@@ -31,10 +32,11 @@ OSGi install/start JAR if deploying engine change. After SQL 37–39: **restart 
 5. **Incidents**: Active Incidents + Closed / Actions / Median Days Open
 6. **Rostering**: **Current Roster | Next Roster**; fill/unfilled/filled/cancelled/missing-cred pairs for those two periods only (no 7d/14d)
 7. **Documentation**: Total Documents + Current % / Onboarding Expired
-8. In form view, confirm **At a glance** and **Action required** are open
-9. Confirm persistent calculation explanations appear below the primary metric rows
-10. Confirm **Trends and ageing** + **Compliance breakdown** are collapsed
-11. Confirm **no SQL error modal** on any category tab
+8. **Support Location**: Active Support Locations + Change (90d); Vacant / SDA / Wheelchair / Bushfire / Meets Expectations; shared readiness/findings KPIs
+9. In form view, confirm **At a glance** and **Action required** are open
+10. Confirm persistent calculation explanations appear below the primary metric rows
+11. Confirm **Trends and ageing** + **Compliance breakdown** are collapsed
+12. Confirm **no SQL error modal** on any category tab
 
 Findings tab visibility / Open & Fix: see **SAW024** `DEPLOY.md`.
 

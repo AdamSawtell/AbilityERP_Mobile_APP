@@ -1,7 +1,8 @@
 -- SAW024-40 — Hide category Findings subtabs until their parent category is selected
 -- Owned by SAW024 (Findings navigation). Requires SAW025 population columns
--- (ActiveEmployees / ActiveClients / ActiveIncidents / PeriodShifts / TotalDocuments)
--- because DisplayLogic evaluates those parent fields while the category tab is active.
+-- (ActiveEmployees / ActiveClients / ActiveIncidents / PeriodShifts / TotalDocuments
+--  / ActiveSupportLocations) because DisplayLogic evaluates those parent fields
+-- while the category tab is active.
 SET search_path TO adempiere;
 
 DO $$
@@ -15,6 +16,7 @@ BEGIN
       WHEN '24a02412-c0d4-4f01-8e15-000000000001' THEN '@ActiveIncidents@>-1'
       WHEN '24a02413-c0d4-4f01-8e15-000000000001' THEN '@PeriodShifts@>-1'
       WHEN '24a02414-c0d4-4f01-8e15-000000000001' THEN '@TotalDocuments@>-1'
+      WHEN '24a02415-c0d4-4f01-8e15-000000000001' THEN '@ActiveSupportLocations@>-1'
     END,
     isadvancedtab = 'N',
     updated = NOW(),
@@ -24,12 +26,13 @@ BEGIN
     '24a02411-c0d4-4f01-8e15-000000000001',
     '24a02412-c0d4-4f01-8e15-000000000001',
     '24a02413-c0d4-4f01-8e15-000000000001',
-    '24a02414-c0d4-4f01-8e15-000000000001'
+    '24a02414-c0d4-4f01-8e15-000000000001',
+    '24a02415-c0d4-4f01-8e15-000000000001'
   );
 
   GET DIAGNOSTICS v_count = ROW_COUNT;
-  IF v_count <> 5 THEN
-    RAISE EXCEPTION 'SAW024-40: expected 5 Findings tabs, updated %', v_count;
+  IF v_count < 5 THEN
+    RAISE EXCEPTION 'SAW024-40: expected at least 5 Findings tabs, updated %', v_count;
   END IF;
 
   SELECT COUNT(*) INTO v_count
@@ -68,6 +71,7 @@ WHERE c.ad_tab_uu IN (
   '24a02411-c0d4-4f01-8e15-000000000001',
   '24a02412-c0d4-4f01-8e15-000000000001',
   '24a02413-c0d4-4f01-8e15-000000000001',
-  '24a02414-c0d4-4f01-8e15-000000000001'
+  '24a02414-c0d4-4f01-8e15-000000000001',
+  '24a02415-c0d4-4f01-8e15-000000000001'
 )
 ORDER BY p.seqno;

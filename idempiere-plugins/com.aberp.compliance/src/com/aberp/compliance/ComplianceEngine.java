@@ -79,7 +79,8 @@ public class ComplianceEngine {
 		summary.append(evalClient(asAt)).append("; ");
 		summary.append(evalIncidents(asAt)).append("; ");
 		summary.append(evalRostering(asAt)).append("; ");
-		summary.append(evalDocumentation(asAt));
+		summary.append(evalDocumentation(asAt)).append("; ");
+		summary.append(evalSupportLocation(asAt));
 
 		logs.add(0, summary.toString());
 		return summary.toString();
@@ -301,6 +302,24 @@ public class ComplianceEngine {
 		writeCategorySnapshot(asAt, "D", stats);
 		String msg = String.format("D onboard_doc_expired=%d score=%s %s",
 				nDoc, stats.score.toPlainString(), stats.trafficLight);
+		logs.add(msg);
+		return msg;
+	}
+
+	/** SAW025 — population snapshot for Support Location (no seeded rules yet). */
+	private String evalSupportLocation(Timestamp asAt) {
+		int n = countActiveSupportLocations();
+		SnapshotStats stats = new SnapshotStats();
+		stats.total = Math.max(1, n);
+		stats.compliant = stats.total;
+		stats.warning = 0;
+		stats.nonCompliant = 0;
+		stats.critical = 0;
+		finalizeStats(stats);
+		stats.population = n;
+		writeCategorySnapshot(asAt, "L", stats);
+		String msg = String.format("L active_locations=%d score=%s %s",
+				n, stats.score.toPlainString(), stats.trafficLight);
 		logs.add(msg);
 		return msg;
 	}
@@ -564,6 +583,13 @@ public class ComplianceEngine {
 		return Math.max(0, DB.getSQLValue(trxName,
 				"SELECT COUNT(*) FROM aberp_credentialassignment ca"
 						+ " WHERE ca.ad_client_id=? AND ca.isactive='Y'",
+				clientId));
+	}
+
+	private int countActiveSupportLocations() {
+		return Math.max(0, DB.getSQLValue(trxName,
+				"SELECT COUNT(*) FROM aberp_support_location sl"
+						+ " WHERE sl.ad_client_id=? AND sl.isactive='Y'",
 				clientId));
 	}
 

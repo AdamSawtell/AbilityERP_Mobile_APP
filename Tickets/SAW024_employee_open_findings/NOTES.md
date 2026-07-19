@@ -11,7 +11,7 @@
 - Open Findings rolled out to **all category tabs** (`33`/`34`): Client / Incident / Rostering / Documentation Findings
 - Distinct tab names so ZK does not confuse twin “Open Findings” leaves
 - Open finding counts on dev: W 196 / P 202 / I 574 / R 1237 / D 8
-- **SQL 40 (owned here):** Findings `DisplayLogic` uses parent population fields from SAW025 so the lead page shows only the five category tabs; selecting a category exposes only its own Findings grid
+- **SQL 40 (owned here):** Findings `DisplayLogic` uses parent population fields from SAW025 so the lead page shows only the category tabs; selecting a category exposes only its own Findings grid (including Support Location when SAW025 SQL 41 is installed)
 
 ## Ticket boundary (2026-07-19)
 

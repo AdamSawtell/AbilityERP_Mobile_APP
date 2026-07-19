@@ -12,4 +12,7 @@
 - [x] SQL `39-category-progressive-explainers.sql` — grouped lead/category layouts + persistent calculation explanations
 - [x] Browser-smoke lead page + all five category form views (groups + explainers; no SQL modal)
 - [x] Ticket retarget: one function = category KPIs & layout; SQL 40 ownership → SAW024 (2026-07-19)
+- [x] SQL `41-support-location-category.sql` — sixth category Support Location (population, shared KPIs, attribute KPIs, Findings nest, explainers)
+- [x] Engine writes `L` category snapshot on Refresh; JAR `7.1.0.202607191730`
+- [x] Browser-smoke Support Location (Active=35, Vacant=7, SDA=13, Wheelchair=8, Bushfire=17, Meets=34; Status G; no SQL modal)
 - [ ] Client update packs (staging + thin prod) when ready for client install
