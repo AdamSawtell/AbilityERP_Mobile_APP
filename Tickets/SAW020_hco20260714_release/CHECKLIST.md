@@ -39,3 +39,11 @@
 - [x] Rollback notes recorded
 - [x] Production runbook (`DEPLOY.md` + report) matches actual steps
 - [x] SAW026 added to post-test Production package materials
+
+## Production cutover (`13.239.162.141` — 2026-07-21)
+
+- [x] Ordered install SAW018 → SAW026 (incl. U1/U2/U3)
+- [x] Support Location UU unchanged
+- [x] Read-only WebUI smoke (no business data saved)
+- [x] LEARNINGS + Production report committed
+- [x] Evidence: `report/PRODUCTION-DEPLOYMENT-20260721.md`

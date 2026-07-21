@@ -2,6 +2,25 @@
 
 ## HCO Future Deployments variables
 
+### HCO Production (HCO20260714 — installed 2026-07-21)
+
+| Variable | Value |
+|----------|--------|
+| Public IP | `13.239.162.141` |
+| Hostname | `HCOproduction` |
+| SSH key | `C:\Users\sawte\Documents\SSH Keys\HCO_Prod_KP.pem` |
+| WebUI | `https://abilityerp.hco.net.au/webui/` |
+| Login | SSO `superuser@hco.net.au` → **Admin** |
+| DB | idempiere / adempiere / flamingo |
+| iDempiere home | `/opt/idempiere-server` |
+| Staging dir | `/tmp/HCO20260714/` |
+| Support Location UU | `6ef3c558-3ec8-4f0c-be40-89f35d8acebf` (unchanged) |
+| SAW018 package_imp | `1001038`–`1001041` |
+| SAW003 JAR | `1.1.0.2026071517` |
+| SAW017 bulk JAR | `7.1.0.202607160730` |
+| SAW026 Activity tab UU | `7d14ac4f-5fef-4f1f-b917-026000000002` |
+| Evidence | `report/PRODUCTION-DEPLOYMENT-20260721.md` |
+
 ### HCO Test dry-run host (HCO20260714)
 
 | Variable | Value |

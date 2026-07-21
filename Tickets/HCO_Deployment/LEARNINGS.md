@@ -2,6 +2,23 @@
 
 Append new entries at the **top** after each HCO install or failed attempt. Keep each entry short; put ticket-local IDs in that ticket’s **HCO Future Deployments variables** section.
 
+## 2026-07-21 — HCO20260714 Production on `13.239.162.141`
+
+**Host:** `HCOproduction` / `13.239.162.141` — key `Documents\SSH Keys\HCO_Prod_KP.pem`.  
+**WebUI:** `https://abilityerp.hco.net.au/webui/` (SSO).  
+**Result:** PASS — full ordered install SAW018→SAW026; Support Location UU unchanged.  
+**Evidence:** `Tickets/SAW020_hco20260714_release/report/PRODUCTION-DEPLOYMENT-20260721.md`
+
+### Learnings → process fixes
+| Learning | Action taken |
+|----------|----------------|
+| `employee.infopanel` Incremental2Pack ClassCast blocks PackInFolder | Mark versions OK + **uninstall** OSGi bundle before PackIns |
+| Chaining PackIns without a cold JVM fails on `hco_client` | One zip per cold stop; longer cool-down before client |
+| Prefer hostname WebUI over raw IP for SSO | Use `abilityerp.hco.net.au` |
+| Production smoke must not insert business rows | Read-only open/verify only (Vehicle Activity types visible; no save) |
+
+**No `*_UU` changes.**
+
 ## 2026-07-18 — SAW011 Accept Shift Request on `3.27.207.215`
 
 **Host:** `3.27.207.215` (`ip-172-31-4-174`) — key `Documents\SSH Keys\HCObusiness.pem`.  

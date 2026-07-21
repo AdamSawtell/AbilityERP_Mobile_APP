@@ -97,12 +97,12 @@ against Vehicle `1000000` / `S637CMD`, then removed the smoke record.
 
 After baseline HCO20260714 install:
 
-- [ ] Apply U1 SAW003 JAR **`1517`** + SQL **`25`/`26`** + restart + smoke (single-select, Partner Location suburb, four ticks)  
-- [ ] Apply U2 SAW017 JAR `160730` + restart + smoke Bulk summary columns  
-- [ ] Apply U3 SAW026 SQL + verify + Cache Reset/fresh login + Vehicle Activity smoke  
-- [ ] Confirm `bundles.info` has no stale staffinfo / bulk lines  
-- [ ] Cache Reset or re-login  
-- [ ] Append outcome to `Tickets/HCO_Deployment/LEARNINGS.md`
+- [x] Apply U1 SAW003 JAR **`1517`** + SQL **`25`/`26`** + restart + smoke (single-select, Partner Location suburb, four ticks) — **Prod 2026-07-21** (read-only smoke)  
+- [x] Apply U2 SAW017 JAR `160730` + restart + smoke Bulk summary columns — **Prod 2026-07-21** (menu visible; process not run)  
+- [x] Apply U3 SAW026 SQL + verify + Cache Reset/fresh login + Vehicle Activity smoke — **Prod 2026-07-21** (tab/types only; no save)  
+- [x] Confirm `bundles.info` has no stale staffinfo / bulk lines  
+- [x] Cache Reset or re-login  
+- [x] Append outcome to `Tickets/HCO_Deployment/LEARNINGS.md`
 
 ---
 

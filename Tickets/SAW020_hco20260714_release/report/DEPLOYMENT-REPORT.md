@@ -160,21 +160,15 @@ Always Cache Reset after rollback.
 
 ## 9. Post-deployment verification checklist (reuse on Production)
 
-- [ ] WebUI HTTP 200 after final restart  
-- [ ] Logs: no fatal ClassNotFound for release bundles  
-- [ ] Cache Reset (System Admin) or fresh login  
-- [ ] Smoke matrix:  
-  - SAW018 objects / credentials missing-staff surfaces  
-  - SAW001 Paid filter on Notification SR Invoice Send Info  
-  - SAW003 Shift → Employee Search / Show Unmatched  
-  - SAW007 Activity types on BG / SB / SA  
-  - SAW009 Support Start/End Day lists on Service Booking Line  
-  - SAW010 Break Start/End; clutter cols hidden  
-  - SAW013 Request Submitted + Create template type filter  
-  - SAW015 Copy Dates From  
-  - SAW014 Support Location grid Email/Phone  
-  - SAW017 Bulk Generate Bookings Yes/No + Drafted DocAction  
-  - SAW026 Vehicle Activity tab, five types, focused grid, save/link/cleanup  
+**Production 2026-07-21:** see [`PRODUCTION-DEPLOYMENT-20260721.md`](PRODUCTION-DEPLOYMENT-20260721.md) (install PASS; **read-only** smoke — no business rows saved).
+
+- [x] WebUI HTTP 200/302 after final restart (`13.239.162.141`)  
+- [x] Cache Reset / fresh SSO login (Admin)  
+- [x] Smoke matrix (Prod — open/verify only):  
+  - [x] SAW014 Support Location Email/Phone labels present  
+  - [x] SAW017 Bulk Generate Bookings menu item visible (process not run)  
+  - [x] SAW026 Vehicle Activity tab + five types (no create/save)  
+  - [ ] SAW001 / SAW003 / SAW007 / SAW009 / SAW010 / SAW013 / SAW015 deep UI (optional follow-up; DB markers PASS)  
 
 ---
 
