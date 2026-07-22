@@ -1,6 +1,6 @@
 # SAW032 — Production deploy (HCO)
 
-**Status:** Ready for HCO Production push  
+**Status:** Installed on HCO Production (2026-07-22) — operator smoke  
 **GitHub:** [#32](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/32)  
 **Bundle:** `com.aberp.rostering.staffinfo` **`1.1.0.2026072218`**  
 **Verified on:** HCO Test `https://3.25.213.143/webui/` (user-tested 2026-07-22)
@@ -128,4 +128,4 @@ GROUP BY iw.name;
 | Env | Host | State |
 |-----|------|--------|
 | HCO Test | `https://3.25.213.143/webui/` | **PASS** — SQL `28` + JAR `2218` · user-tested |
-| HCO Production | `https://abilityerp.hco.net.au/webui/` | **Ready** — currently `1517`; Find & Fill UU present; SMS UU not yet |
+| HCO Production | `https://abilityerp.hco.net.au/webui/` · `13.239.162.141` | **Installed 2026-07-22** — SQL `28` + JAR `2218` (was `1517`); operator smoke |
