@@ -42,7 +42,7 @@ sudo bash deploy-saw031.sh
 
 Applies:
 
-1. Build/install `com.aberp.servicebooking.supportdays_7.1.0.2026072203.jar`
+1. Build/install `com.aberp.servicebooking.supportdays_7.1.0.2026072205.jar`
 2. `sql/06-cleanup-weekday-text.sql`
 3. `sql/07-verify-saw031.sql`
 4. iDempiere restart

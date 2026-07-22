@@ -5,7 +5,7 @@ set -euo pipefail
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
 SQL_DIR="$PLUGIN_DIR/sql"
-VERSION="7.1.0.2026072203"
+VERSION="7.1.0.2026072205"
 SYMBOLIC="com.aberp.servicebooking.supportdays"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"

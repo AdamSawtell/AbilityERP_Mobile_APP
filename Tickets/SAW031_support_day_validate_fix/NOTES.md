@@ -31,7 +31,7 @@ Only when parent `isSOTrx` and both Start/End dates non-null.
 |----------|--------|
 | Host used | `3.25.213.143` (AbERP HCO Test 20260721) |
 | Patched generator | `com.aberp.servicebooking.generator_7.1.12.2026072205-saw031.jar` |
-| Overlay | `com.aberp.servicebooking.supportdays_7.1.0.2026072203.jar` |
+| Overlay | `com.aberp.servicebooking.supportdays_7.1.0.2026072205.jar` |
 | Cleanup | 5259 start + 5259 end weekday rows nulled; leftover verify = 0 |
 | Do not change HCO `*_UU` | N/A (no AD UU changes in SAW031) |
 
@@ -43,3 +43,5 @@ Only when parent `isSOTrx` and both Start/End dates non-null.
 | 53175 Tamika Bartlett | 130 | 1078205 | `2` / `2` (UI `02 - Tuesday`) | Y | Pass — Record saved; Ready to Claim auto |
 
 Mid-fix: callout importing `MOrderLineSupportDays` caused `NoClassDefFoundError: MOrderLineAbERP` (generator MANIFEST had no `Export-Package`). Fixed by exporting `com.aberp.servicebooking.generator.model` and rewriting callout to DB-only restore (no generator class load).
+
+Blank Support days + Validate: GridTab can hold a weekday-name ghost (UI shows blank) → `Invalid value - Friday`. Overlay `2026072205` clears ghosts on Validated and swallows that Support Day list Validate error in `beforeSave` so blank days are allowed.

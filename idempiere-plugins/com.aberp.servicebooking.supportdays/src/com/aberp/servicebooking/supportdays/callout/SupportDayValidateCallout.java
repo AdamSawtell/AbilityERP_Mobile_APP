@@ -8,17 +8,21 @@ import org.compiere.model.GridTab;
 import org.compiere.util.DB;
 
 /**
- * SAW031 — when Validated is toggled, re-apply numeric Support Start/End Day
- * from DB so weekday names never stick in the GridTab.
- * <p>
- * Deliberately does <b>not</b> reference {@code MOrderLineSupportDays} /
- * {@code MOrderLineAbERP} so this callout stays loadable even if the generator
- * model package is not exported to this bundle.
+ * SAW031 — when Validated is toggled:
+ * <ul>
+ *   <li>clear weekday-name ghosts from Support Start/End Day (invalid List values
+ *       that show blank but still block Save)</li>
+ *   <li>re-apply numeric days from DB when present</li>
+ *   <li>leave blank when blank — Validate must not require Support days</li>
+ * </ul>
  */
 public class SupportDayValidateCallout implements IColumnCallout {
 
 	@Override
 	public String start(Properties ctx, int WindowNo, GridTab mTab, GridField mField, Object value, Object oldValue) {
+		clearWeekdayGhost(mTab, "AbERP_Support_Start_Day");
+		clearWeekdayGhost(mTab, "AbERP_Support_End_Day");
+
 		int id = mTab.getRecord_ID();
 		if (id <= 0) {
 			return null;
@@ -34,6 +38,27 @@ public class SupportDayValidateCallout implements IColumnCallout {
 			mTab.setValue("AbERP_Support_End_Day", dbEnd);
 		}
 		return null;
+	}
+
+	private static void clearWeekdayGhost(GridTab mTab, String column) {
+		Object cur = mTab.getValue(column);
+		if (isWeekdayName(cur)) {
+			mTab.setValue(column, null);
+		}
+	}
+
+	private static boolean isWeekdayName(Object v) {
+		if (!(v instanceof String)) {
+			return false;
+		}
+		String s = ((String) v).trim();
+		return "Monday".equalsIgnoreCase(s)
+				|| "Tuesday".equalsIgnoreCase(s)
+				|| "Wednesday".equalsIgnoreCase(s)
+				|| "Thursday".equalsIgnoreCase(s)
+				|| "Friday".equalsIgnoreCase(s)
+				|| "Saturday".equalsIgnoreCase(s)
+				|| "Sunday".equalsIgnoreCase(s);
 	}
 
 	private static boolean isNumericDay(String v) {
