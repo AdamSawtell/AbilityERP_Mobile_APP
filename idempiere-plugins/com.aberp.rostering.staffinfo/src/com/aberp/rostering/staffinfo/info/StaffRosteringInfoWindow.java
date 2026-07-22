@@ -59,6 +59,8 @@ import org.zkoss.zul.Vbox;
 public class StaffRosteringInfoWindow extends InfoWindow {
 
 	public static final String INFO_WINDOW_UU = "2b4ab146-0809-47c6-96f3-8b841d60a6bf";
+	/** SMS multi-select clone — assign this UU on the SMS process / search only. */
+	public static final String INFO_WINDOW_SMS_UU = "7c9e2a41-5b68-4d3f-a1e0-9f4c6b8d2e11";
 	public static final String COL_SHOW_UNMATCHED = "AbERP_ShowUnmatchedStaff";
 
 	private final GridField launchField;
@@ -98,9 +100,10 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	public StaffRosteringInfoWindow(int windowNo, String tableName, String keyColumn, String queryValue,
 			boolean multipleSelection, String whereClause, int AD_InfoWindow_ID, boolean lookup, GridField field) {
-		// Single-select only: Related Information tabs key off one selected result row.
-		// Multi-select left Related tabs unable to validate against a chosen contact.
-		super(windowNo, tableName, keyColumn, queryValue, false, whereClause, AD_InfoWindow_ID, lookup, field);
+		// Selection mode is fixed by Info Window UU so Find & Fill never flips to multi
+		// and SMS never opens as single by mistake (caller flag is ignored).
+		super(windowNo, tableName, keyColumn, queryValue, isSmsMultiSelectInfoWindow(AD_InfoWindow_ID),
+				whereClause, AD_InfoWindow_ID, lookup, field);
 		this.launchField = field;
 	}
 
@@ -109,7 +112,20 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 			return false;
 		}
 		MInfoWindow iw = MInfoWindow.getInfoWindow(adInfoWindowId);
-		return iw != null && INFO_WINDOW_UU.equalsIgnoreCase(iw.getAD_InfoWindow_UU());
+		if (iw == null) {
+			return false;
+		}
+		String uu = iw.getAD_InfoWindow_UU();
+		return INFO_WINDOW_UU.equalsIgnoreCase(uu) || INFO_WINDOW_SMS_UU.equalsIgnoreCase(uu);
+	}
+
+	/** True only for the SMS clone Info Window (multi-select). */
+	public static boolean isSmsMultiSelectInfoWindow(int adInfoWindowId) {
+		if (adInfoWindowId <= 0) {
+			return false;
+		}
+		MInfoWindow iw = MInfoWindow.getInfoWindow(adInfoWindowId);
+		return iw != null && INFO_WINDOW_SMS_UU.equalsIgnoreCase(iw.getAD_InfoWindow_UU());
 	}
 
 	/**

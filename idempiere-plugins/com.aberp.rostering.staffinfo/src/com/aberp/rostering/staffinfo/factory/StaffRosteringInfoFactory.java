@@ -11,7 +11,7 @@ import org.compiere.util.Env;
 import com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow;
 
 /**
- * Returns {@link StaffRosteringInfoWindow} for the Staff Rostering Info UU.
+ * Returns {@link StaffRosteringInfoWindow} for Find & Fill (single) and SMS (multi) UUs.
  * Higher service.ranking so InfoManager prefers this over DefaultInfoFactory.
  */
 public class StaffRosteringInfoFactory implements IInfoFactory {
@@ -51,6 +51,7 @@ public class StaffRosteringInfoFactory implements IInfoFactory {
 		}
 		String tableName = MTable.getTableName(Env.getCtx(), miw.getAD_Table_ID());
 		String keyColumn = tableName + "_ID";
-		return new StaffRosteringInfoWindow(0, tableName, keyColumn, "", false, "", AD_InfoWindow_ID, false);
+		boolean multi = StaffRosteringInfoWindow.isSmsMultiSelectInfoWindow(AD_InfoWindow_ID);
+		return new StaffRosteringInfoWindow(0, tableName, keyColumn, "", multi, "", AD_InfoWindow_ID, false);
 	}
 }

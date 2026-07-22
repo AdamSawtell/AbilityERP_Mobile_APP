@@ -4,7 +4,7 @@ set -euo pipefail
 
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 PLUGIN_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION="1.1.0.2026072214"
+VERSION="1.1.0.2026072218"
 SYMBOLIC="com.aberp.rostering.staffinfo"
 JAR_NAME="${SYMBOLIC}_${VERSION}.jar"
 BUILT_JAR="$PLUGIN_DIR/build/dist/$JAR_NAME"
@@ -56,6 +56,8 @@ for f in \
   24-perf-staff-info.sql \
   25-hide-eligibility-display-columns.sql \
   26-show-partner-location-suburb.sql \
+  27-response-log-find-fill.sql \
+  28-clone-sms-multiselect-info.sql \
   04-verify.sql
 do
   echo "=== $f ==="
