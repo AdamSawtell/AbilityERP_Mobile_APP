@@ -1,5 +1,7 @@
 # SAW032 — SMS Staff Rostering Info (multi-select)
 
+**GitHub:** [#32](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/32)
+
 Clone of Find & Fill Staff Rostering Info for SMS / bulk contact selection.
 
 | | |
