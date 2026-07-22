@@ -36,8 +36,12 @@ Only when parent `isSOTrx` and both Start/End dates non-null.
 | SHA256 generator | `9D822E401D35A0F517BF8E21E9C82F883DAC9292430C9C44EC3189DF12FF8AE2` |
 | SHA256 overlay | `A773F83C7E056936D3D9AE79790D6AB0BA041FF873C8E6089FA6A76371148438` |
 | Cleanup (Test) | 5259 start + 5259 end weekday rows nulled; leftover verify = 0 |
-| Prod preflight (2026-07-22) | Live generator still `…202602251048-no-opp-dep`; **no** overlay; **5380** weekday start + **5380** end leftovers |
+| Prod preflight (2026-07-22) | Was `…202602251048-no-opp-dep`; no overlay; **5380** weekday leftovers |
+| Prod install (2026-07-22) | Replaced generator with `…2026072205-saw031`; installed overlay `…2026072205`; `01-APPLY` → leftovers **0/0**; backup under `/tmp/saw031-bak-*` + `*.bak-pre-saw031` |
+| Prod smoke policy | **No Save** on production records — read-only UI only |
+| Prod read-only smoke | Doc **53544** Trevor Glazbrook L30 (`1088734`) — UI shows Support Start/End Day `13 - Saturday`; Validated unchecked (left untouched) |
 | Prod pack | `C:\Users\sawte\Downloads\AbilityERP-ProdUpdate-SAW031_support_day_validate_fix-20260722\` |
+| WebUI login (Prod) | SSO `superuser@hco.net.au` → **Admin** |
 | Do not change HCO `*_UU` | N/A (no AD UU changes in SAW031) |
 
 ## E2E smoke (2026-07-22, Admin on Test)

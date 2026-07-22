@@ -63,5 +63,6 @@ Follow `.cursor/rules/client-update-staging-loop.mdc` and `.cursor/rules/hco-dep
 | [SAW016](../SAW016_leave_planning/DEPLOY.md) | Leave Planning Info — redeploy via `redeploy-hco.sh` / JAR `1402` (Support Location Search + parser-safe display) |
 | [SAW020](../SAW020_hco20260714_release/README.md) | **HCO20260714** release dry run on `54.253.165.194` — Production runbook |
 | [SAW026](../SAW026_vehicle_activity_tab/DEPLOY.md) | Vehicle Activity tab — HCO Test001 plus HCO20260714 host `54.253.165.194`; apply/idempotency and Admin create/link/cleanup smoke validated 2026-07-17 |
+| [SAW031](../SAW031_support_day_validate_fix/NOTES.md#hco-future-deployments-variables) | Support Day Validate fix — Prod `13.239.162.141` 2026-07-22 (jars + cleanup; read-only smoke, no Save) |
 
 Append new rows as tickets are installed.

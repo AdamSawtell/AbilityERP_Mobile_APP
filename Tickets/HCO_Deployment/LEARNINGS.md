@@ -757,3 +757,21 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 |----------|--------|
 | Blank Support days can still fail Validate via GridTab weekday ghost | Ship overlay `2205` (ghost clear + swallow list Invalid value) with generator |
 | Prod still on original Flamingo generator | Replace jar + bundles.info; never leave two generator jars |
+
+## 2026-07-22 ? SAW031 installed on HCO Production (`13.239.162.141`)
+
+**Result:** Install PASS. WebUI smoke **read-only** (no Save on prod records).
+
+### What was done
+1. Backup `bundles.info` + old generator ? `/tmp/saw031-bak-*` and `*.bak-pre-saw031`
+2. Installed `generator_?2026072205-saw031` + `supportdays_?2026072205` (plugins + customization-jar)
+3. `bundles.info` single lines for both; `systemctl restart idempiere`
+4. `01-APPLY.sql` ? **5380** start + **5380** end weekday rows cleared; leftover verify **0/0**
+5. Generator activator logged ready; overlay is DS-only (no AbstractActivator log ? same as Test)
+6. Read-only WebUI: SSO `superuser@hco.net.au` ? Admin ? Service Booking **53544** L30 ? Support days show `13 - Saturday`; Validated left unchecked; **no Save**
+
+### Learnings ? process
+| Learning | Action |
+|----------|--------|
+| HCO Prod smoke must not Save transactional booking lines | Confirm via SQL leftovers + read-only field display; Validate/Save only on Test |
+| Overlay DS bundle may not log `AbstractActivator.start` | Confirm via jar + `bundles.info` + Test E2E; do not treat missing log as failure |

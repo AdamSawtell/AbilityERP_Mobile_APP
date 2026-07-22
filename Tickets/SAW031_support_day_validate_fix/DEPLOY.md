@@ -86,7 +86,11 @@ Production pack (least files): both JARs + `01-APPLY.sql` + `99-ROLLBACK.sql` + 
 | Current prod overlay | none |
 | Weekday leftovers (preflight) | 5380 start / 5380 end — expect `01-APPLY` to clear |
 | Install from | Production pack above — follow `HOW-TO.txt` |
-| After install | Append `Tickets/HCO_Deployment/LEARNINGS.md`; smoke Validate/Save (populated + blank days) |
+| After install | Append `Tickets/HCO_Deployment/LEARNINGS.md`; Prod smoke is **read-only** (no Save). Validate/Save E2E stays on Test. |
+
+### HCO Production install status (2026-07-22)
+
+**DONE** on `13.239.162.141`: jars + restart + `01-APPLY` (5380→0) + read-only WebUI smoke (53544 L30 days display).
 
 ## Rollback
 

@@ -13,5 +13,7 @@
 - [x] GitHub issue + registry + commit/push
 - [x] Deploy scripts aligned to verified jar versions (`2205` generator / `2205` overlay)
 - [x] Production pack ready (JARs SHA256-match Test + HOW-TO + SQL); HCO Prod preflight logged
-- [ ] Install on HCO Production (`13.239.162.141`) + smoke + LEARNINGS append
-- [ ] Mark GitHub issue `done` after prod install
+- [x] Installed on HCO Production (`13.239.162.141`) 2026-07-22 — jars + bundles.info + restart + `01-APPLY` (5380→0 leftovers)
+- [x] Prod WebUI smoke **read-only** (no Save): Service Booking 53544 L30 shows Support days `13 - Saturday`
+- [x] LEARNINGS + NOTES updated for prod install
+- [ ] Mark GitHub issue `done` after customer sign-off (optional)
