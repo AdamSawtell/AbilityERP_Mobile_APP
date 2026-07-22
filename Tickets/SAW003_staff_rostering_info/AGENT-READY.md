@@ -3,14 +3,14 @@
 **GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)  
 **Source of truth:** [`DEPLOY.md`](DEPLOY.md)  
 **Plugin:** `idempiere-plugins/com.aberp.rostering.staffinfo/`  
-**Bundle:** `com.aberp.rostering.staffinfo` **`1.1.0.2026071517`**  
+**Bundle:** `com.aberp.rostering.staffinfo` **`1.1.0.2026072214`**  
 **SQL:** through **`26-show-partner-location-suburb.sql`** (+ `04-verify`)  
 **Info Window UU:** `2b4ab146-0809-47c6-96f3-8b841d60a6bf` (must already exist)
 
 ## Prebuilt JAR in repo
 
-`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`  
-(~52 KB known-good; reject ~29 KB stale builds)
+`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar`  
+(~72 KB known-good; reject ~29 KB stale builds)
 
 Prefer host `./build.sh` when the target has `$IDEMPIERE_HOME`. Otherwise scp this release JAR and install per `DEPLOY.md` § JAR-only.
 
@@ -18,14 +18,14 @@ Prefer host `./build.sh` when the target has `$IDEMPIERE_HOME`. Otherwise scp th
 
 | Piece | Why |
 |-------|-----|
-| JAR `1517` | Four filter ticks; Familiar; credential AND; **results single-select** (Related Info); scoped North |
+| JAR `2214` | **TO_TIMESTAMP overlap/leave** (fix afternoon/overnight Not Rostered);  Four filter ticks; Familiar; credential AND; **results single-select** (Related Info); scoped North |
 | SQL `25` | Hide On Approved Leave / Has Future Shift from grid |
 | SQL `26` | **Partner Location** suburb column in search results (String City/Name; not a filter) |
 
 ## Deploy choices
 
 1. **Full:** `./deploy.sh` → SQL `01`→`26`→`04` + JAR + restart  
-2. **Typical later host:** JAR-only `1517` + apply `26` if missing (and `25` if missing) → restart → Cache Reset / logout-in  
+2. **Typical later host:** JAR-only `2214` + apply `26` if missing (and `25` if missing) → restart → Cache Reset / logout-in  
 
 Do **not** wipe OSGi configuration cache.
 
@@ -33,9 +33,9 @@ Do **not** wipe OSGi configuration cache.
 
 | Env | Host | State |
 |-----|------|--------|
-| Staging | `54.206.120.32:8080` | `1517` + SQL `26` |
-| HCO Test | `http://3.25.86.128/webui/` | `1517` + SQL `26` · SSH `ubuntu` / `HCObusiness.pem` |
+| Staging | `54.206.120.32:8080` | `2214` + SQL `26` |
+| HCO Test | `https://3.25.213.143/webui/` | `2214` + SQL `26` · SSH `ubuntu` / `HCO_Prod_KP.pem` |
 
 ## Agent prompt (copy)
 
-> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and `AGENT-READY.md`. Install JAR `1.1.0.2026071517` (build or use `release/…1517.jar`). If SQL through `25` is already applied, still run `sql/26-show-partner-location-suburb.sql` if missing. Restart, Cache Reset / logout-in. Smoke: results **single-select**; **Partner Location** suburb in grid; four default-on filter ticks; lean grid (no leave/future columns); Related Info follows one row. Report pass/fail.
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and `AGENT-READY.md`. Install JAR `1.1.0.2026072214` (build or `release/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar`). JAR-only if SQL through `26` is applied. Smoke: **Not Rostered** excludes afternoon/overnight overlaps; single-select; Partner Location suburb; four filter ticks; report pass/fail.

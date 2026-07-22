@@ -3,7 +3,7 @@
 **Ticket / slug:** `SAW003_staff_rostering_info`  
 **Kind:** idempiere · **JAR:** Yes · **Status:** done (ready for agent deploy)  
 **GitHub:** [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3)  
-**Current bundle:** **`1.1.0.2026071517`**
+**Current bundle:** **`1.1.0.2026072214`**
 
 ## Required host access
 
@@ -17,7 +17,7 @@
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh deploy.sh
 ./deploy.sh
-# build JAR 1.1.0.2026071517 → SQL 01→26→04 → restart → wait WebUI 200
+# build JAR 1.1.0.2026072214 → SQL 01→26→04 → restart → wait WebUI 200
 # then Cache Reset / logout-in. Do NOT wipe OSGi configuration cache.
 ```
 
@@ -28,9 +28,9 @@ Use when SQL `01`–`25`→`04` is **already** on the target. Still apply **`26-
 ```bash
 cd idempiere-plugins/com.aberp.rostering.staffinfo
 chmod +x build.sh
-# Confirm VERSION=1.1.0.2026071517 in build.sh + META-INF/MANIFEST.MF
+# Confirm VERSION=1.1.0.2026072214 in build.sh + META-INF/MANIFEST.MF
 ./build.sh
-JAR=com.aberp.rostering.staffinfo_1.1.0.2026071517.jar
+JAR=com.aberp.rostering.staffinfo_1.1.0.2026072214.jar
 IDEMPIERE_HOME=${IDEMPIERE_HOME:-/opt/idempiere-server}
 sudo rm -f $IDEMPIERE_HOME/plugins/com.aberp.rostering.staffinfo_*.jar
 sudo rm -f $IDEMPIERE_HOME/customization-jar/com.aberp.rostering.staffinfo_*.jar
@@ -39,7 +39,7 @@ sudo cp build/dist/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
 sudo chown idempiere:idempiere $IDEMPIERE_HOME/plugins/$JAR $IDEMPIERE_HOME/customization-jar/$JAR
 B=$IDEMPIERE_HOME/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
 sudo sed -i '/^com.aberp.rostering.staffinfo,/d' "$B"
-echo "com.aberp.rostering.staffinfo,1.1.0.2026071517,plugins/$JAR,4,true" | sudo tee -a "$B" >/dev/null
+echo "com.aberp.rostering.staffinfo,1.1.0.2026072214,plugins/$JAR,4,true" | sudo tee -a "$B" >/dev/null
 # Restart (HCO: if stop leaves Java running, kill equinox launcher then start)
 sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 3; sudo /etc/init.d/idempiere start
 # Wait WebUI 200 — HCO check http://127.0.0.1/webui/ (not :8080)
@@ -47,8 +47,8 @@ sudo systemctl restart idempiere   # or: sudo /etc/init.d/idempiere stop; sleep 
 ```
 
 Prebuilt JAR in git:  
-`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar` (~52 KB) — scp + same install steps above.  
-Also on staging after build: `/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
+`idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar` (~72 KB) — scp + same install steps above.  
+Also on staging after build: `/opt/idempiere-server/plugins/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar`
 
 ## Package / bundle
 
@@ -56,14 +56,14 @@ Also on staging after build: `/opt/idempiere-server/plugins/com.aberp.rostering.
 |--|--|
 | Path | `idempiere-plugins/com.aberp.rostering.staffinfo/` |
 | Symbolic name | `com.aberp.rostering.staffinfo` |
-| Version | **`1.1.0.2026071517`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
+| Version | **`1.1.0.2026072214`** (`build.sh` / `deploy.sh` / `META-INF/MANIFEST.MF`) |
 | Info Window UU | `2b4ab146-0809-47c6-96f3-8b841d60a6bf` |
 | UI class | `com.aberp.rostering.staffinfo.info.StaffRosteringInfoWindow` |
 | Callout | `com.aberp.rostering.staffinfo.callout.CalloutStaffRosteringInfo` / `CalloutShiftStaffContact` |
 
-Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~52 KB** (release `1517` ≈52.6 KB). ~29 KB with a version stamp is a **stale** banner-only build.
+Prefer host `./build.sh` so the JAR matches MANIFEST. Known-good binary: **≥ ~70 KB** (release `2214` ≈72 KB). ~29 KB with a version stamp is a **stale** banner-only build.
 
-## What JAR `1517` includes (filters)
+## What JAR `2214` includes (filters)
 
 Second criteria row (starts **column 2**), all default **On**:
 
@@ -78,9 +78,11 @@ Familiarity: shift → `AbERP_MasterLocation` → `C_BPartner_Location_ID` (fall
 
 Also: scoped North expand for credential picker (never `jq('.z-north').get(0)` — that gaps the parent Shift window).
 
-**Results grid = single-select** (JAR `1517`): Related Information tabs key off one selected row. Multi-select was forced previously for fill UX and broke Related tab validation.
+**Results grid = single-select** (JAR `2214`+): Related Information tabs key off one selected row.
 
-**Partner Location** (SQL `26`): suburb text (`City`, else location name) in search results only — not a filter (avoids ID editor issues from older `22`).
+**Overlap / leave filter timestamps** (JAR `2214`): `Employee Not Rostered` and leave exclusion use `TO_TIMESTAMP` (not `DB.TO_DATE`). Day-only `TO_DATE` collapsed afternoon windows to midnight and failed to exclude overlapping staff (incl. overnight).
+
+**Partner Location** (SQL `26`): suburb text (`City`, else location name) in search results only — not a filter.
 
 ## Ordered SQL (`deploy.sh`) — greenfield / full reinstall only
 
@@ -123,24 +125,25 @@ Info Window is pre-existing — Admin / AbilityERP Admin / Rostering must alread
 5. **Familiar:** on a shift with Support Location (e.g. Swinley 14), with Familiar on, staff with history (e.g. Anupam Choudhary, Damaris Harris on HCO) remain eligible; untick Familiar widens the pool.  
 6. Close Info after dragging criteria splitter → parent Shift window has **no** blank band under header.  
 7. Lean grid: **Partner Location** suburb shown; no On Approved Leave / Has Future Shift / BP Name / Status / Business Partner / Agency Staff.  
-8. **Single-select** one row → Related Info matches that contact; pick fills BP.
+8. **Single-select** one row → Related Info matches that contact; pick fills BP.  
+9. **Not Rostered** on a 15:00–22:00 shift: overlapping staff (e.g. Damaris overnight / afternoon, Erick, Navroop on another shift) must **not** appear.
 
 ## Environments verified
 
 | Env | Host | Bundle | Notes |
 |-----|------|--------|-------|
-| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026071517` + SQL `26` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
-| HCO Test | `http://3.25.86.128/webui/` | `1.1.0.2026071517` + SQL `26` | SSH `ubuntu@3.25.86.128` · `HCObusiness.pem` |
-| HCO Test (HCO20260714 dry-run) | `http://54.253.165.194/webui/` | `1.1.0.2026071517` + SQL `25`/`26` | JAR+SQL redeploy 2026-07-16 (was `1516`) |
+| Staging EC2 | `ec2-54-206-120-32…:8080` | `1.1.0.2026072214` + SQL `26` | SSH `AbilityERP_Development_Keypair_Shared.pem` |
+| HCO Test | `https://3.25.213.143/webui/` | `1.1.0.2026072214` + SQL `26` | SSH `ubuntu@3.25.213.143` · `HCO_Prod_KP.pem` |
+| HCO Test (HCO20260714 dry-run) | `http://54.253.165.194/webui/` | `1.1.0.2026072214` + SQL `25`/`26` | JAR+SQL redeploy 2026-07-16 (was `1516`) |
 
 ## Packs
 
-- Prebuilt JAR (git): `idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026071517.jar`
-- Client/prod zip folders (when used): `Downloads\AbilityERP-*-SAW003_staff_rostering_info-*/` — refresh to JAR **`1517`** + SQL through **`26`**
+- Prebuilt JAR (git): `idempiere-plugins/com.aberp.rostering.staffinfo/release/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar`
+- Client/prod zip folders (when used): `Downloads\AbilityERP-*-SAW003_staff_rostering_info-*/` — refresh to JAR **`2214`** + SQL through **`26`**
 
 ## Agent prompt (copy)
 
-> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and `AGENT-READY.md`. Install JAR `1.1.0.2026071517` (host build or `release/…1517.jar`). If SQL through `25` is applied, still run `sql/26-show-partner-location-suburb.sql` if missing. Restart; Cache Reset / logout-in. Smoke: single-select results; Partner Location suburb; four filter ticks; Related Info follows one row; report pass/fail.
+> Deploy SAW003 per `Tickets/SAW003_staff_rostering_info/DEPLOY.md` and `AGENT-READY.md`. Install JAR `1.1.0.2026072214` (host build or `release/com.aberp.rostering.staffinfo_1.1.0.2026072214.jar`). JAR-only if SQL through `26` is applied. Smoke: **Not Rostered** excludes afternoon/overnight overlaps; single-select; Partner Location suburb; four filter ticks; report pass/fail.
 
 ## External ticket text
 

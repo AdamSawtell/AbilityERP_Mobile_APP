@@ -1206,14 +1206,15 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 
 	/**
 	 * Exclude staff on approved leave overlapping the parent shift Start/End.
+	 * Uses timestamp literals (not {@link DB#TO_DATE}) so partial-day leave matches clock times.
 	 */
 	private String buildApprovedLeaveExclusionSql() {
 		Timestamp[] range = resolveShiftDateRange();
 		if (range == null || range[0] == null || range[1] == null) {
 			return null;
 		}
-		String startSql = DB.TO_DATE(range[0]);
-		String endSql = DB.TO_DATE(range[1]);
+		String startSql = toTimestampSql(range[0]);
+		String endSql = toTimestampSql(range[1]);
 		// Status values on HCO/AbilityERP are uppercase AP/DC/RV — avoid UPPER()
 		// so the leave date/user indexes can be used.
 		return new StringBuilder()
@@ -1230,14 +1231,18 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 	/**
 	 * Exclude staff already rostered on any non-template shift that overlaps the
 	 * parent shift window (partial or full). Current shift assignment is ignored.
+	 * <p>
+	 * Must use {@link #toTimestampSql(Timestamp)} — {@link DB#TO_DATE} is day-only and
+	 * PostgreSQL {@code TO_DATE} returns {@code date}, so afternoon/overnight windows
+	 * collapsed to midnight and failed to exclude overlapping staff.
 	 */
 	private String buildOverlappingRosterExclusionSql() {
 		Timestamp[] range = resolveShiftDateRange();
 		if (range == null || range[0] == null || range[1] == null) {
 			return null;
 		}
-		String startSql = DB.TO_DATE(range[0]);
-		String endSql = DB.TO_DATE(range[1]);
+		String startSql = toTimestampSql(range[0]);
+		String endSql = toTimestampSql(range[1]);
 		StringBuilder sql = new StringBuilder();
 		sql.append("NOT EXISTS (")
 				.append("SELECT 1 FROM AbERP_Rostered_ShiftStaff rss ")
@@ -1583,17 +1588,30 @@ public class StaffRosteringInfoWindow extends InfoWindow {
 		return new Timestamp[] { start, end };
 	}
 
+	/**
+	 * Filter window for leave / overlap / credential validity — same merged
+	 * StartDate+StartTime / EndDate+EndTime as the banner ({@link #resolveShiftDisplayRange()}).
+	 */
 	private Timestamp[] resolveShiftDateRange() {
-		ShiftTimes times = resolveShiftTimes();
-		if (times == null) {
-			return null;
+		return resolveShiftDisplayRange();
+	}
+
+	/**
+	 * SQL timestamp literal that keeps clock time.
+	 * Do not use {@link DB#TO_DATE(Timestamp)} for overlap/leave: that helper defaults to
+	 * day-only, and even {@code TO_DATE(ts,false)} emits PostgreSQL {@code TO_DATE} which
+	 * returns type {@code date} and drops the time.
+	 */
+	private static String toTimestampSql(Timestamp ts) {
+		if (ts == null) {
+			return "NULL";
 		}
-		Timestamp start = times.startDate != null ? times.startDate : times.startTime;
-		Timestamp end = times.endDate != null ? times.endDate : times.endTime;
-		if (start == null || end == null) {
-			return null;
+		String s = ts.toString();
+		int dot = s.indexOf('.');
+		if (dot > 0) {
+			s = s.substring(0, dot);
 		}
-		return new Timestamp[] { start, end };
+		return "TO_TIMESTAMP('" + s.replace("'", "''") + "','YYYY-MM-DD HH24:MI:SS')";
 	}
 
 	private ShiftTimes resolveShiftTimes() {
