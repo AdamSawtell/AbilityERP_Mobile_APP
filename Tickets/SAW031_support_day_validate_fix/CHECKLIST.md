@@ -12,4 +12,6 @@
 - [x] Downloads staging + prod packs (`Downloads\AbilityERP-*-SAW031_support_day_validate_fix-20260722`)
 - [x] GitHub issue + registry + commit/push
 - [x] Deploy scripts aligned to verified jar versions (`2205` generator / `2205` overlay)
-- [ ] Mark GitHub issue `done` after prod install (optional)
+- [x] Production pack ready (JARs SHA256-match Test + HOW-TO + SQL); HCO Prod preflight logged
+- [ ] Install on HCO Production (`13.239.162.141`) + smoke + LEARNINGS append
+- [ ] Mark GitHub issue `done` after prod install

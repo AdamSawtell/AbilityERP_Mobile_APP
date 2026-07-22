@@ -73,7 +73,20 @@ No new Window / Process / Info / Form. Generator + existing Service Booking wind
 | Staging | `C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-SAW031_support_day_validate_fix-20260722\` |
 | Production | `C:\Users\sawte\Downloads\AbilityERP-ProdUpdate-SAW031_support_day_validate_fix-20260722\` |
 
-Production pack (least files): both JARs + `01-APPLY.sql` + `99-ROLLBACK.sql` + `HOW-TO.txt`.
+Production pack (least files): both JARs + `01-APPLY.sql` + `99-ROLLBACK.sql` + `HOW-TO.txt` + `SHA256SUMS.txt`.
+
+### HCO Production push (ready)
+
+| Item | Value |
+|------|--------|
+| Host | `13.239.162.141` (`HCOproduction`) |
+| WebUI | `https://abilityerp.hco.net.au/webui/` |
+| SSH key | `%USERPROFILE%\Documents\SSH Keys\HCO_Prod_KP.pem` |
+| Current prod generator | `…202602251048-no-opp-dep.jar` (must replace) |
+| Current prod overlay | none |
+| Weekday leftovers (preflight) | 5380 start / 5380 end — expect `01-APPLY` to clear |
+| Install from | Production pack above — follow `HOW-TO.txt` |
+| After install | Append `Tickets/HCO_Deployment/LEARNINGS.md`; smoke Validate/Save (populated + blank days) |
 
 ## Rollback
 

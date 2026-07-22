@@ -735,3 +735,25 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 ### Ticket artefacts
 - Tickets/SAW031_support_day_validate_fix/
 - idempiere-plugins/com.aberp.servicebooking.supportdays/patch/
+
+## 2026-07-22 ? SAW031 prod pack ready (E2E green on Test)
+
+**Result:** Full WebUI E2E PASS on Test `3.25.213.143`; production pack staged for `HCOproduction` `13.239.162.141`.
+
+### What worked
+- E2E: Simon 53179 L60 populated days; Tania 53179 L20 blank Friday ghost; Tamika 53175 L130 ? all Validate/Save green
+- Pack jars SHA256-match live Test plugins (`2205-saw031` generator + `2205` overlay)
+
+### Prod preflight
+| Check | Value |
+|-------|--------|
+| Live generator | still `?202602251048-no-opp-dep.jar` (needs replace) |
+| Overlay | not installed |
+| Weekday leftovers | 5380 start / 5380 end |
+| Pack | `Downloads\AbilityERP-ProdUpdate-SAW031_support_day_validate_fix-20260722\` |
+
+### Learnings ? process
+| Learning | Action |
+|----------|--------|
+| Blank Support days can still fail Validate via GridTab weekday ghost | Ship overlay `2205` (ghost clear + swallow list Invalid value) with generator |
+| Prod still on original Flamingo generator | Replace jar + bundles.info; never leave two generator jars |
