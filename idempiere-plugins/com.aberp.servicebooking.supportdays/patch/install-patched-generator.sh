@@ -3,7 +3,7 @@
 set -euo pipefail
 IDEMPIERE_HOME="${IDEMPIERE_HOME:-/opt/idempiere-server}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-NEWVER="7.1.12.2026072203"
+NEWVER="7.1.12.2026072205"
 NEWJAR="com.aberp.servicebooking.generator_${NEWVER}-saw031.jar"
 BINFO="${IDEMPIERE_HOME}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
 

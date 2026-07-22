@@ -66,6 +66,15 @@ No new Window / Process / Info / Form. Generator + existing Service Booking wind
 3. Expect: Support days unchanged; save succeeds; no `Invalid value - Thursday` (or other weekday); Ready to Claim may auto-tick per Ready to Claim Rule.
 4. SQL: `sql/07-verify-saw031.sql` → leftover weekday counts = 0.
 
+## Downloads packs (prod handoff)
+
+| Tier | Path |
+|------|------|
+| Staging | `C:\Users\sawte\Downloads\AbilityERP-ClientUpdate-SAW031_support_day_validate_fix-20260722\` |
+| Production | `C:\Users\sawte\Downloads\AbilityERP-ProdUpdate-SAW031_support_day_validate_fix-20260722\` |
+
+Production pack (least files): both JARs + `01-APPLY.sql` + `99-ROLLBACK.sql` + `HOW-TO.txt`.
+
 ## Rollback
 
 - Restore prior generator jar from backup (`*.bak-pre-saw031` or previous `bundles.info` entry).
