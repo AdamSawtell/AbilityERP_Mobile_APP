@@ -15,7 +15,7 @@ from io import BytesIO
 ORIG = "/opt/idempiere-server/plugins/com.aberp.servicebooking.generator_7.1.12.202602251048-no-opp-dep.jar"
 BAK = "/tmp/com.aberp.servicebooking.generator_7.1.12.202602251048-no-opp-dep.jar.bak-pre-saw031"
 # Prefer backup; also allow patching from current saw031 jar if bak missing
-OUT = "/tmp/com.aberp.servicebooking.generator_7.1.12.2026072204-saw031.jar"
+OUT = "/tmp/com.aberp.servicebooking.generator_7.1.12.2026072205-saw031.jar"
 CLS = "com/aberp/servicebooking/generator/model/MOrderLineAbERP.class"
 
 
@@ -179,14 +179,20 @@ def main():
 
     mf2 = mf
     for oldv, newv in [
-        ("Bundle-Version: 7.1.12.202602251048", "Bundle-Version: 7.1.12.2026072204"),
-        ("Bundle-Version: 7.1.12.2026072203", "Bundle-Version: 7.1.12.2026072204"),
+        ("Bundle-Version: 7.1.12.202602251048", "Bundle-Version: 7.1.12.2026072205"),
+        ("Bundle-Version: 7.1.12.2026072203", "Bundle-Version: 7.1.12.2026072205"),
+        ("Bundle-Version: 7.1.12.2026072204", "Bundle-Version: 7.1.12.2026072205"),
     ]:
         mf2 = mf2.replace(oldv, newv)
+    if "Export-Package:" not in mf2:
+        # Required so SAW031 overlay can subclass MOrderLineAbERP
+        if not mf2.endswith("\n"):
+            mf2 += "\n"
+        mf2 += "Export-Package: com.aberp.servicebooking.generator.model\n"
     if "SAW031" not in mf2:
         mf2 = "AbERP-Note: SAW031 neutralize EEEE Support Day setters in beforeSave\n" + mf2
-    elif "2026072204" not in mf2:
-        mf2 = "AbERP-Note: SAW031 also no-op Support Day typed setters\n" + mf2
+    if "Export-Package" in mf2 and "SAW031 export model" not in mf2:
+        mf2 = "AbERP-Note: SAW031 export model package for overlay\n" + mf2
 
     with zipfile.ZipFile(OUT, "w") as zout:
         for info, content in others:

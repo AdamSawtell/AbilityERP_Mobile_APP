@@ -30,12 +30,16 @@ Only when parent `isSOTrx` and both Start/End dates non-null.
 | Variable | Value |
 |----------|--------|
 | Host used | `3.25.213.143` (AbERP HCO Test 20260721) |
-| Patched generator | `com.aberp.servicebooking.generator_7.1.12.2026072203-saw031.jar` |
-| Overlay | `com.aberp.servicebooking.supportdays_7.1.0.2026072201.jar` |
+| Patched generator | `com.aberp.servicebooking.generator_7.1.12.2026072205-saw031.jar` |
+| Overlay | `com.aberp.servicebooking.supportdays_7.1.0.2026072203.jar` |
 | Cleanup | 5259 start + 5259 end weekday rows nulled; leftover verify = 0 |
 | Do not change HCO `*_UU` | N/A (no AD UU changes in SAW031) |
 
-## Residual
+## E2E smoke (2026-07-22, Admin)
 
-- UI automation save on detail tab was flaky (Data requeried); fix verified by bytecode (setters neutralized) + prior error no longer appearing when Validated + support days set with StartDate on a Thursday.
-- Confirm Ready to Claim auto-tick on a clean manual smoke after Cache Reset.
+| Doc | Line | `c_orderline_id` | Days after Validate/Save | `aberp_isvalidated` | Result |
+|-----|------|------------------|--------------------------|---------------------|--------|
+| 53179 Simon Murphy | 60 | 1078297 | `3` / `3` (UI `03 - Wednesday`) | Y | Pass — Record saved; Ready to Claim auto |
+| 53175 Tamika Bartlett | 130 | 1078205 | `2` / `2` (UI `02 - Tuesday`) | Y | Pass — Record saved; Ready to Claim auto |
+
+Mid-fix: callout importing `MOrderLineSupportDays` caused `NoClassDefFoundError: MOrderLineAbERP` (generator MANIFEST had no `Export-Package`). Fixed by exporting `com.aberp.servicebooking.generator.model` and rewriting callout to DB-only restore (no generator class load).

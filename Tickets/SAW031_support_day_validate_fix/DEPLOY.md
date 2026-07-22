@@ -23,7 +23,8 @@
 cd idempiere-plugins/com.aberp.servicebooking.supportdays/patch
 chmod +x install-patched-generator.sh patch-eeee-beforesave.py
 # Uses original generator jar under plugins/ (or bak in /tmp) and writes
-# com.aberp.servicebooking.generator_7.1.12.2026072203-saw031.jar
+# com.aberp.servicebooking.generator_7.1.12.2026072205-saw031.jar
+# (EEEE neutralized + typed setters no-op + Export-Package model)
 sudo bash install-patched-generator.sh
 ```
 
@@ -41,7 +42,7 @@ sudo bash deploy-saw031.sh
 
 Applies:
 
-1. Build/install `com.aberp.servicebooking.supportdays_7.1.0.2026072201.jar`
+1. Build/install `com.aberp.servicebooking.supportdays_7.1.0.2026072203.jar`
 2. `sql/06-cleanup-weekday-text.sql`
 3. `sql/07-verify-saw031.sql`
 4. iDempiere restart

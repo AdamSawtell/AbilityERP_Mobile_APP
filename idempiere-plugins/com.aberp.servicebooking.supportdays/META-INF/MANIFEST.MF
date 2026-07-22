@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Service Booking Support Days (SAW009/SAW031)
 Bundle-SymbolicName: com.aberp.servicebooking.supportdays
-Bundle-Version: 7.1.0.2026072202
+Bundle-Version: 7.1.0.2026072203
 Bundle-Vendor: ABERP
 Automatic-Module-Name: com.aberp.servicebooking.supportdays
 Bundle-RequiredExecutionEnvironment: JavaSE-11
