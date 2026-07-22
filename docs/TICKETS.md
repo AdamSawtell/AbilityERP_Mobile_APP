@@ -51,10 +51,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW028 | `activity_viewer_links` | — | Merged into SAW027 (Activity Viewer links) | done | [#28](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/28) | [`→ SAW027`](../Tickets/SAW027_activity_audit/) |
 | SAW029 | `activity_audit_review_ux` | — | Merged into SAW027 (Review field groups UX) | done | [#29](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/29) | [`→ SAW027`](../Tickets/SAW027_activity_audit/) |
 | SAW030 | `response_log_find_fill` | — | Merged into SAW011 (Find and Fill on Response Log) | done | [#30](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/30) | [`→ SAW011`](../Tickets/SAW011_accept_shift_request/) |
+| SAW031 | `support_day_validate_fix` | idempiere | Fix Service Booking Line Validate/Save clearing Support Start/End Day (EEEE overwrite) | in-progress | [#31](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/31) | [`Tickets/SAW031_…`](../Tickets/SAW031_support_day_validate_fix/) |
 
 ## Next ID
 
-**SAW031**
+**SAW032**
 
 ## Naming reminder
 

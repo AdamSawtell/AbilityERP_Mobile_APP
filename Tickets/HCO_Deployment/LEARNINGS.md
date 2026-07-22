@@ -714,3 +714,24 @@ Logout â†’ Staff Rostering Info â†’ ReQuery with All/Any â€” popup must be gone.
 - Tickets/SAW011_accept_shift_request/
 - idempiere-plugins/com.aberp.rosteredshift.process/sql/33-accept-displaylogic-name.sql
 
+
+## 2026-07-22 — SAW031 Support Day Validate/Save (HCO Test 3.25.213.143)
+
+**Result:** Pass (root cause fixed; patched generator installed)
+
+### What worked
+- Identified Flamingo `MOrderLineAbERP.beforeSave` `SimpleDateFormat(\"EEEE\")` overwrite as cause of `Invalid value - Thursday` after SAW009 List change
+- Stackmap-safe bytecode patch (`pop;pop;nop` on setters) — do **not** rewrite `ifeq`?`goto` (causes VerifyError at branch 708)
+- Cleaned 5259 weekday-text Support Day values; leftover verify = 0
+- Keep only one `com.aberp.servicebooking.generator_*.jar` in `plugins/`
+
+### Learnings ? process fixes
+| Learning | Action taken |
+|----------|----------------|
+| Changing control flow in patched classes breaks StackMapTable | Neutralize invokevirtuals in-place instead of skipping blocks |
+| Duplicate generator jars in plugins/ can load the wrong build | Remove old jar when installing patched version |
+| SAW009 List values are `1`..`15`; weekday names are poison data | Cleanup SQL + stop EEEE write on save |
+
+### Ticket artefacts
+- Tickets/SAW031_support_day_validate_fix/
+- idempiere-plugins/com.aberp.servicebooking.supportdays/patch/
