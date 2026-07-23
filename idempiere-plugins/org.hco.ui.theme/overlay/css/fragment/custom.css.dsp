@@ -179,42 +179,60 @@ td.form-label .z-label {
 	font-size: 13px !important;
 }
 
-/* ===== Toolbar tiles (ribbon) ===== */
+/* ===== Toolbar tiles — compact (rarely used chrome) ===== */
 .z-toolbar .z-toolbarbutton,
 .desktop-toolbar .z-toolbarbutton,
 .adwindow-toolbar .z-toolbarbutton,
-.font-icon-toolbar-button.toolbar-button {
-	border-radius: var(--hco-radius-lg) !important;
-	padding: 6px 12px !important;
-	margin: 2px 4px !important;
+.font-icon-toolbar-button.toolbar-button,
+.adwindow-detail-toolbar .z-toolbarbutton,
+.adtab-toolbar .z-toolbarbutton {
+	border-radius: 6px !important;
+	padding: 2px 6px !important;
+	margin: 1px 2px !important;
 	background: var(--hco-primary) !important;
 	background-image: none !important;
 	color: var(--hco-text) !important;
 	font-family: 'Poppins', sans-serif !important;
 	font-weight: 500 !important;
-	font-size: 13px !important;
+	font-size: 12px !important;
 	border: none !important;
-	box-shadow: var(--hco-shadow);
+	box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 	transition: all 0.15s ease;
 	width: auto !important;
 	height: auto !important;
-	min-height: 32px;
+	min-height: 24px !important;
+	min-width: 24px !important;
 }
 .z-toolbar .z-toolbarbutton:hover,
 .desktop-toolbar .z-toolbarbutton:hover,
 .adwindow-toolbar .z-toolbarbutton:hover,
-.font-icon-toolbar-button.toolbar-button:hover {
+.font-icon-toolbar-button.toolbar-button:hover,
+.adwindow-detail-toolbar .z-toolbarbutton:hover,
+.adtab-toolbar .z-toolbarbutton:hover {
 	background: var(--hco-secondary) !important;
 	color: var(--hco-text) !important;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-	transform: translateY(-1px);
+	box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+	transform: none;
 }
 .z-toolbar .z-toolbarbutton .z-toolbarbutton-content,
 .font-icon-toolbar-button.toolbar-button .z-toolbarbutton-content {
 	color: inherit !important;
+	padding: 0 !important;
 }
-.font-icon-toolbar-button.toolbar-button [class^="z-icon-"] {
+.font-icon-toolbar-button.toolbar-button [class^="z-icon-"],
+.adwindow-toolbar .z-toolbarbutton [class^="z-icon-"],
+.adwindow-detail-toolbar .z-toolbarbutton [class^="z-icon-"],
+.z-toolbar .z-toolbarbutton [class^="z-icon-"] {
 	color: inherit !important;
+	font-size: 14px !important;
+}
+/* Icon-only toolbar buttons — keep square but compact */
+.font-icon-toolbar-button.toolbar-button {
+	width: 26px !important;
+	height: 26px !important;
+	min-width: 26px !important;
+	min-height: 26px !important;
+	padding: 2px !important;
 }
 
 /* Destructive toolbar actions */
@@ -244,7 +262,7 @@ td.form-label .z-label {
 	padding: 4px 10px !important;
 }
 
-/* ===== Tabs — flat underline ===== */
+/* ===== Tabs — flat underline, tighter spacing ===== */
 .z-tab,
 .z-tab-content {
 	background: transparent !important;
@@ -252,25 +270,61 @@ td.form-label .z-label {
 	border: none !important;
 	border-radius: 0 !important;
 	box-shadow: none !important;
+	padding: 4px 10px 6px 10px !important;
+	margin: 0 2px !important;
+	height: auto !important;
+	min-height: 0 !important;
+}
+.z-tabs,
+.z-tabbox-tabs,
+.z-tabs-header,
+.adwindow-tabbox > .z-tabbox-tabs {
+	padding: 0 !important;
+	margin: 0 !important;
+	min-height: 0 !important;
 }
 .z-tab .z-tab-text {
 	color: var(--hco-text) !important;
 	font-weight: 400 !important;
+	font-size: 13px !important;
+	line-height: 1.25 !important;
+	padding: 0 !important;
 }
 .z-tab:hover .z-tab-text {
 	color: var(--hco-heading) !important;
 }
 .z-tab-selected {
-	border-bottom: 3px solid var(--hco-primary) !important;
+	border-bottom: 2px solid var(--hco-primary) !important;
 	background: transparent !important;
+	padding-bottom: 4px !important;
 }
 .z-tab-selected .z-tab-text {
 	color: var(--hco-heading) !important;
 	font-weight: 600 !important;
 }
 .z-tabs-content,
-.z-tabbox-content {
-	border-bottom: 1px solid #ddd !important;
+.z-tabbox-content,
+.z-tabpanel,
+.z-tabpanels {
+	border-bottom: none !important;
+	padding-top: 4px !important;
+}
+.z-tabbox {
+	margin-bottom: 0 !important;
+}
+/* Gap between tab strip and detail toolbar / grid */
+.adwindow-tabbox .z-tabpanels,
+.adwindow-detail .z-tabpanels,
+.adtab-content {
+	padding-top: 2px !important;
+	margin-top: 0 !important;
+}
+.adwindow-detail-toolbar,
+.adtab-toolbar,
+.z-toolbar.adwindow-toolbar {
+	padding: 2px 4px !important;
+	margin: 0 0 4px 0 !important;
+	min-height: 0 !important;
 }
 
 /* ===== Process / report dialogs ===== */
