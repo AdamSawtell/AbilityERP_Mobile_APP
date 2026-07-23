@@ -58,6 +58,16 @@ Grey toolbar buttons are often **state** (Save when clean, First on record 1), n
 
 Smoke (Support Worker → Client after restart): **New gone**; Delete/Copy/Customize/AttributeForm gone; Save/Find/Refresh remain. Attachment/Chat/Requests still visible (hardcoded enable path) — follow-up if product wants those hidden too.
 
+#### Follow-up tidy (`7.1.0.2026072308` + SQL `03-…`)
+
+| Fix | Detail |
+|---|---|
+| ShowMore → main | `Attachment` / `Chat` / `Requests` set `IsShowMore=N` so Restrict removeChild works |
+| Extra Restrict | Print, Document Explorer, PrintFormatEditor (+ Attachment/Chat/Requests) window-level for Support Worker |
+| CSS hide disabled | Window toolbar + detail toolbar + record-nav chips when `[disabled]` / `-disd` (ZK often omits `-disd` on nav) |
+
+Smoke (Support Worker → Client Aaron Agars): toolbar = Lookup / Grid / Zoom Across / Report / More; no Attachment/Chat/Print; disabled First/Previous hidden; Save/Ignore hidden until dirty.
+
 ### HCO Future Deployments variables
 
 | Variable | Value |
@@ -69,6 +79,6 @@ Smoke (Support Worker → Client after restart): **New gone**; Delete/Copy/Custo
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072306.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072308.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |

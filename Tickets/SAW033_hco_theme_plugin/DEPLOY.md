@@ -44,15 +44,18 @@ What the script does:
 
 ### Optional — hide role-unavailable toolbar buttons (Support Worker)
 
-Do **not** CSS-hide grey toolbar icons (many are state, not role). Use Restrict:
+Role deny is via Restrict (not CSS). State greys (Save when clean, Previous on record 1) are CSS-hidden when disabled.
 
 ```bash
 sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
   -f /opt/AbilityERP/idempiere-plugins/org.hco.ui.theme/sql/02-toolbar-restrict-window-level.sql
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
+  -f /opt/AbilityERP/idempiere-plugins/org.hco.ui.theme/sql/03-toolbar-showmore-and-restrict.sql
 # Cache Reset or restart iDempiere so MToolBarButtonRestrict cache reloads
 ```
 
-Repo path: `idempiere-plugins/org.hco.ui.theme/sql/02-toolbar-restrict-window-level.sql`
+Repo: `sql/02-toolbar-restrict-window-level.sql` + `sql/03-toolbar-showmore-and-restrict.sql`  
+(`03` sets Attachment/Chat/Requests `IsShowMore=N` so Restrict can remove them, plus Print/etc.)
 
 ## Rollback
 
@@ -72,8 +75,9 @@ sudo /etc/init.d/idempiere start
 - [x] Active tabs `3px solid #25cad2` underline
 - [x] Employee window toolbar tiles `#25cad2`, radius `8px`, navy text
 - [x] Grid headers `#00a2bd`
-- [x] Record nav First/Previous/Next/Last word labels (`7.1.0.2026072306`)
+- [x] Record nav First/Previous/Next/Last word labels (`7.1.0.2026072306+`)
 - [x] Support Worker → Client: New/Delete/Copy/Customize hidden via window-level Restrict (SQL `02-…`)
+- [x] Support Worker → Client: Attachment/Chat/Print removed (SQL `03-…`); disabled Save/Ignore/nav chips CSS-hidden (`7.1.0.2026072308`)
 
 ## AbilityERP Admin access
 

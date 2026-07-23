@@ -236,6 +236,20 @@ td.form-label .z-label {
 	border-radius: 5px !important;
 }
 
+/* Hide unavailable window-toolbar actions (disabled = not usable right now).
+   Save/Ignore/Print reappear when enabled — cleaner than grey stubs.
+   Role-denied buttons should be removed via AD_ToolBarButtonRestrict (not CSS). */
+.adwindow-toolbar .z-toolbarbutton.z-toolbarbutton-disd,
+.adwindow-toolbar .z-toolbarbutton[disabled],
+.adwindow-toolbar .font-icon-toolbar-button.z-toolbarbutton-disd {
+	display: none !important;
+}
+/* Empty More-menu rows left after Restrict */
+.adwindow-toolbar .z-menupopup .z-menuitem-disd,
+.adwindow-toolbar .z-menupopup .z-menuitem[disabled] {
+	display: none !important;
+}
+
 /* Destructive toolbar actions */
 .z-toolbarbutton .z-icon-trash,
 .z-toolbarbutton .z-icon-times,
@@ -349,20 +363,36 @@ td.form-label .z-label {
 	font-weight: 500 !important;
 	color: var(--hco-text) !important;
 }
-/* Disabled First/Previous — quieter fill, same rectangle */
+/* Hide disabled record-nav chips (e.g. Previous on record 1).
+   ZK often sets the disabled attribute without z-toolbarbutton-disd;
+   must beat the display:inline-flex rule above. */
+.adwindow-breadcrumb-toolbar .z-toolbarbutton.z-toolbarbutton-disd,
+.adwindow-breadcrumb-toolbar .z-toolbarbutton[disabled],
+.adwindow-breadcrumb .breadcrumb-toolbar-button.z-toolbarbutton-disd,
+.adwindow-breadcrumb .breadcrumb-toolbar-button[disabled],
 .z-toolbarbutton.breadcrumb-toolbar-button.z-toolbarbutton-disd,
+.z-toolbarbutton.breadcrumb-toolbar-button[disabled],
 .z-toolbarbutton:has(.z-icon-FirstRecord).z-toolbarbutton-disd,
+.z-toolbarbutton:has(.z-icon-FirstRecord)[disabled],
 .z-toolbarbutton:has(.z-icon-PreviousRecord).z-toolbarbutton-disd,
-.z-toolbarbutton[title*="First record"].z-toolbarbutton-disd,
-.z-toolbarbutton[title*="Previous record"].z-toolbarbutton-disd {
-	background: #a8e4e8 !important;
-	opacity: 1 !important;
-	color: #5a7a8a !important;
+.z-toolbarbutton:has(.z-icon-PreviousRecord)[disabled],
+.z-toolbarbutton:has(.z-icon-NextRecord).z-toolbarbutton-disd,
+.z-toolbarbutton:has(.z-icon-NextRecord)[disabled],
+.z-toolbarbutton:has(.z-icon-LastRecord).z-toolbarbutton-disd,
+.z-toolbarbutton:has(.z-icon-LastRecord)[disabled],
+.z-toolbarbutton[title*="First record"][disabled],
+.z-toolbarbutton[title*="Previous record"][disabled],
+.z-toolbarbutton[title*="Next record"][disabled],
+.z-toolbarbutton[title*="Last record"][disabled] {
+	display: none !important;
 }
-.z-toolbarbutton.breadcrumb-toolbar-button.z-toolbarbutton-disd .z-toolbarbutton-content::before,
-.z-toolbarbutton:has(.z-icon-FirstRecord).z-toolbarbutton-disd .z-toolbarbutton-content::before,
-.z-toolbarbutton:has(.z-icon-PreviousRecord).z-toolbarbutton-disd .z-toolbarbutton-content::before {
-	color: #5a7a8a !important;
+
+/* Detail / tab toolbar: hide grey Save stubs when not editable */
+.adwindow-detailpane .z-toolbarbutton.z-toolbarbutton-disd,
+.adwindow-detailpane .z-toolbarbutton[disabled],
+.adtab-content .z-toolbar .z-toolbarbutton.z-toolbarbutton-disd,
+.adtab-content .z-toolbar .z-toolbarbutton[disabled] {
+	display: none !important;
 }
 
 /* ===== Tabs — flat underline, tighter spacing ===== */

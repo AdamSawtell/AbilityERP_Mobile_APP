@@ -7,5 +7,5 @@
 	<language-name>xul/html</language-name>
 
 	<!-- Module does not need to exist; used as theme version for cache busting -->
-	<javascript-module name="idempiere.theme.hco" version="2026072306" />
+	<javascript-module name="idempiere.theme.hco" version="2026072308" />
 </language>
