@@ -566,6 +566,91 @@ td.form-label .z-label {
 	box-shadow: 0 -1px 3px rgba(0,0,0,0.06);
 }
 
+/* ===== Document Status indicators (Home gadget: activities-box) =====
+   Core renders Name + Count with AD PrintFont/Color (often Monospaced + harsh pink).
+   Restyle as modern rows with teal count chips — same plugin, CSS only. */
+.activities-box {
+	width: calc(100% - 8px) !important;
+	margin: 4px 4px !important;
+	padding: 6px 10px !important;
+	border-radius: 8px !important;
+	background: #fff !important;
+	border: 1px solid #e3eef0 !important;
+	border-left: 4px solid var(--hco-primary) !important;
+	box-shadow: 0 1px 2px rgba(15, 37, 84, 0.05) !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+	transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.activities-box:hover {
+	background: rgba(37, 202, 210, 0.08) !important;
+	border-color: var(--hco-primary) !important;
+	box-shadow: 0 2px 6px rgba(37, 202, 210, 0.18) !important;
+}
+.activities-box > .z-div {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 10px !important;
+	width: 100% !important;
+	flex-wrap: nowrap !important;
+}
+.activities-box .z-label {
+	font-family: 'Poppins', sans-serif !important;
+	font-style: normal !important;
+	line-height: 1.3 !important;
+}
+/* Status name — override inline PrintColor/PrintFont */
+.activities-box .z-label:first-child {
+	flex: 1 1 auto !important;
+	min-width: 0 !important;
+	color: var(--hco-text) !important;
+	font-size: 13px !important;
+	font-weight: 500 !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
+}
+/* Count chip */
+.activities-box .z-label:last-of-type {
+	flex: 0 0 auto !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	min-width: 32px !important;
+	height: 26px !important;
+	padding: 0 10px !important;
+	margin-left: auto !important;
+	border-radius: 13px !important;
+	background: var(--hco-primary) !important;
+	color: var(--hco-text) !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+/* Help control — keep compact and on-brand */
+.activities-box .z-toolbarbutton {
+	flex: 0 0 auto !important;
+	min-height: 26px !important;
+	height: 26px !important;
+	padding: 0 4px !important;
+	margin: 0 !important;
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+.activities-box .z-toolbarbutton,
+.activities-box .z-toolbarbutton [class^="z-icon-"] {
+	color: var(--hco-heading) !important;
+	font-size: 13px !important;
+}
+.activities-box img[src*="Help"] {
+	width: 14px !important;
+	height: 14px !important;
+	opacity: 0.75;
+	filter: sepia(1) saturate(3) hue-rotate(140deg);
+}
+
 /* ===== Menu tree / sidebar ===== */
 .z-treerow:hover > .z-treecell {
 	background: rgba(37, 202, 210, 0.12) !important;

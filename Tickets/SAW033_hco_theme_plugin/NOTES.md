@@ -72,6 +72,10 @@ Smoke (Support Worker → Client Aaron Agars): toolbar = Lookup / Grid / Zoom Ac
 
 Row indicator column (`title="Edit Record"`, was ~22px pencil) restyled to **88px** with ☑/☐ **Select** chips — current row filled teal, other rows outlined.
 
+#### Document Status indicators (`7.1.0.2026072311`)
+
+Home gadget `.activities-box` (e.g. **My Roster Statuses**) — drop Monospaced/PrintColor look; white rows, teal left accent, Poppins labels, teal count pills. CSS-only in theme plugin.
+
 ### HCO Future Deployments variables
 
 | Variable | Value |
@@ -83,6 +87,6 @@ Row indicator column (`title="Edit Record"`, was ~22px pencil) restyled to **88p
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072309.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072311.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |
