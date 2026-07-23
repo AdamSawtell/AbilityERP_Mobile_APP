@@ -664,7 +664,7 @@ td.form-label .z-label {
 }
 
 /* ===== Favourites tree (My People, Places and Actions) =====
-   Leaf links use z-icon-Window (dated list glyph). Compact teal icons. */
+   Distinct per-item icons via hco-fav-icons.js (data-hco-fav + .hco-fav-icon-*). */
 .dashboard-widget .z-tree .z-treerow > .z-treecell {
 	border-radius: 4px !important;
 }
@@ -680,7 +680,7 @@ td.form-label .z-label {
 .dashboard-widget .menu-href {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 6px !important;
+	gap: 7px !important;
 	padding: 2px 4px 2px 0 !important;
 	border-radius: 4px !important;
 	color: var(--hco-text) !important;
@@ -695,6 +695,7 @@ td.form-label .z-label {
 	color: var(--hco-text) !important;
 	text-decoration: none !important;
 }
+.dashboard-widget .menu-href .hco-fav-icon,
 .dashboard-widget .menu-href [class^="z-icon-"],
 .dashboard-widget .menu-href i[class*="z-icon-"] {
 	display: inline-flex !important;
@@ -710,19 +711,42 @@ td.form-label .z-label {
 	background: rgba(37, 202, 210, 0.22) !important;
 	color: var(--hco-heading) !important;
 	font-family: FontAwesome !important;
+	font-style: normal !important;
+	font-weight: normal !important;
 	font-size: 11px !important;
 	line-height: 18px !important;
 	text-align: center !important;
 	box-shadow: none !important;
+	speak: none;
 }
-/* Compact open/link glyph instead of old document list icon */
-.dashboard-widget .menu-href .z-icon-Window::before,
-.dashboard-widget a.menu-href > .z-icon-Window::before {
-	content: "\f0a9" !important; /* arrow-circle-right */
+.dashboard-widget .menu-href .hco-fav-icon::before {
 	font-family: FontAwesome !important;
 	font-weight: normal !important;
 	font-size: 11px !important;
-	color: var(--hco-heading) !important;
+	color: inherit !important;
+}
+.dashboard-widget .menu-href .hco-fav-icon-client::before { content: "\f007"; } /* user */
+.dashboard-widget .menu-href .hco-fav-icon-incident::before { content: "\f071"; } /* warning */
+.dashboard-widget .menu-href .hco-fav-icon-incident-list::before { content: "\f0f6"; } /* file-text-o */
+.dashboard-widget .menu-href .hco-fav-icon-location::before { content: "\f041"; } /* map-marker */
+.dashboard-widget .menu-href .hco-fav-icon-template::before { content: "\f0c5"; } /* copy */
+.dashboard-widget .menu-href .hco-fav-icon-leave::before { content: "\f073"; } /* calendar */
+.dashboard-widget .menu-href .hco-fav-icon-shifts::before { content: "\f017"; } /* clock-o */
+.dashboard-widget .menu-href .hco-fav-icon-available::before { content: "\f055"; } /* plus-circle */
+.dashboard-widget .menu-href .hco-fav-icon-default::before { content: "\f0a9"; } /* arrow-circle-right */
+/* Soft colour accents */
+.dashboard-widget .menu-href .hco-fav-icon-incident,
+.dashboard-widget .menu-href .hco-fav-icon-incident-list {
+	background: rgba(230, 57, 70, 0.15) !important;
+	color: var(--hco-danger) !important;
+}
+.dashboard-widget .menu-href .hco-fav-icon-available {
+	background: rgba(0, 195, 179, 0.22) !important;
+	color: #008f85 !important;
+}
+.dashboard-widget .menu-href .hco-fav-icon-leave {
+	background: rgba(15, 37, 84, 0.10) !important;
+	color: var(--hco-text) !important;
 }
 .dashboard-widget .z-tree .z-tree-icon [class^="z-icon-"] {
 	color: var(--hco-heading) !important;

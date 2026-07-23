@@ -6,6 +6,9 @@
 	<addon-name>hco</addon-name>
 	<language-name>xul/html</language-name>
 
+	<!-- Distinct favourites icons on Home dashboard -->
+	<javascript src="/theme/hco/js/hco-fav-icons.js" charset="UTF-8"/>
+
 	<!-- Module does not need to exist; used as theme version for cache busting -->
-	<javascript-module name="idempiere.theme.hco" version="2026072313" />
+	<javascript-module name="idempiere.theme.hco" version="2026072314" />
 </language>

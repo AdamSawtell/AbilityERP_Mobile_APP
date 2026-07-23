@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: HCO ZK Theme
 Bundle-SymbolicName: org.hco.ui.theme
-Bundle-Version: 7.1.0.2026072313
+Bundle-Version: 7.1.0.2026072314
 Bundle-Vendor: HCO / AbilityERP
 Fragment-Host: org.adempiere.ui.zk;bundle-version="7.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-11

@@ -30,6 +30,11 @@ echo "Applying HCO overlay..."
 mkdir -p "$STAGE_DIR/theme/hco/css/fragment"
 cp -f "$PLUGIN_DIR/overlay/css/fragment/custom.css.dsp" "$STAGE_DIR/theme/hco/css/fragment/custom.css.dsp"
 
+mkdir -p "$STAGE_DIR/theme/hco/js"
+if compgen -G "$PLUGIN_DIR/overlay/js/"*.js > /dev/null; then
+  cp -f "$PLUGIN_DIR/overlay/js/"*.js "$STAGE_DIR/theme/hco/js/"
+fi
+
 mkdir -p "$STAGE_DIR/theme/hco/zul/login"
 cp -f "$PLUGIN_DIR/overlay/zul/login/"*.zul "$STAGE_DIR/theme/hco/zul/login/"
 
@@ -50,7 +55,7 @@ mkdir -p "$STAGE_DIR/metainfo/zk" "$STAGE_DIR/META-INF"
 tr -d '\r' < "$PLUGIN_DIR/metainfo/zk/lang-addon.xml" > "$STAGE_DIR/metainfo/zk/lang-addon.xml"
 tr -d '\r' < "$PLUGIN_DIR/META-INF/MANIFEST.MF" > "$STAGE_DIR/META-INF/MANIFEST.MF"
 # normalize overlay text to LF
-find "$STAGE_DIR/theme/hco/css/fragment/custom.css.dsp" "$STAGE_DIR/theme/hco/zul/login" -type f 2>/dev/null | while read -r f; do
+find "$STAGE_DIR/theme/hco/css/fragment/custom.css.dsp" "$STAGE_DIR/theme/hco/zul/login" "$STAGE_DIR/theme/hco/js" -type f 2>/dev/null | while read -r f; do
   tr -d '\r' < "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 done
 
