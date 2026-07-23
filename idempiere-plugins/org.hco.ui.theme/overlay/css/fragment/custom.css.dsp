@@ -226,13 +226,14 @@ td.form-label .z-label {
 	color: inherit !important;
 	font-size: 14px !important;
 }
-/* Icon-only toolbar buttons — keep square but compact */
+/* Icon-only toolbar buttons — equal-width rectangles */
 .font-icon-toolbar-button.toolbar-button {
-	width: 26px !important;
+	width: 40px !important;
 	height: 26px !important;
-	min-width: 26px !important;
+	min-width: 40px !important;
 	min-height: 26px !important;
-	padding: 2px !important;
+	padding: 2px 8px !important;
+	border-radius: 5px !important;
 }
 
 /* Destructive toolbar actions */
@@ -251,15 +252,117 @@ td.form-label .z-label {
 	color: #fff !important;
 }
 
-/* Record navigation pills */
-.adwindow-status-docinfo .z-toolbarbutton,
-.adwindow-status .z-toolbarbutton,
-.record-nav .z-toolbarbutton,
-.adwindow-nav .z-toolbarbutton {
-	border-radius: 999px !important;
+/* ===== Record navigation (breadcrumb) — equal rectangles + word labels ===== */
+.adwindow-breadcrumb-toolbar .breadcrumb-toolbar-button,
+.adwindow-breadcrumb .breadcrumb-toolbar-button,
+.z-toolbarbutton.breadcrumb-toolbar-button,
+.z-toolbarbutton:has(.z-icon-FirstRecord),
+.z-toolbarbutton:has(.z-icon-PreviousRecord),
+.z-toolbarbutton:has(.z-icon-NextRecord),
+.z-toolbarbutton:has(.z-icon-LastRecord),
+.z-toolbarbutton[title*="First record"],
+.z-toolbarbutton[title*="Previous record"],
+.z-toolbarbutton[title*="Next record"],
+.z-toolbarbutton[title*="Last record"] {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	min-width: 84px !important;
+	width: auto !important;
+	height: 28px !important;
+	min-height: 28px !important;
+	padding: 3px 14px !important;
+	margin: 0 3px !important;
+	border-radius: 5px !important;
 	background: var(--hco-primary) !important;
 	color: var(--hco-text) !important;
-	padding: 4px 10px !important;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.08) !important;
+}
+.adwindow-breadcrumb-toolbar .breadcrumb-record-info,
+.z-toolbarbutton.breadcrumb-record-info {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	min-width: 72px !important;
+	height: 28px !important;
+	min-height: 28px !important;
+	padding: 3px 14px !important;
+	margin: 0 3px !important;
+	border-radius: 5px !important;
+	background: var(--hco-heading) !important;
+	color: #fff !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.08) !important;
+}
+.adwindow-breadcrumb-toolbar .breadcrumb-record-info .z-toolbarbutton-content,
+.z-toolbarbutton.breadcrumb-record-info .z-toolbarbutton-content {
+	color: #fff !important;
+	white-space: nowrap !important;
+}
+.z-toolbarbutton.breadcrumb-toolbar-button .z-toolbarbutton-content,
+.z-toolbarbutton:has(.z-icon-FirstRecord) .z-toolbarbutton-content,
+.z-toolbarbutton:has(.z-icon-PreviousRecord) .z-toolbarbutton-content,
+.z-toolbarbutton:has(.z-icon-NextRecord) .z-toolbarbutton-content,
+.z-toolbarbutton:has(.z-icon-LastRecord) .z-toolbarbutton-content {
+	white-space: nowrap !important;
+}
+/* Hide icon glyphs; show word labels */
+.z-toolbarbutton.breadcrumb-toolbar-button .z-toolbarbutton-content [class^="z-icon-"],
+.z-toolbarbutton:has(.z-icon-FirstRecord) .z-toolbarbutton-content [class^="z-icon-"],
+.z-toolbarbutton:has(.z-icon-PreviousRecord) .z-toolbarbutton-content [class^="z-icon-"],
+.z-toolbarbutton:has(.z-icon-NextRecord) .z-toolbarbutton-content [class^="z-icon-"],
+.z-toolbarbutton:has(.z-icon-LastRecord) .z-toolbarbutton-content [class^="z-icon-"] {
+	display: none !important;
+	font-size: 0 !important;
+}
+.z-toolbarbutton:has(.z-icon-FirstRecord) .z-toolbarbutton-content::before,
+.z-toolbarbutton[title*="First record"] .z-toolbarbutton-content::before {
+	content: "First";
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	color: var(--hco-text) !important;
+}
+.z-toolbarbutton:has(.z-icon-PreviousRecord) .z-toolbarbutton-content::before,
+.z-toolbarbutton[title*="Previous record"] .z-toolbarbutton-content::before {
+	content: "Previous";
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	color: var(--hco-text) !important;
+}
+.z-toolbarbutton:has(.z-icon-NextRecord) .z-toolbarbutton-content::before,
+.z-toolbarbutton[title*="Next record"] .z-toolbarbutton-content::before {
+	content: "Next";
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	color: var(--hco-text) !important;
+}
+.z-toolbarbutton:has(.z-icon-LastRecord) .z-toolbarbutton-content::before,
+.z-toolbarbutton[title*="Last record"] .z-toolbarbutton-content::before {
+	content: "Last";
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 12px !important;
+	font-weight: 500 !important;
+	color: var(--hco-text) !important;
+}
+/* Disabled First/Previous — quieter fill, same rectangle */
+.z-toolbarbutton.breadcrumb-toolbar-button.z-toolbarbutton-disd,
+.z-toolbarbutton:has(.z-icon-FirstRecord).z-toolbarbutton-disd,
+.z-toolbarbutton:has(.z-icon-PreviousRecord).z-toolbarbutton-disd,
+.z-toolbarbutton[title*="First record"].z-toolbarbutton-disd,
+.z-toolbarbutton[title*="Previous record"].z-toolbarbutton-disd {
+	background: #a8e4e8 !important;
+	opacity: 1 !important;
+	color: #5a7a8a !important;
+}
+.z-toolbarbutton.breadcrumb-toolbar-button.z-toolbarbutton-disd .z-toolbarbutton-content::before,
+.z-toolbarbutton:has(.z-icon-FirstRecord).z-toolbarbutton-disd .z-toolbarbutton-content::before,
+.z-toolbarbutton:has(.z-icon-PreviousRecord).z-toolbarbutton-disd .z-toolbarbutton-content::before {
+	color: #5a7a8a !important;
 }
 
 /* ===== Tabs — flat underline, tighter spacing ===== */

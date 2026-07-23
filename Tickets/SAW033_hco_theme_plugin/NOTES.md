@@ -28,8 +28,14 @@ Reviewed Obsidian scope: **HCO iDempiere 7 Theme Plugin — Cursor Scope.md**.
 | Employee toolbar tiles `#25cad2` / 8px radius | Pass |
 | Grid header `#00a2bd` | Pass |
 | CSS URL `/webui/theme/hco/css/theme.css.dsp` ~80KB | Pass |
+| Record nav word labels First/Previous/Next/Last (84×28) | Pass (`7.1.0.2026072306`) |
+| Toolbar icon tiles equal-width rectangles (~40×26) | Pass |
 
 Login: `SuperUser` / `HCOflamingo` · Role **Admin**.
+
+### UI iteration — record nav labels (2026-07-23)
+
+Breadcrumb buttons use icons `z-icon-FirstRecord` / `PreviousRecord` / `NextRecord` / `LastRecord` and titles like `First record    Alt+Home` (lowercase “record”). CSS scopes `.breadcrumb-toolbar-button`, hides glyphs, and injects word labels via `::before`.
 
 ### HCO Future Deployments variables
 
@@ -42,6 +48,6 @@ Login: `SuperUser` / `HCOflamingo` · Role **Admin**.
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072302.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072306.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |

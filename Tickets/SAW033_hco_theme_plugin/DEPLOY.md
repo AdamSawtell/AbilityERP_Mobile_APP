@@ -72,4 +72,4 @@ No new Window / Process / Info Window / Form.
 ## Repository artifacts
 
 - Plugin: `idempiere-plugins/org.hco.ui.theme/`
-- Release JAR: `idempiere-plugins/org.hco.ui.theme/release/org.hco.ui.theme_7.1.0.2026072302.jar`
+- Release JAR: `idempiere-plugins/org.hco.ui.theme/release/org.hco.ui.theme_7.1.0.2026072306.jar`
