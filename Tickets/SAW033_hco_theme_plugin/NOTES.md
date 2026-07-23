@@ -93,6 +93,23 @@ Home gadget `.activities-box` (e.g. **My Roster Statuses**) — drop Monospaced/
 
 Hard-refresh Home after deploy.
 
+### Dark / light contrast fix (`7.1.0.2026072317`)
+
+OS/browser `prefers-color-scheme: dark` was making query/search text invisible (white-on-white) because:
+
+1. `.desktop-header { color: #fff }` plus a former global `color: inherit` on `[class*="z-"]` pulled white into inputs.
+2. Global `.z-label { color: --hco-text }` beat header link rules → username / Feedback links were navy-on-black.
+
+Fix in `custom.css.dsp`:
+
+- `color-scheme: light` on `html, body` and all text inputs
+- Explicit navy text + white bg + `-webkit-text-fill-color` on textbox/combo/bandbox/datebox (incl. header search + find window)
+- Header chrome (username, `.link` toolbar buttons) forced white; inputs inside header kept navy
+- Selected tab text uses navy (not teal-on-gray)
+- Input borders `#8a97a8` for clearer field edges
+
+Staging smoke (dark + light emulation): header search, Client Lookup “Aaron”, login fields, favourites menu — contrast ≥ 14:1 on inputs; header text white on `#151515`.
+
 ### HCO Future Deployments variables
 
 | Variable | Value |
@@ -104,6 +121,6 @@ Hard-refresh Home after deploy.
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072314.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072317.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |

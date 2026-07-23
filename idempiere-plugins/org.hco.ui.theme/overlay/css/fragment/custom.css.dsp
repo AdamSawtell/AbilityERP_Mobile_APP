@@ -10,23 +10,29 @@
 	--hco-secondary: #00c3b3;
 	--hco-heading: #00a2bd;
 	--hco-text: #0f2554;
+	--hco-muted: #6b7c93;
 	--hco-dark: #151515;
 	--hco-light: #eaeaea;
+	--hco-surface: #ffffff;
 	--hco-danger: #e63946;
 	--hco-radius: 6px;
 	--hco-radius-lg: 8px;
 	--hco-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
+/* HCO is a light brand theme. Lock color-scheme so OS/browser dark mode
+   does not auto-invert form controls into white-on-white / navy-on-black. */
 html, body {
 	background-color: var(--hco-light) !important;
 	color: var(--hco-text) !important;
 	font-family: 'Poppins', sans-serif !important;
+	color-scheme: light !important;
 }
 
+/* Do NOT set color:inherit here — it pulls #fff from .desktop-header into
+   query/search inputs (white text on white fields). */
 [class*="z-"]:not([class*="z-icon-"]):not([class*="z-group-icon-"]) {
 	font-family: 'Poppins', sans-serif !important;
-	color: inherit;
 }
 
 /* ===== Windows / panels ===== */
@@ -85,7 +91,7 @@ button.z-button.btn-ok {
 	color: #fff !important;
 }
 
-/* ===== Inputs ===== */
+/* ===== Inputs — explicit light contrast (query / find / forms / header search) ===== */
 .z-textbox,
 .z-combobox-input,
 .z-datebox-input,
@@ -94,19 +100,87 @@ button.z-button.btn-ok {
 .z-decimalbox,
 .z-intbox,
 .z-longbox,
-.z-doublebox {
-	border: 1px solid #ccc !important;
+.z-doublebox,
+textarea.z-textbox,
+input.z-textbox,
+input.z-combobox-input,
+input.z-bandbox-input,
+input.z-datebox-input,
+input.z-timebox-input,
+.editor-input,
+.find-window input,
+.find-window .z-textbox,
+.find-window-simple input,
+.adwindow-toolbar .z-combobox-input,
+.desktop-header .z-bandbox-input,
+.desktop-header .z-textbox,
+.desktop-header-center .z-bandbox-input,
+.desktop-header-center .z-textbox {
+	border: 1px solid #8a97a8 !important;
 	border-radius: var(--hco-radius) !important;
 	box-shadow: none !important;
+	background: var(--hco-surface) !important;
+	background-color: var(--hco-surface) !important;
 	background-image: none !important;
+	color: var(--hco-text) !important;
+	-webkit-text-fill-color: var(--hco-text) !important;
+	caret-color: var(--hco-text) !important;
+	color-scheme: light !important;
+	opacity: 1 !important;
 }
 .z-textbox:focus,
 .z-combobox-input:focus,
 .z-datebox-input:focus,
 .z-timebox-input:focus,
-.z-bandbox-input:focus {
+.z-bandbox-input:focus,
+.desktop-header .z-bandbox-input:focus,
+.desktop-header .z-textbox:focus {
 	border-color: var(--hco-primary) !important;
 	box-shadow: 0 0 0 2px rgba(37, 202, 210, 0.25) !important;
+	color: var(--hco-text) !important;
+	-webkit-text-fill-color: var(--hco-text) !important;
+	background: var(--hco-surface) !important;
+}
+.z-textbox::placeholder,
+.z-combobox-input::placeholder,
+.z-bandbox-input::placeholder,
+.z-datebox-input::placeholder,
+.z-timebox-input::placeholder,
+textarea.z-textbox::placeholder {
+	color: var(--hco-muted) !important;
+	-webkit-text-fill-color: var(--hco-muted) !important;
+	opacity: 1 !important;
+}
+.z-textbox[readonly],
+.z-textbox-readonly,
+.z-combobox-input[readonly],
+.z-datebox-input[readonly],
+.z-bandbox-input[readonly],
+.z-decimalbox[readonly],
+.z-intbox[readonly],
+.editor-input-disd,
+.quickform-readonly .z-textbox-readonly,
+.quickform-readonly .z-textbox[readonly] {
+	background: #f3f5f7 !important;
+	background-color: #f3f5f7 !important;
+	color: var(--hco-text) !important;
+	-webkit-text-fill-color: var(--hco-text) !important;
+	opacity: 1 !important;
+}
+/* Combobox / bandbox dropdown rows stay dark-on-light */
+.z-comboitem,
+.z-comboitem-text,
+.z-comboitem-selected,
+.z-bandbox-popup,
+.z-combobox-popup,
+.z-datebox-popup {
+	color: var(--hco-text) !important;
+	background: var(--hco-surface) !important;
+}
+.z-comboitem:hover,
+.z-comboitem-selected {
+	background: rgba(37, 202, 210, 0.15) !important;
+	color: var(--hco-text) !important;
 }
 
 /* ===== Menus ===== */
@@ -121,16 +195,45 @@ button.z-button.btn-ok {
 	color: #fff !important;
 	font-family: 'Poppins', sans-serif !important;
 }
-.z-menubar .z-menu-text,
-.z-menubar .z-menuitem-text,
-.z-menu-text,
-.z-menuitem-text {
+/* Top header chrome only — white on dark. Inputs keep navy via rules above.
+   Must beat global .z-label / .z-toolbarbutton { color: --hco-text }. */
+.desktop-header .z-menubar .z-menu-text,
+.desktop-header .z-menubar .z-menuitem-text,
+.desktop-header a,
+.desktop-header-right,
+.desktop-header-right a,
+.desktop-header-left,
+.desktop-header-center,
+.desktop-header .z-label,
+.desktop-header .desktop-header-username,
+.desktop-header .desktop-header-font,
+.desktop-header .z-toolbarbutton.link,
+.desktop-header .z-toolbarbutton.link .z-toolbarbutton-content,
+.desktop-header .link.z-toolbarbutton,
+.desktop-header .link.z-toolbarbutton .z-toolbarbutton-content {
 	color: #fff !important;
+	-webkit-text-fill-color: #fff !important;
+}
+/* Keep search/query fields dark-on-light even inside the dark header */
+.desktop-header input,
+.desktop-header .z-bandbox-input,
+.desktop-header .z-textbox,
+.desktop-header .z-combobox-input {
+	color: var(--hco-text) !important;
+	-webkit-text-fill-color: var(--hco-text) !important;
 }
 .z-menupopup {
 	border-radius: var(--hco-radius) !important;
 	box-shadow: var(--hco-shadow) !important;
 	border: 1px solid #ddd !important;
+	background: var(--hco-surface) !important;
+	color: var(--hco-text) !important;
+}
+.z-menupopup .z-menu-text,
+.z-menupopup .z-menuitem-text,
+.z-menupopup .z-menuitem,
+.z-menupopup a {
+	color: var(--hco-text) !important;
 }
 
 /* ===== Grids ===== */
@@ -503,15 +606,16 @@ td.form-label .z-label {
 	padding: 0 !important;
 }
 .z-tab:hover .z-tab-text {
-	color: var(--hco-heading) !important;
+	color: var(--hco-dark) !important;
 }
 .z-tab-selected {
 	border-bottom: 2px solid var(--hco-primary) !important;
 	background: transparent !important;
 	padding-bottom: 4px !important;
 }
+/* Navy (not teal) for selected tab text — teal-on-gray failed contrast */
 .z-tab-selected .z-tab-text {
-	color: var(--hco-heading) !important;
+	color: var(--hco-text) !important;
 	font-weight: 600 !important;
 }
 .z-tabs-content,
