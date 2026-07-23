@@ -37,6 +37,27 @@ Login: `SuperUser` / `HCOflamingo` · Role **Admin**.
 
 Breadcrumb buttons use icons `z-icon-FirstRecord` / `PreviousRecord` / `NextRecord` / `LastRecord` and titles like `First record    Alt+Home` (lowercase “record”). CSS scopes `.breadcrumb-toolbar-button`, hides glyphs, and injects word labels via `::before`.
 
+### Toolbar grey icons — do not CSS-hide all disabled (2026-07-23)
+
+Grey toolbar buttons are often **state** (Save when clean, First on record 1), not role deny. Hiding all `.z-toolbarbutton-disd` is wrong and flickery.
+
+**Correct path:** `AD_ToolBarButtonRestrict` (Role Toolbar Button Access). Restricted buttons are not rendered — zero theme/JS cost.
+
+#### Staging audit (HCO client `1000003`)
+
+| Finding | Detail |
+|---|---|
+| Restrict already used | 74 rows; Support Worker (role UU `7c953364-…`) owns most |
+| Duplicate role name | Two “Support Worker” roles; Restrict only on `1000012` |
+| Tab-scoped gap | Many New/Attachment Restricts had `AD_Tab_ID` set. `getOfWindow()` **requires `AD_Tab_ID IS NULL`**, so window toolbar ignored them |
+| Hardcoded Attachment/Chat | `ADWindowToolbar` has `btnAttachment` / `btnChat`; `enableAttachment` / `enableChat` can keep them visible even when Restrict exists |
+
+#### Applied
+
+`idempiere-plugins/org.hco.ui.theme/sql/02-toolbar-restrict-window-level.sql` — upserts **window-level** excludes for Support Worker on Client, Support Location, Incident Report, Animal, Login (New/Delete/Copy/Customize/AttributeForm/…; not Save/Ignore).
+
+Smoke (Support Worker → Client after restart): **New gone**; Delete/Copy/Customize/AttributeForm gone; Save/Find/Refresh remain. Attachment/Chat/Requests still visible (hardcoded enable path) — follow-up if product wants those hidden too.
+
 ### HCO Future Deployments variables
 
 | Variable | Value |

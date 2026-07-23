@@ -1,7 +1,7 @@
 # SAW033 — Deploy HCO theme plugin
 
 **Ticket / slug:** `SAW033_hco_theme_plugin`  
-**Kind:** idempiere · **JAR:** yes · **SQL:** sysconfig only  
+**Kind:** idempiere · **JAR:** yes · **SQL:** sysconfig + optional toolbar Restrict  
 **Status:** staging tested on `3.27.122.147`
 
 ## Required host access
@@ -42,6 +42,18 @@ What the script does:
 6. Set sysconfig: `ZK_THEME=hco`, `ZK_LOGIN_LEFTPANEL_SHOWN=Y`, clear `ZK_LOGO_LARGE` / `ZK_LOGO_SMALL`.
 7. Start iDempiere and wait for WebUI 200.
 
+### Optional — hide role-unavailable toolbar buttons (Support Worker)
+
+Do **not** CSS-hide grey toolbar icons (many are state, not role). Use Restrict:
+
+```bash
+sudo -u postgres psql -d idempiere -v ON_ERROR_STOP=1 \
+  -f /opt/AbilityERP/idempiere-plugins/org.hco.ui.theme/sql/02-toolbar-restrict-window-level.sql
+# Cache Reset or restart iDempiere so MToolBarButtonRestrict cache reloads
+```
+
+Repo path: `idempiere-plugins/org.hco.ui.theme/sql/02-toolbar-restrict-window-level.sql`
+
 ## Rollback
 
 ```bash
@@ -60,6 +72,8 @@ sudo /etc/init.d/idempiere start
 - [x] Active tabs `3px solid #25cad2` underline
 - [x] Employee window toolbar tiles `#25cad2`, radius `8px`, navy text
 - [x] Grid headers `#00a2bd`
+- [x] Record nav First/Previous/Next/Last word labels (`7.1.0.2026072306`)
+- [x] Support Worker → Client: New/Delete/Copy/Customize hidden via window-level Restrict (SQL `02-…`)
 
 ## AbilityERP Admin access
 
