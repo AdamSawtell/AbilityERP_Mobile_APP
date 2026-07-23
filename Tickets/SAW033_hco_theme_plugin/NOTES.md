@@ -76,9 +76,9 @@ Row indicator column (`title="Edit Record"`, was ~22px pencil) restyled to **88p
 
 Home gadget `.activities-box` (e.g. **My Roster Statuses**) — drop Monospaced/PrintColor look; white rows, teal left accent, Poppins labels, teal count pills. CSS-only in theme plugin.
 
-#### Favourites tree icons (`7.1.0.2026072312`)
+#### Favourites tree icons (`7.1.0.2026072313`)
 
-**My People, Places and Actions** — `z-icon-Window` leaf icons restyled as 28px teal tiles with modern `th-large` glyph (scoped to `.dashboard-widget`).
+**My People, Places and Actions** — compact **18px** soft-teal icons (`arrow-circle-right`) + tighter row padding (scoped to `.dashboard-widget`). Hard-refresh if old grey glyphs persist.
 
 ### HCO Future Deployments variables
 
@@ -91,6 +91,6 @@ Home gadget `.activities-box` (e.g. **My Roster Statuses**) — drop Monospaced/
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072312.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072313.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |

@@ -664,63 +664,69 @@ td.form-label .z-label {
 }
 
 /* ===== Favourites tree (My People, Places and Actions) =====
-   Leaf links use z-icon-Window (dated list glyph). Restyle as teal tiles. */
+   Leaf links use z-icon-Window (dated list glyph). Compact teal icons. */
 .dashboard-widget .z-tree .z-treerow > .z-treecell {
-	border-radius: 6px !important;
+	border-radius: 4px !important;
 }
 .dashboard-widget .z-tree .z-treecell-content {
-	padding: 3px 6px !important;
+	padding: 1px 4px !important;
 }
 .dashboard-widget .z-treecell-text {
 	font-family: 'Poppins', sans-serif !important;
-	font-size: 13px !important;
+	font-size: 12px !important;
 	font-weight: 600 !important;
 	color: var(--hco-text) !important;
 }
 .dashboard-widget .menu-href {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 10px !important;
-	padding: 4px 8px 4px 2px !important;
-	border-radius: 6px !important;
+	gap: 6px !important;
+	padding: 2px 4px 2px 0 !important;
+	border-radius: 4px !important;
 	color: var(--hco-text) !important;
 	font-family: 'Poppins', sans-serif !important;
-	font-size: 13px !important;
+	font-size: 12px !important;
 	font-weight: 500 !important;
 	text-decoration: none !important;
-	line-height: 1.25 !important;
+	line-height: 1.2 !important;
 }
 .dashboard-widget .menu-href:hover {
 	background: rgba(37, 202, 210, 0.12) !important;
 	color: var(--hco-text) !important;
 	text-decoration: none !important;
 }
-.dashboard-widget .menu-href [class^="z-icon-"] {
+.dashboard-widget .menu-href [class^="z-icon-"],
+.dashboard-widget .menu-href i[class*="z-icon-"] {
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	width: 28px !important;
-	height: 28px !important;
-	min-width: 28px !important;
+	width: 18px !important;
+	height: 18px !important;
+	min-width: 18px !important;
+	max-width: 18px !important;
 	margin: 0 !important;
-	border-radius: 7px !important;
-	background: var(--hco-primary) !important;
-	color: var(--hco-text) !important;
-	font-size: 13px !important;
-	line-height: 1 !important;
+	padding: 0 !important;
+	border-radius: 4px !important;
+	background: rgba(37, 202, 210, 0.22) !important;
+	color: var(--hco-heading) !important;
+	font-family: FontAwesome !important;
+	font-size: 11px !important;
+	line-height: 18px !important;
 	text-align: center !important;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+	box-shadow: none !important;
 }
-/* Modern app-tile glyph instead of old list/document icon */
-.dashboard-widget .menu-href .z-icon-Window::before {
-	content: "\f009" !important; /* th-large */
+/* Compact open/link glyph instead of old document list icon */
+.dashboard-widget .menu-href .z-icon-Window::before,
+.dashboard-widget a.menu-href > .z-icon-Window::before {
+	content: "\f0a9" !important; /* arrow-circle-right */
 	font-family: FontAwesome !important;
 	font-weight: normal !important;
-	color: var(--hco-text) !important;
+	font-size: 11px !important;
+	color: var(--hco-heading) !important;
 }
 .dashboard-widget .z-tree .z-tree-icon [class^="z-icon-"] {
 	color: var(--hco-heading) !important;
-	font-size: 12px !important;
+	font-size: 11px !important;
 }
 
 /* ===== Core logos (HeaderPanel + Login/Role login-box-header-logo) ===== */
