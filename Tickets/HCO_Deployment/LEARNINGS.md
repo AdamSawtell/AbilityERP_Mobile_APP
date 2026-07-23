@@ -793,3 +793,20 @@ Logout → Staff Rostering Info → ReQuery with All/Any — popup must be gone.
 | Jetty-WarPrependFragmentResourcePath fragment resources may not be visible as ZK pages on this host | Inject 	heme/<name> into org.adempiere.ui.zk with backup; keep fragment JAR as source artifact |
 | jar cfm can rewrite MANIFEST with CRLF | Post-process MANIFEST to LF-only before install |
 | Absolute Flamingo ZK_LOGO_* URLs override theme images | Clear or replace those sysconfig values when switching themes |
+
+## 2026-07-23 ? SAW033 packs ready (JAR 7.1.0.2026072317)
+
+**Result:** Staging PASS + ClientUpdate/ProdUpdate packs emitted for further environments.
+
+### What was done
+1. Contrast fix for OS dark mode (navy query text; white header chrome) ? JAR `7.1.0.2026072317`
+2. Packs:
+   - `Downloads\AbilityERP-ClientUpdate-SAW033_hco_theme_plugin-20260723\`
+   - `Downloads\AbilityERP-ProdUpdate-SAW033_hco_theme_plugin-20260723\`
+3. Each pack includes `theme-hco.tgz` + inject script + fragment JAR + sysconfig SQL
+
+### Learnings ? process
+| Learning | Action |
+|----------|--------|
+| Further-env agents need prebuilt `theme-hco.tgz`, not only the fragment JAR | Always ship tgz + inject script in Client/Prod packs |
+| Global `.z-label` / toolbar colours can override header white text | Scope header chrome selectors more specifically than body labels |
