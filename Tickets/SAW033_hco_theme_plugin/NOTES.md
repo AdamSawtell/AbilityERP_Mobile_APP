@@ -68,6 +68,10 @@ Smoke (Support Worker → Client after restart): **New gone**; Delete/Copy/Custo
 
 Smoke (Support Worker → Client Aaron Agars): toolbar = Lookup / Grid / Zoom Across / Report / More; no Attachment/Chat/Print; disabled First/Previous hidden; Save/Ignore hidden until dirty.
 
+#### Grid Select chip (`7.1.0.2026072309`)
+
+Row indicator column (`title="Edit Record"`, was ~22px pencil) restyled to **88px** with ☑/☐ **Select** chips — current row filled teal, other rows outlined.
+
 ### HCO Future Deployments variables
 
 | Variable | Value |
@@ -79,6 +83,6 @@ Smoke (Support Worker → Client Aaron Agars): toolbar = Lookup / Grid / Zoom Ac
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
 | Theme key | `hco` |
-| Ship JAR | `org.hco.ui.theme_7.1.0.2026072308.jar` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072309.jar` |
 | Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
 | ui.zk backup suffix | `.pre-hco.bak` |

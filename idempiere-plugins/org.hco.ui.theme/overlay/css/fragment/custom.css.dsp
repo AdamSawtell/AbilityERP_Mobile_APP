@@ -170,6 +170,85 @@ button.z-button.btn-ok {
 	font-family: 'Poppins', sans-serif !important;
 }
 
+/* ===== Grid row Select (Edit Record indicator) =====
+   Default column is ~22px with a tiny/broken pencil glyph — hard to hit.
+   Widen to a clear Select chip on every row. */
+.z-grid:has(td.z-cell[title="Edit Record"]) colgroup col:nth-child(2),
+.z-grid:has(td.z-cell[title="Edit Record"]) .z-columns .z-column:nth-child(2) {
+	width: 88px !important;
+	min-width: 88px !important;
+}
+.z-grid td.z-cell[title="Edit Record"] {
+	width: 88px !important;
+	min-width: 88px !important;
+	max-width: 88px !important;
+	padding: 2px 4px !important;
+	text-align: center !important;
+	vertical-align: middle !important;
+	cursor: pointer !important;
+}
+.z-grid td.z-cell[title="Edit Record"] > .z-label {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-sizing: border-box !important;
+	min-width: 76px !important;
+	width: 76px !important;
+	height: 28px !important;
+	margin: 0 auto !important;
+	padding: 0 8px !important;
+	border-radius: 5px !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 11px !important;
+	font-weight: 600 !important;
+	line-height: 1 !important;
+	white-space: nowrap !important;
+	cursor: pointer !important;
+}
+/* Current / highlighted row */
+.z-grid td.z-cell[title="Edit Record"] > .z-label.z-icon-Edit,
+.z-grid td.z-cell[title="Edit Record"] > .row-indicator-selected {
+	background: var(--hco-primary) !important;
+	color: var(--hco-text) !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+	border: 1px solid transparent !important;
+}
+/* Other rows — outlined Select affordance */
+.z-grid td.z-cell[title="Edit Record"] > .z-label:not(.z-icon-Edit):not(.row-indicator-selected) {
+	background: #fff !important;
+	color: var(--hco-text) !important;
+	border: 1px solid var(--hco-heading) !important;
+}
+.z-grid td.z-cell[title="Edit Record"] > .z-label:not(.z-icon-Edit):not(.row-indicator-selected):hover {
+	background: rgba(37, 202, 210, 0.15) !important;
+	border-color: var(--hco-primary) !important;
+}
+/* Replace pencil / empty glyph with checkbox + Select label */
+.z-grid td.z-cell[title="Edit Record"] > .z-label.z-icon-Edit::before,
+.z-grid td.z-cell[title="Edit Record"] > .row-indicator-selected::before {
+	content: "☑" !important;
+	font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Poppins', sans-serif !important;
+	font-size: 13px !important;
+	font-weight: 400 !important;
+	color: var(--hco-text) !important;
+	margin-right: 5px !important;
+}
+.z-grid td.z-cell[title="Edit Record"] > .z-label:not(.z-icon-Edit):not(.row-indicator-selected)::before {
+	content: "☐" !important;
+	font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Poppins', sans-serif !important;
+	font-size: 13px !important;
+	font-weight: 400 !important;
+	color: var(--hco-heading) !important;
+	margin-right: 5px !important;
+}
+.z-grid td.z-cell[title="Edit Record"] > .z-label::after {
+	content: "Select";
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 11px !important;
+	font-weight: 600 !important;
+	color: inherit !important;
+}
+
 /* Field labels */
 .adwindow-form .z-label,
 .form-label,
