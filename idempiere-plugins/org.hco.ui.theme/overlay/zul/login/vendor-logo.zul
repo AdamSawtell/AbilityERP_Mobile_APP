@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAW033 — HCO branded login logo / tagline -->
+<zk>
+<div class="hco-login-brand">
+	<image src="/theme/hco/images/login-logo.png" style="max-height:72px; max-width:280px;"/>
+	<label sclass="hco-title" value="HCO"/>
+	<label sclass="hco-tagline" value="Supporting people living with disability"/>
+</div>
+</zk>

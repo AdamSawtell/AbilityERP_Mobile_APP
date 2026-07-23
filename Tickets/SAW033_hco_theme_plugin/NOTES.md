@@ -4,36 +4,34 @@
 
 Reviewed Obsidian scope: **HCO iDempiere 7 Theme Plugin — Cursor Scope.md**.
 
-### Accepted
-
-- CSS / images / ZK theme definitions only
-- Brand tokens: primary `#25cad2`, secondary `#00c3b3`, heading `#00a2bd`, body `#0f2554`, dark `#151515`, light `#eaeaea`, danger `#e63946`
-- Poppins, 6–8px radii, subtle shadows
-- Toolbar tiles, flat tabs, dialog polish, status bar accent, CSS spinner
-- Branded login with HCO logo + tagline
-- Theme registration for preference selector
-- Staging before production promote
-
-### AbilityERP adjustments
-
-| Scope text | Adjustment |
-|---|---|
-| `plugins/org.hco.ui.theme/` | Repo path `idempiere-plugins/org.hco.ui.theme/` |
-| “No database changes” | JAR-first; optional `ZK_THEME` / logo sysconfig for smoke only — document in DEPLOY; never rewrite HCO `*_UU` |
-| Destructive toolbar `[icon="z-icon-times"]` | Validate against real iDempiere 7 toolbar DOM; fix selectors if needed |
-| “Do not deploy directly” | This ticket stages on dry-run host; production is a later promote |
-
 ### Host discovery (`3.27.122.147`)
 
-- Hostname `ip-172-31-3-32` — same box previously documented as HCO20260714 dry run at `54.253.165.194`
-- SSH key works: `HCO_Prod_KP.pem`
-- iDempiere 7.1 WebUI up (Jetty); `org.adempiere.ui.zk_7.1.0.202503110454.jar`
-- `ZK_THEME=default`
-- Logos still Flamingo S3; browser icon already HCO S3 URL
-- Title: `AvERP HCO Test001 20260712`
-- Existing theme-ish JARs: Logilite DMS themes only — no HCO UI theme yet
+- Hostname `ip-172-31-3-32` — HCO20260714 dry-run / Test001
+- iDempiere 7.1 · ZK 8.6 · WebUI Jetty 9.4
+- Prior theme `ZK_THEME=default`; logos were Flamingo S3 URLs
 
-## HCO Future Deployments variables
+### Implementation decisions
+
+1. Theme name **`hco`** (folder `/theme/hco`, sysconfig `ZK_THEME=hco`).
+2. Overlay model: copy default theme at build time, add `custom.css.dsp` + images + login ZUL.
+3. **Fragment alone insufficient on this host:** `Jetty-WarPrependFragmentResourcePath: /` did not serve `/theme/hco/preference.zul` (500 UiException). Staging deploy injects `theme/hco` into `org.adempiere.ui.zk` with `.pre-hco.bak` backup.
+4. MANIFEST must be **LF-only** — `jar cfm` rewrites CRLF; build.sh post-processes ZIP.
+5. Clear `ZK_LOGO_LARGE` / `ZK_LOGO_SMALL` so theme images are used.
+
+### Staging smoke (2026-07-23)
+
+| Check | Result |
+|---|---|
+| Login HCO brand + teal buttons | Pass |
+| Desktop header `#151515`, Poppins, `#eaeaea` body | Pass |
+| Tab underline `#25cad2` | Pass |
+| Employee toolbar tiles `#25cad2` / 8px radius | Pass |
+| Grid header `#00a2bd` | Pass |
+| CSS URL `/webui/theme/hco/css/theme.css.dsp` ~80KB | Pass |
+
+Login: `SuperUser` / `HCOflamingo` · Role **Admin**.
+
+### HCO Future Deployments variables
 
 | Variable | Value |
 |---|---|
@@ -43,12 +41,7 @@ Reviewed Obsidian scope: **HCO iDempiere 7 Theme Plugin — Cursor Scope.md**.
 | Production host (later) | `13.239.162.141` (`HCOproduction`) |
 | Production WebUI | `https://abilityerp.hco.net.au/webui/` |
 | Plugin symbolic name | `org.hco.ui.theme` |
-| Theme key | TBD after `plugin.xml` / theme registration |
-| Prior dry-run IP | `54.253.165.194` (retired for this host) |
-
-## Open risks
-
-1. Toolbar destructive selectors may not match scope CSS as written.
-2. Google Fonts CDN dependency for Poppins (offline/network policy).
-3. Login branding may need image URL overrides in addition to theme CSS depending on how Flamingo logos are wired via `ZK_LOGO_*`.
-4. Exact iDempiere 7 theme extension-point pattern must match installed `org.adempiere.ui.zk` (confirm during scaffold).
+| Theme key | `hco` |
+| Ship JAR | `org.hco.ui.theme_7.1.0.2026072302.jar` |
+| Deploy method | Inject `theme/hco` into `org.adempiere.ui.zk` + sysconfig |
+| ui.zk backup suffix | `.pre-hco.bak` |

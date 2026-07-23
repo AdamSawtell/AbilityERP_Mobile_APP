@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAW033 — always show HCO brand panel on login west -->
+<?component name="vendorLogo" inline="true" macroURI="vendor-logo.zul"?>
+<?component name="loginLinks" inline="true" macroURI="login-links.zul"?>
+<zk>
+	<vbox>
+		<vendorLogo/>
+		<loginLinks/>
+	</vbox>
+</zk>

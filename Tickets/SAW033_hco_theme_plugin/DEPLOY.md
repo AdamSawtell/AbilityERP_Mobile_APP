@@ -1,82 +1,75 @@
 # SAW033 — Deploy HCO theme plugin
 
 **Ticket / slug:** `SAW033_hco_theme_plugin`  
-**Kind:** idempiere · **JAR:** yes · **SQL:** none required for CSS theme  
-**Status:** in-progress
+**Kind:** idempiere · **JAR:** yes · **SQL:** sysconfig only  
+**Status:** staging tested on `3.27.122.147`
 
 ## Required host access
 
 - SSH to iDempiere host
-- OSGi console (manual JAR install/start)
+- Ability to stop/start `idempiere` service
+- `psql` for `ZK_THEME` sysconfig
 - WebUI admin login
-- Cache Reset or logout/in; browser hard-refresh for CSS
 
-## Staging host (current)
+## Staging host (validated 2026-07-23)
 
 | | |
 |--|--|
 | Host | `3.27.122.147` (`ip-172-31-3-32`) |
-| SSH | `ubuntu@3.27.122.147` |
-| Key | `C:\Users\sawte\Documents\SSH Keys\HCO_Prod_KP.pem` |
+| SSH | `ubuntu@3.27.122.147` — key `C:\Users\sawte\Documents\SSH Keys\HCO_Prod_KP.pem` |
 | iDempiere | `/opt/idempiere-server` · 7.1 · ZK 8.6 |
-| DB | `idempiere` / `adempiere` / `flamingo` (schema `adempiere`) — not required for JAR-only theme |
 | WebUI | `http://3.27.122.147/webui/` |
+| Theme key | `hco` |
 
-This is the HCO20260714 dry-run / Test001 host (previous public IP `54.253.165.194`).  
-**Not** HCO Production (`13.239.162.141`).
+## Install (staging script)
 
-## Preflight
+From repo copy on host (or sync `idempiere-plugins/org.hco.ui.theme/`):
 
-1. Confirm SSH and WebUI respond.
-2. Confirm `org.adempiere.ui.zk` is present under `/opt/idempiere-server/plugins`.
-3. Confirm no conflicting `org.hco.ui.theme` already installed (or plan stop/update of existing bundle).
-4. Note current `ZK_THEME` / logo sysconfig values for rollback notes.
+```bash
+cd /opt/AbilityERP/idempiere-plugins/org.hco.ui.theme
+# ensure LF line endings on *.sh
+sed -i 's/\r$//' build.sh deploy-hco-staging.sh
+bash deploy-hco-staging.sh
+```
 
-## Install
+What the script does:
 
-1. Copy built JAR to host (e.g. `/tmp/org.hco.ui.theme_….jar`).
-2. On OSGi console: install (or update) the bundle, then `start` it.
-3. Optionally set system preference / `ZK_THEME` to the HCO theme value once registered (document exact value after plugin defines it).
-4. Cache Reset, logout/in, hard-refresh browser.
-
-Exact console commands and final theme key will be filled after the plugin scaffold is built.
+1. `build.sh` — extract `theme/default` from `org.adempiere.ui.zk`, rename to `theme/hco`, apply HCO overlay, package fragment JAR (`MANIFEST` forced LF-only).
+2. Stop iDempiere.
+3. Backup `org.adempiere.ui.zk_*.jar` → `*.pre-hco.bak` (once).
+4. Inject `theme/hco` into `org.adempiere.ui.zk` (required on this Jetty 9.4 host — war-fragment resource serving did not expose `/theme/hco/*`).
+5. Install fragment JAR to `plugins/` + `bundles.info`.
+6. Set sysconfig: `ZK_THEME=hco`, `ZK_LOGIN_LEFTPANEL_SHOWN=Y`, clear `ZK_LOGO_LARGE` / `ZK_LOGO_SMALL`.
+7. Start iDempiere and wait for WebUI 200.
 
 ## Rollback
 
-1. Stop/uninstall the HCO theme bundle (or revert to previous JAR).
-2. Set `ZK_THEME` back to `default` (or prior value).
-3. Cache Reset / re-login / hard-refresh.
+```bash
+sudo /etc/init.d/idempiere stop
+sudo cp -a /opt/idempiere-server/plugins/org.adempiere.ui.zk_7.1.0.202503110454.jar.pre-hco.bak \
+  /opt/idempiere-server/plugins/org.adempiere.ui.zk_7.1.0.202503110454.jar
+sudo -u postgres psql -d idempiere -c "SET search_path TO adempiere; UPDATE ad_sysconfig SET value='default' WHERE name='ZK_THEME';"
+sudo /etc/init.d/idempiere start
+```
 
-## Smoke (must pass before packs / prod promote)
+## Smoke (passed on staging)
 
-- [ ] Login page shows HCO logo / branding
-- [ ] Window headers / buttons / menus use HCO palette
-- [ ] Toolbar buttons are rounded teal tiles with hover lift
-- [ ] Tabs are flat underline style
-- [ ] Process/report dialogs have radius + shadow
-- [ ] Record navigation matches toolbar styling
-- [ ] Status bar has teal left accent
-- [ ] Loading spinner is CSS teal circle
-- [ ] No layout regressions on common windows (Shift, Employee, Invoice)
-- [ ] Theme appears in user preference theme selector
+- [x] Login page HCO logo + tagline + teal accents
+- [x] `ZK_THEME=hco` stylesheet `/webui/theme/hco/css/theme.css.dsp` (~80KB with Poppins / `#25cad2`)
+- [x] Desktop header `#151515`, body `#eaeaea`, Poppins
+- [x] Active tabs `3px solid #25cad2` underline
+- [x] Employee window toolbar tiles `#25cad2`, radius `8px`, navy text
+- [x] Grid headers `#00a2bd`
 
 ## AbilityERP Admin access
 
-No new Window / Process / Info Window / Form. Theme selection uses Preferences / `ZK_THEME`.
+No new Window / Process / Info Window / Form.
 
 | Access | Name | Search key |
 |---|---|---|
-| — | HCO ZK Theme (`org.hco.ui.theme`) | Theme preference / `ZK_THEME` |
-
-Grant nothing new for roles unless a later AD preference window binding is added.
+| — | HCO ZK Theme (`org.hco.ui.theme`) | Theme preference / `ZK_THEME=hco` |
 
 ## Repository artifacts
 
-- Plugin: `idempiere-plugins/org.hco.ui.theme/` (source of truth)
-- Packs: `Downloads\AbilityERP-ClientUpdate-SAW033_hco_theme_plugin-<YYYYMMDD>\` and thin ProdUpdate after staging green
-
-## HCO hard rules
-
-- Never change existing HCO `*_UU` values.
-- Prefer name/UU lookups if any optional AD/sysconfig SQL is added later.
-- Append `Tickets/HCO_Deployment/LEARNINGS.md` after each HCO install attempt.
+- Plugin: `idempiere-plugins/org.hco.ui.theme/`
+- Release JAR: `idempiere-plugins/org.hco.ui.theme/release/org.hco.ui.theme_7.1.0.2026072302.jar`

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language>
+
+<!-- SAW033 — HCO theme registration (version stamp for cache busting) -->
+<language>
+	<addon-name>hco</addon-name>
+	<language-name>xul/html</language-name>
+
+	<!-- Module does not need to exist; used as theme version for cache busting -->
+	<javascript-module name="idempiere.theme.hco" version="2026072302" />
+</language>

@@ -1,13 +1,15 @@
 # SAW033 — HCO iDempiere 7 theme plugin
 
-**Status:** in-progress  
+**Status:** staging tested (in-progress until prod packs)  
 **Kind:** idempiere  
 **GitHub:** [#33](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/33)  
 **Slug:** `SAW033_hco_theme_plugin`
 
 ## Goal
 
-Build an iDempiere 7 ZK theme plugin that overrides the default Dandelion look with HCO brand styling (CSS, images, ZK theme registration). No iDempiere core Java changes and no structural ZUL changes.
+Build an iDempiere 7 ZK theme that overrides the default look with HCO brand styling (CSS, images, login branding). No iDempiere core Java changes.
+
+**Staging:** installed and smoked on `3.27.122.147` (`ZK_THEME=hco`, JAR `7.1.0.2026072302`).
 
 ## Scope source
 

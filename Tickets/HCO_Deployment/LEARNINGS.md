@@ -775,3 +775,21 @@ Logout â†’ Staff Rostering Info â†’ ReQuery with All/Any â€” popup must be gone.
 |----------|--------|
 | HCO Prod smoke must not Save transactional booking lines | Confirm via SQL leftovers + read-only field display; Validate/Save only on Test |
 | Overlay DS bundle may not log `AbstractActivator.start` | Confirm via jar + `bundles.info` + Test E2E; do not treat missing log as failure |
+
+## 2026-07-23 — SAW033 HCO theme on Test001 (3.27.122.147)
+
+**Result:** Staging PASS (WebUI smoke).
+
+### What was done
+1. Built org.hco.ui.theme_7.1.0.2026072302 (theme hco from default + custom.css.dsp + logos + login ZUL)
+2. OSGi fragment alone did **not** serve /theme/hco/preference.zul on Jetty 9.4 — WebUI 500
+3. Injected 	heme/hco into org.adempiere.ui.zk_7.1.0.202503110454.jar (backup .pre-hco.bak)
+4. Sysconfig: ZK_THEME=hco, left panel Y, cleared Flamingo ZK_LOGO_*
+5. Browser smoke: login branding, desktop #151515/#eaeaea/Poppins, Employee toolbar tiles #25cad2 8px, tabs underline, grid header #00a2bd
+
+### Learnings — process
+| Learning | Action |
+|----------|--------|
+| Jetty-WarPrependFragmentResourcePath fragment resources may not be visible as ZK pages on this host | Inject 	heme/<name> into org.adempiere.ui.zk with backup; keep fragment JAR as source artifact |
+| jar cfm can rewrite MANIFEST with CRLF | Post-process MANIFEST to LF-only before install |
+| Absolute Flamingo ZK_LOGO_* URLs override theme images | Clear or replace those sysconfig values when switching themes |
