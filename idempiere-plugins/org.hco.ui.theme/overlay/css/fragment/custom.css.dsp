@@ -663,6 +663,66 @@ td.form-label .z-label {
 	margin: 2px 0;
 }
 
+/* ===== Favourites tree (My People, Places and Actions) =====
+   Leaf links use z-icon-Window (dated list glyph). Restyle as teal tiles. */
+.dashboard-widget .z-tree .z-treerow > .z-treecell {
+	border-radius: 6px !important;
+}
+.dashboard-widget .z-tree .z-treecell-content {
+	padding: 3px 6px !important;
+}
+.dashboard-widget .z-treecell-text {
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: var(--hco-text) !important;
+}
+.dashboard-widget .menu-href {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 10px !important;
+	padding: 4px 8px 4px 2px !important;
+	border-radius: 6px !important;
+	color: var(--hco-text) !important;
+	font-family: 'Poppins', sans-serif !important;
+	font-size: 13px !important;
+	font-weight: 500 !important;
+	text-decoration: none !important;
+	line-height: 1.25 !important;
+}
+.dashboard-widget .menu-href:hover {
+	background: rgba(37, 202, 210, 0.12) !important;
+	color: var(--hco-text) !important;
+	text-decoration: none !important;
+}
+.dashboard-widget .menu-href [class^="z-icon-"] {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 28px !important;
+	height: 28px !important;
+	min-width: 28px !important;
+	margin: 0 !important;
+	border-radius: 7px !important;
+	background: var(--hco-primary) !important;
+	color: var(--hco-text) !important;
+	font-size: 13px !important;
+	line-height: 1 !important;
+	text-align: center !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+/* Modern app-tile glyph instead of old list/document icon */
+.dashboard-widget .menu-href .z-icon-Window::before {
+	content: "\f009" !important; /* th-large */
+	font-family: FontAwesome !important;
+	font-weight: normal !important;
+	color: var(--hco-text) !important;
+}
+.dashboard-widget .z-tree .z-tree-icon [class^="z-icon-"] {
+	color: var(--hco-heading) !important;
+	font-size: 12px !important;
+}
+
 /* ===== Core logos (HeaderPanel + Login/Role login-box-header-logo) ===== */
 /* Note: ZK rewrites zul id="logo" to a generated id — target .desktop-header-left img */
 .desktop-header-left img.z-image,
