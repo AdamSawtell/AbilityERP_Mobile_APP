@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SAW033 — HCO branded login logo / tagline -->
+<!-- SAW033 — left panel brand; Login/Role/Header logos use ZK_LOGO_* core paths -->
 <zk>
 <div class="hco-login-brand">
-	<image src="/theme/hco/images/login-logo.png" style="max-height:72px; max-width:280px;"/>
+	<image src="/theme/hco/images/login-logo.png"/>
 	<label sclass="hco-title" value="HCO"/>
 	<label sclass="hco-tagline" value="Supporting people living with disability"/>
 </div>

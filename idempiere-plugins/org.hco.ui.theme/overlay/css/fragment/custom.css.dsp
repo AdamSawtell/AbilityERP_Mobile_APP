@@ -312,6 +312,48 @@ td.form-label .z-label {
 	margin: 2px 0;
 }
 
+/* ===== Core logos (HeaderPanel + Login/Role login-box-header-logo) ===== */
+/* Note: ZK rewrites zul id="logo" to a generated id — target .desktop-header-left img */
+.desktop-header-left img.z-image,
+.desktop-header img.z-image[src*="header-logo"],
+.login-box-header-logo img.z-image,
+.login-box-header-logo .z-image,
+div.login-box-header-logo img,
+.hco-login-brand img,
+.hco-login-brand .z-image {
+	border-radius: 12px !important;
+	overflow: hidden !important;
+	box-shadow: 0 2px 10px rgba(15, 37, 84, 0.18) !important;
+	background: #fff !important;
+	object-fit: contain !important;
+}
+.desktop-header-left img.z-image,
+.desktop-header img.z-image[src*="header-logo"] {
+	max-height: 40px !important;
+	height: 40px !important;
+	width: auto !important;
+	border-radius: 10px !important;
+	margin: 4px 10px 4px 6px !important;
+	padding: 2px !important;
+}
+.login-box-header-logo img.z-image,
+.login-box-header-logo .z-image,
+div.login-box-header-logo img {
+	max-height: 72px !important;
+	height: auto !important;
+	max-width: 280px !important;
+	border-radius: 14px !important;
+	margin: 8px auto !important;
+	display: block !important;
+}
+.hco-login-brand img,
+.hco-login-brand .z-image {
+	max-height: 88px !important;
+	max-width: 300px !important;
+	border-radius: 16px !important;
+	padding: 4px !important;
+}
+
 /* ===== Login ===== */
 .login-window,
 .login-window .z-center-body,
