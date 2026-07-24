@@ -256,7 +256,7 @@ export async function getLocationDetail(
       `SELECT
          r.aberp_roomnum_id AS id,
          NULLIF(TRIM(r.name), '') AS name,
-         NULLIF(TRIM(r.aberp_roomnumber), '') AS number,
+         NULLIF(TRIM(r.aberp_roomnumber::text), '') AS number,
          NULLIF(TRIM(r.aberp_details), '') AS details,
          u.name AS use
        FROM aberp_roomnum r
