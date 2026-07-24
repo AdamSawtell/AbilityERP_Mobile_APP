@@ -61,7 +61,14 @@ export default async function ShiftsPage({
   const now = new Date();
   const today = dayKey(now);
   const todayShifts = items.filter((shift) => isTodayShift(shift, today));
-  const otherShifts = items.filter((shift) => !isTodayShift(shift, today));
+  const upcomingShifts = items.filter((shift) => {
+    if (!shift.start_time || isTodayShift(shift, today)) return false;
+    return dayKey(new Date(shift.start_time)) > today;
+  });
+  const earlierShifts = items.filter((shift) => {
+    if (!shift.start_time || isTodayShift(shift, today)) return false;
+    return dayKey(new Date(shift.start_time)) < today;
+  });
 
   return (
     <section className="space-y-3">
@@ -109,12 +116,23 @@ export default async function ShiftsPage({
             )}
           </div>
 
-          {otherShifts.length ? (
+          {upcomingShifts.length ? (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Coming up
               </h3>
-              {otherShifts.map((shift) => (
+              {upcomingShifts.map((shift) => (
+                <ShiftCard key={shift.id} shift={shift} quickClientActions />
+              ))}
+            </div>
+          ) : null}
+
+          {earlierShifts.length ? (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-400">
+                Earlier this fortnight
+              </h3>
+              {earlierShifts.map((shift) => (
                 <ShiftCard key={shift.id} shift={shift} quickClientActions />
               ))}
             </div>

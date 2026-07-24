@@ -39,7 +39,7 @@ You must have the **Support Worker** role in AbilityERP. If login fails, contact
 | Tab | What it does |
 |-----|----------------|
 | **Open** | Shifts you can apply for (this and next pay fortnight) |
-| **Roster** | Home — your rostered shifts. Tap client / location / Note |
+| **Roster** | Home — Today first, then coming up. Tap client / location / Note |
 | **Clients** | People on your shifts — alerts, contacts, essentials |
 | **Locations** | Support locations — access codes, site alerts, rooms |
 | **Chat** | Messages with rostering (badge when they reply) |
