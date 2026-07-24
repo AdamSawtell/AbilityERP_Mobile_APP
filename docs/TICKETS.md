@@ -66,7 +66,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW043 | `ross_admin_ui` | app | Ross admin UI Phase 2 (Next.js on EC2 :3003) | done | [Agents #2](https://github.com/AdamSawtell/AbilityERP_Agents/issues/2) · [PHASE-2-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-2-CONTRACT.md) | _(app — AbilityERP_Agents `admin-ui/`)_ |
 | SAW044 | `ross_phase3` | app | Ross Phase 3 value features (auto-pilot first; no Entra) | done | [Agents #3](https://github.com/AdamSawtell/AbilityERP_Agents/issues/3) · [PHASE-3-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-3-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
 | SAW045 | `ross_phase4` | app | Ross Phase 4 planner & reports (4a–4e; no Entra) | done | [Agents #4](https://github.com/AdamSawtell/AbilityERP_Agents/issues/4) · [PHASE-4-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-4-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
-| SAW046 | `ross_skills_manager` | app | Ross Phase 5 Skills Manager (toggle + runtime gating; no Entra) | in-progress | [Agents #5](https://github.com/AdamSawtell/AbilityERP_Agents/issues/5) · [PHASE-5-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-5-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
+| SAW046 | `ross_skills_manager` | app | Ross Phase 5 Skills Manager (toggle + runtime gating; no Entra) | done | [Agents #5](https://github.com/AdamSawtell/AbilityERP_Agents/issues/5) · [PHASE-5-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-5-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
 
 ## Next ID
 
