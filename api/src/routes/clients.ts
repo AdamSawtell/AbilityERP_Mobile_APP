@@ -55,21 +55,23 @@ router.get("/:clientId/care-plan", async (req, res) => {
     return;
   }
 
-  const allowed = await getClientDetail(
-    clientId,
-    req.user!.cBPartnerId,
-    req.user!.adUserId,
-  );
-  if (!allowed) {
-    res.status(404).json({ error: "Client not found" });
-    return;
-  }
-
   const carePlan = await getCarePlan(
     clientId,
     req.user!.cBPartnerId,
     req.user!.adUserId,
   );
+  // null carePlan can mean no plan OR no access — distinguish via detail probe only when needed
+  if (carePlan === null) {
+    const client = await getClientDetail(
+      clientId,
+      req.user!.cBPartnerId,
+      req.user!.adUserId,
+    );
+    if (!client) {
+      res.status(404).json({ error: "Client not found" });
+      return;
+    }
+  }
   res.json({ carePlan });
 });
 

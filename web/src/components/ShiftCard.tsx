@@ -130,7 +130,7 @@ export function ShiftCard({
               {clients.map((client, index) => (
                 <span key={client.id}>
                   {index > 0 ? ", " : null}
-                  <Link href={`/clients/${client.id}/care-plan`} className="font-medium text-blue-600">
+                  <Link href={`/clients/${client.id}`} className="font-medium text-blue-600">
                     {client.name}
                   </Link>
                 </span>
@@ -147,7 +147,7 @@ export function ShiftCard({
               className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2"
             >
               <Link
-                href={`/clients/${client.id}/care-plan`}
+                href={`/clients/${client.id}`}
                 className="min-w-0 truncate text-sm font-semibold text-blue-600"
               >
                 {client.name}

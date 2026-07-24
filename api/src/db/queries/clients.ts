@@ -9,13 +9,67 @@ export interface ClientListItem {
   hasCarePlan: boolean;
 }
 
+export interface ClientAlert {
+  id: number;
+  type: string | null;
+  name: string | null;
+  description: string | null;
+  isAlert: boolean;
+  validFrom: string | null;
+  validTo: string | null;
+}
+
+export interface ClientKeyPerson {
+  id: number;
+  name: string;
+  relationship: string | null;
+  phone: string | null;
+  email: string | null;
+  notes: string | null;
+}
+
+export interface ClientAddress {
+  label: string | null;
+  address: string;
+  phone: string | null;
+  isHome: boolean;
+}
+
+export interface ShiftEssentials {
+  allergiesFlag: boolean;
+  fallRisk: boolean;
+  medicationRequired: boolean;
+  behaviourSupportRequired: boolean;
+  interpreterRequired: boolean;
+  swallowingRisk: boolean;
+  importantToMe: string | null;
+  communication: string | null;
+  mobility: string | null;
+  transport: string | null;
+  dietaryAllergies: string | null;
+  likes: string | null;
+  dislikes: string | null;
+}
+
 export interface ClientDetail {
   id: number;
   name: string;
+  preferredName: string | null;
   value: string | null;
   email: string | null;
   phone: string | null;
+  phone2: string | null;
   address: string | null;
+  addresses: ClientAddress[];
+  birthday: string | null;
+  age: number | null;
+  gender: string | null;
+  disability: string | null;
+  ndisNumber: string | null;
+  about: string | null;
+  alerts: ClientAlert[];
+  keyPeople: ClientKeyPerson[];
+  shiftEssentials: ShiftEssentials | null;
 }
 
 export interface CarePlanSummary {
@@ -141,20 +195,24 @@ export async function getClientDetail(
     return null;
   }
 
-  const result = await pool.query(
+  const profile = await pool.query(
     `SELECT
        bp.c_bpartner_id AS id,
        bp.name,
+       NULLIF(TRIM(bp.aberp_preferred_name), '') AS preferred_name,
        bp.value,
        COALESCE(u.email, bp.email) AS email,
-       COALESCE(u.phone, bp.phone) AS phone,
-       NULLIF(TRIM(CONCAT_WS(', ',
-         NULLIF(loc.address1, ''),
-         NULLIF(loc.city, ''),
-         NULLIF(reg.name, ''),
-         NULLIF(loc.postal, '')
-       )), '') AS address
+       COALESCE(NULLIF(TRIM(bp.phone), ''), NULLIF(TRIM(u.phone), '')) AS phone,
+       NULLIF(TRIM(bp.phone2), '') AS phone2,
+       bp.birthday,
+       bp.aberp_age AS age,
+       g.name AS gender,
+       d.name AS disability,
+       NULLIF(TRIM(bp.aberp_ndis_region), '') AS ndis_number,
+       NULLIF(TRIM(bp.aberp_about), '') AS about
      FROM c_bpartner bp
+     LEFT JOIN aberp_gender g ON g.aberp_gender_id = bp.aberp_gender_id
+     LEFT JOIN aberp_disability d ON d.aberp_disability_id = bp.aberp_disability_id
      LEFT JOIN LATERAL (
        SELECT email, phone
        FROM ad_user
@@ -162,29 +220,207 @@ export async function getClientDetail(
        ORDER BY ad_user_id
        LIMIT 1
      ) u ON TRUE
-     LEFT JOIN LATERAL (
-       SELECT c_location_id
-       FROM c_bpartner_location
-       WHERE c_bpartner_id = bp.c_bpartner_id AND isactive = 'Y'
-       ORDER BY isbillto DESC, c_bpartner_location_id
-       LIMIT 1
-     ) bpl ON TRUE
-     LEFT JOIN c_location loc ON loc.c_location_id = bpl.c_location_id
-     LEFT JOIN c_region reg ON reg.c_region_id = loc.c_region_id
      WHERE bp.c_bpartner_id = $1`,
     [clientId],
   );
 
-  const row = result.rows[0];
+  const row = profile.rows[0];
   if (!row) return null;
+
+  const [addressesResult, alertsResult, peopleResult, essentialsResult] =
+    await Promise.all([
+      pool.query(
+        `SELECT
+           COALESCE(NULLIF(TRIM(bpl.name), ''), CASE WHEN bpl.isshipto = 'Y' THEN 'Service location' ELSE 'Address' END) AS label,
+           NULLIF(TRIM(CONCAT_WS(', ',
+             NULLIF(loc.address1, ''),
+             NULLIF(loc.address2, ''),
+             NULLIF(loc.city, ''),
+             NULLIF(reg.name, ''),
+             NULLIF(loc.postal, '')
+           )), '') AS address,
+           NULLIF(TRIM(bpl.phone), '') AS phone,
+           (
+             bpl.isshipto = 'Y'
+             AND (
+               bpl.name ILIKE '%home%'
+               OR bpl.name ILIKE '%house%'
+               OR bpl.isbillto = 'N'
+             )
+           ) AS is_home
+         FROM c_bpartner_location bpl
+         JOIN c_location loc ON loc.c_location_id = bpl.c_location_id
+         LEFT JOIN c_region reg ON reg.c_region_id = loc.c_region_id
+         WHERE bpl.c_bpartner_id = $1
+           AND bpl.isactive = 'Y'
+         ORDER BY
+           CASE
+             WHEN bpl.name ILIKE '%home%' OR bpl.name ILIKE '%house%' THEN 0
+             WHEN bpl.isshipto = 'Y' AND bpl.isbillto = 'N' THEN 1
+             WHEN bpl.isshipto = 'Y' THEN 2
+             ELSE 3
+           END,
+           bpl.c_bpartner_location_id
+         LIMIT 8`,
+        [clientId],
+      ),
+      pool.query(
+        `SELECT
+           a.aberp_alert_sr_id AS id,
+           t.name AS type,
+           a.name,
+           a.description,
+           COALESCE(a.aberp_isalert, 'N') = 'Y' AS is_alert,
+           a.validfrom AS valid_from,
+           a.validto AS valid_to
+         FROM aberp_alert_sr a
+         LEFT JOIN aberp_alert_type t ON t.aberp_alert_type_id = a.aberp_alert_type_id
+         WHERE a.c_bpartner_id = $1
+           AND a.isactive = 'Y'
+           AND (a.validfrom IS NULL OR a.validfrom::date <= CURRENT_DATE)
+           AND (a.validto IS NULL OR a.validto::date >= CURRENT_DATE)
+         ORDER BY COALESCE(a.aberp_isalert, 'N') DESC, a.line NULLS LAST, a.aberp_alert_sr_id
+         LIMIT 20`,
+        [clientId],
+      ),
+      pool.query(
+        `SELECT
+           a.aberp_bp_associations_id AS id,
+           COALESCE(
+             NULLIF(TRIM(a.name), ''),
+             NULLIF(TRIM(assoc.name), ''),
+             NULLIF(TRIM(u.name), ''),
+             'Contact'
+           ) AS name,
+           (
+             SELECT string_agg(DISTINCT rt.name, ', ' ORDER BY rt.name)
+             FROM unnest(COALESCE(a.aberp_relationshiptype_id, ARRAY[]::numeric[])) AS rid(id)
+             JOIN aberp_relationshiptype rt ON rt.aberp_relationshiptype_id = rid.id
+           ) AS relationship,
+           COALESCE(
+             NULLIF(TRIM(u.phone), ''),
+             NULLIF(TRIM(assoc.phone), ''),
+             NULLIF(TRIM(assoc.phone2), '')
+           ) AS phone,
+           COALESCE(NULLIF(TRIM(u.email), ''), NULLIF(TRIM(assoc.email), '')) AS email,
+           NULLIF(TRIM(CONCAT_WS(' — ',
+             NULLIF(TRIM(a.description), ''),
+             NULLIF(TRIM(a.aberp_other), '')
+           )), '') AS notes
+         FROM aberp_bp_associations a
+         LEFT JOIN c_bpartner assoc ON assoc.c_bpartner_id = a.c_bp_associate_id
+         LEFT JOIN ad_user u ON u.ad_user_id = a.ad_user_id
+         WHERE a.c_bpartner_id = $1
+           AND a.isactive = 'Y'
+           AND COALESCE(a.c_bp_associate_id, 0) IS DISTINCT FROM $1
+         ORDER BY a.aberp_bp_associations_id
+         LIMIT 20`,
+        [clientId],
+      ),
+      pool.query(
+        `SELECT
+           COALESCE(sp.aberp_isallergies, 'N') = 'Y' AS allergies_flag,
+           COALESCE(sp.aberp_isfallrisk, 'N') = 'Y' AS fall_risk,
+           COALESCE(sp.aberp_ismedicationreq, 'N') = 'Y' AS medication_required,
+           COALESCE(sp.aberp_isbehavioursuppreq, 'N') = 'Y' AS behaviour_support_required,
+           COALESCE(sp.aberp_isinterpreterreq, 'N') = 'Y' AS interpreter_required,
+           COALESCE(sp.aberp_swallowing_risk, 'N') = 'Y' AS swallowing_risk,
+           sp.aberp_importanttome AS important_to_me,
+           sp.aberp_comm_describe AS communication,
+           NULLIF(TRIM(CONCAT_WS(' — ',
+             CASE WHEN COALESCE(sp.aberp_ismobilityaidused, 'N') = 'Y' THEN 'Mobility aid used' END,
+             NULLIF(TRIM(sp.aberp_mobility_support), ''),
+             NULLIF(TRIM(sp.aberp_mobility_detail), '')
+           )), '') AS mobility,
+           sp.aberp_transport_arr AS transport,
+           sp.aberp_dietary_allergies AS dietary_allergies,
+           sp.aberp_likes AS likes,
+           sp.aberp_dislikes AS dislikes
+         FROM aberp_plans_assessment pa
+         JOIN aberp_supportplans sp ON sp.aberp_plans_assessment_id = pa.aberp_plans_assessment_id
+         WHERE pa.c_bpartner_id = $1
+           AND pa.isactive = 'Y'
+           AND sp.isactive = 'Y'
+         ORDER BY
+           CASE WHEN pa.validto IS NULL OR pa.validto::date >= CURRENT_DATE THEN 0 ELSE 1 END,
+           pa.validto DESC NULLS LAST,
+           pa.aberp_plans_assessment_id DESC
+         LIMIT 1`,
+        [clientId],
+      ),
+    ]);
+
+  const addresses: ClientAddress[] = addressesResult.rows
+    .map((item) => ({
+      label: item.label ? String(item.label) : null,
+      address: item.address ? String(item.address) : "",
+      phone: item.phone ? String(item.phone) : null,
+      isHome: Boolean(item.is_home),
+    }))
+    .filter((item) => item.address);
+
+  const primaryAddress =
+    addresses.find((a) => a.isHome)?.address ?? addresses[0]?.address ?? null;
+
+  const essentialsRow = essentialsResult.rows[0];
+  const shiftEssentials: ShiftEssentials | null = essentialsRow
+    ? {
+        allergiesFlag: Boolean(essentialsRow.allergies_flag),
+        fallRisk: Boolean(essentialsRow.fall_risk),
+        medicationRequired: Boolean(essentialsRow.medication_required),
+        behaviourSupportRequired: Boolean(essentialsRow.behaviour_support_required),
+        interpreterRequired: Boolean(essentialsRow.interpreter_required),
+        swallowingRisk: Boolean(essentialsRow.swallowing_risk),
+        importantToMe: essentialsRow.important_to_me
+          ? String(essentialsRow.important_to_me)
+          : null,
+        communication: essentialsRow.communication
+          ? String(essentialsRow.communication)
+          : null,
+        mobility: essentialsRow.mobility ? String(essentialsRow.mobility) : null,
+        transport: essentialsRow.transport ? String(essentialsRow.transport) : null,
+        dietaryAllergies: essentialsRow.dietary_allergies
+          ? String(essentialsRow.dietary_allergies)
+          : null,
+        likes: essentialsRow.likes ? String(essentialsRow.likes) : null,
+        dislikes: essentialsRow.dislikes ? String(essentialsRow.dislikes) : null,
+      }
+    : null;
 
   return {
     id: Number(row.id),
     name: String(row.name),
+    preferredName: row.preferred_name ? String(row.preferred_name) : null,
     value: row.value ? String(row.value) : null,
     email: row.email ? String(row.email) : null,
     phone: row.phone ? String(row.phone) : null,
-    address: row.address ? String(row.address) : null,
+    phone2: row.phone2 ? String(row.phone2) : null,
+    address: primaryAddress,
+    addresses,
+    birthday: formatTimestamp(row.birthday),
+    age: row.age !== null && row.age !== undefined ? Number(row.age) : null,
+    gender: row.gender ? String(row.gender) : null,
+    disability: row.disability ? String(row.disability) : null,
+    ndisNumber: row.ndis_number ? String(row.ndis_number) : null,
+    about: row.about ? String(row.about) : null,
+    alerts: alertsResult.rows.map((item) => ({
+      id: Number(item.id),
+      type: item.type ? String(item.type) : null,
+      name: item.name ? String(item.name) : null,
+      description: item.description ? String(item.description) : null,
+      isAlert: Boolean(item.is_alert),
+      validFrom: formatTimestamp(item.valid_from),
+      validTo: formatTimestamp(item.valid_to),
+    })),
+    keyPeople: peopleResult.rows.map((item) => ({
+      id: Number(item.id),
+      name: String(item.name),
+      relationship: item.relationship ? String(item.relationship) : null,
+      phone: item.phone ? String(item.phone) : null,
+      email: item.email ? String(item.email) : null,
+      notes: item.notes ? String(item.notes) : null,
+    })),
+    shiftEssentials,
   };
 }
 
