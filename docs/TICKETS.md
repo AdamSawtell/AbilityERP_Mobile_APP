@@ -64,10 +64,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW041 | `roster_today` | app | Roster: Today section, Note only (no Care plan button) | done | [#41](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/41) | _(app ? no folder)_ |
 | SAW042 | `ross_roster_phase1` | app | Ross the Roster Agent Phase 1 foundation (Express :3002) | done | [Agents #1](https://github.com/AdamSawtell/AbilityERP_Agents/issues/1) | _(app — AbilityERP_Agents `ross-roster/`)_ |
 | SAW043 | `ross_admin_ui` | app | Ross admin UI Phase 2 (Next.js on EC2 :3003) | done | [Agents #2](https://github.com/AdamSawtell/AbilityERP_Agents/issues/2) · [PHASE-2-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-2-CONTRACT.md) | _(app — AbilityERP_Agents `admin-ui/`)_ |
+| SAW044 | `ross_phase3` | app | Ross Phase 3 value features (auto-pilot first; no Entra) | in-progress | [Agents #3](https://github.com/AdamSawtell/AbilityERP_Agents/issues/3) · [PHASE-3-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-3-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
 
 ## Next ID
 
-**SAW044**
+**SAW045**
 
 ## Naming reminder
 
