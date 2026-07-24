@@ -63,17 +63,26 @@ export function EmptyState({ message }: { message: string }) {
 export function ShiftCard({
   shift,
   action,
-  /** Schedule: client name → care plan + Note shortcut */
+  /** Roster: client name + Note shortcut */
   quickClientActions = false,
+  emphasize = false,
 }: {
   shift: ShiftItem;
   action?: React.ReactNode;
   quickClientActions?: boolean;
+  /** Highlight card (e.g. today's shifts) */
+  emphasize?: boolean;
 }) {
   const clients = shift.clients ?? [];
 
   return (
-    <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <article
+      className={`rounded-xl border bg-white p-4 shadow-sm ${
+        emphasize
+          ? "border-blue-300 ring-1 ring-blue-100"
+          : "border-gray-200"
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
@@ -164,20 +173,12 @@ export function ShiftCard({
               >
                 {client.name}
               </Link>
-              <div className="flex shrink-0 gap-1.5">
-                <Link
-                  href={`/clients/${client.id}/care-plan`}
-                  className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white"
-                >
-                  Care plan
-                </Link>
-                <Link
-                  href={`/clients/${client.id}/activities?note=1`}
-                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-blue-800"
-                >
-                  Note
-                </Link>
-              </div>
+              <Link
+                href={`/clients/${client.id}/activities?note=1`}
+                className="shrink-0 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white"
+              >
+                Note
+              </Link>
             </div>
           ))}
         </div>
