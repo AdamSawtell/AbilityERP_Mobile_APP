@@ -1,14 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AddActivityForm({ clientId }: { clientId: number }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const focusNote = searchParams.get("note") === "1";
+  const descRef = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState("");
   const [comments, setComments] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!focusNote) return;
+    document.getElementById("add-note")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    descRef.current?.focus();
+  }, [focusNote]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -39,7 +48,11 @@ export default function AddActivityForm({ clientId }: { clientId: number }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <form
+      id="add-note"
+      onSubmit={onSubmit}
+      className="space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-4"
+    >
       <div>
         <p className="text-sm font-semibold text-gray-900">Add progress note</p>
         <p className="text-xs text-gray-600">Saved to the client’s Activity list in AbilityERP.</p>
@@ -49,6 +62,7 @@ export default function AddActivityForm({ clientId }: { clientId: number }) {
           What happened
         </label>
         <input
+          ref={descRef}
           id="activity-desc"
           required
           value={description}

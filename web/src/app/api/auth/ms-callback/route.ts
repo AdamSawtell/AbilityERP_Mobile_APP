@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 
     await setSessionToken(data.token);
 
-    const response = NextResponse.redirect(new URL("/open-shifts", appUrl));
+    const response = NextResponse.redirect(new URL("/shifts", appUrl));
     response.cookies.delete("ms_oauth_state");
     return response;
   } catch {

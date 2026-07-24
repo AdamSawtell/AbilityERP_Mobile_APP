@@ -39,10 +39,12 @@ You must have the **Support Worker** role in AbilityERP. If login fails, contact
 | Tab | What it does |
 |-----|----------------|
 | **Open** | Shifts you can apply for (this and next pay fortnight) |
-| **Schedule** | Your confirmed rostered shifts (tap a client name to open them) |
-| **Clients** | People on your shifts — details, care plan, add activities |
+| **Schedule** | Home screen — your rostered shifts. Tap **Care plan** or **Note** on a client |
+| **Clients** | Same people — opens on care plan |
 | **Chat** | Messages with rostering |
 | **More** | Profile, Leave, ID card, master Roster |
+
+After sign-in you land on **Schedule**.
 
 ---
 

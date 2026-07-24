@@ -28,7 +28,7 @@ export default function LoginPage() {
         throw new Error(data.error ?? "Login failed");
       }
 
-      router.replace("/open-shifts");
+      router.replace("/shifts");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

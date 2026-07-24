@@ -62,9 +62,12 @@ export function EmptyState({ message }: { message: string }) {
 export function ShiftCard({
   shift,
   action,
+  /** Schedule: client name → care plan + Note shortcut */
+  quickClientActions = false,
 }: {
   shift: ShiftItem;
   action?: React.ReactNode;
+  quickClientActions?: boolean;
 }) {
   const clients = shift.clients ?? [];
 
@@ -120,14 +123,14 @@ export function ShiftCard({
             <dd className="inline">{shift.staff_name}</dd>
           </div>
         ) : null}
-        {clients.length ? (
+        {clients.length && !quickClientActions ? (
           <div>
             <dt className="inline font-medium text-gray-700">Client: </dt>
             <dd className="inline">
               {clients.map((client, index) => (
                 <span key={client.id}>
                   {index > 0 ? ", " : null}
-                  <Link href={`/clients/${client.id}`} className="font-medium text-blue-600">
+                  <Link href={`/clients/${client.id}/care-plan`} className="font-medium text-blue-600">
                     {client.name}
                   </Link>
                 </span>
@@ -136,6 +139,37 @@ export function ShiftCard({
           </div>
         ) : null}
       </dl>
+      {quickClientActions && clients.length ? (
+        <div className="mt-3 space-y-2">
+          {clients.map((client) => (
+            <div
+              key={client.id}
+              className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-3 py-2"
+            >
+              <Link
+                href={`/clients/${client.id}/care-plan`}
+                className="min-w-0 truncate text-sm font-semibold text-blue-600"
+              >
+                {client.name}
+              </Link>
+              <div className="flex shrink-0 gap-1.5">
+                <Link
+                  href={`/clients/${client.id}/care-plan`}
+                  className="rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs font-semibold text-white"
+                >
+                  Care plan
+                </Link>
+                <Link
+                  href={`/clients/${client.id}/activities?note=1`}
+                  className="rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-blue-800"
+                >
+                  Note
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
       {action ? <div className="mt-4">{action}</div> : null}
     </article>
   );

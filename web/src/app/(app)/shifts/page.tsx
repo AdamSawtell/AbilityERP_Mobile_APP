@@ -34,7 +34,9 @@ export default async function ShiftsPage({
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold text-gray-900">My Schedule</h2>
-      <p className="text-sm text-gray-600">Your confirmed rostered shifts.</p>
+      <p className="text-sm text-gray-600">
+        Today’s work. Tap a client for their care plan, or Note to log a progress note.
+      </p>
       <Suspense fallback={null}>
         <PayPeriodTabs
           current={periods?.current ?? null}
@@ -45,7 +47,7 @@ export default async function ShiftsPage({
       {data?.items?.length ? (
         <div className="space-y-3">
           {data.items.map((shift) => (
-            <ShiftCard key={shift.id} shift={shift} />
+            <ShiftCard key={shift.id} shift={shift} quickClientActions />
           ))}
         </div>
       ) : (

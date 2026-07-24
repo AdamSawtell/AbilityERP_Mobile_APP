@@ -3,5 +3,5 @@ import { getSessionToken } from "@/lib/session";
 
 export default async function HomePage() {
   const token = await getSessionToken();
-  redirect(token ? "/open-shifts" : "/login");
+  redirect(token ? "/shifts" : "/login");
 }

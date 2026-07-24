@@ -2,6 +2,7 @@ import AddActivityForm from "@/components/AddActivityForm";
 import { EmptyState } from "@/components/ShiftCard";
 import { fetchWithSession } from "@/lib/server-data";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 interface ActivityItem {
   id: number;
@@ -42,7 +43,9 @@ export default async function ClientActivitiesPage({
 
   return (
     <div className="space-y-4">
-      <AddActivityForm clientId={id} />
+      <Suspense fallback={null}>
+        <AddActivityForm clientId={id} />
+      </Suspense>
 
       {items.length ? (
         <div className="space-y-2">

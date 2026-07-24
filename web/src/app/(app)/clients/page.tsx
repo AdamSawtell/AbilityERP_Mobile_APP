@@ -40,7 +40,7 @@ export default async function ClientsPage() {
             return (
               <Link
                 key={client.id}
-                href={`/clients/${client.id}`}
+                href={`/clients/${client.id}/care-plan`}
                 className="block rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
