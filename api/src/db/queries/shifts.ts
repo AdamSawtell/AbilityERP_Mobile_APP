@@ -18,6 +18,7 @@ export interface ShiftRow {
   end_time: string | null;
   shift_type: string | null;
   location: string | null;
+  support_location_id: number | null;
   status: string | null;
   application_status: ApplicationStatus;
   response_code: ResponseCode | null;
@@ -51,6 +52,7 @@ function mapShiftRow(row: {
   end_time: unknown;
   shift_type: string | null;
   location: string | null;
+  support_location_id?: number | null;
   status?: string | null;
   application_status: ApplicationStatus;
   response_code?: ResponseCode | null;
@@ -60,6 +62,10 @@ function mapShiftRow(row: {
   responded_at?: unknown;
   clients?: unknown;
 }): ShiftRow {
+  const supportLocationId =
+    row.support_location_id !== null && row.support_location_id !== undefined
+      ? Number(row.support_location_id)
+      : null;
   return {
     id: row.id,
     document_no: row.document_no,
@@ -67,6 +73,7 @@ function mapShiftRow(row: {
     end_time: formatTimestamp(row.end_time),
     shift_type: row.shift_type,
     location: row.location,
+    support_location_id: Number.isFinite(supportLocationId) ? supportLocationId : null,
     status: row.status ?? null,
     application_status: row.application_status,
     response_code: row.response_code ?? null,
@@ -84,6 +91,23 @@ const CLIENTS_JSON_SQL = `COALESCE((
     AND r.isactive = 'Y'
     AND bp.isactive = 'Y'
 ), '[]'::json)`;
+
+/** Support Location linked via Master Location → partner location (window-visible only). */
+const SUPPORT_LOCATION_ID_SQL = `(
+  SELECT sl.aberp_support_location_id
+  FROM c_bpartner_location bl
+  JOIN aberp_support_location sl ON sl.aberp_support_location_id = bl.aberp_support_location_id
+  WHERE bl.c_bpartner_location_id = ml.c_bpartner_location_id
+    AND bl.isactive = 'Y'
+    AND sl.isactive = 'Y'
+    AND EXISTS (
+      SELECT 1
+      FROM c_bpartner_location bl2
+      WHERE bl2.aberp_support_location_id = sl.aberp_support_location_id
+        AND bl2.isactive = 'Y'
+    )
+  LIMIT 1
+)`;
 
 function mapResponseRow(row: Parameters<typeof mapShiftRow>[0]): ShiftResponseRow {
   return {
@@ -169,6 +193,7 @@ export async function getOpenShiftsForPeriod(
        s.endtime AS end_time,
        st.name AS shift_type,
        ml.name AS location,
+       ${SUPPORT_LOCATION_ID_SQL} AS support_location_id,
        rs.name AS status,
        $5::numeric AS pay_period_id,
        ${LATEST_RESPONSE_SUBQUERY} AS response_code,
@@ -236,6 +261,7 @@ export async function getMyShiftsForPeriod(
        s.endtime AS end_time,
        st.name AS shift_type,
        ml.name AS location,
+       ${SUPPORT_LOCATION_ID_SQL} AS support_location_id,
        rs.name AS status,
        $5::numeric AS pay_period_id,
        NULL::text AS response_code,
@@ -278,6 +304,7 @@ export async function getMyShiftResponsesForPeriod(
        s.endtime AS end_time,
        st.name AS shift_type,
        ml.name AS location,
+       ${SUPPORT_LOCATION_ID_SQL} AS support_location_id,
        rs.name AS status,
        $4::numeric AS pay_period_id,
        rl.aberp_rosteredresponselog_id AS response_log_id,

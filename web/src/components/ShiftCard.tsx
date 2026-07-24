@@ -22,6 +22,7 @@ export interface ShiftItem {
   end_time: string | null;
   shift_type: string | null;
   location: string | null;
+  support_location_id?: number | null;
   status: string | null;
   application_status?: ApplicationStatus;
   response_code?: ResponseCode | null;
@@ -114,7 +115,18 @@ export function ShiftCard({
         {shift.location ? (
           <div>
             <dt className="inline font-medium text-gray-700">Where: </dt>
-            <dd className="inline">{shift.location}</dd>
+            <dd className="inline">
+              {shift.support_location_id ? (
+                <Link
+                  href={`/locations/${shift.support_location_id}`}
+                  className="font-medium text-blue-600"
+                >
+                  {shift.location}
+                </Link>
+              ) : (
+                shift.location
+              )}
+            </dd>
           </div>
         ) : null}
         {shift.staff_name ? (

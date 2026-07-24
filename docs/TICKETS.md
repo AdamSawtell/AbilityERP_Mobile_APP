@@ -59,10 +59,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW036 | `client_care_activity` | app | Worker Clients: details, care plan, easy activity add, simpler nav | done | [#36](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/36) | _(app ? no folder)_ |
 | SAW037 | `fewer_taps` | app | Fewer taps: home=Schedule, shift?care plan, quick Note | done | [#37](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/37) | _(app ? no folder)_ |
 | SAW038 | `client_shift_essentials` | app | Client Details = shift briefing (alerts, contacts, safety essentials) | done | [#38](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/38) | _(app ? no folder)_ |
+| SAW039 | `support_locations` | app | Worker Support Locations (window filter + access codes/alerts/rooms) | in-progress | [#39](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/39) | _(app ? no folder)_ |
 
 ## Next ID
 
-**SAW039**
+**SAW040**
 
 ## Naming reminder
 
