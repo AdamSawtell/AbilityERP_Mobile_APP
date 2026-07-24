@@ -65,7 +65,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW042 | `ross_roster_phase1` | app | Ross the Roster Agent Phase 1 foundation (Express :3002) | done | [Agents #1](https://github.com/AdamSawtell/AbilityERP_Agents/issues/1) | _(app — AbilityERP_Agents `ross-roster/`)_ |
 | SAW043 | `ross_admin_ui` | app | Ross admin UI Phase 2 (Next.js on EC2 :3003) | done | [Agents #2](https://github.com/AdamSawtell/AbilityERP_Agents/issues/2) · [PHASE-2-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-2-CONTRACT.md) | _(app — AbilityERP_Agents `admin-ui/`)_ |
 | SAW044 | `ross_phase3` | app | Ross Phase 3 value features (auto-pilot first; no Entra) | done | [Agents #3](https://github.com/AdamSawtell/AbilityERP_Agents/issues/3) · [PHASE-3-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-3-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
-| SAW045 | `ross_phase4` | app | Ross Phase 4 planner & reports (4a briefing first; no Entra) | in-progress | [Agents #4](https://github.com/AdamSawtell/AbilityERP_Agents/issues/4) · [PHASE-4-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-4-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
+| SAW045 | `ross_phase4` | app | Ross Phase 4 planner & reports (4a–4e; no Entra) | done | [Agents #4](https://github.com/AdamSawtell/AbilityERP_Agents/issues/4) · [PHASE-4-CONTRACT](https://github.com/AdamSawtell/AbilityERP_Agents/blob/main/docs/PHASE-4-CONTRACT.md) | _(app — AbilityERP_Agents)_ |
 
 ## Next ID
 
