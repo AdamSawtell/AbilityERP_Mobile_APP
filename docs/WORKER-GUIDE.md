@@ -39,12 +39,15 @@ You must have the **Support Worker** role in AbilityERP. If login fails, contact
 | Tab | What it does |
 |-----|----------------|
 | **Open** | Shifts you can apply for (this and next pay fortnight) |
-| **Schedule** | Home screen — your rostered shifts. Tap **Care plan** or **Note** on a client |
-| **Clients** | Same people — opens on care plan |
-| **Chat** | Messages with rostering |
-| **More** | Profile, Leave, ID card, master Roster |
+| **Roster** | Home — your rostered shifts. Tap client / location / Note |
+| **Clients** | People on your shifts — alerts, contacts, essentials |
+| **Locations** | Support locations — access codes, site alerts, rooms |
+| **Chat** | Messages with rostering (badge when they reply) |
+| **More** | Leave, ID card, fortnight Pattern, profile |
 
-After sign-in you land on **Schedule**.
+**Bell** (top right): notifications — e.g. rostering replied and needs your response.
+
+After sign-in you land on **Roster**.
 
 ---
 

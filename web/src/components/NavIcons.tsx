@@ -71,4 +71,25 @@ export const NavIcons = {
       <path d="M12.5 19c.5-2 1.9-3.2 4-3.2S20.5 17 21 19" />
     </Svg>
   ),
+  locations: (
+    <Svg>
+      <path d="M12 21s-6.5-5.2-6.5-10a6.5 6.5 0 1 1 13 0c0 4.8-6.5 10-6.5 10z" />
+      <circle cx="12" cy="11" r="2.25" />
+    </Svg>
+  ),
+  more: (
+    <Svg>
+      <circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </Svg>
+  ),
+  bell: (
+    <Svg>
+      <path d="M6.5 17h11" />
+      <path d="M8 17V11a4 4 0 0 1 8 0v6" />
+      <path d="M10.5 17a1.5 1.5 0 0 0 3 0" />
+      <path d="M12 5v1" />
+    </Svg>
+  ),
 } as const;

@@ -50,12 +50,12 @@ export default async function ProfilePage() {
     <section className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-900">More</h2>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2">
         {[
-          { href: "/locations", label: "Locations" },
           { href: "/leave", label: "Leave" },
           { href: "/credentials", label: "ID card" },
-          { href: "/roster", label: "Roster" },
+          { href: "/roster", label: "Pattern" },
+          { href: "/notifications", label: "Alerts" },
         ].map((item) => (
           <Link
             key={item.href}
