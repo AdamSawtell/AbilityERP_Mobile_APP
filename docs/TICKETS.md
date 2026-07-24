@@ -55,10 +55,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW032 | `sms_staff_info_multiselect` | idempiere | SMS Staff Rostering Info multi-select clone (Find & Fill UU untouched) | in-progress | [#32](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/32) | [`Tickets/SAW032_…`](../Tickets/SAW032_sms_staff_info_multiselect/) |
 | SAW033 | `hco_theme_plugin` | idempiere | HCO iDempiere 7 ZK theme plugin (brand CSS, login, toolbar tiles) | done | [#33](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/33) | [`Tickets/SAW033_…`](../Tickets/SAW033_hco_theme_plugin/) |
 | SAW034 | `pwa_install_shell` | app | Installable PWA shell: icons verified, service worker, install hint | done | [#34](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/34) | _(app — no folder)_ |
+| SAW035 | `seed_week_roster` | meta | Seed Mon–Sun week Shift (Rostered) for 5 Support Workers on staging | done | [#35](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/35) | _(no folder)_ |
 
 ## Next ID
 
-**SAW035**
+**SAW036**
 
 ## Naming reminder
 
