@@ -1,6 +1,6 @@
 # Push Notifications — Implementation Plan
 
-Status: **Not implemented** (Phase 3). The app is a installable web app with manifest only — no service worker or push yet.
+Status: **Phase 3a done (SAW034)** — installable PWA shell. Web Push not implemented yet.
 
 ---
 
@@ -9,8 +9,9 @@ Status: **Not implemented** (Phase 3). The app is a installable web app with man
 | Feature | Status |
 |---------|--------|
 | `manifest.json` | Yes — name, theme, standalone display |
-| App icons | Missing (empty `icons[]`) — hurts install UX |
-| Service worker | No |
+| App icons | Yes — `web/public/icons/` (192 / 512 / Apple / favicon); regenerate via `scripts/generate-pwa-icons.js` |
+| Service worker | Yes — shell only (`web/public/sw.js`, registered by `PwaClient`) |
+| Install hint | Yes — Chromium `beforeinstallprompt` + iOS Share instructions |
 | Web Push | No |
 | Offline cache | No |
 
@@ -42,13 +43,14 @@ Service worker on worker phone → notification tap → open app route
 
 ### Components to build
 
-1. **Service worker** (`web/public/sw.js` or `next-pwa`)
-   - `push` event handler
-   - `notificationclick` → deep link to `/open-shifts`, `/shifts`, etc.
+1. **Service worker** (`web/public/sw.js`)
+   - Shell registered (SAW034)
+   - Still needed: `push` event handler + `notificationclick` → deep link to `/open-shifts`, `/shifts`, etc.
 
 2. **Subscription API** (Express)
    - `POST /api/notifications/subscribe` — store `{ ad_user_id, endpoint, keys }`
    - Table: `aberp_worker_push_subscription` (new) or JSON in AD_SysConfig per env
+   - Likely Kind **both** when AD/SQL ships with the app change
 
 3. **VAPID keys** (generate once per environment)
    - Env: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT=mailto:...`
@@ -60,32 +62,26 @@ Service worker on worker phone → notification tap → open app route
 
 5. **Send triggers** (pick one to start)
    - **Cron on EC2** — poll new open shifts / responselog changes every N minutes
-   - **iDempiere plugin hook** — ideal long-term, contradicts “no Java plugins” constraint for Phase 1
+   - **iDempiere plugin hook** — ideal long-term
    - **Manual admin send** — for testing
-
-6. **PWA polish (do first)**
-   - Add 192×192 and 512×512 icons to `manifest.json`
-   - Register service worker on app load
-   - Apple touch icon + meta tags
 
 ---
 
 ## Effort estimate
 
-| Phase | Work | Depends on |
-|-------|------|------------|
-| **3a — Installable PWA** | Icons + service worker shell | Design assets |
-| **3b — Push infrastructure** | VAPID, subscribe API, SW handler | 3a |
-| **3c — Shift notifications** | Cron + open shift detector | 3b, seeded/live shift data |
-| **3d — Full roster/leave push** | More triggers + iDempiere integration | Business rules sign-off |
+| Phase | Work | Depends on | Ticket |
+|-------|------|------------|--------|
+| **3a — Installable PWA** | Icons + SW shell + install hint | — | **SAW034** (this) |
+| **3b — Push infrastructure** | VAPID, subscribe API, SW handler | 3a | next |
+| **3c — Shift notifications** | Cron + open shift detector | 3b, seeded/live shift data | later |
+| **3d — Full roster/leave push** | More triggers + iDempiere integration | Business rules sign-off | later |
 
 ---
 
-## Quick wins before push
+## Quick wins (remaining)
 
-1. Add app icons (required for credible “Add to Home Screen”).
-2. Link **Worker Guide** from Profile or login footer (`docs/WORKER-GUIDE.md`).
-3. Optional: “Install app” hint banner on first mobile visit.
+1. Link **Worker Guide** from Profile or login footer (`docs/WORKER-GUIDE.md`) — content lives in repo; publish URL if/when docs are hosted.
+2. Offline shell cache (optional; careful with Next.js asset hashing).
 
 ---
 
