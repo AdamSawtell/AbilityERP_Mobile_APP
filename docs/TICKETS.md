@@ -62,10 +62,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW039 | `support_locations` | app | Worker Support Locations (window filter + access codes/alerts/rooms) | done | [#39](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/39) | _(app ? no folder)_ |
 | SAW040 | `nav_notifications` | app | Nav Open/Roster/Clients/Locations/Chat/More + notification bell | done | [#40](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/40) | _(app ? no folder)_ |
 | SAW041 | `roster_today` | app | Roster: Today section, Note only (no Care plan button) | done | [#41](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/41) | _(app ? no folder)_ |
+| SAW042 | `ross_roster_phase1` | app | Ross the Roster Agent Phase 1 foundation (Express :3002) | in-progress | [Agents #1](https://github.com/AdamSawtell/AbilityERP_Agents/issues/1) | _(app — AbilityERP_Agents `ross-roster/`)_ |
 
 ## Next ID
 
-**SAW042**
+**SAW043**
 
 ## Naming reminder
 
