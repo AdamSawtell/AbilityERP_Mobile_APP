@@ -82,7 +82,7 @@ Set these in the Amplify console for the `web` app:
 
 | Variable | Example |
 |----------|---------|
-| `API_BASE_URL` | `https://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com` |
+| `API_BASE_URL` | `https://ec2-54-206-8-250.ap-southeast-2.compute.amazonaws.com` |
 | `NEXT_PUBLIC_APP_URL` | `https://main.d2pmnegzhwkj4b.amplifyapp.com` |
 
 Also confirm in Amplify **Build settings**:
@@ -111,7 +111,7 @@ bash /opt/ability-erp-pwa/scripts/ec2-update.sh main
 1. Connect this GitHub repo in Amplify
 2. Set **app root** to `web`
 3. Add environment variables from `web/.env.example`
-4. Set `API_BASE_URL` to your EC2 API host (e.g. `http://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com`) — **no** `/api` suffix
+4. Set `API_BASE_URL` to your EC2 API host (e.g. `http://ec2-54-206-8-250.ap-southeast-2.compute.amazonaws.com`) — **no** `/api` suffix
 
 ## Auth
 

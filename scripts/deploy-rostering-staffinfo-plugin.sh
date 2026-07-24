@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGIN_DIR="$ROOT/idempiere-plugins/com.aberp.rostering.staffinfo"
-EC2_HOST="${EC2_HOST:-ubuntu@ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com}"
+EC2_HOST="${EC2_HOST:-ubuntu@ec2-54-206-8-250.ap-southeast-2.compute.amazonaws.com}"
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/AbilityERP_Development_Keypair_Shared.pem}"
 REMOTE_DIR="/home/ubuntu/abilityerp-plugins/com.aberp.rostering.staffinfo"
 

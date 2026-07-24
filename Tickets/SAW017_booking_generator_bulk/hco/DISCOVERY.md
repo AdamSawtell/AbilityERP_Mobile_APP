@@ -106,4 +106,4 @@ No plan/wait columns on BG. Likely ops workflow (status/description/`STANDARD TR
 
 ## Seed EC2 cross-check
 
-`ec2-54-206-120-32…` has `com.aberp.createbooking.process_*.jar` (line Create Booking) but **no** `servicebooking.generator` / `GenerateTimesheets` / `GenerateShifts` bytecode either.
+`ec2-54-206-8-250…` (`54.206.8.250`) has `com.aberp.createbooking.process_*.jar` (line Create Booking) but **no** `servicebooking.generator` / `GenerateTimesheets` / `GenerateShifts` bytecode either.

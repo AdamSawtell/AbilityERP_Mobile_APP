@@ -35,7 +35,7 @@ Amplify Console → **Hosting** → **Environment variables** → add:
 | Variable | Value |
 |----------|--------|
 | `AMPLIFY_MONOREPO_APP_ROOT` | `web` |
-| `API_BASE_URL` | `http://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com` |
+| `API_BASE_URL` | `http://ec2-54-206-8-250.ap-southeast-2.compute.amazonaws.com` |
 | `NEXT_PUBLIC_APP_URL` | `https://main.d3ec4nkn82ouib.amplifyapp.com` |
 
 `AMPLIFY_MONOREPO_APP_ROOT` is **required** for monorepos (repo has `web/` folder).
@@ -112,7 +112,7 @@ No extra ports needed. Already working:
 
 - API: localhost **3001** (PM2)
 - Public: Apache **80** → `/api/` → 3001
-- Test: `curl http://ec2-54-206-120-32.ap-southeast-2.compute.amazonaws.com/api/health`
+- Test: `curl http://ec2-54-206-8-250.ap-southeast-2.compute.amazonaws.com/api/health`
 
 ---
 

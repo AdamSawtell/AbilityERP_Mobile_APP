@@ -33,7 +33,7 @@ Do **not** wipe OSGi configuration cache.
 
 | Env | Host | State |
 |-----|------|--------|
-| Staging | `54.206.120.32:8080` | `2214` + SQL `26` |
+| Staging | `54.206.8.250:8080` | `2214` + SQL `26` |
 | HCO Test | `https://3.25.213.143/webui/` | `2214` + SQL `26` · SSH `ubuntu` / `HCO_Prod_KP.pem` |
 
 ## Agent prompt (copy)
