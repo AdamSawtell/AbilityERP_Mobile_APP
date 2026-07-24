@@ -1,62 +1,62 @@
-﻿# AbilityERP ticket registry (SAW###)
+# AbilityERP ticket registry (SAW###)
 
 Allocate the next free `SAW###` before starting work. Keep this file in sync with GitHub issues.
 
 **Agents sidebar title:** `SAW###_<short_snake_function>`
 
-**Deploy handoff (vital):** for Kind `idempiere` / `both`, `Tickets/SAW###_â€¦/DEPLOY.md` + the GitHub issue **Deploy** section must be enough for a new agent to install on another build from this repo alone.
+**Deploy handoff (vital):** for Kind `idempiere` / `both`, `Tickets/SAW###_…/DEPLOY.md` + the GitHub issue **Deploy** section must be enough for a new agent to install on another build from this repo alone.
 
-**External ticket handoff (vital):** `Tickets/SAW###_â€¦/EXTERNAL-SUMMARY.md` â€” copy/paste for the customer ticket (done / changed / impact / test / Admin access). See also `docs/DEV-REQUIREMENTS.md` (AbilityERP Admin must get window/process/Info/form access).
+**External ticket handoff (vital):** `Tickets/SAW###_…/EXTERNAL-SUMMARY.md` — copy/paste for the customer ticket (done / changed / impact / test / Admin access). See also `docs/DEV-REQUIREMENTS.md` (AbilityERP Admin must get window/process/Info/form access).
 
 **Kind**
 
 | Value | Meaning | `Tickets/` folder? |
 |-------|---------|-------------------|
-| `idempiere` | AD / plugin / WebUI / client pack | **Yes** â€” `Tickets/SAW###_<slug>/` |
-| `both` | ERP drop **plus** required app/API dependency | **Yes** â€” ERP home + `Dependencies (app)` in README |
-| `app` | Mobile/web only | No â€” stay in app tree |
+| `idempiere` | AD / plugin / WebUI / client pack | **Yes** — `Tickets/SAW###_<slug>/` |
+| `both` | ERP drop **plus** required app/API dependency | **Yes** — ERP home + `Dependencies (app)` in README |
+| `app` | Mobile/web only | No — stay in app tree |
 | `meta` | Process/rules/review only | No |
 
 Status: `done` | `in-progress` | `blocked`
 
 | ID | Slug | Kind | Description | Status | GitHub | Home |
 |----|------|------|-------------|--------|--------|------|
-| SAW001 | `paid_filter_invoice_send_info` | idempiere | Paid filter on Notification SR Invoice Send Info | done | [#1](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/1) | [`Tickets/SAW001_â€¦`](../Tickets/SAW001_paid_filter_invoice_send_info/) |
+| SAW001 | `paid_filter_invoice_send_info` | idempiere | Paid filter on Notification SR Invoice Send Info | done | [#1](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/1) | [`Tickets/SAW001_…`](../Tickets/SAW001_paid_filter_invoice_send_info/) |
 | SAW002 | `ticket_ids_and_update_loop` | meta | SAW### tickets + staging client-update loop + Tickets/ layout | done | [#2](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/2) | _(no folder)_ |
-| SAW003 | `staff_rostering_info` | idempiere | Staff Rostering Info Window rewrite / UX / needs-match / unmatched credential AND | done | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) | [`Tickets/SAW003_â€¦`](../Tickets/SAW003_staff_rostering_info/) |
-| SAW004 | `rostering_chat` | both | Rostering Chat WebUI and sync (Requests-window clone) | done | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) | [`Tickets/SAW004_â€¦`](../Tickets/SAW004_rostering_chat/) |
-| SAW005 | `leave_and_credentials_fixes` | app | Leave submit, approved-leave UX icons, credentials list | done | [#5](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/5) | _(app â€” no folder)_ |
-| SAW006 | `requests_window_clone` | â€” | Merged into SAW004 (Requests clone = Rostering Chat) | done | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | [`Tickets/SAW004_rostering_chat`](../Tickets/SAW004_rostering_chat/) |
-| SAW007 | `activity_tab_integration` | idempiere | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | [`Tickets/SAW007_â€¦`](../Tickets/SAW007_activity_tab_integration/) |
+| SAW003 | `staff_rostering_info` | idempiere | Staff Rostering Info Window rewrite / UX / needs-match / unmatched credential AND | done | [#3](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/3) | [`Tickets/SAW003_…`](../Tickets/SAW003_staff_rostering_info/) |
+| SAW004 | `rostering_chat` | both | Rostering Chat WebUI and sync (Requests-window clone) | done | [#4](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/4) | [`Tickets/SAW004_…`](../Tickets/SAW004_rostering_chat/) |
+| SAW005 | `leave_and_credentials_fixes` | app | Leave submit, approved-leave UX icons, credentials list | done | [#5](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/5) | _(app — no folder)_ |
+| SAW006 | `requests_window_clone` | — | Merged into SAW004 (Requests clone = Rostering Chat) | done | [#6](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/6) | [`Tickets/SAW004_rostering_chat`](../Tickets/SAW004_rostering_chat/) |
+| SAW007 | `activity_tab_integration` | idempiere | Activity tab on multiple windows; user/contact on other builds | done | [#7](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/7) | [`Tickets/SAW007_…`](../Tickets/SAW007_activity_tab_integration/) |
 | SAW008 | `build_from_scratch_review` | meta | AbilityERP build-from-scratch / no AbilityVua fork review | done | [#8](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/8) | _(no folder)_ |
-| SAW009 | `support_day_pattern_number` | idempiere | Service Booking Line Support Start/End Day show pattern day number | done | [#9](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/9) | [`Tickets/SAW009_â€¦`](../Tickets/SAW009_support_day_pattern_number/) |
-| SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_â€¦`](../Tickets/SAW010_timesheet_approval_info_columns/) |
-| SAW011 | `accept_shift_request` | idempiere | Response Log: Accept Shift Request + Find and Fill (prefill Info → fill vacant Employee) | in-progress | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) | [`Tickets/SAW011_…`](../Tickets/SAW011_accept_shift_request/) |
-| SAW012 | `session_process_audit_perf` | idempiere | Session/Process Audit usable on huge tables (High Volume, indexes, retention) | in-progress | [#12](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/12) | [`Tickets/SAW012_â€¦`](../Tickets/SAW012_session_process_audit_perf/) |
-| SAW013 | `shift_change_form_enhancements` | idempiere | HCO Forms: auto Request Status + prevent duplicate Create + match template type | done | [#13](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/13) | [`Tickets/SAW013_â€¦`](../Tickets/SAW013_shift_change_form_enhancements/) |
-| SAW014 | `support_location_contact_grid` | idempiere | Support Location Email/Phone grid: replace @SQL= with subquery ColumnSQL | done | [#14](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/14) | [`Tickets/SAW014_â€¦`](../Tickets/SAW014_support_location_contact_grid/) |
-| SAW015 | `skip_dates_copy_from` | idempiere | Skip Dates: Copy Dates From existing record (AbERP_Dates) | in-progress | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) | [`Tickets/SAW015_â€¦`](../Tickets/SAW015_skip_dates_copy_from/) |
-| SAW016 | `leave_planning` | idempiere | Leave Planning window for workforce planners | in-progress | [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16) | [`Tickets/SAW016_â€¦`](../Tickets/SAW016_leave_planning/) |
-| SAW017 | `booking_generator_bulk` | idempiere | Booking Generator â†’ Service Bookings bulk/block generation | in-progress (ship JAR `160730`; packs 20260716; ready other builds) | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) | [`Tickets/SAW017_â€¦`](../Tickets/SAW017_booking_generator_bulk/) |
-| SAW018 | `hco_release_packins` | idempiere | HCO release 2Packs (credentials/employee/client/support location) + missing-staff view | in-progress | [#18](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/18) | [`Tickets/SAW018_â€¦`](../Tickets/SAW018_hco_release_packins/) |
-| SAW019 | `invoice_capture` | idempiere | Invoice Capture window: same-box OCR + Process Selected Invoice + optional nightly batch | in-progress | [#19](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/19) | [`Tickets/SAW019_â€¦`](../Tickets/SAW019_invoice_capture/) |
-| SAW020 | `hco20260714_release` | idempiere | HCO20260714 Test release dry run â†’ Production Deployment Runbook | done | [#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20) | [`Tickets/SAW020_â€¦`](../Tickets/SAW020_hco20260714_release/) |
-| SAW021 | `unavailability_planning` | idempiere | Unavailability Planning Info (SAW016 framework on AbERP_OngoingUnavailability) | in-progress | [#21](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/21) | [`Tickets/SAW021_â€¦`](../Tickets/SAW021_unavailability_planning/) |
-| SAW022 | `shift_period_search_default` | idempiere | Shift (Rostered) Find defaults Roster Period to current pay period | done | [#22](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/22) | [`Tickets/SAW022_â€¦`](../Tickets/SAW022_shift_period_search_default/) |
-| SAW023 | `compliance_audit_hub` | idempiere | NDIS Compliance & Audit Hub â€” summary window, rules, results, snapshots, refresh | done | [#23](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/23) | [`Tickets/SAW023_â€¦`](../Tickets/SAW023_compliance_audit_hub/) |
-| SAW024 | `employee_open_findings` | idempiere | Organisation Audit Findings navigation (nest, Open & Fix, parent-only tabs) | in-progress | [#24](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/24) | [`Tickets/SAW024_…`](../Tickets/SAW024_employee_open_findings/) |
-| SAW025 | `category_tab_summaries` | idempiere | Organisation Audit category KPIs & layout (population, KPIs, explainers) | in-progress | [#25](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/25) | [`Tickets/SAW025_…`](../Tickets/SAW025_category_tab_summaries/) |
-| SAW026 | `vehicle_activity_tab` | idempiere | Standard Activity tab on Vehicle (`AbERP_Vehicle`) | done | [#26](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/26) | [`Tickets/SAW026_â€¦`](../Tickets/SAW026_vehicle_activity_tab/) |
-| SAW027 | `activity_audit` | idempiere | Activity Audit — terms, nightly/historical, review UX, Activity Viewer links (one product) | done | [#27](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/27) | [`Tickets/SAW027_…`](../Tickets/SAW027_activity_audit/) |
-| SAW028 | `activity_viewer_links` | — | Merged into SAW027 (Activity Viewer links) | done | [#28](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/28) | [`→ SAW027`](../Tickets/SAW027_activity_audit/) |
-| SAW029 | `activity_audit_review_ux` | — | Merged into SAW027 (Review field groups UX) | done | [#29](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/29) | [`→ SAW027`](../Tickets/SAW027_activity_audit/) |
-| SAW030 | `response_log_find_fill` | — | Merged into SAW011 (Find and Fill on Response Log) | done | [#30](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/30) | [`→ SAW011`](../Tickets/SAW011_accept_shift_request/) |
-| SAW031 | `support_day_validate_fix` | idempiere | Fix Service Booking Line Validate/Save clearing Support Start/End Day (EEEE overwrite) | done | [#31](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/31) | [`Tickets/SAW031_…`](../Tickets/SAW031_support_day_validate_fix/) |
-| SAW032 | `sms_staff_info_multiselect` | idempiere | SMS Staff Rostering Info multi-select clone (Find & Fill UU untouched) | in-progress | [#32](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/32) | [`Tickets/SAW032_…`](../Tickets/SAW032_sms_staff_info_multiselect/) |
-| SAW033 | `hco_theme_plugin` | idempiere | HCO iDempiere 7 ZK theme plugin (brand CSS, login, toolbar tiles) | done | [#33](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/33) | [`Tickets/SAW033_…`](../Tickets/SAW033_hco_theme_plugin/) |
-| SAW034 | `pwa_install_shell` | app | Installable PWA shell: icons verified, service worker, install hint | done | [#34](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/34) | _(app — no folder)_ |
-| SAW035 | `seed_week_roster` | meta | Seed Mon–Sun week Shift (Rostered) for 5 Support Workers on staging | done | [#35](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/35) | _(no folder)_ |
-| SAW036 | `client_care_activity` | app | Worker Clients: details, care plan, easy activity add, simpler nav | in-progress | [#36](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/36) | _(app — no folder)_ |
+| SAW009 | `support_day_pattern_number` | idempiere | Service Booking Line Support Start/End Day show pattern day number | done | [#9](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/9) | [`Tickets/SAW009_…`](../Tickets/SAW009_support_day_pattern_number/) |
+| SAW010 | `timesheet_approval_info_columns` | idempiere | Timesheet Approval Info: hide unused cols, dedupe staff, add Break Start/End | done | [#10](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/10) | [`Tickets/SAW010_…`](../Tickets/SAW010_timesheet_approval_info_columns/) |
+| SAW011 | `accept_shift_request` | idempiere | Response Log: Accept Shift Request + Find and Fill (prefill Info ? fill vacant Employee) | in-progress | [#11](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/11) | [`Tickets/SAW011_�`](../Tickets/SAW011_accept_shift_request/) |
+| SAW012 | `session_process_audit_perf` | idempiere | Session/Process Audit usable on huge tables (High Volume, indexes, retention) | in-progress | [#12](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/12) | [`Tickets/SAW012_…`](../Tickets/SAW012_session_process_audit_perf/) |
+| SAW013 | `shift_change_form_enhancements` | idempiere | HCO Forms: auto Request Status + prevent duplicate Create + match template type | done | [#13](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/13) | [`Tickets/SAW013_…`](../Tickets/SAW013_shift_change_form_enhancements/) |
+| SAW014 | `support_location_contact_grid` | idempiere | Support Location Email/Phone grid: replace @SQL= with subquery ColumnSQL | done | [#14](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/14) | [`Tickets/SAW014_…`](../Tickets/SAW014_support_location_contact_grid/) |
+| SAW015 | `skip_dates_copy_from` | idempiere | Skip Dates: Copy Dates From existing record (AbERP_Dates) | in-progress | [#15](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/15) | [`Tickets/SAW015_…`](../Tickets/SAW015_skip_dates_copy_from/) |
+| SAW016 | `leave_planning` | idempiere | Leave Planning window for workforce planners | in-progress | [#16](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/16) | [`Tickets/SAW016_…`](../Tickets/SAW016_leave_planning/) |
+| SAW017 | `booking_generator_bulk` | idempiere | Booking Generator → Service Bookings bulk/block generation | in-progress (ship JAR `160730`; packs 20260716; ready other builds) | [#17](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/17) | [`Tickets/SAW017_…`](../Tickets/SAW017_booking_generator_bulk/) |
+| SAW018 | `hco_release_packins` | idempiere | HCO release 2Packs (credentials/employee/client/support location) + missing-staff view | in-progress | [#18](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/18) | [`Tickets/SAW018_…`](../Tickets/SAW018_hco_release_packins/) |
+| SAW019 | `invoice_capture` | idempiere | Invoice Capture window: same-box OCR + Process Selected Invoice + optional nightly batch | in-progress | [#19](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/19) | [`Tickets/SAW019_…`](../Tickets/SAW019_invoice_capture/) |
+| SAW020 | `hco20260714_release` | idempiere | HCO20260714 Test release dry run → Production Deployment Runbook | done | [#20](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/20) | [`Tickets/SAW020_…`](../Tickets/SAW020_hco20260714_release/) |
+| SAW021 | `unavailability_planning` | idempiere | Unavailability Planning Info (SAW016 framework on AbERP_OngoingUnavailability) | in-progress | [#21](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/21) | [`Tickets/SAW021_…`](../Tickets/SAW021_unavailability_planning/) |
+| SAW022 | `shift_period_search_default` | idempiere | Shift (Rostered) Find defaults Roster Period to current pay period | done | [#22](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/22) | [`Tickets/SAW022_…`](../Tickets/SAW022_shift_period_search_default/) |
+| SAW023 | `compliance_audit_hub` | idempiere | NDIS Compliance & Audit Hub — summary window, rules, results, snapshots, refresh | done | [#23](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/23) | [`Tickets/SAW023_…`](../Tickets/SAW023_compliance_audit_hub/) |
+| SAW024 | `employee_open_findings` | idempiere | Organisation Audit Findings navigation (nest, Open & Fix, parent-only tabs) | in-progress | [#24](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/24) | [`Tickets/SAW024_�`](../Tickets/SAW024_employee_open_findings/) |
+| SAW025 | `category_tab_summaries` | idempiere | Organisation Audit category KPIs & layout (population, KPIs, explainers) | in-progress | [#25](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/25) | [`Tickets/SAW025_�`](../Tickets/SAW025_category_tab_summaries/) |
+| SAW026 | `vehicle_activity_tab` | idempiere | Standard Activity tab on Vehicle (`AbERP_Vehicle`) | done | [#26](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/26) | [`Tickets/SAW026_…`](../Tickets/SAW026_vehicle_activity_tab/) |
+| SAW027 | `activity_audit` | idempiere | Activity Audit � terms, nightly/historical, review UX, Activity Viewer links (one product) | done | [#27](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/27) | [`Tickets/SAW027_�`](../Tickets/SAW027_activity_audit/) |
+| SAW028 | `activity_viewer_links` | � | Merged into SAW027 (Activity Viewer links) | done | [#28](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/28) | [`? SAW027`](../Tickets/SAW027_activity_audit/) |
+| SAW029 | `activity_audit_review_ux` | � | Merged into SAW027 (Review field groups UX) | done | [#29](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/29) | [`? SAW027`](../Tickets/SAW027_activity_audit/) |
+| SAW030 | `response_log_find_fill` | � | Merged into SAW011 (Find and Fill on Response Log) | done | [#30](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/30) | [`? SAW011`](../Tickets/SAW011_accept_shift_request/) |
+| SAW031 | `support_day_validate_fix` | idempiere | Fix Service Booking Line Validate/Save clearing Support Start/End Day (EEEE overwrite) | done | [#31](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/31) | [`Tickets/SAW031_�`](../Tickets/SAW031_support_day_validate_fix/) |
+| SAW032 | `sms_staff_info_multiselect` | idempiere | SMS Staff Rostering Info multi-select clone (Find & Fill UU untouched) | in-progress | [#32](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/32) | [`Tickets/SAW032_�`](../Tickets/SAW032_sms_staff_info_multiselect/) |
+| SAW033 | `hco_theme_plugin` | idempiere | HCO iDempiere 7 ZK theme plugin (brand CSS, login, toolbar tiles) | done | [#33](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/33) | [`Tickets/SAW033_�`](../Tickets/SAW033_hco_theme_plugin/) |
+| SAW034 | `pwa_install_shell` | app | Installable PWA shell: icons verified, service worker, install hint | done | [#34](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/34) | _(app � no folder)_ |
+| SAW035 | `seed_week_roster` | meta | Seed Mon�Sun week Shift (Rostered) for 5 Support Workers on staging | done | [#35](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/35) | _(no folder)_ |
+| SAW036 | `client_care_activity` | app | Worker Clients: details, care plan, easy activity add, simpler nav | done | [#36](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/36) | _(app � no folder)_ |
 
 ## Next ID
 
@@ -64,5 +64,5 @@ Status: `done` | `in-progress` | `blocked`
 
 ## Naming reminder
 
-`SAW###_<short_snake_function>` â€” see `.cursor/rules/ticket-ids.mdc` and [`Tickets/README.md`](../Tickets/README.md).
+`SAW###_<short_snake_function>` — see `.cursor/rules/ticket-ids.mdc` and [`Tickets/README.md`](../Tickets/README.md).
 
