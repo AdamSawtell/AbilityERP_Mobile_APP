@@ -63,4 +63,12 @@ export const NavIcons = {
       <path d="M5.5 19c1.2-3 3.4-4.5 6.5-4.5s5.3 1.5 6.5 4.5" />
     </Svg>
   ),
+  clients: (
+    <Svg>
+      <circle cx="9" cy="9" r="3" />
+      <path d="M3.5 19c.8-2.8 2.8-4.2 5.5-4.2" />
+      <circle cx="16.5" cy="10" r="2.5" />
+      <path d="M12.5 19c.5-2 1.9-3.2 4-3.2S20.5 17 21 19" />
+    </Svg>
+  ),
 } as const;

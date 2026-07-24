@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import ProfileForm from "@/components/ProfileForm";
 import { fetchWithSession } from "@/lib/server-data";
@@ -47,7 +48,23 @@ export default async function ProfilePage() {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold text-gray-900">Profile</h2>
+      <h2 className="text-xl font-semibold text-gray-900">More</h2>
+
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { href: "/leave", label: "Leave" },
+          { href: "/credentials", label: "ID card" },
+          { href: "/roster", label: "Roster" },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="rounded-xl border border-gray-200 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-800"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <dl className="space-y-3 text-sm">

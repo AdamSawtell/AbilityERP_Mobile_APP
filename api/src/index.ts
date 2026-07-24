@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { checkDbConnection } from "./db/pool";
 import authRoutes from "./routes/auth";
+import clientsRoutes from "./routes/clients";
 import credentialsRoutes from "./routes/credentials";
 import leaveRoutes from "./routes/leave";
 import profileRoutes from "./routes/profile";
@@ -38,6 +39,7 @@ app.get("/api/health", async (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/credentials", credentialsRoutes);
+app.use("/api/clients", clientsRoutes);
 app.use("/api/shifts", shiftsRoutes);
 app.use("/api/roster", rosterRoutes);
 app.use("/api/leave", leaveRoutes);

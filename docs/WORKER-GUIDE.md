@@ -39,11 +39,10 @@ You must have the **Support Worker** role in AbilityERP. If login fails, contact
 | Tab | What it does |
 |-----|----------------|
 | **Open** | Shifts you can apply for (this and next pay fortnight) |
-| **Schedule** | Your confirmed rostered shifts |
-| **Roster** | Your master roster pattern (Day 1–14 recurring template) |
-| **ID** | Digital worker ID card |
-| **Leave** | View leave and submit requests |
-| **Profile** | Your contact details |
+| **Schedule** | Your confirmed rostered shifts (tap a client name to open them) |
+| **Clients** | People on your shifts — details, care plan, add activities |
+| **Chat** | Messages with rostering |
+| **More** | Profile, Leave, ID card, master Roster |
 
 ---
 

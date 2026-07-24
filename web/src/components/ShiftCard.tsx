@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export type ApplicationStatus =
   | "open"
   | "requested"
@@ -7,6 +9,11 @@ export type ApplicationStatus =
 
 export type ResponseCode = "REQ" | "DEC";
 export type ReviewStatus = "pending" | "reviewed" | null;
+
+export interface ShiftClient {
+  id: number;
+  name: string;
+}
 
 export interface ShiftItem {
   id: number;
@@ -22,6 +29,7 @@ export interface ShiftItem {
   pay_period_id?: number | null;
   staff_name?: string | null;
   responded_at?: string | null;
+  clients?: ShiftClient[];
 }
 
 const APPLICATION_BADGE: Record<
@@ -58,6 +66,8 @@ export function ShiftCard({
   shift: ShiftItem;
   action?: React.ReactNode;
 }) {
+  const clients = shift.clients ?? [];
+
   return (
     <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -108,6 +118,21 @@ export function ShiftCard({
           <div>
             <dt className="inline font-medium text-gray-700">Staff: </dt>
             <dd className="inline">{shift.staff_name}</dd>
+          </div>
+        ) : null}
+        {clients.length ? (
+          <div>
+            <dt className="inline font-medium text-gray-700">Client: </dt>
+            <dd className="inline">
+              {clients.map((client, index) => (
+                <span key={client.id}>
+                  {index > 0 ? ", " : null}
+                  <Link href={`/clients/${client.id}`} className="font-medium text-blue-600">
+                    {client.name}
+                  </Link>
+                </span>
+              ))}
+            </dd>
           </div>
         ) : null}
       </dl>

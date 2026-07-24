@@ -6,6 +6,11 @@ export type ResponseCode = "REQ" | "DEC";
 export type ApplicationStatus = "open" | "requested" | "declined" | "assigned" | "unavailable";
 export type ReviewStatus = "pending" | "reviewed" | null;
 
+export interface ShiftClient {
+  id: number;
+  name: string;
+}
+
 export interface ShiftRow {
   id: number;
   document_no: string | null;
@@ -18,11 +23,25 @@ export interface ShiftRow {
   response_code: ResponseCode | null;
   review_status: ReviewStatus;
   pay_period_id: number | null;
+  clients: ShiftClient[];
 }
 
 export interface ShiftResponseRow extends ShiftRow {
   response_log_id: number | null;
   responded_at: string | null;
+}
+
+function mapClients(value: unknown): ShiftClient[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as { id?: unknown; name?: unknown };
+      const id = Number(row.id);
+      if (!Number.isFinite(id) || !row.name) return null;
+      return { id, name: String(row.name) };
+    })
+    .filter((item): item is ShiftClient => item !== null);
 }
 
 function mapShiftRow(row: {
@@ -39,6 +58,7 @@ function mapShiftRow(row: {
   pay_period_id?: number | null;
   response_log_id?: number | null;
   responded_at?: unknown;
+  clients?: unknown;
 }): ShiftRow {
   return {
     id: row.id,
@@ -52,8 +72,18 @@ function mapShiftRow(row: {
     response_code: row.response_code ?? null,
     review_status: row.review_status ?? null,
     pay_period_id: row.pay_period_id ?? null,
+    clients: mapClients(row.clients),
   };
 }
+
+const CLIENTS_JSON_SQL = `COALESCE((
+  SELECT json_agg(json_build_object('id', bp.c_bpartner_id, 'name', bp.name) ORDER BY bp.name)
+  FROM aberp_rostered_shiftreceiver r
+  JOIN c_bpartner bp ON bp.c_bpartner_id = r.c_bpartner_id
+  WHERE r.aberp_rostered_shift_id = s.aberp_rostered_shift_id
+    AND r.isactive = 'Y'
+    AND bp.isactive = 'Y'
+), '[]'::json)`;
 
 function mapResponseRow(row: Parameters<typeof mapShiftRow>[0]): ShiftResponseRow {
   return {
@@ -210,7 +240,8 @@ export async function getMyShiftsForPeriod(
        $5::numeric AS pay_period_id,
        NULL::text AS response_code,
        NULL::text AS review_status,
-       'assigned'::text AS application_status
+       'assigned'::text AS application_status,
+       ${CLIENTS_JSON_SQL} AS clients
      FROM aberp_rostered_shiftstaff ss
      JOIN aberp_rostered_shift s ON s.aberp_rostered_shift_id = ss.aberp_rostered_shift_id
      LEFT JOIN aberp_shift_type st ON st.aberp_shift_type_id = s.aberp_shift_type_id

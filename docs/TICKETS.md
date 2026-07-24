@@ -56,10 +56,11 @@ Status: `done` | `in-progress` | `blocked`
 | SAW033 | `hco_theme_plugin` | idempiere | HCO iDempiere 7 ZK theme plugin (brand CSS, login, toolbar tiles) | done | [#33](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/33) | [`Tickets/SAW033_…`](../Tickets/SAW033_hco_theme_plugin/) |
 | SAW034 | `pwa_install_shell` | app | Installable PWA shell: icons verified, service worker, install hint | done | [#34](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/34) | _(app — no folder)_ |
 | SAW035 | `seed_week_roster` | meta | Seed Mon–Sun week Shift (Rostered) for 5 Support Workers on staging | done | [#35](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/35) | _(no folder)_ |
+| SAW036 | `client_care_activity` | app | Worker Clients: details, care plan, easy activity add, simpler nav | in-progress | [#36](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/36) | _(app — no folder)_ |
 
 ## Next ID
 
-**SAW036**
+**SAW037**
 
 ## Naming reminder
 

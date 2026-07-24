@@ -8,12 +8,10 @@ import { NavIcons } from "./NavIcons";
 
 const navItems = [
   { href: "/open-shifts", label: "Open", icon: NavIcons.open },
-  { href: "/tasks", label: "Chat", icon: NavIcons.chat },
   { href: "/shifts", label: "Schedule", icon: NavIcons.schedule },
-  { href: "/roster", label: "Roster", icon: NavIcons.roster },
-  { href: "/credentials", label: "ID", icon: NavIcons.id },
-  { href: "/leave", label: "Leave", icon: NavIcons.leave },
-  { href: "/profile", label: "Profile", icon: NavIcons.profile },
+  { href: "/clients", label: "Clients", icon: NavIcons.clients },
+  { href: "/tasks", label: "Chat", icon: NavIcons.chat },
+  { href: "/profile", label: "More", icon: NavIcons.profile },
 ];
 
 function NavLink({
