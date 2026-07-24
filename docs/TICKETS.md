@@ -61,7 +61,7 @@ Status: `done` | `in-progress` | `blocked`
 | SAW038 | `client_shift_essentials` | app | Client Details = shift briefing (alerts, contacts, safety essentials) | done | [#38](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/38) | _(app ? no folder)_ |
 | SAW039 | `support_locations` | app | Worker Support Locations (window filter + access codes/alerts/rooms) | done | [#39](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/39) | _(app ? no folder)_ |
 | SAW040 | `nav_notifications` | app | Nav Open/Roster/Clients/Locations/Chat/More + notification bell | done | [#40](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/40) | _(app ? no folder)_ |
-| SAW041 | `roster_today` | app | Roster: Today section, Note only (no Care plan button) | in-progress | [#41](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/41) | _(app ? no folder)_ |
+| SAW041 | `roster_today` | app | Roster: Today section, Note only (no Care plan button) | done | [#41](https://github.com/AdamSawtell/AbilityERP_Mobile_APP/issues/41) | _(app ? no folder)_ |
 
 ## Next ID
 
