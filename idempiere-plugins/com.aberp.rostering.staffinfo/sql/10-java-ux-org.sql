@@ -43,9 +43,11 @@ BEGIN
 END $$;
 
 -- BEFORE trigger: new/updated staff lines inherit parent shift org when still *
+-- SAW055: qualify tables + search_path so non-adempiere roles (ross_agent) succeed
 CREATE OR REPLACE FUNCTION aberp_shiftstaff_sync_org_from_shift()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path TO adempiere, public
 AS $$
 DECLARE
   v_org NUMERIC;
@@ -56,9 +58,9 @@ BEGIN
   IF COALESCE(NEW.aberp_rostered_shift_id, 0) <= 0 THEN
     RETURN NEW;
   END IF;
-  SELECT ad_org_id INTO v_org
-  FROM aberp_rostered_shift
-  WHERE aberp_rostered_shift_id = NEW.aberp_rostered_shift_id;
+  SELECT s.ad_org_id INTO v_org
+  FROM adempiere.aberp_rostered_shift s
+  WHERE s.aberp_rostered_shift_id = NEW.aberp_rostered_shift_id;
   IF COALESCE(v_org, 0) > 0 THEN
     NEW.ad_org_id := v_org;
   END IF;

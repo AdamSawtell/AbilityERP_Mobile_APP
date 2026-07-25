@@ -91,9 +91,11 @@ CREATE INDEX IF NOT EXISTS c_bpartner_name_upper_idx
 
 -- Stamp BP staff from picked contact on ShiftStaff save (SQL-only, no Java)
 -- Physical column is c_bpartner_staff_id (AD may label it Business Partner).
+-- SAW055: qualify tables + search_path so non-adempiere roles (ross_agent) succeed
 CREATE OR REPLACE FUNCTION aberp_shiftstaff_sync_bp_from_contact()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path TO adempiere, public
 AS $$
 DECLARE
   v_bp NUMERIC;
@@ -103,7 +105,7 @@ BEGIN
        OR NEW.aberp_user_contact_id IS DISTINCT FROM OLD.aberp_user_contact_id
        OR COALESCE(NEW.c_bpartner_staff_id, 0) <= 0 THEN
       SELECT u.c_bpartner_id INTO v_bp
-      FROM ad_user u
+      FROM adempiere.ad_user u
       WHERE u.ad_user_id = NEW.aberp_user_contact_id;
       IF v_bp IS NOT NULL AND v_bp > 0 THEN
         NEW.c_bpartner_staff_id := v_bp;
