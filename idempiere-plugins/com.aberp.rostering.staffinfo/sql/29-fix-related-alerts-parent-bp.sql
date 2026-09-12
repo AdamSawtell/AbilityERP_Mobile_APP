@@ -1,17 +1,17 @@
--- SAW032 / SAW003 follow-up — Related Info "BP User Alerts" needs parent C_BPartner_ID
--- in the Find & Fill result model.
+-- SAW032 / SAW003 follow-up — Related Info "BP User Alerts" parent link.
 --
--- iDempiere InfoWindow builds SELECT / list model only from IsDisplayed=Y columns
--- (plus IsKey). ParentRelatedColumn replaces the key for Related Info linking, but
--- that parent column must still be in the selected-row model / TAB_INFO context.
+-- iDempiere InfoWindow includes columns when IsDisplayed=Y OR IsHideInfoColumn=Y.
+-- Related Info reads the parent link value from the selected-row model by column index.
 --
--- AD_User_ID already uses: IsDisplayed=Y + IsHideInfoColumn=Y (correct).
--- C_BPartner_ID (UU 42578105-...) was left IsDisplayed=N by sql/20-hide-clutter —
--- so Alerts (link: parent C_BPartner_ID → child a.C_BPartner_ID) gets no BP id.
--- Other Related tabs (Leave / Credentials / Shifts) link on AD_User_ID and still work.
+-- AD_User_ID (other Related tabs) uses: IsDisplayed=Y + IsHideInfoColumn=Y + Integer (11).
+-- C_BPartner_ID (Alerts only) was IsDisplayed=N after sql/20 — Alerts got no BP id.
 --
--- Fix: same pattern as the key column — display in query, hide in grid.
--- Idempotent. Find & Fill UU only (SMS clone remapped its own parent column ids).
+-- CRITICAL: do NOT use Search/Table (30/18/19) for this parent link column.
+-- Lookup layout expands to KeyNamePair (extra display SQL) and skews Related Info
+-- column indexes so EVERY Related tab refreshes empty. Use Integer (11) like AD_User_ID.
+--
+-- Also restore AD_InfoRelated Parent/Related columns to C_BPartner_ID → C_BPartner_ID
+-- (manual edits sometimes retarget to Name / BP_Name).
 
 SET search_path TO adempiere;
 
@@ -28,6 +28,21 @@ BEGIN
     RAISE EXCEPTION 'Find & Fill Info Window UU 2b4ab146-0809-47c6-96f3-8b841d60a6bf not found';
   END IF;
 
+  -- Parent key style (User) — keep Integer, not Search
+  UPDATE ad_infocolumn SET
+    isactive = 'Y',
+    isdisplayed = 'Y',
+    ishideinfocolumn = 'Y',
+    isquerycriteria = 'N',
+    ad_reference_id = 11,
+    ad_reference_value_id = NULL,
+    selectclause = 'au.AD_User_ID',
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_infowindow_id = v_iw
+    AND ad_infocolumn_uu = '3402dcb1-ec9b-46b3-a8a6-8248b89cc4f4';
+
+  -- Parent BP link for Alerts — Integer + hide in grid (NOT Search)
   UPDATE ad_infocolumn SET
     isactive = 'Y',
     isdisplayed = 'Y',
@@ -35,6 +50,8 @@ BEGIN
     isquerycriteria = 'N',
     seqnoselection = 0,
     defaultvalue = NULL,
+    ad_reference_id = 11,
+    ad_reference_value_id = NULL,
     selectclause = 'au.C_BPartner_ID',
     updated = NOW(),
     updatedby = 100
@@ -45,8 +62,6 @@ BEGIN
     RAISE EXCEPTION 'Parent C_BPartner_ID InfoColumn UU 42578105-dbb8-4f51-9e53-8af7e5073997 not found on Find & Fill';
   END IF;
 
-  -- Keep Related Info row active AND restore BP→BP link
-  -- (manual edits sometimes retarget Parent/Related to Name / BP_Name)
   UPDATE ad_inforelated SET
     isactive = 'Y',
     parentrelatedcolumn_id = (
@@ -71,7 +86,7 @@ BEGIN
       OR name = 'BP User Alerts'
     );
 
-  RAISE NOTICE 'Related Info parent C_BPartner_ID fixed for Alerts on AD_InfoWindow_ID=%', v_iw;
+  RAISE NOTICE 'Related Info Alerts parent BP link fixed on AD_InfoWindow_ID=%', v_iw;
 END $$;
 
 -- Same fix on SMS clone if present (own column ids; match by ColumnName + SelectClause)
@@ -95,18 +110,36 @@ BEGIN
     isquerycriteria = 'N',
     seqnoselection = 0,
     defaultvalue = NULL,
+    ad_reference_id = 11,
+    ad_reference_value_id = NULL,
+    selectclause = 'au.AD_User_ID',
+    updated = NOW(),
+    updatedby = 100
+  WHERE ad_infowindow_id = v_sms
+    AND columnname = 'AD_User_ID'
+    AND selectclause = 'au.AD_User_ID';
+
+  UPDATE ad_infocolumn SET
+    isactive = 'Y',
+    isdisplayed = 'Y',
+    ishideinfocolumn = 'Y',
+    isquerycriteria = 'N',
+    seqnoselection = 0,
+    defaultvalue = NULL,
+    ad_reference_id = 11,
+    ad_reference_value_id = NULL,
     selectclause = 'au.C_BPartner_ID',
     updated = NOW(),
     updatedby = 100
   WHERE ad_infowindow_id = v_sms
     AND columnname = 'C_BPartner_ID'
-    AND selectclause = 'au.C_BPartner_ID'
-    AND ad_reference_id = 30;
+    AND selectclause = 'au.C_BPartner_ID';
   GET DIAGNOSTICS n = ROW_COUNT;
   RAISE NOTICE 'SMS clone C_BPartner_ID parent columns updated: %', n;
 END $$;
 
-SELECT iw.name, c.columnname, c.isdisplayed, c.ishideinfocolumn, c.iskey, c.isactive, c.selectclause
+SELECT iw.name, c.columnname, c.isdisplayed, c.ishideinfocolumn, c.iskey, c.isactive,
+       c.ad_reference_id, c.selectclause
 FROM ad_infocolumn c
 JOIN ad_infowindow iw ON iw.ad_infowindow_id = c.ad_infowindow_id
 WHERE iw.ad_infowindow_uu IN (
