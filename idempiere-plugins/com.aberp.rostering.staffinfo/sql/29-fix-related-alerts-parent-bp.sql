@@ -45,9 +45,24 @@ BEGIN
     RAISE EXCEPTION 'Parent C_BPartner_ID InfoColumn UU 42578105-dbb8-4f51-9e53-8af7e5073997 not found on Find & Fill';
   END IF;
 
-  -- Keep Related Info row active
+  -- Keep Related Info row active AND restore BP→BP link
+  -- (manual edits sometimes retarget Parent/Related to Name / BP_Name)
   UPDATE ad_inforelated SET
     isactive = 'Y',
+    parentrelatedcolumn_id = (
+      SELECT c.ad_infocolumn_id FROM ad_infocolumn c
+      WHERE c.ad_infowindow_id = v_iw
+        AND c.ad_infocolumn_uu = '42578105-dbb8-4f51-9e53-8af7e5073997'
+    ),
+    relatedcolumn_id = (
+      SELECT c.ad_infocolumn_id
+      FROM ad_infocolumn c
+      JOIN ad_infowindow child ON child.ad_infowindow_id = c.ad_infowindow_id
+      WHERE child.ad_infowindow_uu = 'b8e1fa06-f0c1-4e74-9708-133024446d85'
+        AND c.columnname = 'C_BPartner_ID'
+        AND c.selectclause = 'a.C_BPartner_ID'
+      LIMIT 1
+    ),
     updated = NOW(),
     updatedby = 100
   WHERE ad_infowindow_id = v_iw
